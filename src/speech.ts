@@ -31,6 +31,10 @@ export const DEFAULT_SPEECH: SpeechTable = {
     "这个高度我有点慌。",
     "轻点轻点，我毛都被你弄乱了。",
   ],
+  gentle_drag: ["稳稳落地，谢谢你。", "这个位置不错，就待这里啦。"],
+  throw: ["哇——飞起来了！", "慢一点，我还没准备好！"],
+  land: ["呼，站稳啦。", "甩甩毛，继续陪你。"],
+  comfort: ["好啦，原谅你了。", "摸摸头就和好啦。"],
   // 长时间没人理
   idle: [
     "……有点困了。",
@@ -115,6 +119,9 @@ export function mergeSpeech(override: unknown): SpeechTable {
     );
     if (clean.length > 0) table[kind] = clean;
   }
+  for (const [kind, parent] of Object.entries({ gentle_drag: "drag", throw: "drag", land: "drag", comfort: "pat" })) {
+    if (!(kind in (override as object)) && parent in (override as object)) table[kind] = table[parent];
+  }
   return table;
 }
 
@@ -124,7 +131,8 @@ export function pickSpeech(
   kind: string,
   last: string | null
 ): string | null {
-  const list = table[kind] ?? table.idle;
+  const fallback: Record<string, string> = { gentle_drag: "drag", throw: "drag", land: "drag", comfort: "pat" };
+  const list = table[kind] ?? table[fallback[kind]] ?? table.idle;
   if (!list || list.length === 0) return null;
 
   let text = list[Math.floor(Math.random() * list.length)];

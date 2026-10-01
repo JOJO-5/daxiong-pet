@@ -94,6 +94,10 @@ pub enum Command {
 pub enum SayKind {
     Click,
     Drag,
+    GentleDrag,
+    Throw,
+    Land,
+    Comfort,
     Idle,
     Wander,
     /// 被摸头
@@ -118,6 +122,10 @@ impl SayKind {
         match self {
             SayKind::Click => "click",
             SayKind::Drag => "drag",
+            SayKind::GentleDrag => "gentle_drag",
+            SayKind::Throw => "throw",
+            SayKind::Land => "land",
+            SayKind::Comfort => "comfort",
             SayKind::Idle => "idle",
             SayKind::Wander => "wander",
             SayKind::Pat => "pat",
@@ -207,6 +215,7 @@ pub struct Engine {
     vy: f32,
     /// 重力模式下是否已静止在地面
     grounded: bool,
+    landing_until_ms: u64,
 
     // ---- 漫游 ----
     wander: Option<Wander>,
@@ -262,6 +271,7 @@ impl Engine {
             vx: 0.0,
             vy: 0.0,
             grounded: false,
+            landing_until_ms: 0,
             wander: None,
             calm_ms: 0,
             next_wander_ms: WANDER_COOLDOWN_MIN,
@@ -294,6 +304,14 @@ impl Engine {
         self.rng ^= self.rng >> 7;
         self.rng ^= self.rng << 17;
         (self.rng >> 16) as u32
+    }
+
+    /// 即使连续触发同一行，也从第一帧重新回应。
+    fn start_reaction(&mut self, row: Row) {
+        self.react = Some((row, 0));
+        self.row = row;
+        self.col = 0;
+        self.acc = 0;
     }
 
     /// 开始专注：立刻精神起来（running 行由 pomodoro 状态持续驱动）
@@ -415,6 +433,7 @@ impl Engine {
                 self.vx = 0.0;
                 self.vy = 0.0;
                 self.grounded = false;
+                self.landing_until_ms = 0;
             }
             if self.dragging {
                 // 只保留最近 120ms 的轨迹，用来估算松手瞬间的速度
@@ -463,11 +482,11 @@ impl Engine {
                 if self.clicks.len() >= ANNOY_CLICKS {
                     self.clicks.clear();
                     self.annoyed_until_ms = self.clock_ms + ANNOY_DURATION_MS;
-                    self.react = Some((Row::Failed, 0));
+                    self.start_reaction(Row::Failed);
                     say = Some(SayKind::Annoyed);
                 } else {
                     let row = if self.rng_next() % 2 == 0 { Row::Waving } else { Row::Jumping };
-                    self.react = Some((row, 0));
+                    self.start_reaction(row);
                     say = Some(SayKind::Click);
                 }
             }
@@ -475,6 +494,11 @@ impl Engine {
 
         // ---- 5. 拖拽松手：把甩动速度交给物理系统 ----
         if commit_drag {
+            // 把松手时的停顿也计入采样：移动后停住再放下不能算甩动。
+            self.trail.push_back((cx, cy, self.clock_ms));
+            while self.trail.len() > 1 && self.clock_ms - self.trail.front().unwrap().2 > 120 {
+                self.trail.pop_front();
+            }
             if let (Some(first), Some(last)) = (self.trail.front(), self.trail.back()) {
                 let span = (last.2 - first.2) as f32 / 1000.0;
                 if span > 0.001 {
@@ -484,7 +508,16 @@ impl Engine {
             }
             self.trail.clear();
             self.grounded = false;
-            say = Some(SayKind::Drag);
+            let thrown = self.vx.hypot(self.vy) / scale > 650.0;
+            if thrown {
+                self.landing_until_ms = self.clock_ms + 5_000;
+                self.start_reaction(Row::Waiting);
+                say = Some(SayKind::Throw);
+            } else {
+                self.landing_until_ms = 0;
+                self.start_reaction(Row::Waving);
+                say = Some(SayKind::GentleDrag);
+            }
         }
 
         // ---- 6. 摸头：光标停在宠物身上不动 ----
@@ -493,7 +526,8 @@ impl Engine {
         let cursor_still = (cursor_dx * cursor_dx + cursor_dy * cursor_dy).sqrt() < PAT_STILL_RADIUS * scale;
         self.last_cursor = (cx, cy);
 
-        if hot && cursor_still && !self.dragging {
+        let petting = hot && cursor_still && !input.button_down && !self.dragging;
+        if petting {
             self.pat_ms += dt;
         } else {
             self.pat_ms = 0;
@@ -508,20 +542,26 @@ impl Engine {
         {
             self.pat_ms = 0;
             self.pat_cd_ms = PAT_COOLDOWN_MS;
-            self.react = Some((Row::Waving, 0));
-            say = Some(SayKind::Pat);
+            self.start_reaction(Row::Waving);
+            if self.clock_ms < self.annoyed_until_ms {
+                self.annoyed_until_ms = 0;
+                self.clicks.clear();
+                say = Some(SayKind::Comfort);
+            } else {
+                say = Some(SayKind::Pat);
+            }
         }
 
         // ---- 7. 睡眠：长时间无交互就睡，被碰到就醒 ----
         let entered = hot && !self.was_hot;
-        let interacted = commit_click || commit_drag || entered;
+        let interacted = commit_click || commit_drag || entered || self.dragging || petting;
         self.was_hot = hot;
 
         if interacted {
             self.quiet_ms = 0;
             if self.sleeping {
                 self.sleeping = false;
-                self.react = Some((Row::Waving, 0));
+                self.start_reaction(Row::Waving);
                 say = Some(SayKind::Wake);
             }
         } else {
@@ -535,6 +575,7 @@ impl Engine {
 
         // ---- 8. 物理推进（拖拽中例外，直接跟手）----
         let mut move_to = None;
+        let mut collided = false;
 
         if self.dragging {
             move_to = Some((cx - self.grab.0, cy - self.grab.1));
@@ -555,10 +596,12 @@ impl Engine {
             // 左右边界：撞上就反弹
             if nwx < sx {
                 nwx = sx;
+                collided = true;
                 self.vx = -self.vx * BOUNCE;
                 self.wander = None;
             } else if nwx + ww > sx + sw {
                 nwx = sx + sw - ww;
+                collided = true;
                 self.vx = -self.vx * BOUNCE;
                 self.wander = None;
             }
@@ -568,6 +611,7 @@ impl Engine {
                 let floor = sy + sh - wh;
                 if nwy >= floor {
                     nwy = floor;
+                    collided = true;
                     if self.vy > 120.0 {
                         self.vy = -self.vy * BOUNCE;
                     } else {
@@ -577,6 +621,7 @@ impl Engine {
                 }
                 if nwy < sy {
                     nwy = sy;
+                    collided = true;
                     self.vy = self.vy.abs() * BOUNCE;
                 }
             } else if self.vy.abs() > SPEED_EPS {
@@ -585,9 +630,11 @@ impl Engine {
                 let bottom = sy + sh - wh;
                 if nwy < top {
                     nwy = top;
+                    collided = true;
                     self.vy = -self.vy * BOUNCE;
                 } else if nwy > bottom {
                     nwy = bottom;
+                    collided = true;
                     self.vy = -self.vy * BOUNCE;
                 }
             } else {
@@ -612,6 +659,12 @@ impl Engine {
             if self.vy.abs() < SPEED_EPS && !input.gravity {
                 self.vy = 0.0;
             }
+        }
+
+        if collided && self.clock_ms < self.landing_until_ms && say.is_none() {
+            self.landing_until_ms = 0;
+            self.start_reaction(Row::Review);
+            say = Some(SayKind::Land);
         }
 
         let moving = self.vx.abs() > 8.0 || self.vy.abs() > 8.0;
@@ -658,7 +711,7 @@ impl Engine {
         if let Some(left) = self.pomodoro_ms.as_mut() {
             if *left <= dt {
                 self.pomodoro_ms = None;
-                self.react = Some((Row::Jumping, 0));
+                self.start_reaction(Row::Jumping);
                 say = Some(SayKind::PomodoroEnd);
             } else {
                 *left -= dt;
@@ -678,7 +731,7 @@ impl Engine {
             self.since_water_ms = 0;
             self.sleeping = false;
             self.quiet_ms = 0;
-            self.react = Some((Row::Waving, 0));
+            self.start_reaction(Row::Waving);
             say = Some(SayKind::Water);
         }
 
@@ -804,6 +857,70 @@ mod tests {
     }
 
     #[test]
+    fn repeated_reaction_restarts_animation() {
+        let mut engine = Engine::new();
+        engine.start_reaction(Row::Waving);
+        engine.col = 3;
+        engine.acc = 200;
+        engine.start_reaction(Row::Waving);
+        let out = engine.tick(&input(1.0));
+        assert_eq!((out.row, out.col), (Row::Waving as u8, 0));
+    }
+
+    #[test]
+    fn petting_comforts_and_prevents_sleep() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        i.cursor = (250, 262);
+        engine.last_cursor = i.cursor;
+        engine.was_hot = true;
+        engine.annoyed_until_ms = 6000;
+        engine.quiet_ms = SLEEP_AFTER_MS - 1;
+        let mut comforted = false;
+        for _ in 0..100 {
+            comforted |= engine.tick(&i).say == Some(SayKind::Comfort);
+            assert!(!engine.sleeping);
+        }
+        assert!(comforted);
+        assert_eq!(engine.annoyed_until_ms, 0);
+        assert_eq!(engine.quiet_ms, 0);
+    }
+
+    #[test]
+    fn release_speed_distinguishes_throw_and_paused_placement() {
+        for scale in [1.0, 2.0] {
+            for paused in [false, true] {
+                let mut engine = Engine::new();
+                let mut i = input(scale);
+                i.cursor = (100 + (150.0 * scale) as i32, 100 + (162.0 * scale) as i32);
+                i.button_down = true;
+                engine.tick(&i);
+                i.cursor.0 += (80.0 * scale) as i32;
+                engine.tick(&i);
+                if paused {
+                    i.dt_ms = 200;
+                    engine.tick(&i);
+                }
+                i.dt_ms = 16;
+                i.button_down = false;
+                assert_eq!(engine.tick(&i).say, Some(if paused { SayKind::GentleDrag } else { SayKind::Throw }));
+            }
+        }
+    }
+
+    #[test]
+    fn thrown_pet_reacts_to_collision_only_once() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        i.win_pos.0 = 1620;
+        engine.vx = 1000.0;
+        engine.landing_until_ms = 5000;
+        assert_eq!(engine.tick(&i).say, Some(SayKind::Land));
+        engine.vx = 1000.0;
+        assert_ne!(engine.tick(&i).say, Some(SayKind::Land));
+    }
+
+    #[test]
     fn hit_area_tracks_display_scaling() {
         for scale in [1.0, 1.25, 1.5, 2.0] {
             let mut engine = Engine::new();
@@ -842,7 +959,7 @@ mod tests {
         i.cursor.0 += 12;
         assert_eq!(engine.tick(&i).move_to, Some((120, 100)));
         i.button_down = false;
-        assert_eq!(engine.tick(&i).say, Some(SayKind::Drag));
+        assert_eq!(engine.tick(&i).say, Some(SayKind::GentleDrag));
     }
 
     #[test]

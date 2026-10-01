@@ -504,7 +504,12 @@ impl Engine {
                     self.start_reaction(Row::Failed);
                     say = Some(SayKind::Annoyed);
                 } else {
-                    let row = if self.rng_next() % 2 == 0 { Row::Waving } else { Row::Jumping };
+                    let choices = if input.extra_animations { 3 } else { 2 };
+                    let row = match self.rng_next() % choices {
+                        0 => Row::Waving,
+                        1 => Row::Jumping,
+                        _ => Row::Affection,
+                    };
                     self.start_reaction(row);
                     say = Some(SayKind::Click);
                 }
@@ -529,7 +534,7 @@ impl Engine {
             self.grounded = false;
             let thrown = self.vx.hypot(self.vy) / scale > 650.0;
             if thrown {
-                self.landing_until_ms = self.clock_ms + 5_000;
+                self.landing_until_ms = self.clock_ms + 10_000;
                 self.start_reaction(Row::Waiting);
                 say = Some(SayKind::Throw);
             } else {
@@ -680,11 +685,21 @@ impl Engine {
             }
         }
 
-        if collided && self.clock_ms < self.landing_until_ms && say.is_none() {
+        // 扩展动作在停稳后播放，避免还在空中就开始甩毛。
+        let settled = self.vx.hypot(self.vy) / scale < 140.0
+            && (!input.gravity || self.grounded);
+        let recovery_due = if input.extra_animations {
+            settled && self.react.is_none() && !self.dragging && self.press.is_none()
+                && !self.sleeping && self.clock_ms >= self.annoyed_until_ms
+        } else {
+            collided
+        };
+        if input.interactive && recovery_due && self.clock_ms < self.landing_until_ms && say.is_none() {
             self.landing_until_ms = 0;
-            self.start_reaction(Row::Review);
+            self.start_reaction(if input.extra_animations { Row::ShakeFur } else { Row::Review });
             say = Some(SayKind::Land);
         }
+        if self.clock_ms >= self.landing_until_ms { self.landing_until_ms = 0; }
 
         let moving = self.vx.abs() > 8.0 || self.vy.abs() > 8.0;
 
@@ -787,11 +802,12 @@ impl Engine {
             && self.press.is_none() && !hot && !moving && self.wander.is_none()
             && self.clock_ms >= self.annoyed_until_ms && say.is_none()
         {
-            let row = match self.rng_next() % 4 {
+            let row = match self.rng_next() % (if input.extra_animations && self.pomodoro_ms.is_none() { 5 } else { 4 }) {
                 0 => Row::Waiting,
                 1 => Row::Review,
                 2 => Row::Running,
-                _ => Row::Waving,
+                3 => Row::Waving,
+                _ => Row::Affection,
             };
             self.start_reaction(row);
             self.ambient_reaction = true;
@@ -896,6 +912,56 @@ mod tests {
     }
 
     #[test]
+    fn builtin_recovery_waits_until_motion_settles() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        i.extra_animations = true;
+        i.win_pos.0 = 1620;
+        engine.vx = 1000.0;
+        engine.landing_until_ms = 10_000;
+        assert_ne!(engine.tick(&i).row, Row::ShakeFur as u8);
+        engine.vx = 80.0;
+        let out = engine.tick(&i);
+        assert_eq!(out.row, Row::ShakeFur as u8);
+        assert_eq!(out.say, Some(SayKind::Land));
+        assert_eq!(engine.landing_until_ms, 0);
+    }
+
+    #[test]
+    fn gravity_recovery_waits_for_ground_contact() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        i.extra_animations = true;
+        i.gravity = true;
+        engine.landing_until_ms = 10_000;
+        assert_ne!(engine.tick(&i).row, Row::ShakeFur as u8);
+        i.win_pos.1 = 800;
+        engine.vy = 0.0;
+        assert_eq!(engine.tick(&i).row, Row::ShakeFur as u8);
+    }
+
+    #[test]
+    fn affection_is_reachable_but_not_an_autonomous_focus_action() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        i.extra_animations = true;
+        engine.rng = 1;
+        let mut found = false;
+        for _ in 0..40 {
+            engine.react = None;
+            engine.next_ambient_ms = 0;
+            found |= engine.tick(&i).row == Row::Affection as u8;
+        }
+        assert!(found);
+        engine.pomodoro_ms = Some(60_000);
+        for _ in 0..40 {
+            engine.react = None;
+            engine.next_ambient_ms = 0;
+            assert_ne!(engine.tick(&i).row, Row::Affection as u8);
+        }
+    }
+
+    #[test]
     fn builtin_petting_sleep_and_wake_use_dedicated_rows() {
         let mut engine = Engine::new();
         let mut i = input(1.0);
@@ -987,7 +1053,7 @@ mod tests {
         i.button_down = false;
         let out = engine.tick(&i);
         assert_eq!(out.say, Some(SayKind::Click));
-        assert!(matches!(engine.row, Row::Waving | Row::Jumping));
+        assert!(matches!(engine.row, Row::Waving | Row::Jumping | Row::Affection));
         assert!(engine.pomodoro_ms.unwrap() < 60_000);
     }
 

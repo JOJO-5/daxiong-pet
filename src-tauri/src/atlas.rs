@@ -41,6 +41,10 @@ pub enum Row {    Idle = 0,
     Sleep = 12,
     /// 内置扩展：醒来伸懒腰
     WakeStretch = 13,
+    /// 内置扩展：甩毛恢复
+    ShakeFur = 14,
+    /// 内置扩展：歪头抬爪撒娇
+    Affection = 15,
 }
 
 /// 一条动画轨道的播放参数。
@@ -71,11 +75,15 @@ impl Row {
             11 => Row::HappyPat,
             12 => Row::Sleep,
             13 => Row::WakeStretch,
+            14 => Row::ShakeFur,
+            15 => Row::Affection,
             _ => return None,
         })
     }
 }
 
+const D_SHAKE: &[u16] = &[180, 110, 110, 110, 110, 110, 140, 260];
+const D_AFFECTION: &[u16] = &[180, 200, 220, 220, 300, 220, 180, 260];
 const D_HAPPY: &[u16] = &[180, 180, 180, 180, 180, 180, 180, 240];
 const D_SLEEP: &[u16] = &[450, 450, 450, 450, 450, 450, 450, 450];
 const D_WAKE: &[u16] = &[200, 180, 200, 240, 240, 180, 180, 260];
@@ -93,6 +101,8 @@ const D_LOOK: &[u16] = &[0, 0, 0, 0, 0, 0, 0, 0];
 
 pub fn track(row: Row) -> Track {
     match row {
+        Row::ShakeFur => Track { cols: 8, durations: D_SHAKE, looping: false },
+        Row::Affection => Track { cols: 8, durations: D_AFFECTION, looping: false },
         Row::HappyPat => Track { cols: 8, durations: D_HAPPY, looping: false },
         Row::Sleep => Track { cols: 8, durations: D_SLEEP, looping: true },
         Row::WakeStretch => Track { cols: 8, durations: D_WAKE, looping: false },

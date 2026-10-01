@@ -1,0 +1,40 @@
+[package]
+name = "daxiong-pet"
+version = "1.0.0"
+description = "大熊桌面宠物"
+edition = "2021"
+rust-version = "1.77"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-autostart = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# 只用来读图集头部拿尺寸（校验契约），不需要完整解码
+image = { version = "0.25", default-features = false, features = ["webp", "png"] }
+base64 = "0.22"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_System_SystemInformation",
+] }
+
+# 修复上游 bug：tauri-build 2.7 启用 schemars 的 preserve_order，
+# 而 schemars 0.8.22 的该 feature 指向 indexmap 1.x，但其代码用的是 2.x 的泛型写法
+# （`IndexMap<K, V>` 缺少第三个默认参数），导致编译报 E0107。
+# vendor/schemars 仅把 indexmap 依赖从 1.2 提到 2.0，其余源码与官方 0.8.22 一致。
+[patch.crates-io]
+schemars = { path = "vendor/schemars" }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

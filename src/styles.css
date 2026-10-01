@@ -1,0 +1,114 @@
+/* 透明窗口的根节点必须完全透明，否则会出现白底方块 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+}
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+/* 舞台尺寸 = 主进程窗口尺寸（300x240），宠物贴底居中 */
+.stage {
+  position: relative;
+  width: 300px;
+  height: 240px;
+}
+
+/* 裁剪窗口：只露出当前帧那一格 */
+.pet-clip {
+  position: absolute;
+  left: 78px; /* (300-144)/2，对应 engine.rs 的 PET_X */
+  top: 84px; /* 240-156，对应 engine.rs 的 PET_Y */
+  width: 144px;
+  height: 156px;
+  overflow: hidden;
+}
+
+/* 整张图集，靠 transform 平移到目标格子；用 img 而非背景图，
+   是因为宠物包是以 data URL 下发的，走 src 属性更稳。 */
+.pet-sheet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  image-rendering: auto;
+  will-change: transform;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* 睡着时压暗、降饱和，并让亮度极缓慢地起伏，像在呼吸。
+   注意只能用 filter 做动画 —— transform 已经被用来切帧了。 */
+.pet-clip.sleeping .pet-sheet {
+  animation: sleep-breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes sleep-breathe {
+  0%,
+  100% {
+    filter: brightness(0.55) saturate(0.45);
+  }
+  50% {
+    filter: brightness(0.66) saturate(0.55);
+  }
+}
+
+/* 说话气泡：浮在宠物头顶上方 */
+.bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 162px; /* 宠物顶边(84px) 之上再留 6px 间隙 */
+  transform: translateX(-50%);
+  max-width: 276px;
+  padding: 7px 11px;
+  border-radius: 11px;
+  background: rgba(255, 252, 246, 0.97);
+  border: 1px solid rgba(120, 96, 72, 0.22);
+  box-shadow: 0 3px 10px rgba(60, 42, 26, 0.18);
+  color: #3b2f26;
+  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  font-size: 12.5px;
+  line-height: 1.45;
+  text-align: center;
+  word-break: break-word;
+  /* 气泡本身不参与鼠标命中，保证它下方的桌面照常可点 */
+  pointer-events: none;
+  animation: bubble-in 180ms ease-out;
+}
+
+/* 指向宠物的小尾巴 */
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  margin-left: -6px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(255, 252, 246, 0.97);
+}
+
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(5px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}

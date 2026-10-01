@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "大熊桌宠默认权限：仅需监听后端推送的帧事件与调用自定义命令。",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

@@ -1,0 +1,18 @@
+# Rust / Tauri 构建产物
+/src-tauri/target/
+/src-tauri/gen/schemas/
+
+# 前端依赖与产物
+node_modules/
+dist/
+
+# 根目录下的临时验证截图（src-tauri/icons 里的图标不在此列）
+/*.png
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+*.log

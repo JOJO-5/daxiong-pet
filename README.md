@@ -1,0 +1,140 @@
+# 大熊桌面宠物
+
+一只住在桌面上的宠物。它会盯着你的鼠标看、没人理时自己溜达、被摸头会闭眼享受、
+被连点会翻脸、拖起来松手会带着惯性滑出去，开着重力还会掉到屏幕底部弹一下。
+
+基于 **Tauri 2 + React 18 + TypeScript**。Rust 侧负责全部行为逻辑与窗口物理，
+前端只做精灵图渲染。绿色版单文件约 6.5 MB，内存占用低。
+
+## 功能
+
+### 互动玩法
+
+| 功能 | 触发方式 |
+| --- | --- |
+| **鼠标跟随注视** | 用满 16 个方位帧，鼠标移到哪它就看哪 |
+| **摸头** | 光标在它身上停住约 1.2 秒，会闭眼享受 |
+| **连点会生气** | 2 秒内连点 3 次就翻脸，之后几秒不搭理你 |
+| **拖拽 + 惯性** | 拖动跟手，松手按甩出速度滑行、撞到屏幕边缘会反弹 |
+| **重力开关** | 开启后松开手往下掉，落到屏幕底部会弹一下 |
+| **自主漫游** | 没人理的时候自己起身溜达，撞边掉头 |
+| **会睡觉** | 3 分钟没人搭理就趴下睡着（压暗 + 呼吸起伏），鼠标一碰就醒 |
+
+### 说话气泡
+
+点击 / 拖拽 / 摸头 / 生气 / 睡着 / 醒来 / 溜达时都会冒出一句气泡。
+台词可以在 `src/speech.ts` 里改，宠物包也能自带 `speech.json` 覆盖。
+
+### 实用提醒
+
+- **番茄钟** —— 托盘启动 25 分钟专注，期间它进入忙碌状态，时间到了跳起来提醒你休息
+- **喝水提醒** —— 每小时主动提醒你起身喝水
+- **整点报时** —— 每到整点报一下时间
+
+### 其它
+
+- 系统托盘：切换宠物、开关重力、开机自启
+- **点击穿透**：鼠标不在宠物身上时窗口完全穿透，绝不挡桌面操作
+- 透明无边框置顶窗口
+
+## 宠物包
+
+程序启动时自动扫描两个位置，任何符合 [codex 宠物 v2 契约](https://github.com/openai/codex) 的宠物包都能直接用：
+
+- `${CODEX_HOME:-~/.codex}/pets/` —— 与 codex 本身的宠物目录共用
+- `<exe 所在目录>/pets/` —— 绿色版便携位置
+
+```
+pets/
+└── 任意名字/
+    ├── pet.json          # 可选，没有就用目录名当宠物名
+    └── spritesheet.webp  # 必需（.png 也认）
+```
+
+`pet.json`：
+
+```json
+{
+  "id": "daxiong",
+  "displayName": "大熊",
+  "description": "一句话描述",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.webp",
+  "sleepFrame": { "row": 5, "col": 2 }
+}
+```
+
+- `spriteVersionNumber` 必须是 `2`
+- `sleepFrame` 是本项目**可选的扩展字段**：契约本身没有睡觉动画，
+  默认借 `failed` 行第 2 格（正好是趴着侧躺的姿态），不同宠物趴下的位置不同时可以覆盖
+- 宠物包目录里还可放一个可选的 `speech.json` 定制专属台词：
+  ```json
+  { "click": ["..."], "drag": ["..."], "idle": ["..."], "wander": ["..."] }
+  ```
+
+**图集要求**：宽必须 **1536**（8 列 × 192），高必须是 **208 的整数倍**且至少 **9 行**。
+程序读图片实际尺寸来校验，不看文件名。11 行是完整版（含注视），9 行会自动关闭注视功能。
+
+新增宠物后，托盘右键 →「重新扫描宠物」即可看到。
+
+## 构建
+
+需要 Rust 1.77+、Node 20+、WebView2 运行时（Win10/11 自带）。
+
+```bash
+npm install
+npm run tauri build
+```
+
+产物：
+
+- `src-tauri/target/release/daxiong-pet.exe` —— 绿色版，双击即用
+- `src-tauri/target/release/bundle/nsis/*-setup.exe` —— 安装包
+
+### 两个已知的构建坑
+
+1. **`schemars` 报 E0107（3 个泛型参数）**
+   `tauri-build 2.7` 硬编码启用了 schemars 的 `preserve_order`，而 schemars 0.8.22 的该 feature
+   指向 `indexmap 1.x`、代码里用的却是 2.x 的泛型写法（`IndexMap<K, V>`），必然编译失败。
+   这是上游已知问题（[schemars#261](https://github.com/GREsau/schemars/issues/261)），0.8 分支未修。
+   本仓库的 `src-tauri/vendor/schemars` 是一份**只把 indexmap 依赖从 1.2 提到 2.0** 的官方 0.8.22 副本，
+   通过 `[patch.crates-io]` 挂上，源码其余部分未改动。
+
+2. **cargo 联网时长时间卡住**
+   如果环境里注入了失效的代理（cargo 的环境变量优先级高于 `~/.cargo/config.toml`），
+   或者 cargo 的全局缓存自动 GC 恰好扫到加密盘，启动阶段会卡很久。可以这样绕过：
+
+   ```bash
+   env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY \
+     CARGO_CACHE_AUTO_CLEAN_FREQUENCY=never cargo build
+   ```
+
+## 项目结构
+
+```
+src/                      前端（纯渲染，不含行为逻辑）
+  App.tsx                 精灵图渲染 + 气泡
+  speech.ts               话术表
+  styles.css
+src-tauri/src/
+  main.rs                 窗口、事件、命令、引擎线程
+  engine.rs               行为引擎（状态机 + 物理 + 计时）
+  petpack.rs              宠物包发现与契约校验
+  tray.rs                 托盘菜单
+  platform.rs             Win32 调用（光标 / 按键 / 本地时间）
+  config.rs               配置持久化
+  atlas.rs                精灵图契约（行定义与播放时长）
+```
+
+### 设计要点
+
+- **Rust 是唯一真相源**：行为状态机、计时、帧播放、命中判定、窗口物理全在 Rust；
+  前端只接收 `(row, col)` 画出来，无处可变状态之外的职责。
+- **点击穿透下鼠标事件到不了 WebView**，所以按键状态改用 Win32 `GetAsyncKeyState` 全局读取，
+  拖拽 / 点击全在 Rust 的 16ms tick 里判定（位移 > 6px 算拖拽，否则松手算点击）。
+- **命中热区以「宠物矩形」为基准**而非整个窗口（窗口上方还留着气泡的空间），
+  所以放大窗口不会挡住桌面点击。
+
+## License
+
+MIT

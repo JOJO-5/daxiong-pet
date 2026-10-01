@@ -23,22 +23,59 @@ impl Config {
             .map(|dir| dir.join("config.json"))
     }
 
-    pub fn load(app: &tauri::AppHandle) -> Self {
-        Self::path(app)
-            .and_then(|p| std::fs::read_to_string(p).ok())
-            .and_then(|text| serde_json::from_str(&text).ok())
-            .unwrap_or_default()
+    pub fn load(app: &tauri::AppHandle) -> std::io::Result<Self> {
+        let path = Self::path(app).ok_or_else(|| std::io::Error::other("无法定位配置目录"))?;
+        Self::load_path(&path)
     }
 
-    pub fn save(&self, app: &tauri::AppHandle) {
-        let Some(path) = Self::path(app) else {
-            return;
-        };
-        if let Some(dir) = path.parent() {
-            let _ = std::fs::create_dir_all(dir);
+    fn load_path(path: &std::path::Path) -> std::io::Result<Self> {
+        match std::fs::read(path) {
+            Ok(bytes) => serde_json::from_slice(&bytes).map_err(std::io::Error::other),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(Self::default()),
+            Err(e) => Err(e),
         }
-        if let Ok(text) = serde_json::to_string_pretty(self) {
-            let _ = std::fs::write(path, text);
-        }
+    }
+
+    pub fn save(&self, app: &tauri::AppHandle) -> std::io::Result<()> {
+        let path = Self::path(app).ok_or_else(|| std::io::Error::other("无法定位配置目录"))?;
+        self.save_path(&path)
+    }
+
+    fn save_path(&self, path: &std::path::Path) -> std::io::Result<()> {
+        use std::io::Write;
+        let dir = path.parent().ok_or_else(|| std::io::Error::other("配置目录无效"))?;
+        std::fs::create_dir_all(dir)?;
+        let mut temporary = tempfile::NamedTempFile::new_in(dir)?;
+        serde_json::to_writer_pretty(&mut temporary, self).map_err(std::io::Error::other)?;
+        temporary.flush()?;
+        temporary.as_file().sync_all()?;
+        temporary.persist(path).map_err(|e| e.error)?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn config_replacement_is_readable_and_leaves_no_temporary_files() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.json");
+        Config::default().save_path(&path).unwrap();
+        Config { pet_id: Some("daxiong".into()), gravity: true }.save_path(&path).unwrap();
+        let loaded = Config::load_path(&path).unwrap();
+        assert!(loaded.gravity);
+        assert_eq!(loaded.pet_id.as_deref(), Some("daxiong"));
+        assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
+    }
+    #[test]
+    fn corrupt_config_and_write_failures_are_reported() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.json");
+        assert!(!Config::load_path(&path).unwrap().gravity);
+        std::fs::write(&path, b"broken").unwrap();
+        assert!(Config::load_path(&path).is_err());
+        assert!(Config::default().save_path(&path.join("config.json")).is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), b"broken");
     }
 }

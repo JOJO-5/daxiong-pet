@@ -153,3 +153,12 @@ MIT
 macOS 构建：`npm run tauri build -- --bundles dmg`。
 Linux 构建：`npm run tauri build -- --bundles appimage,deb`。
 行为回归测试：`cargo test --locked --manifest-path src-tauri/Cargo.toml engine::tests`。
+
+
+## 1.0.1 更新
+
+两轮可靠性优化：重新扫描立即更新当前图集、话术和睡眠帧；图片解码失败会恢复内置大熊；睡眠帧按实际图集校验；番茄钟使用完整经过时间，物理运动单独限制步长。
+
+内置大熊始终可选。重复启动会显示已有窗口；隐藏时暂停鼠标查询和窗口运动，轮询降为每秒 2 次，睡眠时每秒 10 次，醒来恢复约 60 次。提醒计时继续运行。配置原子写入，保存、自启等操作失败时显示原生错误提示。
+
+GitHub Actions 运行前端图片测试、Rust 回归测试，以及 Linux X11 环境下的启动 / 重复启动检查。Windows、macOS 的桌面交互与实际功耗仍需实机验证。

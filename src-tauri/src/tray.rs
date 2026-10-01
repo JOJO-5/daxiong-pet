@@ -14,35 +14,28 @@ pub const TRAY_ID: &str = "daxiong-tray";
 
 fn toggle_window(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("main") {
-        match window.is_visible() {
-            Ok(true) => {
-                let _ = window.hide();
-            }
-            _ => {
-                let _ = window.show();
-            }
+        let visible = app.state::<crate::AppState>().requested_visible.load(Ordering::Relaxed);
+        let result = if visible { window.hide() } else { window.show() };
+        match result {
+            Ok(()) => app.state::<crate::AppState>().requested_visible.store(!visible, Ordering::Relaxed),
+            Err(e) => crate::report_error(app, "显示 / 隐藏宠物失败", e),
         }
     }
 }
 
-/// 打开宠物包目录，方便用户直接往里丢新宠物
-fn open_pet_dir() {
+fn open_pet_dir() -> std::io::Result<()> {
     let roots = crate::petpack::search_roots();
-    let target = roots
-        .iter()
-        .find(|p| p.is_dir())
-        .or_else(|| roots.first())
-        .cloned();
-    if let Some(dir) = target {
-        let _ = std::fs::create_dir_all(&dir);
-        #[cfg(target_os = "windows")]
-        let opener = "explorer";
-        #[cfg(target_os = "macos")]
-        let opener = "open";
-        #[cfg(target_os = "linux")]
-        let opener = "xdg-open";
-        let _ = std::process::Command::new(opener).arg(&dir).spawn();
-    }
+    let dir = roots.iter().find(|p| p.is_dir()).or_else(|| roots.first())
+        .ok_or_else(|| std::io::Error::other("找不到宠物目录"))?;
+    std::fs::create_dir_all(dir)?;
+    #[cfg(target_os = "windows")]
+    let opener = "explorer";
+    #[cfg(target_os = "macos")]
+    let opener = "open";
+    #[cfg(target_os = "linux")]
+    let opener = "xdg-open";
+    std::process::Command::new(opener).arg(dir).spawn()?;
+    Ok(())
 }
 
 /// 当前的重力 / 自启状态，供菜单勾选用
@@ -146,9 +139,8 @@ pub fn refresh(app: &AppHandle, pets: &[PetPack], current: &str, _gravity: bool)
     let Some(tray) = app.tray_by_id(TRAY_ID) else {
         return;
     };
-    if let Ok(menu) = build_menu(app, pets, current) {
-        let _ = tray.set_menu(Some(menu));
-    }
+    let result = build_menu(app, pets, current).and_then(|menu| tray.set_menu(Some(menu)));
+    if let Err(e) = result { crate::report_error(app, "更新托盘菜单失败", e); }
 }
 
 fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
@@ -157,7 +149,7 @@ fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     // 宠物切换项统一以 pet: 前缀命名
     if let Some(pet_id) = id.strip_prefix("pet:") {
         if let Err(err) = crate::switch_to_pet(app, pet_id) {
-            eprintln!("切换宠物失败: {err}");
+            crate::report_error(app, "切换宠物失败", err);
         }
         return;
     }
@@ -166,21 +158,21 @@ fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
         "toggle" => toggle_window(app),
         "rescan" => {
             if let Err(err) = crate::rescan_and_refresh(app) {
-                eprintln!("重新扫描失败: {err}");
+                crate::report_error(app, "重新扫描失败", err);
             }
         }
-        "open_dir" => open_pet_dir(),
+        "open_dir" => { if let Err(e) = open_pet_dir() { crate::report_error(app, "打开宠物目录失败", e); } },
 
         "pomodoro" => {
             let state = app.state::<crate::AppState>();
             let tx = state.engine_tx.lock().unwrap();
-            let _ = tx.send(crate::engine::Command::TogglePomodoro);
+            if let Err(e) = tx.send(crate::engine::Command::TogglePomodoro) { crate::report_error(app, "番茄钟操作失败", e); }
         }
 
         "gravity" => {
             let state = app.state::<crate::AppState>();
             let now = state.gravity.load(Ordering::Relaxed);
-            crate::apply_gravity(app, !now);
+            if let Err(e) = crate::apply_gravity(app, !now) { crate::report_error(app, "保存重力设置失败", e); }
             // 重建菜单，勾选状态跟着系统实际值走
             let pets = state.pets.lock().unwrap().clone();
             let current = state.current.lock().unwrap().clone();
@@ -189,12 +181,16 @@ fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
 
         "autostart" => {
             let launcher = app.autolaunch();
-            let enabled = launcher.is_enabled().unwrap_or(false);
-            let _ = if enabled {
+            let enabled = match launcher.is_enabled() {
+                Ok(v) => v,
+                Err(e) => { crate::report_error(app, "读取自启状态失败", e); return; }
+            };
+            let result = if enabled {
                 launcher.disable()
             } else {
                 launcher.enable()
             };
+            if let Err(e) = result { crate::report_error(app, "设置开机自启失败", e); }
             let state = app.state::<crate::AppState>();
             let pets = state.pets.lock().unwrap().clone();
             let current = state.current.lock().unwrap().clone();

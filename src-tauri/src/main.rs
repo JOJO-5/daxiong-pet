@@ -16,6 +16,7 @@ use std::sync::{
     mpsc, Arc, Mutex,
 };
 use std::time::{Duration, Instant};
+use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
 use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, State, WebviewWindow};
 
 /// 把睡眠帧打包成一个整数，方便跨线程无锁传递：高 8 位是行号，低 8 位是列号
@@ -65,12 +66,16 @@ struct AppState {
     /// 给引擎线程发指令（番茄钟等）
     engine_tx: Mutex<mpsc::Sender<EngineCommand>>,
     pet_revision: Arc<AtomicU64>,
+    requested_visible: AtomicBool,
 }
 
 /// 前端完成精灵图解码后调用，此时才真正显示窗口，避免透明窗口白闪。
 #[tauri::command]
-fn pet_ready(window: WebviewWindow) {
-    let _ = window.show();
+fn pet_ready(window: WebviewWindow, app: AppHandle) -> Result<(), String> {
+    if app.state::<AppState>().requested_visible.load(Ordering::Relaxed) {
+        window.show().map_err(|e| e.to_string())?;
+    }
+    Ok(())
 }
 
 /// 启动时前端来取"该显示哪只宠物"
@@ -101,13 +106,13 @@ fn rescan_pets(app: AppHandle) -> Result<(), String> {
 
 /// 开关重力
 #[tauri::command]
-fn set_gravity(enabled: bool, app: AppHandle) -> bool {
-    apply_gravity(&app, enabled)
+fn set_gravity(enabled: bool, app: AppHandle) -> Result<bool, String> {
+    apply_gravity(&app, enabled).map_err(|e| e.to_string())
 }
 
 /// 开始 / 取消番茄钟（25 分钟）
 #[tauri::command]
-fn set_pomodoro(active: bool, app: AppHandle) {
+fn set_pomodoro(active: bool, app: AppHandle) -> Result<(), String> {
     let state = app.state::<AppState>();
     let tx = state.engine_tx.lock().unwrap();
     let cmd = if active {
@@ -115,22 +120,21 @@ fn set_pomodoro(active: bool, app: AppHandle) {
     } else {
         EngineCommand::CancelPomodoro
     };
-    let _ = tx.send(cmd);
+    tx.send(cmd).map_err(|e| e.to_string())
 }
 
 /// 重力是纯开关：落盘后由引擎线程每 tick 读取
-pub(crate) fn apply_gravity(app: &AppHandle, enabled: bool) -> bool {
+pub(crate) fn apply_gravity(app: &AppHandle, enabled: bool) -> std::io::Result<bool> {
     let state = app.state::<AppState>();
-    state.gravity.store(enabled, Ordering::Relaxed);
 
     let pet_id = state.current.lock().unwrap().clone();
     Config {
         pet_id: Some(pet_id),
         gravity: enabled,
     }
-    .save(app);
-
-    enabled
+    .save(app)?;
+    state.gravity.store(enabled, Ordering::Relaxed);
+    Ok(enabled)
 }
 
 /// 组装下发给前端的宠物信息（含图集 data URL）
@@ -148,14 +152,17 @@ fn payload_for(state: &AppState, id: &str) -> std::io::Result<PetSwitchPayload> 
         Some(petpack::sheet_data_url(&pack)?)
     };
 
-    // 宠物包自带话术（可选增强）：跟图集同目录的 speech.json
-    let speech = pack
-        .sheet
-        .parent()
-        .map(|dir| dir.join("speech.json"))
-        .filter(|p| p.is_file())
-        .and_then(|p| std::fs::read_to_string(p).ok())
-        .and_then(|text| serde_json::from_str::<serde_json::Value>(&text).ok());
+    let speech = if let Some(dir) = pack.sheet.parent() {
+        match std::fs::read(dir.join("speech.json")) {
+            Ok(bytes) => {
+                let value: serde_json::Value = serde_json::from_slice(&bytes).map_err(std::io::Error::other)?;
+                if !value.is_object() { return Err(std::io::Error::other("speech.json 必须是话术对象")); }
+                Some(value)
+            }
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => None,
+            Err(e) => return Err(e),
+        }
+    } else { None };
 
     Ok(PetSwitchPayload {
         id: pack.id,
@@ -183,19 +190,19 @@ pub(crate) fn switch_to_pet(app: &AppHandle, id: &str) -> std::io::Result<()> {
 
     // 先成功读取图片再切状态，读取失败保留原宠物。
     let payload = payload_for(state.inner(), &pack.id)?;
+    Config {
+        pet_id: Some(pack.id.clone()),
+        gravity: state.gravity.load(Ordering::Relaxed),
+    }
+    .save(app)?;
+
     *state.current.lock().unwrap() = pack.id.clone();
     state.look_enabled.store(pack.has_look(), Ordering::Relaxed);
     state
         .sleep_frame
         .store(pack_sleep(pack.sleep_row, pack.sleep_col), Ordering::Relaxed);
 
-    Config {
-        pet_id: Some(pack.id.clone()),
-        gravity: state.gravity.load(Ordering::Relaxed),
-    }
-    .save(app);
-
-    let _ = app.emit("pet:switch", payload);
+    app.emit("pet:switch", payload).map_err(std::io::Error::other)?;
     state.pet_revision.fetch_add(1, Ordering::Release);
 
     let pets = state.pets.lock().unwrap().clone();
@@ -247,47 +254,49 @@ fn spawn_engine(
         let mut prev_clickable: Option<bool> = None;
         let mut prev_sleeping: Option<bool> = None;
         let mut screen = screen_rect(&window);
-        let mut ticks: u64 = 0;
+        let mut last_screen_update = Instant::now();
+        let mut visible = false;
+        let mut input = Input {
+            dt_ms: 0, interactive: false, cursor: (0, 0), win_pos: (0, 0),
+            win_size: (engine::WINDOW_W, engine::WINDOW_H), scale_factor: 1.0,
+            screen, button_down: false, look_enabled: true, gravity: false,
+            local_hour: platform::local_hour(), sleep_frame: (atlas::Row::Failed, 2),
+        };
         let mut revision = pet_revision.load(Ordering::Acquire);
 
         loop {
             // 目标 60Hz。桌宠不需要更高，再高只是白烧 CPU。
-            std::thread::sleep(Duration::from_millis(16));
+            std::thread::sleep(Duration::from_millis(engine::poll_interval_ms(visible, prev_sleeping.unwrap_or(false))));
 
             let now = Instant::now();
             let dt = (now - last).as_millis().min(u64::MAX as u128) as u64;
             last = now;
-            ticks += 1;
-
-            // 显示器可能被热插拔或改变分辨率，定期刷新边界
-            if ticks % 60 == 0 {
-                screen = screen_rect(&window);
+            let was_visible = visible;
+            visible = window.is_visible().unwrap_or(false);
+            input.dt_ms = dt;
+            input.interactive = visible;
+            input.local_hour = platform::local_hour();
+            if visible {
+                if !was_visible || last_screen_update.elapsed().as_secs() >= 1 {
+                    screen = screen_rect(&window);
+                    last_screen_update = now;
+                }
+                let (Ok(pos), Ok(size)) = (window.outer_position(), window.outer_size()) else { continue; };
+                let (cursor, button_down) = platform::pointer_state(&window);
+                input.cursor = cursor;
+                input.button_down = button_down;
+                input.win_pos = (pos.x, pos.y);
+                input.win_size = (size.width as i32, size.height as i32);
+                input.scale_factor = window.scale_factor().unwrap_or(1.0);
+                input.screen = screen;
+                if !was_visible { prev_frame = None; prev_sleeping = None; }
+            } else {
+                input.button_down = false;
             }
-
-            let (Ok(pos), Ok(size)) = (window.outer_position(), window.outer_size()) else {
-                continue;
-            };
-
-            let (cursor, button_down) = platform::pointer_state(&window);
-            let input = Input {
-                dt_ms: dt,
-                cursor,
-                win_pos: (pos.x, pos.y),
-                win_size: (size.width as i32, size.height as i32),
-                scale_factor: window.scale_factor().unwrap_or(1.0),
-                screen,
-                button_down,
-                look_enabled: look_enabled.load(Ordering::Relaxed),
-                gravity: gravity.load(Ordering::Relaxed),
-                local_hour: platform::local_hour(),
-                sleep_frame: {
-                    let (row, col) = unpack_sleep(sleep_frame.load(Ordering::Relaxed));
-                    (
-                        atlas::Row::from_index(row).unwrap_or(atlas::Row::Failed),
-                        col,
-                    )
-                },
-            };
+            input.look_enabled = look_enabled.load(Ordering::Relaxed);
+            input.gravity = gravity.load(Ordering::Relaxed);
+            let (row, col) = unpack_sleep(sleep_frame.load(Ordering::Relaxed));
+            input.sleep_frame = (atlas::Row::from_index(row).unwrap_or(atlas::Row::Failed), col);
 
             let current_revision = pet_revision.load(Ordering::Acquire);
             if revision != current_revision {
@@ -308,7 +317,7 @@ fn spawn_engine(
             }
 
             let frame = (out.row, out.col);
-            if prev_frame != Some(frame) {
+            if visible && prev_frame != Some(frame) {
                 let _ = app.emit("pet:frame", FramePayload { row: frame.0, col: frame.1 });
                 prev_frame = Some(frame);
             }
@@ -326,8 +335,25 @@ fn spawn_engine(
     });
 }
 
+/// 用户发起的操作失败时，隐藏窗口也能通过原生对话框看到原因。
+pub(crate) fn report_error(app: &AppHandle, context: &str, error: impl std::fmt::Display) {
+    let message = format!("{context}：{error}");
+    eprintln!("{message}");
+    let _ = app.emit("pet:error", &message);
+    app.dialog().message(message).title("大熊：操作失败").kind(MessageDialogKind::Error).show(|_| {});
+}
+
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(state) = app.try_state::<AppState>() {
+                state.requested_visible.store(true, Ordering::Relaxed);
+            }
+            if let Some(window) = app.get_webview_window("main") {
+                if let Err(e) = window.show() { report_error(app, "显示已有宠物失败", e); }
+            }
+        }))
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             None,
@@ -347,13 +373,13 @@ fn main() {
             // 启动瞬间先完全穿透，绝不抢桌面点击
             let _ = window.set_ignore_cursor_events(true);
 
-            let saved = Config::load(app.handle());
+            let saved = Config::load(app.handle()).unwrap_or_else(|e| {
+                report_error(app.handle(), "读取配置失败，使用默认设置", e);
+                Config::default()
+            });
 
             // 扫描宠物包；一个都没有时用内置的兜底
-            let mut pets = petpack::discover();
-            if pets.is_empty() {
-                pets.push(petpack::builtin());
-            }
+            let pets = petpack::discover();
 
             // 初始选中：配置里记住的 > 第一只 > 内置
             let initial = saved
@@ -392,6 +418,7 @@ fn main() {
                 sleep_frame: sleep_frame.clone(),
                 engine_tx: Mutex::new(tx),
                 pet_revision: pet_revision.clone(),
+                requested_visible: AtomicBool::new(true),
             });
 
             tray::build(app.handle(), &pets, &initial, saved.gravity)?;
@@ -401,7 +428,9 @@ fn main() {
             std::thread::spawn(move || {
                 std::thread::sleep(Duration::from_millis(3000));
                 if let Some(w) = fallback.get_webview_window("main") {
-                    let _ = w.show();
+                    if fallback.state::<AppState>().requested_visible.load(Ordering::Relaxed) {
+                        if let Err(e) = w.show() { report_error(&fallback, "显示宠物失败", e); }
+                    }
                 }
             });
 
@@ -418,4 +447,37 @@ fn main() {
         })
         .run(tauri::generate_context!())
         .expect("Tauri 应用启动失败");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn state(pets: Vec<PetPack>) -> AppState {
+        let (tx, _rx) = mpsc::channel();
+        AppState {
+            current: Mutex::new(pets[0].id.clone()), pets: Mutex::new(pets),
+            look_enabled: Arc::new(AtomicBool::new(true)), gravity: Arc::new(AtomicBool::new(false)),
+            sleep_frame: Arc::new(AtomicU16::new(pack_sleep(5, 2))), engine_tx: Mutex::new(tx),
+            pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true),
+        }
+    }
+    #[test]
+    fn missing_external_image_reports_error_and_does_not_masquerade_as_builtin() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut pack = petpack::builtin();
+        pack.id = "external".into();
+        pack.rows = 9;
+        pack.sheet = dir.path().join("missing.webp");
+        let state = state(vec![pack]);
+        assert!(payload_for(&state, "external").is_err());
+        assert_eq!(*state.current.lock().unwrap(), "external");
+    }
+    #[test]
+    fn builtin_payload_has_matching_dimensions_and_no_external_image() {
+        let state = state(vec![petpack::builtin()]);
+        let payload = payload_for(&state, "__builtin__").unwrap();
+        assert_eq!(payload.rows, 11);
+        assert!(payload.data_url.is_none());
+        assert!(payload.speech.is_none());
+    }
 }

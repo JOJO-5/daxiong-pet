@@ -72,7 +72,7 @@ pub fn search_roots() -> Vec<PathBuf> {
 
     let codex_home = std::env::var_os("CODEX_HOME")
         .map(PathBuf::from)
-        .or_else(|| std::env::var_os("USERPROFILE").map(|p| PathBuf::from(p).join(".codex")));
+        .or_else(|| std::env::var_os("USERPROFILE").or_else(|| std::env::var_os("HOME")).map(|p| PathBuf::from(p).join(".codex")));
     if let Some(home) = codex_home {
         roots.push(home.join("pets"));
     }
@@ -156,7 +156,7 @@ fn load_pack(dir: &Path) -> Option<PetPack> {
         // 可选：自定义睡眠帧。契约里没有睡觉动画，不同宠物趴下的位置可能不同。
         if let Some(sf) = value.get("sleepFrame") {
             if let Some(r) = sf.get("row").and_then(|v| v.as_u64()) {
-                sleep_row = r.min(10) as u8;
+                sleep_row = u8::try_from(r).unwrap_or(u8::MAX);
             }
             if let Some(c) = sf.get("col").and_then(|v| v.as_u64()) {
                 sleep_col = c.min(7) as usize;
@@ -181,7 +181,7 @@ fn load_pack(dir: &Path) -> Option<PetPack> {
         return None;
     }
     let rows = h / CELL_H;
-    if rows < ROWS_MIN {
+    if rows < ROWS_MIN || rows > 256 {
         return None;
     }
 
@@ -223,7 +223,9 @@ pub fn sheet_data_url(pack: &PetPack) -> std::io::Result<String> {
 
 /// 按实际图集和动画轨道校验睡眠帧；无效行回落到默认睡眠姿态。
 fn valid_sleep_frame(rows: u32, row: u8, col: usize) -> (u8, usize) {
-    let row = if u32::from(row) < rows { row } else { DEFAULT_SLEEP_ROW };
+    if u32::from(row) >= rows || crate::atlas::Row::from_index(row).is_none() {
+        return (DEFAULT_SLEEP_ROW, DEFAULT_SLEEP_COL);
+    }
     let track = crate::atlas::track(crate::atlas::Row::from_index(row).unwrap_or(crate::atlas::Row::Failed));
     (row, col.min(track.cols.saturating_sub(1)))
 }
@@ -233,7 +235,7 @@ mod tests {
     use super::*;
     #[test]
     fn sleep_frames_respect_actual_rows_and_used_columns() {
-        assert_eq!(valid_sleep_frame(9, 10, 7), (DEFAULT_SLEEP_ROW, 7));
+        assert_eq!(valid_sleep_frame(9, 10, 7), (DEFAULT_SLEEP_ROW, DEFAULT_SLEEP_COL));
         assert_eq!(valid_sleep_frame(11, 3, 7), (3, 3));
         assert_eq!(valid_sleep_frame(11, 10, 7), (10, 7));
         assert_eq!(valid_sleep_frame(9, 5, 2), (5, 2));

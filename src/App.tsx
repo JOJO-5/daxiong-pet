@@ -47,6 +47,7 @@ export default function App() {
     let loading = false;
     let latestFrame: Frame = { row: 0, col: 0 };
     let activeRows = DEFAULT_ROWS;
+    let errorUntil = 0;
     const displayMessage = (text: string, duration = BUBBLE_MS) => {
       if (!alive) return;
       bubbleId.current += 1;
@@ -87,7 +88,7 @@ export default function App() {
     });
 
     const offSay = listen<string>("pet:say", (event) => {
-      if (!alive) return;
+      if (!alive || Date.now() < errorUntil) return;
       const text = pickSpeech(speech.current, event.payload, lastText.current);
       if (!text) return;
       lastText.current = text;
@@ -103,8 +104,13 @@ export default function App() {
       if (alive) setSleeping(event.payload.sleeping);
     });
 
+    const offError = listen<string>("pet:error", (event) => {
+      errorUntil = Date.now() + 7000;
+      displayMessage(event.payload, 7000);
+    });
+
     // 监听注册完成再取快照，避免启动时漏掉帧 / 切换事件。
-    Promise.all([offFrame, offSay, offSwitch, offState]).then(async () => {
+    Promise.all([offFrame, offSay, offSwitch, offState, offError]).then(async () => {
       const observed = revision;
       const pet = await invoke<PetSwitch>("current_pet");
       if (alive && revision === observed) await applyPet(pet);
@@ -121,6 +127,7 @@ export default function App() {
       offSay.then((off) => off()).catch(console.error);
       offSwitch.then((off) => off()).catch(console.error);
       offState.then((off) => off()).catch(console.error);
+      offError.then((off) => off()).catch(console.error);
     };
   }, []);
 

@@ -135,6 +135,8 @@ impl SayKind {
 /// 每 tick 喂进来的系统快照，全部是物理像素坐标。
 pub struct Input {
     pub dt_ms: u64,
+    /// 隐藏时仍计时，但暂停鼠标交互与窗口运动。
+    pub interactive: bool,
     pub cursor: (i32, i32),
     pub win_pos: (i32, i32),
     pub win_size: (i32, i32),
@@ -355,7 +357,7 @@ impl Engine {
         let inset_y = (PET_H as f32 * scale * HOT_INSET_Y).round() as i32;
         let px = wx + physical(PET_X);
         let py = wy + physical(PET_Y);
-        let hot = cx >= px + inset_x
+        let hot = input.interactive && cx >= px + inset_x
             && cx < px + physical(PET_W) - inset_x
             && cy >= py + inset_y
             && cy < py + physical(PET_H) - inset_y;
@@ -371,10 +373,18 @@ impl Engine {
             None
         };
 
+        if !input.interactive {
+            self.press = None;
+            self.dragging = false;
+            self.trail.clear();
+            self.wander = None;
+            self.vx = 0.0;
+            self.vy = 0.0;
+        }
         // ---- 3. 按下 / 拖拽 / 点击 ----
         let mut commit_click = false;
         let mut commit_drag = false;
-        if input.button_down {
+        if input.interactive && input.button_down {
             if !self.button_was_down && self.press.is_none() && hot {
                 self.press = Some(Press { x: cx, y: cy, moved: false });
                 self.grab = (cx - wx, cy - wy);
@@ -521,7 +531,7 @@ impl Engine {
 
         if self.dragging {
             move_to = Some((cx - self.grab.0, cy - self.grab.1));
-        } else {
+        } else if input.interactive {
             // 漫游时由它接管水平速度
             if let Some(w) = &self.wander {
                 self.vx = WANDER_SPEED * w.dir;
@@ -611,7 +621,8 @@ impl Engine {
             self.wander = None;
         }
 
-        let interrupt = within_aware
+        let interrupt = !input.interactive
+            || within_aware
             || self.dragging
             || self.press.is_some()
             || self.react.is_some()
@@ -771,6 +782,7 @@ mod tests {
     fn input(scale: f64) -> Input {
         Input {
             dt_ms: 16,
+            interactive: true,
             cursor: (-1000, -1000),
             win_pos: (100, 100),
             win_size: ((300.0 * scale) as i32, (240.0 * scale) as i32),
@@ -892,4 +904,26 @@ mod tests {
         assert_eq!((out.row, out.col), (10, 7));
     }
 
+    #[test]
+    fn hidden_pet_does_not_interact_or_move_but_timer_finishes() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        i.interactive = false;
+        i.cursor = (250, 262);
+        i.button_down = true;
+        i.gravity = true;
+        engine.pomodoro_ms = Some(1000);
+        i.dt_ms = 1000;
+        let out = engine.tick(&i);
+        assert!(!out.clickable);
+        assert!(out.move_to.is_none());
+        assert_eq!(out.say, Some(SayKind::PomodoroEnd));
+        assert!(engine.press.is_none());
+    }
+
+}
+
+/// 根据可见性与睡眠状态降低查询频率；真实计时不依赖轮询频率。
+pub fn poll_interval_ms(visible: bool, sleeping: bool) -> u64 {
+    if !visible { 500 } else if sleeping { 100 } else { 16 }
 }

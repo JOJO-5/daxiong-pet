@@ -690,6 +690,7 @@ dependencies = [
  "base64 0.22.1",
  "chrono",
  "device_query",
+ "gtk",
  "image",
  "serde",
  "serde_json",

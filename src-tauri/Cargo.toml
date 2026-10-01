@@ -32,6 +32,9 @@ windows-sys = { version = "0.59", features = [
 device_query = "4.0.1"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 
+[target.'cfg(target_os = "linux")'.dependencies]
+gtk = "0.18"
+
 # 修复上游 bug：tauri-build 2.7 启用 schemars 的 preserve_order，
 # 而 schemars 0.8.22 的该 feature 指向 indexmap 1.x，但其代码用的是 2.x 的泛型写法
 # （`IndexMap<K, V>` 缺少第三个默认参数），导致编译报 E0107。

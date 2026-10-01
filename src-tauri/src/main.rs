@@ -370,8 +370,14 @@ fn main() {
         .setup(|app| {
             let window = app.get_webview_window("main").expect("缺少 main 窗口");
 
-            // 启动瞬间先完全穿透，绝不抢桌面点击
-            let _ = window.set_ignore_cursor_events(true);
+            // GTK 隐藏窗口尚未 realize 时，tao 的穿透实现会 unwrap 空 GdkWindow。
+            // 只创建底层对象，不显示窗口，保留图片解码后才显示的启动流程。
+            #[cfg(target_os = "linux")]
+            {
+                use gtk::prelude::WidgetExt;
+                window.gtk_window()?.realize();
+            }
+            window.set_ignore_cursor_events(true)?;
 
             let saved = Config::load(app.handle()).unwrap_or_else(|e| {
                 report_error(app.handle(), "读取配置失败，使用默认设置", e);

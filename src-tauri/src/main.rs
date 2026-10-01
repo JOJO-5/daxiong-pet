@@ -259,7 +259,7 @@ fn spawn_engine(
         let mut input = Input {
             dt_ms: 0, interactive: false, cursor: (0, 0), win_pos: (0, 0),
             win_size: (engine::WINDOW_W, engine::WINDOW_H), scale_factor: 1.0,
-            screen, button_down: false, look_enabled: true, gravity: false,
+            screen, button_down: false, look_enabled: true, extra_animations: false, gravity: false,
             local_hour: platform::local_hour(), sleep_frame: (atlas::Row::Failed, 2),
         };
         let mut revision = pet_revision.load(Ordering::Acquire);
@@ -295,6 +295,7 @@ fn spawn_engine(
             }
             input.look_enabled = look_enabled.load(Ordering::Relaxed);
             input.gravity = gravity.load(Ordering::Relaxed);
+            input.extra_animations = app.state::<AppState>().current.lock().unwrap().as_str() == "__builtin__";
             let (row, col) = unpack_sleep(sleep_frame.load(Ordering::Relaxed));
             input.sleep_frame = (atlas::Row::from_index(row).unwrap_or(atlas::Row::Failed), col);
 
@@ -468,6 +469,32 @@ mod tests {
         }
     }
     #[test]
+    fn builtin_animation_atlas_matches_contract_and_preserves_original_art() {
+        let original = image::load_from_memory(include_bytes!("../../public/spritesheet.webp")).unwrap().to_rgba8();
+        let extended = image::load_from_memory(include_bytes!("../../public/spritesheet-extended.webp")).unwrap().to_rgba8();
+        assert_eq!(extended.dimensions(), (1536, petpack::builtin().rows * 208));
+        for (x, y, pixel) in original.enumerate_pixels() {
+            let actual = extended.get_pixel(x, y);
+            assert_eq!(actual[3], pixel[3]);
+            if pixel[3] > 0 { assert_eq!(actual, pixel); }
+        }
+        for row in 11..petpack::builtin().rows {
+            for col in 0..8 {
+                let mut visible = 0;
+                for y in 0..208 {
+                    for x in 0..192 {
+                        if extended.get_pixel(col * 192 + x, row * 208 + y)[3] > 40 {
+                            visible += 1;
+                            assert!(x >= 3 && x < 189 && y < 204, "frame {row}/{col} crosses padding");
+                        }
+                    }
+                }
+                assert!(visible > 5000, "frame {row}/{col} is empty");
+            }
+        }
+    }
+
+    #[test]
     fn missing_external_image_reports_error_and_does_not_masquerade_as_builtin() {
         let dir = tempfile::tempdir().unwrap();
         let mut pack = petpack::builtin();
@@ -482,7 +509,7 @@ mod tests {
     fn builtin_payload_has_matching_dimensions_and_no_external_image() {
         let state = state(vec![petpack::builtin()]);
         let payload = payload_for(&state, "__builtin__").unwrap();
-        assert_eq!(payload.rows, 11);
+        assert_eq!(payload.rows, 14);
         assert!(payload.data_url.is_none());
         assert!(payload.speech.is_none());
     }

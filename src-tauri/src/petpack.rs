@@ -60,9 +60,9 @@ pub fn builtin() -> PetPack {
         name: "大熊".into(),
         description: "内置宠物，随程序打包".into(),
         sheet: PathBuf::new(),
-        rows: ROWS_FULL,
-        sleep_row: DEFAULT_SLEEP_ROW,
-        sleep_col: DEFAULT_SLEEP_COL,
+        rows: 14,
+        sleep_row: 12,
+        sleep_col: 0,
     }
 }
 

@@ -2,8 +2,7 @@
 //!
 //! 图集：1536 x 2288，8 列 x 11 行，单元格 192 x 208，背景透明。
 //!
-//! 本模块是契约的**完整**映射：图集尺寸常量和 failed / running / review 三个状态行
-//! 目前引擎尚未使用（保留它们是为了让契约可读、便于后续扩展），故整体豁免 dead_code。
+//! 前 11 行保留 v2 契约；内置大熊在末尾追加专属动作，旧宠物包保持兼容。
 
 #![allow(dead_code)]
 
@@ -36,6 +35,12 @@ pub enum Row {    Idle = 0,
     LookA = 9,
     /// 注视方向 180 / 202.5 / 225 / 247.5 / 270 / 292.5 / 315 / 337.5 度
     LookB = 10,
+    /// 内置扩展：摸头开心
+    HappyPat = 11,
+    /// 内置扩展：睡眠呼吸循环
+    Sleep = 12,
+    /// 内置扩展：醒来伸懒腰
+    WakeStretch = 13,
 }
 
 /// 一条动画轨道的播放参数。
@@ -63,10 +68,17 @@ impl Row {
             8 => Row::Review,
             9 => Row::LookA,
             10 => Row::LookB,
+            11 => Row::HappyPat,
+            12 => Row::Sleep,
+            13 => Row::WakeStretch,
             _ => return None,
         })
     }
 }
+
+const D_HAPPY: &[u16] = &[180, 180, 180, 180, 180, 180, 180, 240];
+const D_SLEEP: &[u16] = &[450, 450, 450, 450, 450, 450, 450, 450];
+const D_WAKE: &[u16] = &[200, 180, 200, 240, 240, 180, 180, 260];
 
 const D_IDLE: &[u16] = &[280, 110, 110, 140, 140, 320];
 const D_RUN8: &[u16] = &[120, 120, 120, 120, 120, 120, 120, 220];
@@ -81,6 +93,9 @@ const D_LOOK: &[u16] = &[0, 0, 0, 0, 0, 0, 0, 0];
 
 pub fn track(row: Row) -> Track {
     match row {
+        Row::HappyPat => Track { cols: 8, durations: D_HAPPY, looping: false },
+        Row::Sleep => Track { cols: 8, durations: D_SLEEP, looping: true },
+        Row::WakeStretch => Track { cols: 8, durations: D_WAKE, looping: false },
         Row::Idle => Track { cols: 6, durations: D_IDLE, looping: true },
         Row::RunRight | Row::RunLeft => Track { cols: 8, durations: D_RUN8, looping: true },
         Row::Waving => Track { cols: 4, durations: D_WAVE, looping: false },

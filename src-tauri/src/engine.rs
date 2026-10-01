@@ -155,6 +155,8 @@ pub struct Input {
     pub button_down: bool,
     /// 当前宠物图集是否带注视行（8x9 的图集没有）
     pub look_enabled: bool,
+    /// 仅内置大熊使用追加的专属动画；旧包继续使用原动作。
+    pub extra_animations: bool,
     /// 重力开关
     pub gravity: bool,
     /// 本地时间的小时数（0-23），用于整点报时
@@ -363,6 +365,11 @@ impl Engine {
         // 计时保留真实经过时间，仅物理积分限制步长，避免恢复时飞出屏幕。
         let dt_s = dt.min(120) as f32 / 1000.0;
         self.clock_ms += dt;
+        // 切换到旧包时取消超出原图集的反应，避免继续输出扩展行。
+        if !input.extra_animations && self.react.is_some_and(|(row, _)| row as u8 >= 11) {
+            self.react = None;
+            self.ambient_reaction = false;
+        }
 
         let (cx, cy) = input.cursor;
         let (wx, wy) = input.win_pos;
@@ -554,7 +561,7 @@ impl Engine {
         {
             self.pat_ms = 0;
             self.pat_cd_ms = PAT_COOLDOWN_MS;
-            self.start_reaction(Row::Waving);
+            self.start_reaction(if input.extra_animations { Row::HappyPat } else { Row::Waving });
             if self.clock_ms < self.annoyed_until_ms {
                 self.annoyed_until_ms = 0;
                 self.clicks.clear();
@@ -573,7 +580,7 @@ impl Engine {
             self.quiet_ms = 0;
             if self.sleeping {
                 self.sleeping = false;
-                self.start_reaction(Row::Waving);
+                self.start_reaction(if input.extra_animations { Row::WakeStretch } else { Row::Waving });
                 say = Some(SayKind::Wake);
             }
         } else {
@@ -780,9 +787,10 @@ impl Engine {
             && self.press.is_none() && !hot && !moving && self.wander.is_none()
             && self.clock_ms >= self.annoyed_until_ms && say.is_none()
         {
-            let row = match self.rng_next() % 3 {
+            let row = match self.rng_next() % 4 {
                 0 => Row::Waiting,
                 1 => Row::Review,
+                2 => Row::Running,
                 _ => Row::Waving,
             };
             self.start_reaction(row);
@@ -815,7 +823,7 @@ impl Engine {
         } else if self.clock_ms < self.annoyed_until_ms {
             Row::Failed
         } else if self.sleeping {
-            input.sleep_frame.0
+            if input.extra_animations { Row::Sleep } else { input.sleep_frame.0 }
         } else if self.wander.is_some() {
             if self.vx >= 0.0 { Row::RunRight } else { Row::RunLeft }
         } else if moving {
@@ -834,7 +842,7 @@ impl Engine {
 
         // ---- 15. 帧推进 ----
         let track = atlas::track(self.row);
-        if self.sleeping && self.react.is_none() && !self.dragging && self.pomodoro_ms.is_none() {
+        if self.sleeping && !input.extra_animations && self.react.is_none() && !self.dragging && self.pomodoro_ms.is_none() {
             self.col = input.sleep_frame.1.min(track.cols.saturating_sub(1));
         } else if matches!(self.row, Row::LookA | Row::LookB) {
             if let Some(idx) = self.look {
@@ -880,10 +888,59 @@ mod tests {
             screen: (0, 0, 1920, 1040),
             button_down: false,
             look_enabled: true,
+            extra_animations: false,
             gravity: false,
             local_hour: 12,
             sleep_frame: (Row::Failed, 2),
         }
+    }
+
+    #[test]
+    fn builtin_petting_sleep_and_wake_use_dedicated_rows() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        i.extra_animations = true;
+        i.cursor = (250, 262);
+        engine.last_cursor = i.cursor;
+        engine.was_hot = true;
+        engine.pat_ms = PAT_STILL_MS;
+        assert_eq!(engine.tick(&i).row, Row::HappyPat as u8);
+        engine.react = None;
+        engine.quiet_ms = SLEEP_AFTER_MS;
+        i.cursor = (-1000, -1000);
+        assert_eq!(engine.tick(&i).row, Row::Sleep as u8);
+        i.dt_ms = 450;
+        assert_eq!(engine.tick(&i).col, 1);
+        i.dt_ms = 16;
+        i.cursor = (250, 262);
+        let out = engine.tick(&i);
+        assert_eq!(out.say, Some(SayKind::Wake));
+        assert_eq!(out.row, Row::WakeStretch as u8);
+    }
+
+    #[test]
+    fn switching_to_legacy_pet_cancels_extended_reaction() {
+        let mut engine = Engine::new();
+        engine.start_reaction(Row::WakeStretch);
+        let out = engine.tick(&input(1.0));
+        assert!(out.row < 11);
+        assert!(engine.react.is_none());
+    }
+
+    #[test]
+    fn thinking_animation_is_reachable_without_speech() {
+        let mut engine = Engine::new();
+        let i = input(1.0);
+        engine.rng = 1;
+        let mut found = false;
+        for _ in 0..40 {
+            engine.react = None;
+            engine.next_ambient_ms = 0;
+            let out = engine.tick(&i);
+            found |= out.row == Row::Running as u8;
+            assert!(out.say.is_none());
+        }
+        assert!(found);
     }
 
     #[test]
@@ -894,7 +951,7 @@ mod tests {
         let out = engine.tick(&i);
         assert!(engine.ambient_reaction);
         assert!(out.say.is_none());
-        assert!(matches!(engine.row, Row::Waiting | Row::Review | Row::Waving));
+        assert!(matches!(engine.row, Row::Waiting | Row::Review | Row::Running | Row::Waving));
         i.cursor = (250, 262);
         i.button_down = true;
         engine.tick(&i);

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { decodePetImage, BUILTIN_SRC, DEFAULT_ROWS, type PetSwitch } from "./pet-image";
-import { DEFAULT_SPEECH, mergeSpeech, pickSpeech, type SpeechTable } from "./speech";
+import { DEFAULT_SPEECH, DAXIONG_SPEECH, mergeSpeech, pickSpeech, type SpeechTable, type SpeechHistory } from "./speech";
 
 // 精灵图契约：固定 8 列，单元格 192x208
 const SHEET_W = 1536;
@@ -37,6 +37,7 @@ export default function App() {
 
   const speech = useRef<SpeechTable>(DEFAULT_SPEECH);
   const bubbleId = useRef(0);
+  const speechHistory = useRef<SpeechHistory>(new Map());
   const lastText = useRef<string | null>(null);
   const hideTimer = useRef<number | null>(null);
   const readySent = useRef(false);
@@ -63,7 +64,9 @@ export default function App() {
       try {
         const decoded = await decodePetImage(pet);
         if (!alive || request !== revision) return;
-        speech.current = mergeSpeech(decoded.speech);
+        speech.current = mergeSpeech(decoded.speech, pet.id === "__builtin__" ? DAXIONG_SPEECH : DEFAULT_SPEECH);
+        speechHistory.current.clear();
+        lastText.current = null;
         activeRows = decoded.rows;
         setRows(decoded.rows);
         setSrc(decoded.src);
@@ -90,7 +93,7 @@ export default function App() {
 
     const offSay = listen<string>("pet:say", (event) => {
       if (!alive || Date.now() < errorUntil) return;
-      const text = pickSpeech(speech.current, event.payload, lastText.current);
+      const text = pickSpeech(speech.current, event.payload, lastText.current, speechHistory.current);
       if (!text) return;
       lastText.current = text;
       displayMessage(text);

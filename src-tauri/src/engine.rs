@@ -1,7 +1,7 @@
 //! 行为引擎：每 16ms 被喂一次系统快照，输出「窗口该去哪」「该画哪一帧」「要不要说句话」。
 //!
 //! 行为优先级（高 → 低）：
-//!   番茄钟进行中 > 拖拽中 > 生气中 > 单次反应 > 睡觉 > 物理移动 > 自主漫游 > 注视鼠标 > 待机
+//!   拖拽中 > 单次互动反应 > 专注姿态 > 生气中 > 睡觉 > 物理移动 > 自主漫游 > 注视鼠标 > 待机
 
 use crate::atlas::{self, Row};
 use std::collections::VecDeque;
@@ -199,6 +199,8 @@ pub struct Engine {
 
     // ---- 单次反应 ----
     react: Option<(Row, u64)>,
+    ambient_reaction: bool,
+    next_ambient_ms: u64,
 
     // ---- 指针 ----
     press: Option<Press>,
@@ -262,6 +264,8 @@ impl Engine {
             acc: 0,
             look: None,
             react: None,
+            ambient_reaction: false,
+            next_ambient_ms: 30_000,
             press: None,
             button_was_down: false,
             was_interactive: true,
@@ -308,6 +312,7 @@ impl Engine {
 
     /// 即使连续触发同一行，也从第一帧重新回应。
     fn start_reaction(&mut self, row: Row) {
+        self.ambient_reaction = false;
         self.react = Some((row, 0));
         self.row = row;
         self.col = 0;
@@ -320,6 +325,9 @@ impl Engine {
             return;
         }
         self.pomodoro_ms = Some(POMODORO_MS);
+        self.react = None;
+        self.ambient_reaction = false;
+        self.next_ambient_ms = self.clock_ms + 60_000;
         *say = Some(SayKind::PomodoroStart);
         self.sleeping = false;
         self.quiet_ms = 0;
@@ -411,6 +419,10 @@ impl Engine {
         let mut commit_drag = false;
         if input.interactive && input.button_down {
             if !self.button_was_down && self.press.is_none() && hot {
+                if self.ambient_reaction {
+                    self.react = None;
+                    self.ambient_reaction = false;
+                }
                 self.press = Some(Press { x: cx, y: cy, moved: false });
                 self.grab = (cx - wx, cy - wy);
                 self.trail.clear();
@@ -762,6 +774,23 @@ impl Engine {
             self.since_talk_ms = 0;
         }
 
+        // 安静的小动作只在可见、静止且没有互动/提醒时出现，不发气泡。
+        if input.interactive && self.clock_ms >= self.next_ambient_ms
+            && self.react.is_none() && !self.sleeping && !self.dragging
+            && self.press.is_none() && !hot && !moving && self.wander.is_none()
+            && self.clock_ms >= self.annoyed_until_ms && say.is_none()
+        {
+            let row = match self.rng_next() % 3 {
+                0 => Row::Waiting,
+                1 => Row::Review,
+                _ => Row::Waving,
+            };
+            self.start_reaction(row);
+            self.ambient_reaction = true;
+            let delay = if self.pomodoro_ms.is_some() { 45_000 } else { 20_000 };
+            self.next_ambient_ms = self.clock_ms + delay + (self.rng_next() % 25_000) as u64;
+        }
+
         // ---- 13. 单次反应播完自动收尾 ----
         let mut react_done = false;
         if let Some((r, acc)) = self.react.as_mut() {
@@ -773,17 +802,18 @@ impl Engine {
         }
         if react_done {
             self.react = None;
+            self.ambient_reaction = false;
         }
 
         // ---- 14. 决定播放哪一行（按优先级）----
-        let target = if self.pomodoro_ms.is_some() {
-            Row::Running
-        } else if self.dragging {
+        let target = if self.dragging {
             Row::Waiting
-        } else if self.clock_ms < self.annoyed_until_ms && self.react.is_none() {
-            Row::Failed
         } else if let Some((r, _)) = self.react {
             r
+        } else if self.pomodoro_ms.is_some() {
+            Row::Review
+        } else if self.clock_ms < self.annoyed_until_ms {
+            Row::Failed
         } else if self.sleeping {
             input.sleep_frame.0
         } else if self.wander.is_some() {
@@ -854,6 +884,54 @@ mod tests {
             local_hour: 12,
             sleep_frame: (Row::Failed, 2),
         }
+    }
+
+    #[test]
+    fn ambient_animation_is_silent_and_interruptible() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        engine.next_ambient_ms = 0;
+        let out = engine.tick(&i);
+        assert!(engine.ambient_reaction);
+        assert!(out.say.is_none());
+        assert!(matches!(engine.row, Row::Waiting | Row::Review | Row::Waving));
+        i.cursor = (250, 262);
+        i.button_down = true;
+        engine.tick(&i);
+        assert!(!engine.ambient_reaction);
+        assert!(engine.react.is_none());
+    }
+
+    #[test]
+    fn hidden_sleeping_or_annoyed_pet_skips_ambient_actions() {
+        for mode in 0..3 {
+            let mut engine = Engine::new();
+            let mut i = input(1.0);
+            engine.next_ambient_ms = 0;
+            match mode {
+                0 => i.interactive = false,
+                1 => engine.sleeping = true,
+                _ => engine.annoyed_until_ms = 6000,
+            }
+            engine.tick(&i);
+            assert!(!engine.ambient_reaction);
+        }
+    }
+
+    #[test]
+    fn focused_pet_can_react_without_stopping_timer() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        engine.pomodoro_ms = Some(60_000);
+        assert_eq!(engine.tick(&i).row, Row::Review as u8);
+        i.cursor = (250, 262);
+        i.button_down = true;
+        engine.tick(&i);
+        i.button_down = false;
+        let out = engine.tick(&i);
+        assert_eq!(out.say, Some(SayKind::Click));
+        assert!(matches!(engine.row, Row::Waving | Row::Jumping));
+        assert!(engine.pomodoro_ms.unwrap() < 60_000);
     }
 
     #[test]

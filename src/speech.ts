@@ -101,6 +101,26 @@ export const DEFAULT_SPEECH: SpeechTable = {
   ],
 };
 
+/** 内置大熊的边牧口吻；外部宠物仍使用通用默认表。 */
+export const DAXIONG_SPEECH: SpeechTable = {
+  ...DEFAULT_SPEECH,
+  click: ["汪！大熊收到。", "叫我了吗？耳朵已经竖起来啦。", "桌面巡逻员，随时待命！", "抓到一只认真陪你的边牧。", "给你一个爪爪。", "你忙你的，我负责陪着。"],
+  gentle_drag: ["四只爪爪都站稳啦。", "新岗哨不错，我就在这儿守着。", "轻轻放下，毛毛还是整齐的。", "搬家完毕，继续陪你。"],
+  throw: ["汪——这趟没有安全带呀！", "耳朵要被风吹起来啦！", "我会跑，可没学过飞呀！", "爪爪准备，找个地方落地！"],
+  land: ["甩甩毛，巡逻员重新上线！", "四只爪爪，安全着陆。", "呼，桌面还是踩着舒服。", "站稳了，耳朵也归位啦。"],
+  comfort: ["好吧，爪爪给你，我们和好。", "摸摸头，气就跑掉啦。", "原谅你了，再轻一点哦。", "尾巴已经偷偷摇起来了。"],
+  pat: ["耳朵后面也摸摸嘛。", "尾巴藏不住开心啦。", "这只边牧已经被你摸得软乎乎了。", "再摸一下，就一下。", "爪爪搭好，继续陪你。"],
+  annoyed: ["鼻子不是按钮啦！", "汪，轻一点嘛。", "我先收起爪爪，等你温柔一点。", "耳朵都被你戳耷拉啦。"],
+  idle: ["桌面没有羊，那就守着你吧。", "耳朵值班中，你安心忙。", "我刚刚检查过，这片桌面很安全。", "想跑两步，又舍不得离你太远。", "有球的话，我肯定第一个发现。", "趴一会儿，耳朵还在听。"],
+  wander: ["巡逻一小圈，很快回来。", "那边好像有动静，我去看看。", "爪爪活动一下。", "边牧巡逻员换个岗哨。"],
+  sleep: ["巡逻员休息一会儿……Zzz。", "梦里有一大片草地。", "爪爪收好，眯一会儿。"],
+  wake: ["汪？我没偷懒，只是闭眼值班。", "耳朵上线！你叫我啦？", "梦里的球还没叼回来呢。"],
+  pomodoro_start: ["你专心，我安静站岗。25 分钟，开始！", "大熊陪你专注一会儿，爪爪不乱跑。"],
+  pomodoro_end: ["汪！25 分钟完成，给你一个开心跳。", "任务完成！一起伸个懒腰吧。"],
+};
+
+export type SpeechHistory = Map<string, string[]>;
+
 /** 把 {time} 之类的占位符换成实际内容 */
 export function formatSpeech(text: string): string {
   const hour = new Date().getHours();
@@ -108,10 +128,10 @@ export function formatSpeech(text: string): string {
 }
 
 /** 用宠物包自带的话术覆盖默认表（只覆盖写了的类别，空数组忽略） */
-export function mergeSpeech(override: unknown): SpeechTable {
-  if (!override || typeof override !== "object") return DEFAULT_SPEECH;
+export function mergeSpeech(override: unknown, base: SpeechTable = DEFAULT_SPEECH): SpeechTable {
+  if (!override || typeof override !== "object") return base;
 
-  const table: SpeechTable = { ...DEFAULT_SPEECH };
+  const table: SpeechTable = { ...base };
   for (const [kind, list] of Object.entries(override as Record<string, unknown>)) {
     if (!Array.isArray(list)) continue;
     const clean = list.filter(
@@ -125,19 +145,24 @@ export function mergeSpeech(override: unknown): SpeechTable {
   return table;
 }
 
-/** 按场合随机挑一句，尽量避开刚说过的那句 */
+/** 按类别避开最近三句；先格式化再比较，报时也不会漏掉去重。 */
 export function pickSpeech(
   table: SpeechTable,
   kind: string,
-  last: string | null
+  last: string | null,
+  history: SpeechHistory = new Map(),
+  random: () => number = Math.random
 ): string | null {
   const fallback: Record<string, string> = { gentle_drag: "drag", throw: "drag", land: "drag", comfort: "pat" };
   const list = table[kind] ?? table[fallback[kind]] ?? table.idle;
-  if (!list || list.length === 0) return null;
-
-  let text = list[Math.floor(Math.random() * list.length)];
-  for (let i = 0; i < 8 && text === last && list.length > 1; i++) {
-    text = list[Math.floor(Math.random() * list.length)];
-  }
-  return formatSpeech(text);
+  if (!list?.length) return null;
+  const choices = [...new Set(list.map(formatSpeech))];
+  const recent = history.get(kind) ?? [];
+  let available = choices.filter((text) => text !== last && !recent.includes(text));
+  if (!available.length) available = choices.filter((text) => text !== last);
+  if (!available.length) available = choices;
+  const text = available[Math.floor(random() * available.length)];
+  const keep = Math.min(3, choices.length - 1);
+  history.set(kind, keep > 0 ? [...recent, text].slice(-keep) : []);
+  return text;
 }

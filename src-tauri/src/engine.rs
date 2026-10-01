@@ -686,7 +686,7 @@ impl Engine {
         }
 
         // 扩展动作在停稳后播放，避免还在空中就开始甩毛。
-        let settled = self.vx.hypot(self.vy) / scale < 140.0
+        let settled = self.vx.abs() <= 8.0 && self.vy.abs() <= 8.0
             && (!input.gravity || self.grounded);
         let recovery_due = if input.extra_animations {
             settled && self.react.is_none() && !self.dragging && self.press.is_none()
@@ -921,6 +921,8 @@ mod tests {
         engine.landing_until_ms = 10_000;
         assert_ne!(engine.tick(&i).row, Row::ShakeFur as u8);
         engine.vx = 80.0;
+        assert_ne!(engine.tick(&i).row, Row::ShakeFur as u8);
+        engine.vx = 0.0;
         let out = engine.tick(&i);
         assert_eq!(out.row, Row::ShakeFur as u8);
         assert_eq!(out.say, Some(SayKind::Land));

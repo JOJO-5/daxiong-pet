@@ -19,7 +19,7 @@ pub const PET_X: i32 = (WINDOW_W - PET_W) / 2;
 pub const PET_Y: i32 = WINDOW_H - PET_H;
 
 // ---- 感知与命中 ----
-/// 注视感知半径（物理像素）：光标进到这个圈里，宠物会转头看它。
+/// 注视感知半径（逻辑像素）：光标进到这个圈里，宠物会转头看它。
 const AWARE_RADIUS: f32 = 360.0;
 /// 死区半径：光标贴着宠物中心时不判定方向，回落到待机，避免方向乱跳。
 const DEAD_RADIUS: f32 = 18.0;
@@ -45,7 +45,7 @@ const WANDER_TALK_CHANCE: u32 = 35;
 const PAT_STILL_MS: u64 = 1_200;
 /// 摸头后的冷却，免得一直蹭
 const PAT_COOLDOWN_MS: u64 = 6_000;
-/// 判定「静止」的位移阈值（物理像素）
+/// 判定「静止」的位移阈值（逻辑像素）
 const PAT_STILL_RADIUS: f32 = 4.0;
 
 // ---- 连点生气 ----
@@ -138,6 +138,8 @@ pub struct Input {
     pub cursor: (i32, i32),
     pub win_pos: (i32, i32),
     pub win_size: (i32, i32),
+    /// CSS / 逻辑像素到物理像素的缩放比例。
+    pub scale_factor: f64,
     /// 当前显示器工作区 (x, y, w, h)
     pub screen: (i32, i32, i32, i32),
     pub button_down: bool,
@@ -190,6 +192,7 @@ pub struct Engine {
 
     // ---- 指针 ----
     press: Option<Press>,
+    button_was_down: bool,
     dragging: bool,
     /// 按下时光标相对窗口左上角的偏移，拖拽时保持跟手
     grab: (i32, i32),
@@ -248,6 +251,7 @@ impl Engine {
             look: None,
             react: None,
             press: None,
+            button_was_down: false,
             dragging: false,
             grab: (0, 0),
             trail: VecDeque::new(),
@@ -331,31 +335,33 @@ impl Engine {
 
         let (cx, cy) = input.cursor;
         let (wx, wy) = input.win_pos;
-        let (ww, _wh) = input.win_size;
+        let (ww, wh) = input.win_size;
+        let scale = input.scale_factor as f32;
+        let physical = |value: i32| (value as f32 * scale).round() as i32;
         let (sx, sy, sw, sh) = input.screen;
 
         let mut say: Option<SayKind> = None;
         self.drain_commands(&mut say);
 
         // 宠物中心与光标的关系（注视与命中都以宠物为基准，不是整个窗口）
-        let center = (wx + PET_X + PET_W / 2, wy + PET_Y + PET_H / 2);
+        let center = (wx + physical(PET_X + PET_W / 2), wy + physical(PET_Y + PET_H / 2));
         let dx = (cx - center.0) as f32;
         let dy = (cy - center.1) as f32;
         let dist = (dx * dx + dy * dy).sqrt();
 
         // ---- 1. 命中热区 ----
-        let inset_x = (PET_W as f32 * HOT_INSET_X) as i32;
-        let inset_y = (PET_H as f32 * HOT_INSET_Y) as i32;
-        let px = wx + PET_X;
-        let py = wy + PET_Y;
+        let inset_x = (PET_W as f32 * scale * HOT_INSET_X).round() as i32;
+        let inset_y = (PET_H as f32 * scale * HOT_INSET_Y).round() as i32;
+        let px = wx + physical(PET_X);
+        let py = wy + physical(PET_Y);
         let hot = cx >= px + inset_x
-            && cx < px + PET_W - inset_x
+            && cx < px + physical(PET_W) - inset_x
             && cy >= py + inset_y
-            && cy < py + PET_H - inset_y;
+            && cy < py + physical(PET_H) - inset_y;
 
         // ---- 2. 注视（睡着 / 番茄钟专注时不看）----
         let busy = self.sleeping || self.pomodoro_ms.is_some();
-        self.look = if input.look_enabled && !busy && dist > DEAD_RADIUS && dist < AWARE_RADIUS {
+        self.look = if input.look_enabled && !busy && dist > DEAD_RADIUS * scale && dist < AWARE_RADIUS * scale {
             // atan2(dx, -dy) 把屏幕坐标（y 轴向下）转成 0°=上、90°=右
             let deg = dx.atan2(-dy).to_degrees();
             let deg = if deg < 0.0 { deg + 360.0 } else { deg };
@@ -368,7 +374,7 @@ impl Engine {
         let mut commit_click = false;
         let mut commit_drag = false;
         if input.button_down {
-            if self.press.is_none() && hot {
+            if !self.button_was_down && self.press.is_none() && hot {
                 self.press = Some(Press { x: cx, y: cy, moved: false });
                 self.grab = (cx - wx, cy - wy);
                 self.trail.clear();
@@ -379,7 +385,7 @@ impl Engine {
                 if !p.moved {
                     let ddx = (cx - p.x) as f32;
                     let ddy = (cy - p.y) as f32;
-                    if (ddx * ddx + ddy * ddy).sqrt() > DRAG_THRESHOLD {
+                    if (ddx * ddx + ddy * ddy).sqrt() > DRAG_THRESHOLD * scale {
                         p.moved = true;
                         started = true;
                     }
@@ -415,6 +421,8 @@ impl Engine {
             }
             self.dragging = false;
         }
+
+        self.button_was_down = input.button_down;
 
         // ---- 4. 点击：正常反应，或连点翻脸 ----
         if commit_click {
@@ -464,7 +472,7 @@ impl Engine {
         // ---- 6. 摸头：光标停在宠物身上不动 ----
         let cursor_dx = (cx - self.last_cursor.0) as f32;
         let cursor_dy = (cy - self.last_cursor.1) as f32;
-        let cursor_still = (cursor_dx * cursor_dx + cursor_dy * cursor_dy).sqrt() < PAT_STILL_RADIUS;
+        let cursor_still = (cursor_dx * cursor_dx + cursor_dy * cursor_dy).sqrt() < PAT_STILL_RADIUS * scale;
         self.last_cursor = (cx, cy);
 
         if hot && cursor_still && !self.dragging {
@@ -539,7 +547,7 @@ impl Engine {
 
             // 上下边界：重力模式下落到「地面」会弹一下，最终停住
             if input.gravity {
-                let floor = sy + sh - WINDOW_H;
+                let floor = sy + sh - wh;
                 if nwy >= floor {
                     nwy = floor;
                     if self.vy > 120.0 {
@@ -556,7 +564,7 @@ impl Engine {
             } else if self.vy.abs() > SPEED_EPS {
                 // 无重力时也允许被甩出去，但别飞出屏幕
                 let top = sy;
-                let bottom = sy + sh - WINDOW_H;
+                let bottom = sy + sh - wh;
                 if nwy < top {
                     nwy = top;
                     self.vy = -self.vy * BOUNCE;
@@ -591,7 +599,7 @@ impl Engine {
         let moving = self.vx.abs() > 8.0 || self.vy.abs() > 8.0;
 
         // ---- 9. 自主漫游 ----
-        let within_aware = dist < AWARE_RADIUS;
+        let within_aware = dist < AWARE_RADIUS * scale;
 
         let mut wander_expired = false;
         if let Some(w) = self.wander.as_mut() {
@@ -640,12 +648,19 @@ impl Engine {
 
         // ---- 11. 定时提醒（睡着或专注时不打扰）----
         self.since_water_ms += dt;
-        if self.since_water_ms >= WATER_INTERVAL_MS {
+        // 专注或交互期间暂存到期提醒，空闲后唤醒宠物再提醒。
+        if self.since_water_ms >= WATER_INTERVAL_MS
+            && self.pomodoro_ms.is_none()
+            && self.react.is_none()
+            && !self.dragging
+            && self.press.is_none()
+            && say.is_none()
+        {
             self.since_water_ms = 0;
-            if !self.sleeping && self.pomodoro_ms.is_none() && self.react.is_none() {
-                self.react = Some((Row::Waving, 0));
-                say = Some(SayKind::Water);
-            }
+            self.sleeping = false;
+            self.quiet_ms = 0;
+            self.react = Some((Row::Waving, 0));
+            say = Some(SayKind::Water);
         }
 
         match self.last_hour {
@@ -739,11 +754,119 @@ impl Engine {
 
         Output {
             move_to,
-            clickable: self.dragging || hot,
+            // 外部拖拽经过宠物时保持穿透，避免挡住文件投放等操作。
+            clickable: self.dragging || (hot && (!input.button_down || self.press.is_some())),
             row: self.row as u8,
             col: self.col,
             say,
             sleeping: self.sleeping,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn input(scale: f64) -> Input {
+        Input {
+            dt_ms: 16,
+            cursor: (-1000, -1000),
+            win_pos: (100, 100),
+            win_size: ((300.0 * scale) as i32, (240.0 * scale) as i32),
+            scale_factor: scale,
+            screen: (0, 0, 1920, 1040),
+            button_down: false,
+            look_enabled: true,
+            gravity: false,
+            local_hour: 12,
+            sleep_frame: (Row::Failed, 2),
+        }
+    }
+
+    #[test]
+    fn hit_area_tracks_display_scaling() {
+        for scale in [1.0, 1.25, 1.5, 2.0] {
+            let mut engine = Engine::new();
+            let mut i = input(scale);
+            i.cursor = (100 + (150.0 * scale) as i32, 100 + (162.0 * scale) as i32);
+            assert!(engine.tick(&i).clickable, "scale={scale}");
+            i.cursor = (100 + (80.0 * scale) as i32, 100 + (162.0 * scale) as i32);
+            assert!(!engine.tick(&i).clickable, "transparent margin at scale={scale}");
+        }
+    }
+
+    #[test]
+    fn external_drag_is_not_captured() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        i.button_down = true;
+        engine.tick(&i);
+        i.cursor = (250, 262);
+        assert!(!engine.tick(&i).clickable);
+        i.cursor.0 += 30;
+        assert!(engine.tick(&i).move_to.is_none());
+        i.button_down = false;
+        assert_ne!(engine.tick(&i).say, Some(SayKind::Click));
+        assert!(engine.press.is_none());
+    }
+
+    #[test]
+    fn pet_drag_still_works_and_scaled_threshold_is_respected() {
+        let mut engine = Engine::new();
+        let mut i = input(1.5);
+        i.cursor = (325, 343);
+        i.button_down = true;
+        engine.tick(&i);
+        i.cursor.0 += 8;
+        assert!(engine.tick(&i).move_to.is_none());
+        i.cursor.0 += 12;
+        assert_eq!(engine.tick(&i).move_to, Some((120, 100)));
+        i.button_down = false;
+        assert_eq!(engine.tick(&i).say, Some(SayKind::Drag));
+    }
+
+    #[test]
+    fn sleeping_pet_wakes_for_water_reminder() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        // 模拟一小时无人互动，使用正常帧间隔。
+        i.dt_ms = 100;
+        let mut reminders = 0;
+        for _ in 0..36_002 {
+            let out = engine.tick(&i);
+            if out.say == Some(SayKind::Water) {
+                reminders += 1;
+                assert!(!out.sleeping);
+            }
+        }
+        assert_eq!(reminders, 1);
+    }
+
+    #[test]
+    fn water_reminder_waits_until_focus_ends() {
+        let mut engine = Engine::new();
+        let i = input(1.0);
+        engine.since_water_ms = WATER_INTERVAL_MS;
+        engine.pomodoro_ms = Some(1000);
+        assert_ne!(engine.tick(&i).say, Some(SayKind::Water));
+        assert!(engine.since_water_ms >= WATER_INTERVAL_MS);
+        engine.pomodoro_ms = None;
+        assert_eq!(engine.tick(&i).say, Some(SayKind::Water));
+    }
+
+    #[test]
+    fn floor_uses_physical_window_height_and_work_area() {
+        for scale in [1.0, 1.25, 1.5, 2.0] {
+            let mut engine = Engine::new();
+            let mut i = input(scale);
+            i.gravity = true;
+            i.screen = (-1920, 40, 1920, 1000);
+            i.win_pos = (-1000, 1000);
+            let floor = 1040 - i.win_size.1;
+            assert_eq!(engine.tick(&i).move_to, Some((-1000, floor)));
+            i.win_pos.1 = floor;
+            assert!(engine.tick(&i).move_to.is_none());
         }
     }
 }

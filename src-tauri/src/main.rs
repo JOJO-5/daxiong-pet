@@ -231,6 +231,11 @@ pub(crate) fn rescan_and_refresh(app: &AppHandle) -> std::io::Result<()> {
 
 /// 取当前所在显示器的工作区（物理像素）。
 fn screen_rect(window: &WebviewWindow) -> (i32, i32, i32, i32) {
+    if let Ok(hwnd) = window.hwnd() {
+        if let Some(rect) = platform::work_area(hwnd.0 as _) {
+            return rect;
+        }
+    }
     if let Ok(Some(monitor)) = window.current_monitor() {
         let pos = monitor.position();
         let size = monitor.size();
@@ -282,6 +287,7 @@ fn spawn_engine(
                 cursor: platform::cursor_pos(),
                 win_pos: (pos.x, pos.y),
                 win_size: (size.width as i32, size.height as i32),
+                scale_factor: window.scale_factor().unwrap_or(1.0),
                 screen,
                 button_down: platform::primary_button_down(),
                 look_enabled: look_enabled.load(Ordering::Relaxed),

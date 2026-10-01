@@ -330,7 +330,8 @@ impl Engine {
 
     pub fn tick(&mut self, input: &Input) -> Output {
         let dt = input.dt_ms;
-        let dt_s = dt as f32 / 1000.0;
+        // 计时保留真实经过时间，仅物理积分限制步长，避免恢复时飞出屏幕。
+        let dt_s = dt.min(120) as f32 / 1000.0;
         self.clock_ms += dt;
 
         let (cx, cy) = input.cursor;
@@ -732,13 +733,12 @@ impl Engine {
 
         // ---- 15. 帧推进 ----
         let track = atlas::track(self.row);
-        if matches!(self.row, Row::LookA | Row::LookB) {
+        if self.sleeping && self.react.is_none() && !self.dragging && self.pomodoro_ms.is_none() {
+            self.col = input.sleep_frame.1.min(track.cols.saturating_sub(1));
+        } else if matches!(self.row, Row::LookA | Row::LookB) {
             if let Some(idx) = self.look {
                 self.col = (idx % 8) as usize;
             }
-        } else if self.sleeping {
-            // 睡眠：钉在「趴着」的那一格不动，别让它循环播放成沮丧动画
-            self.col = input.sleep_frame.1.min(track.cols.saturating_sub(1));
         } else {
             self.acc += dt;
             let dur = track.durations[self.col.min(track.cols - 1)] as u64;
@@ -869,4 +869,27 @@ mod tests {
             assert!(engine.tick(&i).move_to.is_none());
         }
     }
+    #[test]
+    fn long_stall_does_not_extend_pomodoro_or_move_across_screen() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        engine.pomodoro_ms = Some(60_000);
+        engine.vx = 100.0;
+        i.dt_ms = 60_000;
+        let out = engine.tick(&i);
+        assert_eq!(out.say, Some(SayKind::PomodoroEnd));
+        assert!(engine.pomodoro_ms.is_none());
+        assert_eq!(out.move_to, Some((112, 100)));
+    }
+
+    #[test]
+    fn sleep_can_pin_a_gaze_frame_without_a_look_direction() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        engine.sleeping = true;
+        i.sleep_frame = (Row::LookB, 7);
+        let out = engine.tick(&i);
+        assert_eq!((out.row, out.col), (10, 7));
+    }
+
 }

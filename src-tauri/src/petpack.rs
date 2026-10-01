@@ -88,7 +88,7 @@ pub fn search_roots() -> Vec<PathBuf> {
 
 /// 扫描全部根目录。同一 id 只保留先发现的（codex 目录优先于便携目录）。
 pub fn discover() -> Vec<PetPack> {
-    let mut found: Vec<PetPack> = Vec::new();
+    let mut found: Vec<PetPack> = vec![builtin()];
 
     for root in search_roots() {
         let Ok(entries) = std::fs::read_dir(&root) else {
@@ -159,7 +159,7 @@ fn load_pack(dir: &Path) -> Option<PetPack> {
                 sleep_row = r.min(10) as u8;
             }
             if let Some(c) = sf.get("col").and_then(|v| v.as_u64()) {
-                sleep_col = c as usize;
+                sleep_col = c.min(7) as usize;
             }
         }
     }
@@ -184,6 +184,8 @@ fn load_pack(dir: &Path) -> Option<PetPack> {
     if rows < ROWS_MIN {
         return None;
     }
+
+    let (sleep_row, sleep_col) = valid_sleep_frame(rows, sleep_row, sleep_col);
 
     Some(PetPack {
         id,
@@ -217,4 +219,28 @@ pub fn sheet_data_url(pack: &PetPack) -> std::io::Result<String> {
         mime,
         base64::engine::general_purpose::STANDARD.encode(&bytes)
     ))
+}
+
+/// 按实际图集和动画轨道校验睡眠帧；无效行回落到默认睡眠姿态。
+fn valid_sleep_frame(rows: u32, row: u8, col: usize) -> (u8, usize) {
+    let row = if u32::from(row) < rows { row } else { DEFAULT_SLEEP_ROW };
+    let track = crate::atlas::track(crate::atlas::Row::from_index(row).unwrap_or(crate::atlas::Row::Failed));
+    (row, col.min(track.cols.saturating_sub(1)))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn sleep_frames_respect_actual_rows_and_used_columns() {
+        assert_eq!(valid_sleep_frame(9, 10, 7), (DEFAULT_SLEEP_ROW, 7));
+        assert_eq!(valid_sleep_frame(11, 3, 7), (3, 3));
+        assert_eq!(valid_sleep_frame(11, 10, 7), (10, 7));
+        assert_eq!(valid_sleep_frame(9, 5, 2), (5, 2));
+    }
+    #[test]
+    fn builtin_is_always_available() {
+        let pets = discover();
+        assert_eq!(pets.iter().filter(|p| p.id == "__builtin__").count(), 1);
+    }
 }

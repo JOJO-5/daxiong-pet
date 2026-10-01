@@ -12,7 +12,7 @@ use config::Config;
 use engine::{Command as EngineCommand, Engine, Input};
 use petpack::PetPack;
 use std::sync::{
-    atomic::{AtomicBool, AtomicU16, Ordering},
+    atomic::{AtomicBool, AtomicU16, AtomicU64, Ordering},
     mpsc, Arc, Mutex,
 };
 use std::time::{Duration, Instant};
@@ -64,6 +64,7 @@ struct AppState {
     sleep_frame: Arc<AtomicU16>,
     /// 给引擎线程发指令（番茄钟等）
     engine_tx: Mutex<mpsc::Sender<EngineCommand>>,
+    pet_revision: Arc<AtomicU64>,
 }
 
 /// 前端完成精灵图解码后调用，此时才真正显示窗口，避免透明窗口白闪。
@@ -74,9 +75,10 @@ fn pet_ready(window: WebviewWindow) {
 
 /// 启动时前端来取"该显示哪只宠物"
 #[tauri::command]
-fn current_pet(state: State<'_, AppState>) -> PetSwitchPayload {
+fn current_pet(app: AppHandle) -> Result<PetSwitchPayload, String> {
+    let state = app.state::<AppState>();
     let id = state.current.lock().unwrap().clone();
-    payload_for(state.inner(), &id)
+    payload_for(state.inner(), &id).map_err(|e| e.to_string())
 }
 
 /// 列出所有可用宠物
@@ -132,7 +134,7 @@ pub(crate) fn apply_gravity(app: &AppHandle, enabled: bool) -> bool {
 }
 
 /// 组装下发给前端的宠物信息（含图集 data URL）
-fn payload_for(state: &AppState, id: &str) -> PetSwitchPayload {
+fn payload_for(state: &AppState, id: &str) -> std::io::Result<PetSwitchPayload> {
     let pack = {
         let pets = state.pets.lock().unwrap();
         pets.iter().find(|p| p.id == id).cloned()
@@ -143,7 +145,7 @@ fn payload_for(state: &AppState, id: &str) -> PetSwitchPayload {
     let data_url = if pack.sheet.as_os_str().is_empty() {
         None
     } else {
-        petpack::sheet_data_url(&pack).ok()
+        Some(petpack::sheet_data_url(&pack)?)
     };
 
     // 宠物包自带话术（可选增强）：跟图集同目录的 speech.json
@@ -155,13 +157,13 @@ fn payload_for(state: &AppState, id: &str) -> PetSwitchPayload {
         .and_then(|p| std::fs::read_to_string(p).ok())
         .and_then(|text| serde_json::from_str::<serde_json::Value>(&text).ok());
 
-    PetSwitchPayload {
+    Ok(PetSwitchPayload {
         id: pack.id,
         name: pack.name,
         rows: pack.rows,
         data_url,
         speech,
-    }
+    })
 }
 
 /// 切换宠物：更新状态、持久化、通知前端、刷新托盘菜单
@@ -179,6 +181,8 @@ pub(crate) fn switch_to_pet(app: &AppHandle, id: &str) -> std::io::Result<()> {
         ));
     };
 
+    // 先成功读取图片再切状态，读取失败保留原宠物。
+    let payload = payload_for(state.inner(), &pack.id)?;
     *state.current.lock().unwrap() = pack.id.clone();
     state.look_enabled.store(pack.has_look(), Ordering::Relaxed);
     state
@@ -191,8 +195,8 @@ pub(crate) fn switch_to_pet(app: &AppHandle, id: &str) -> std::io::Result<()> {
     }
     .save(app);
 
-    let payload = payload_for(state.inner(), &pack.id);
     let _ = app.emit("pet:switch", payload);
+    state.pet_revision.fetch_add(1, Ordering::Release);
 
     let pets = state.pets.lock().unwrap().clone();
     let gravity = state.gravity.load(Ordering::Relaxed);
@@ -205,28 +209,12 @@ pub(crate) fn switch_to_pet(app: &AppHandle, id: &str) -> std::io::Result<()> {
 pub(crate) fn rescan_and_refresh(app: &AppHandle) -> std::io::Result<()> {
     let state = app.state::<AppState>();
 
-    let mut found = petpack::discover();
-    if found.is_empty() {
-        // 一个外部宠物包都没有时，用内置的兜底
-        found.push(petpack::builtin());
-    }
-
+    let found = petpack::discover();
     let current = state.current.lock().unwrap().clone();
-    let still_there = found.iter().any(|p| p.id == current);
+    let selected = if found.iter().any(|p| p.id == current) { current } else { "__builtin__".into() };
     *state.pets.lock().unwrap() = found;
-
-    if still_there {
-        let pets = state.pets.lock().unwrap().clone();
-        let gravity = state.gravity.load(Ordering::Relaxed);
-        tray::refresh(app, &pets, &current, gravity);
-        Ok(())
-    } else {
-        let fallback = state.pets.lock().unwrap().first().map(|p| p.id.clone());
-        match fallback {
-            Some(id) => switch_to_pet(app, &id),
-            None => Ok(()),
-        }
-    }
+    // 当前 ID 未变也重新读图和话术，同步注视、睡眠帧及托盘。
+    switch_to_pet(app, &selected)
 }
 
 /// 取当前所在显示器的工作区（物理像素）。
@@ -248,6 +236,7 @@ fn spawn_engine(
     gravity: Arc<AtomicBool>,
     sleep_frame: Arc<AtomicU16>,
     cmd_rx: mpsc::Receiver<EngineCommand>,
+    pet_revision: Arc<AtomicU64>,
 ) {
     std::thread::spawn(move || {
         let mut engine = Engine::new();
@@ -259,13 +248,14 @@ fn spawn_engine(
         let mut prev_sleeping: Option<bool> = None;
         let mut screen = screen_rect(&window);
         let mut ticks: u64 = 0;
+        let mut revision = pet_revision.load(Ordering::Acquire);
 
         loop {
             // 目标 60Hz。桌宠不需要更高，再高只是白烧 CPU。
             std::thread::sleep(Duration::from_millis(16));
 
             let now = Instant::now();
-            let dt = (now - last).as_millis().min(120) as u64;
+            let dt = (now - last).as_millis().min(u64::MAX as u128) as u64;
             last = now;
             ticks += 1;
 
@@ -299,6 +289,12 @@ fn spawn_engine(
                 },
             };
 
+            let current_revision = pet_revision.load(Ordering::Acquire);
+            if revision != current_revision {
+                prev_frame = None;
+                prev_sleeping = None;
+                revision = current_revision;
+            }
             let out = engine.tick(&input);
 
             if let Some((x, y)) = out.move_to {
@@ -386,6 +382,7 @@ fn main() {
             )));
 
             let (tx, rx) = mpsc::channel();
+            let pet_revision = Arc::new(AtomicU64::new(0));
 
             app.manage(AppState {
                 pets: Mutex::new(pets.clone()),
@@ -394,6 +391,7 @@ fn main() {
                 gravity: gravity.clone(),
                 sleep_frame: sleep_frame.clone(),
                 engine_tx: Mutex::new(tx),
+                pet_revision: pet_revision.clone(),
             });
 
             tray::build(app.handle(), &pets, &initial, saved.gravity)?;
@@ -414,6 +412,7 @@ fn main() {
                 gravity,
                 sleep_frame,
                 rx,
+                pet_revision,
             );
             Ok(())
         })

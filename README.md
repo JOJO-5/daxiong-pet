@@ -79,11 +79,21 @@ pets/
 
 ## 构建
 
-需要 Rust 1.77+、Node 20+、WebView2 运行时（Win10/11 自带）。
+需要 Rust 1.88+（建议使用最新 stable）和 Node 22+。
+
+桌面平台：
+
+- Windows：WebView2 运行时，生成 NSIS 安装包和便携 exe。
+- macOS：生成 Intel / Apple Silicon 的 DMG；全局鼠标按键查询需要在系统设置中授予辅助功能权限。未签名、未公证，首次打开需按 macOS 提示允许运行。
+- Linux：支持 X11 会话，生成 AppImage / Debian 包；需要 WebKitGTK 4.1、AppIndicator 和 X11。原生 Wayland 的全局鼠标查询、窗口移动和点击穿透尚未支持，请选择 X11 会话。
+
+GitHub Actions 的 `Build desktop packages` 自动构建以上平台，成功产物可在运行页面的 Artifacts 下载。不同平台不能在当前环境里完成桌面实测。
+
+Android / iOS 暂未适配：Tauri 的移动应用支持不等于桌面悬浮宠物支持。Android 悬浮桌宠需要额外原生服务和权限，iOS 不提供同等的跨应用常驻覆盖能力。
 
 ```bash
-npm install
-npm run tauri build
+npm ci
+npm run tauri build -- --bundles nsis
 ```
 
 产物：
@@ -138,3 +148,8 @@ src-tauri/src/
 ## License
 
 MIT
+
+
+macOS 构建：`npm run tauri build -- --bundles dmg`。
+Linux 构建：`npm run tauri build -- --bundles appimage,deb`。
+行为回归测试：`cargo test --locked --manifest-path src-tauri/Cargo.toml engine::tests`。

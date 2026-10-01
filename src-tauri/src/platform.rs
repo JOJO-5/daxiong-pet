@@ -3,14 +3,20 @@
 //! 之所以不用前端事件：窗口在非命中区域是「点击穿透」的，鼠标事件根本到不了
 //! WebView，所以按键状态必须从系统层面读取。
 
+#[cfg(target_os = "windows")]
 use windows_sys::Win32::Foundation::{POINT, SYSTEMTIME};
+#[cfg(target_os = "windows")]
 use windows_sys::Win32::System::SystemInformation::GetLocalTime;
+#[cfg(target_os = "windows")]
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::GetAsyncKeyState;
+#[cfg(target_os = "windows")]
 use windows_sys::Win32::UI::WindowsAndMessaging::GetCursorPos;
 
+#[cfg(target_os = "windows")]
 const VK_LBUTTON: i32 = 0x01;
 
 /// 全局光标位置（虚拟屏幕物理像素坐标）。
+#[cfg(target_os = "windows")]
 pub fn cursor_pos() -> (i32, i32) {
     let mut p = POINT { x: 0, y: 0 };
     // SAFETY: GetCursorPos 只写入我们提供的栈上 POINT。
@@ -21,12 +27,14 @@ pub fn cursor_pos() -> (i32, i32) {
 }
 
 /// 鼠标左键当前是否按下。
+#[cfg(target_os = "windows")]
 pub fn primary_button_down() -> bool {
     // SAFETY: GetAsyncKeyState 无参数副作用，纯查询。
     unsafe { (GetAsyncKeyState(VK_LBUTTON) as u16 & 0x8000) != 0 }
 }
 
 /// 本地时间的「小时」（0-23），用于整点报时。
+#[cfg(target_os = "windows")]
 pub fn local_hour() -> u32 {
     let mut st = SYSTEMTIME {
         wYear: 0,
@@ -45,20 +53,38 @@ pub fn local_hour() -> u32 {
     st.wHour as u32
 }
 
-/// 窗口所在显示器的工作区，排除任务栏等系统停靠区域。
-pub fn work_area(hwnd: windows_sys::Win32::Foundation::HWND) -> Option<(i32, i32, i32, i32)> {
-    use windows_sys::Win32::Graphics::Gdi::{
-        GetMonitorInfoW, MonitorFromWindow, MONITORINFO, MONITOR_DEFAULTTONEAREST,
-    };
-    let mut info: MONITORINFO = unsafe { std::mem::zeroed() };
-    info.cbSize = std::mem::size_of::<MONITORINFO>() as u32;
-    // SAFETY: 句柄来自 Tauri；info 是正确初始化、可写的 MONITORINFO。
-    unsafe {
-        let monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-        if GetMonitorInfoW(monitor, &mut info) == 0 {
-            return None;
-        }
+
+/// 前端和窗口坐标统一由 Tauri 转为物理像素。
+pub fn pointer_state(window: &tauri::WebviewWindow) -> ((i32, i32), bool) {
+    #[cfg(target_os = "windows")]
+    {
+        let _ = window;
+        (cursor_pos(), primary_button_down())
     }
-    let r = info.rcWork;
-    Some((r.left, r.top, r.right - r.left, r.bottom - r.top))
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    {
+        use device_query::DeviceQuery;
+        thread_local! {
+            // 无权限 / 无 X11 时不让后台引擎 panic；每秒重试以支持稍后授权。
+            static DEVICE: std::cell::RefCell<(Option<device_query::DeviceState>, std::time::Instant)> =
+                std::cell::RefCell::new((device_query::DeviceState::checked_new(), std::time::Instant::now()));
+        }
+        let pressed = DEVICE.with(|cell| {
+            let mut state = cell.borrow_mut();
+            if state.0.is_none() && state.1.elapsed().as_secs() >= 1 {
+                state.0 = device_query::DeviceState::checked_new();
+                state.1 = std::time::Instant::now();
+            }
+            state.0.as_ref().map(|device| device.get_mouse().button_pressed.get(1).copied().unwrap_or(false)).unwrap_or(false)
+        });
+        let cursor = window.cursor_position().map(|p| (p.x.round() as i32, p.y.round() as i32))
+            .unwrap_or((i32::MIN / 4, i32::MIN / 4));
+        (cursor, pressed)
+    }
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub fn local_hour() -> u32 {
+    use chrono::Timelike;
+    chrono::Local::now().hour()
 }

@@ -231,14 +231,10 @@ pub(crate) fn rescan_and_refresh(app: &AppHandle) -> std::io::Result<()> {
 
 /// 取当前所在显示器的工作区（物理像素）。
 fn screen_rect(window: &WebviewWindow) -> (i32, i32, i32, i32) {
-    if let Ok(hwnd) = window.hwnd() {
-        if let Some(rect) = platform::work_area(hwnd.0 as _) {
-            return rect;
-        }
-    }
     if let Ok(Some(monitor)) = window.current_monitor() {
-        let pos = monitor.position();
-        let size = monitor.size();
+        let area = monitor.work_area();
+        let pos = &area.position;
+        let size = &area.size;
         return (pos.x, pos.y, size.width as i32, size.height as i32);
     }
     // 兜底：拿不到显示器信息时按 1080p 处理，总比 panic 好
@@ -282,14 +278,15 @@ fn spawn_engine(
                 continue;
             };
 
+            let (cursor, button_down) = platform::pointer_state(&window);
             let input = Input {
                 dt_ms: dt,
-                cursor: platform::cursor_pos(),
+                cursor,
                 win_pos: (pos.x, pos.y),
                 win_size: (size.width as i32, size.height as i32),
                 scale_factor: window.scale_factor().unwrap_or(1.0),
                 screen,
-                button_down: platform::primary_button_down(),
+                button_down,
                 look_enabled: look_enabled.load(Ordering::Relaxed),
                 gravity: gravity.load(Ordering::Relaxed),
                 local_hour: platform::local_hour(),

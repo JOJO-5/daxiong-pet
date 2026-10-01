@@ -35,7 +35,13 @@ fn open_pet_dir() {
         .cloned();
     if let Some(dir) = target {
         let _ = std::fs::create_dir_all(&dir);
-        let _ = std::process::Command::new("explorer").arg(&dir).spawn();
+        #[cfg(target_os = "windows")]
+        let opener = "explorer";
+        #[cfg(target_os = "macos")]
+        let opener = "open";
+        #[cfg(target_os = "linux")]
+        let opener = "xdg-open";
+        let _ = std::process::Command::new(opener).arg(&dir).spawn();
     }
 }
 

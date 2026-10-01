@@ -14,8 +14,6 @@ export default defineConfig({
     target: "chrome105",
     minify: "esbuild",
     sourcemap: false,
-    // 不让 vite 自动清空 outDir：本机有 fs.rmSync 安全钩子会拦截批量删除，
-    // 导致构建中断。需要干净产物时先手动删除 dist 目录即可。
-    emptyOutDir: false,
+    emptyOutDir: true,
   },
 });

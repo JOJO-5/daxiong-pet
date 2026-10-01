@@ -50,6 +50,7 @@ export default function App() {
     let errorUntil = 0;
     const displayMessage = (text: string, duration = BUBBLE_MS) => {
       if (!alive) return;
+      if (duration > BUBBLE_MS) errorUntil = Date.now() + duration;
       bubbleId.current += 1;
       setBubble({ text, id: bubbleId.current });
       if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);

@@ -195,6 +195,7 @@ pub struct Engine {
     // ---- 指针 ----
     press: Option<Press>,
     button_was_down: bool,
+    was_interactive: bool,
     dragging: bool,
     /// 按下时光标相对窗口左上角的偏移，拖拽时保持跟手
     grab: (i32, i32),
@@ -254,6 +255,7 @@ impl Engine {
             react: None,
             press: None,
             button_was_down: false,
+            was_interactive: true,
             dragging: false,
             grab: (0, 0),
             trail: VecDeque::new(),
@@ -373,6 +375,11 @@ impl Engine {
             None
         };
 
+        // 恢复显示时只同步按键状态，不接管隐藏期间已经开始的拖拽。
+        if input.interactive && !self.was_interactive {
+            self.button_was_down = input.button_down;
+        }
+        self.was_interactive = input.interactive;
         if !input.interactive {
             self.press = None;
             self.dragging = false;
@@ -919,6 +926,26 @@ mod tests {
         assert!(out.move_to.is_none());
         assert_eq!(out.say, Some(SayKind::PomodoroEnd));
         assert!(engine.press.is_none());
+    }
+
+    #[test]
+    fn showing_pet_during_an_external_drag_keeps_click_through() {
+        let mut engine = Engine::new();
+        let mut i = input(1.0);
+        i.interactive = false;
+        engine.tick(&i);
+        i.interactive = true;
+        i.cursor = (250, 262);
+        i.button_down = true;
+        assert!(!engine.tick(&i).clickable);
+        i.cursor.0 += 20;
+        assert!(engine.tick(&i).move_to.is_none());
+        i.button_down = false;
+        engine.tick(&i);
+        i.button_down = true;
+        engine.tick(&i);
+        i.cursor.0 += 20;
+        assert!(engine.tick(&i).move_to.is_some());
     }
 
 }

@@ -21,6 +21,8 @@ def restart_app():
     invoke("open_playground")
     wait(lambda: len(command("GET","/window/handles"))>len(initial))
     panel = next(iter(set(command("GET","/window/handles"))-initial))
+    wait(lambda: invoke("plugin:window|is_visible",{"label":"playground"}))
+    time.sleep(.2)
     command("POST","/window",{"handle":panel})
     wait(lambda: js("return !!document.querySelector('#nickname')"))
 
@@ -63,6 +65,8 @@ restart_app()
 restored = invoke("companion_status")
 check("real process restart retains nickname, affection and counters",all(restored[k]==saved[k] for k in ["nickname","affection","treats","fetches","pats"]))
 check("restart retains remaining feeding cooldown",restored["treat_wait"]>0)
+
+subprocess.run(["import","-window","root",str(OUT/"companion-saved-desktop.png")],check=True)
 
 memory_path = Path(os.environ["XDG_CONFIG_HOME"])/"com.jojo.daxiongpet"/"companion.json"
 assert memory_path.is_file(), memory_path

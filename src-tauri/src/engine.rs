@@ -96,6 +96,7 @@ pub enum Command {
 /// 触发说话的场合。具体说什么由前端从对应话术表里随机挑。
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum SayKind {
+    BallInvite,
     PlayReturned,
     Click,
     Drag,
@@ -125,6 +126,7 @@ pub enum SayKind {
 impl SayKind {
     pub fn as_str(self) -> &'static str {
         match self {
+            SayKind::BallInvite => "ball_invite",
             SayKind::PlayReturned => "play_returned",
             SayKind::Click => "click",
             SayKind::Drag => "drag",
@@ -163,6 +165,7 @@ pub struct Input {
     pub look_enabled: bool,
     /// 仅内置大熊使用追加的专属动画；旧包继续使用原动作。
     pub extra_animations: bool,
+    pub encounters_enabled: bool,
     /// 重力开关
     pub gravity: bool,
     /// 本地时间的小时数（0-23），用于整点报时
@@ -257,6 +260,7 @@ pub struct Engine {
     rng: u64,
     cmd_rx: Option<Receiver<Command>>,
     play: crate::play::Play,
+    encounters: crate::encounters::Encounters,
 }
 
 impl Engine {
@@ -304,6 +308,7 @@ impl Engine {
             rng: seed,
             cmd_rx: None,
             play: crate::play::Play::default(),
+            encounters: crate::encounters::Encounters::new(seed),
         }
     }
 
@@ -335,6 +340,7 @@ impl Engine {
             return;
         }
         self.play.cancel();
+        self.encounters.interrupt();
         self.pomodoro_ms = Some(POMODORO_MS);
         self.react = None;
         self.ambient_reaction = false;
@@ -367,14 +373,15 @@ impl Engine {
                 Command::CancelPomodoro => self.pomodoro_ms = None,
                 Command::ShowBall | Command::ThrowBall => {
                     if input.interactive && self.pomodoro_ms.is_none() && !self.dragging {
+                        self.encounters.interrupt();
                         self.play.start(input, matches!(cmd, Command::ThrowBall));
                         self.wander = None; self.react = None; self.sleeping = false;
                         self.quiet_ms = 0; self.vx = 0.0; self.vy = 0.0;
                     }
                 }
-                Command::CancelPlay => self.play.cancel(),
+                Command::CancelPlay => {self.play.cancel();self.encounters.interrupt();},
                 Command::FeedTreat => {
-                    self.play.cancel();self.sleeping=false;self.quiet_ms=0;
+                    self.encounters.interrupt();self.play.cancel();self.sleeping=false;self.quiet_ms=0;
                     self.annoyed_until_ms=0;self.clicks.clear();self.wander=None;
                     self.vx=0.0;self.vy=0.0;
                     self.start_reaction(if input.extra_animations { Row::HappyPat } else { Row::Waving });
@@ -384,7 +391,8 @@ impl Engine {
     }
 
     pub fn play_view(&self) -> crate::play::PlayView { self.play.view() }
-    pub fn cancel_play(&mut self) { self.play.cancel(); }
+    pub fn cancel_play(&mut self) { self.play.cancel();self.encounters.interrupt(); }
+    pub fn encounter_view(&self) -> crate::encounters::EncounterView {self.encounters.view()}
 
     pub fn tick(&mut self, input: &Input) -> Output {
         let dt = input.dt_ms;
@@ -606,7 +614,7 @@ impl Engine {
 
         // ---- 7. 睡眠：长时间无交互就睡，被碰到就醒 ----
         let entered = hot && !self.was_hot;
-        let interacted = self.play.active() || commit_click || commit_drag || entered || self.dragging || petting;
+        let interacted = (self.play.active() && !self.encounters.offering_ball()) || commit_click || commit_drag || entered || self.dragging || petting;
         self.was_hot = hot;
 
         if interacted {
@@ -631,7 +639,7 @@ impl Engine {
 
         if self.dragging {
             move_to = Some((cx - self.grab.0, cy - self.grab.1));
-        } else if input.interactive && !self.play.active() {
+        } else if input.interactive && !self.play.active() && !self.encounters.active() {
             // 漫游时由它接管水平速度
             if let Some(w) = &self.wander {
                 self.vx = WANDER_SPEED * w.dir;
@@ -743,7 +751,7 @@ impl Engine {
             self.wander = None;
         }
 
-        let interrupt = self.play.active() || !input.interactive
+        let interrupt = self.play.active() || self.encounters.active() || !input.interactive
             || within_aware
             || self.dragging
             || self.press.is_some()
@@ -826,7 +834,7 @@ impl Engine {
 
         // 安静的小动作只在可见、静止且没有互动/提醒时出现，不发气泡。
         if input.interactive && self.clock_ms >= self.next_ambient_ms
-            && !self.play.active() && self.react.is_none() && !self.sleeping && !self.dragging
+            && !self.play.active() && !self.encounters.active() && self.react.is_none() && !self.sleeping && !self.dragging
             && self.press.is_none() && !hot && !moving && self.wander.is_none()
             && self.clock_ms >= self.annoyed_until_ms && say.is_none()
         {
@@ -857,6 +865,24 @@ impl Engine {
             self.ambient_reaction = false;
         }
 
+        let play_phase=self.play.view().phase;
+        let hard_blocked=!input.interactive || self.sleeping || self.pomodoro_ms.is_some()
+            || self.dragging || self.press.is_some() || input.button_down || hot
+            || self.clock_ms<self.annoyed_until_ms || (self.react.is_some() && !self.ambient_reaction)
+            || (self.play.active() && !(self.encounters.offering_ball() && play_phase=="ready"));
+        let encounter=self.encounters.tick(input,hard_blocked,!moving && self.wander.is_none());
+        if encounter.cancel_ball && self.play.view().phase=="ready"
+            && !(input.button_down && self.play.pointer_hot(input.cursor,input.scale_factor)) { self.play.cancel(); }
+        if encounter.offer_ball {
+            self.play.invite(input);
+            say=Some(SayKind::BallInvite);
+        }
+        if self.encounters.active() && self.ambient_reaction { self.react=None;self.ambient_reaction=false; }
+        if let Some(position)=encounter.movement {
+            if self.encounters.offering_ball() { self.play.nudge((position.0-input.win_pos.0,position.1-input.win_pos.1)); }
+            move_to=Some(position);
+        }
+        if let Some(look)=encounter.look { self.look=Some(look); }
         let play_step = self.play.tick(input);
         if let Some(position) = play_step.movement { move_to = Some(position); }
         if play_step.completed {
@@ -871,6 +897,8 @@ impl Engine {
             if right { Row::RunRight } else { Row::RunLeft }
         } else if let Some((r, _)) = self.react {
             r
+        } else if let Some(row)=encounter.row {
+            row
         } else if self.pomodoro_ms.is_some() {
             Row::Review
         } else if self.clock_ms < self.annoyed_until_ms {
@@ -942,10 +970,39 @@ mod tests {
             button_down: false,
             look_enabled: true,
             extra_animations: false,
+            encounters_enabled:false,
             gravity: false,
             local_hour: 12,
             sleep_frame: (Row::Failed, 2),
         }
+    }
+
+    #[test]
+    fn automatic_events_do_not_keep_an_idle_pet_awake() {
+        let mut engine=Engine::new();engine.encounters=crate::encounters::Encounters::new(1);
+        let mut i=input(1.0);i.encounters_enabled=true;i.extra_animations=true;i.dt_ms=100;
+        let mut seen=false;
+        for _ in 0..1805 {
+            let out=engine.tick(&i);if let Some(pos)=out.move_to {i.win_pos=pos;}
+            seen |= engine.encounter_view().kind.is_some();
+        }
+        assert!(seen);assert!(engine.sleeping);assert_eq!(engine.encounter_view().kind,None);
+        assert_eq!(engine.play_view().phase,"off");
+    }
+
+    #[test]
+    fn focus_interrupts_an_active_event_and_keeps_original_timer() {
+        let mut engine=Engine::new();engine.encounters=crate::encounters::Encounters::new(1);
+        let mut i=input(1.0);i.encounters_enabled=true;i.dt_ms=100;
+        for _ in 0..1700 {
+            let out=engine.tick(&i);if let Some(pos)=out.move_to {i.win_pos=pos;}
+            if engine.encounter_view().kind.is_some() {break;}
+        }
+        assert!(engine.encounter_view().kind.is_some());
+        let (tx,rx)=std::sync::mpsc::channel();engine.attach_commands(rx);
+        tx.send(Command::StartPomodoro).unwrap();let out=engine.tick(&i);
+        assert_eq!(engine.encounter_view().kind,None);assert_eq!(engine.play_view().phase,"off");
+        assert_eq!(out.row,Row::Review as u8);assert!(engine.pomodoro_ms.is_some());
     }
 
     #[test]

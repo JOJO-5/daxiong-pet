@@ -26,12 +26,19 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: cargo test --locked --manifest-path src-tauri/Cargo.toml
-      - run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol
+      - run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol,e2e
       - name: Install Tauri WebDriver
         run: cargo install tauri-driver --version 2.1.0 --locked
       - name: Run native E2E
         env:
           E2E_MEMORY: "1"
+          E2E_ENCOUNTERS: "1"
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Build with production timing
+        run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol
+      - name: Verify production encounter cadence
+        env:
+          E2E_SCRIPT: scripts/e2e-production.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - uses: actions/upload-artifact@v4
         if: always()

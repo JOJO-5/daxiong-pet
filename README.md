@@ -12,6 +12,7 @@
 
 | 功能 | 触发方式 |
 | --- | --- |
+| **偶遇小事件（可关闭）** | 空闲时蝴蝶来访、推球邀请；专注、睡眠、隐藏和手动互动时不打扰 |
 | **零食与陪伴记忆** | 互动面板喂饼干、设置昵称，记录摸头与接球；熟悉后出现专属称呼，离线不扣分 |
 | **扔球接回** | 右键大熊或托盘打开「和大熊一起玩」，抛一球或拖动桌面球松手，大熊追上后叼回 |
 | **鼠标跟随注视** | 用满 16 个方位帧，鼠标移到哪它就看哪 |
@@ -196,10 +197,12 @@ Linux 测试需安装 WebKitGTK 4.1、`webkit2gtk-driver`、Xvfb、Openbox、xdo
 ```bash
 npm ci && npm test && npm run build
 cargo test --locked --manifest-path src-tauri/Cargo.toml
-cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol
+cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol,e2e
 cargo install tauri-driver --version 2.1.0 --locked
-xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+E2E_MEMORY=1 E2E_ENCOUNTERS=1 xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
 ```
+
+`e2e` 仅在调试构建中把事件等待间隔缩短到 3–4 秒，方便等待真实调度；正式构建仍为 90–150 秒，睡眠和专注时长不缩短。
 
 E2E 不模拟 IPC；检查实际窗口、按钮、鼠标抛球和 Rust 接回状态。结果与桌面截图输出到 `test-results/`。
 Windows / macOS 的原生鼠标与多屏行为仍需对应平台实测，Linux E2E 不代表它们已实测。

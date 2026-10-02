@@ -146,3 +146,17 @@ body {
 .treat-cookie i { position:absolute; width:4px; height:4px; background:#80532d; border-radius:50%; left:4px; top:5px; }
 .treat-cookie i:nth-child(2) { left:13px; top:8px; } .treat-cookie i:nth-child(3) { left:7px; top:14px; }
 @keyframes cookie-nibble { 0% { transform:scale(.7) rotate(-20deg); opacity:0; } 15% { opacity:1;transform:scale(1); } 70% { opacity:1;transform:scale(.65) rotate(15deg); } 100% { opacity:0;transform:scale(.1); } }
+
+.encounter-heading { display:flex;align-items:center;justify-content:space-between;gap:8px; }
+.encounter-heading label { font-size:12px;display:flex;align-items:center;gap:5px; }
+.encounter-heading input { accent-color:#567b42; }
+.encounter-card p { margin-top:5px; }
+.butterfly { position:absolute;top:62px;pointer-events:none;z-index:3;animation:butterfly-hover 900ms ease-in-out infinite alternate; }
+.butterfly .wing { transform-box:fill-box;transform-origin:center;animation:wing-flutter 350ms ease-in-out infinite alternate; }
+.butterfly.departing { animation:butterfly-leave 2s ease-in forwards; }
+.toy-ball.rolling { animation:ball-roll 1.8s linear; }
+@keyframes butterfly-hover { from { transform:translateY(0) rotate(-6deg); } to { transform:translateY(-9px) rotate(6deg); } }
+@keyframes wing-flutter { from { transform:scaleX(1); } to { transform:scaleX(.45); } }
+@keyframes butterfly-leave { to { transform:translateY(-70px);opacity:0; } }
+@keyframes ball-roll { to { transform:rotate(180deg); } }
+@media (prefers-reduced-motion:reduce) { .butterfly,.butterfly .wing,.toy-ball.rolling { animation:none; } }

@@ -1,9 +1,13 @@
 [package]
 name = "daxiong-pet"
-version = "1.0.8"
+version = "1.0.9"
 description = "大熊桌面宠物"
 edition = "2021"
 rust-version = "1.88"
+
+[features]
+# Debug E2E builds shorten only encounter waiting intervals.
+e2e = []
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

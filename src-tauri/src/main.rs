@@ -5,6 +5,7 @@ mod atlas;
 mod config;
 mod companion;
 mod engine;
+mod encounters;
 mod petpack;
 mod play;
 mod platform;
@@ -40,6 +41,7 @@ struct FramePayload {
 #[derive(Clone, serde::Serialize)]
 struct StatePayload {
     sleeping: bool,
+    clickable: bool,
 }
 
 /// 下发给前端的"当前宠物"
@@ -71,6 +73,7 @@ struct AppState {
     requested_visible: AtomicBool,
     play: Mutex<play::PlayView>,
     memory: Mutex<MemoryState>,
+    encounter: Mutex<encounters::EncounterView>,
 }
 
 struct MemoryState { data: companion::Memory, error: Option<String> }
@@ -114,6 +117,17 @@ fn feed_treat(app:AppHandle) -> Result<companion::MemoryView,String> {
     let _=app.emit("pet:message",format!("谢谢{name}！这块饼干真香。"));
     let _=app.emit("pet:treat",());
     Ok(view)
+}
+
+#[tauri::command]
+fn set_encounters(enabled:bool,app:AppHandle)->Result<companion::MemoryView,String> {
+    update_memory(&app,|m|{m.encounters_enabled=enabled;Ok(true)})
+}
+
+#[tauri::command]
+fn encounter_status(app:AppHandle)->serde_json::Value {
+    let state=app.state::<AppState>();let memory=state.memory.lock().unwrap();let event=state.encounter.lock().unwrap();
+    serde_json::json!({"enabled":memory.data.encounters_enabled,"kind":event.kind,"phase":event.phase,"right":event.right})
 }
 
 #[tauri::command]
@@ -215,19 +229,27 @@ fn play_action(action: String, app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn playground_ready(window:WebviewWindow)->Result<(),String> {
+    window.show().map_err(|e|e.to_string())
+}
+
+#[tauri::command]
 fn open_playground(app: AppHandle) -> Result<(), String> { open_play_window(&app).map_err(|e|e.to_string()) }
 
 pub(crate) fn open_play_window(app: &AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window("playground") { window.show()?; window.set_focus()?; return Ok(()); }
     tauri::WebviewWindowBuilder::new(app,"playground",tauri::WebviewUrl::App("index.html?view=playground".into()))
-        .title("和大熊一起玩").inner_size(360.0,650.0).resizable(false).build()?;
+        .title("和大熊一起玩").inner_size(360.0,710.0).resizable(false).visible(false).build()?;
     Ok(())
 }
 
 fn create_toy(app: &AppHandle) -> tauri::Result<()> {
     tauri::WebviewWindowBuilder::new(app,"toy",tauri::WebviewUrl::App("index.html?view=toy".into()))
         .title("大熊的球").inner_size(28.0,28.0).transparent(true).decorations(false)
-        .resizable(false).always_on_top(true).skip_taskbar(true).shadow(false).focused(false).visible(false).build()?;
+        .resizable(false).always_on_top(true).skip_taskbar(true).shadow(false).focused(false).focusable(false)
+        // The toy needs no shared browser storage. A separate context also keeps its hidden webview out of WebKit automation.
+        .data_directory(app.path().app_cache_dir()?.join("toy-webview"))
+        .visible(false).build()?;
     Ok(())
 }
 
@@ -368,7 +390,7 @@ fn spawn_engine(
             dt_ms: 0, interactive: false, cursor: (0, 0), win_pos: (0, 0),
             win_size: (engine::WINDOW_W, engine::WINDOW_H), scale_factor: 1.0,
             screen, button_down: false, look_enabled: true, extra_animations: false, gravity: false,
-            local_hour: platform::local_hour(), sleep_frame: (atlas::Row::Failed, 2),
+            encounters_enabled: true, local_hour: platform::local_hour(), sleep_frame: (atlas::Row::Failed, 2),
         };
         let mut revision = pet_revision.load(Ordering::Acquire);
 
@@ -401,6 +423,7 @@ fn spawn_engine(
             } else {
                 input.button_down = false;
             }
+            input.encounters_enabled=app.state::<AppState>().memory.lock().unwrap().data.encounters_enabled;
             input.look_enabled = look_enabled.load(Ordering::Relaxed);
             input.gravity = gravity.load(Ordering::Relaxed);
             input.extra_animations = app.state::<AppState>().current.lock().unwrap().as_str() == "__builtin__";
@@ -436,9 +459,14 @@ fn spawn_engine(
             }
             *previous = play;
             drop(previous);
+            let encounter=engine.encounter_view();
+            let mut previous=state.encounter.lock().unwrap();
+            if *previous!=encounter { let _=app.emit("pet:encounter",&encounter); *previous=encounter; }
+            drop(previous);
 
             // 穿透状态只在变化时下发，避免每帧都过一遍 IPC
-            if prev_clickable != Some(out.clickable) {
+            let clickable_changed=prev_clickable != Some(out.clickable);
+            if clickable_changed {
                 let _ = window.set_ignore_cursor_events(!out.clickable);
                 prev_clickable = Some(out.clickable);
             }
@@ -449,8 +477,8 @@ fn spawn_engine(
                 prev_frame = Some(frame);
             }
 
-            if prev_sleeping != Some(out.sleeping) {
-                let _ = app.emit("pet:state", StatePayload { sleeping: out.sleeping });
+            if prev_sleeping != Some(out.sleeping) || clickable_changed {
+                let _ = app.emit("pet:state", StatePayload { sleeping: out.sleeping, clickable:out.clickable });
                 prev_sleeping = Some(out.sleeping);
             }
 
@@ -520,10 +548,13 @@ fn main() {
             play_status,
             set_visible,
             open_playground,
+            playground_ready,
             companion_status,
             set_nickname,
             feed_treat,
-            restore_memory
+            restore_memory,
+            set_encounters,
+            encounter_status
         ])
         .setup(|app| {
             let window = app.get_webview_window("main").expect("缺少 main 窗口");
@@ -590,6 +621,7 @@ fn main() {
                 requested_visible: AtomicBool::new(true),
                 play: Mutex::new(play::Play::default().view()),
                 memory: Mutex::new(memory),
+                encounter: Mutex::new(encounters::Encounters::new(1).view()),
             });
 
             create_toy(app.handle())?;
@@ -633,6 +665,7 @@ mod tests {
             pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true),
                 play: Mutex::new(play::Play::default().view()),
                 memory: Mutex::new(MemoryState{data:companion::Memory::default(),error:None}),
+                encounter: Mutex::new(encounters::Encounters::new(1).view()),
         }
     }
     #[test]

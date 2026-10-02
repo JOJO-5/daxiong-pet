@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { Butterfly, type EncounterView } from "./EncountersPanel";
 import { decodePetImage, BUILTIN_SRC, DEFAULT_ROWS, type PetSwitch } from "./pet-image";
 import { DEFAULT_SPEECH, DAXIONG_SPEECH, mergeSpeech, pickSpeech, type SpeechTable, type SpeechHistory } from "./speech";
 
@@ -30,6 +31,8 @@ export default function App() {
   const [bubble, setBubble] = useState<{ text: string; id: number } | null>(null);
   const [src, setSrc] = useState<string>(BUILTIN_SRC);
   const [rows, setRows] = useState<number>(DEFAULT_ROWS);
+  const [clickable,setClickable]=useState(false);
+  const [encounter,setEncounter]=useState<EncounterView>({kind:null,phase:"quiet",right:true});
   const [treating,setTreating] = useState(false);
   const [sleeping, setSleeping] = useState(false);
 
@@ -106,10 +109,11 @@ export default function App() {
     });
 
     // 睡眠之类的状态由主进程决定，前端只负责视觉表现
-    const offState = listen<{ sleeping: boolean }>("pet:state", (event) => {
-      if (alive) setSleeping(event.payload.sleeping);
+    const offState = listen<{ sleeping: boolean; clickable:boolean }>("pet:state", (event) => {
+      if (alive) { setSleeping(event.payload.sleeping);setClickable(event.payload.clickable); }
     });
 
+    const offEncounter=listen<EncounterView>("pet:encounter",e=>{if(alive) setEncounter(e.payload);});
     const offMessage = listen<string>("pet:message",event => {
       if(alive && Date.now()>=errorUntil) displayMessage(event.payload);
     });
@@ -125,7 +129,7 @@ export default function App() {
     });
 
     // 监听注册完成再取快照，避免启动时漏掉帧 / 切换事件。
-    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat]).then(async () => {
+    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter]).then(async () => {
       const observed = revision;
       const pet = await invoke<PetSwitch>("current_pet");
       if (alive && revision === observed) await applyPet(pet);
@@ -146,6 +150,7 @@ export default function App() {
       offError.then((off) => off()).catch(console.error);
       offMessage.then(off=>off()).catch(console.error);
       offTreat.then(off=>off()).catch(console.error);
+      offEncounter.then(off=>off()).catch(console.error);
     };
   }, []);
 
@@ -156,9 +161,10 @@ export default function App() {
           {bubble.text}
         </div>
       )}
+      <Butterfly event={encounter}/>
       {treating ? <div className="treat-cookie" data-testid="treat-cookie" aria-hidden="true"><i/><i/><i/></div> : null}
       {/* 用一个裁剪窗口套住整张图集，靠 transform 平移来切帧 */}
-      <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-row={frame.row} data-col={frame.col}>
+      <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-clickable={clickable} data-sleeping={sleeping} data-row={frame.row} data-col={frame.col}>
         <img
           className="pet-sheet"
           alt=""

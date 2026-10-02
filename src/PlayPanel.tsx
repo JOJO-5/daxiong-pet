@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
 import CompanionPanel from "./CompanionPanel";
+import EncountersPanel, { type EncounterView } from "./EncountersPanel";
 
 type PlayView = { phase: string; catches: number };
 const PHASES: Record<string,string> = { off: "准备好陪你玩", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", returned: "再来一球？" };
@@ -13,7 +14,8 @@ export default function PlayPanel() {
   useEffect(() => {
     let active = true;
     const off = listen<PlayView>("pet:play", e => { if(active) setPlay(e.payload); });
-    off.then(() => invoke<PlayView>("play_status")).then(v => { if(active) setPlay(v); }).catch(e => { if(active) setError(String(e)); });
+    off.then(() => invoke<PlayView>("play_status")).then(v => { if(active) setPlay(v); }).catch(e => { if(active) setError(String(e)); })
+      .finally(()=>{if(active) void invoke("playground_ready").catch(e=>setError(String(e)));});
     return () => { active=false; void off.then(fn=>fn()).catch(console.error); };
   },[]);
   const act = async (action:string) => {
@@ -30,11 +32,17 @@ export default function PlayPanel() {
       <p className="small">本次接球 <strong data-testid="catches">{play.catches}</strong> 次</p>
     </section>
     <CompanionPanel />
+    <EncountersPanel />
     <p className="hint">也可以抓住桌面上的球，甩动后松手。<br/>拖动大熊或开始专注会收起玩具。</p>
     {error && <p className="panel-error" role="alert">{error}</p>}
   </main>;
 }
 
 export function Toy() {
-  return <div className="toy-ball" title="拖动后松手抛球" data-testid="toy-ball"/>;
+  const [rolling,setRolling]=useState(false);
+  useEffect(()=>{
+    const off=listen<EncounterView>("pet:encounter",e=>setRolling(e.payload.kind==="ball"&&e.payload.phase==="pushing"));
+    return ()=>{void off.then(fn=>fn()).catch(console.error);};
+  },[]);
+  return <div className={`toy-ball${rolling?" rolling":""}`} title="拖动后松手抛球" data-testid="toy-ball"/>;
 }

@@ -1,0 +1,35 @@
+import { useEffect, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+
+export type EncounterView = {kind:"ball"|"butterfly"|null;phase:string;right:boolean};
+type Status = EncounterView & {enabled:boolean};
+export default function EncountersPanel() {
+  const [status,setStatus]=useState<Status>({enabled:true,kind:null,phase:"quiet",right:true});
+  const [error,setError]=useState("");
+  const [busy,setBusy]=useState(false);
+  useEffect(()=>{
+    let active=true;
+    const off=listen<EncounterView>("pet:encounter",e=>{if(active) setStatus(v=>({...v,...e.payload}));});
+    const offMemory=listen<{encounters_enabled:boolean}>("pet:memory",e=>{if(active) setStatus(v=>({...v,enabled:e.payload.encounters_enabled}));});
+    Promise.all([off,offMemory]).then(()=>invoke<Status>("encounter_status")).then(v=>{if(active) setStatus(v);}).catch(e=>{if(active) setError(String(e));});
+    return ()=>{active=false;void off.then(fn=>fn()).catch(console.error);void offMemory.then(fn=>fn()).catch(console.error);};
+  },[]);
+  const toggle=async(enabled:boolean)=>{
+    setBusy(true);setError("");
+    try {const memory=await invoke<{encounters_enabled:boolean}>("set_encounters",{enabled});setStatus(v=>({...v,enabled:memory.encounters_enabled}));}
+    catch(e){setError(String(e));} finally{setBusy(false);}
+  };
+  return <section className="play-card encounter-card">
+    <div className="encounter-heading"><h2>偶遇小惊喜</h2><label><input aria-label="开启偶遇小事件" type="checkbox" checked={status.enabled} disabled={busy} onChange={e=>void toggle(e.target.checked)}/>开启</label></div>
+    <p className="small" data-testid="encounter-phase" data-kind={status.kind||"none"} data-phase={status.phase}>{!status.enabled?"安静陪伴，随时可以重新开启":status.kind==="butterfly"?"小蝴蝶来串门啦":status.kind==="ball"?"大熊把球推过来了，想和你玩": "偶尔会来只蝴蝶，或收到大熊的接球邀请"}</p>
+    <p className="small">专注、睡觉和正在互动时不打扰你。</p>
+    {error?<p role="alert" className="panel-error">{error}</p>:null}
+  </section>;
+}
+
+export function Butterfly({event}:{event:EncounterView}) {
+  return event.kind==="butterfly" ? <div className={`butterfly ${event.phase}`} style={{left:event.right?214:56}} data-testid="butterfly" aria-hidden="true">
+    <svg viewBox="0 0 32 28" width="28" height="25"><g stroke="#77502e" strokeWidth="1.4"><path className="wing left" fill="#ecb663" d="M15 13 C-4 -4 -3 20 12 23 L15 17Z"/><path className="wing right" fill="#edc677" d="M17 13 C36 -4 35 20 20 23 L17 17Z"/><path d="M16 10v13 M16 11l-4 -6 M16 11l4 -6" fill="none"/></g></svg>
+  </div> : null;
+}

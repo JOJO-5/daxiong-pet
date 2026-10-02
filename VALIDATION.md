@@ -64,3 +64,9 @@ Linux E2E 不代替 Windows/macOS 的原生桌面、多屏实测。
 - [短版视频](docs/validation/1.0.11-bite.mp4) · [完整录像](docs/validation/1.0.11-bite-full.mp4) · [向右咬球](docs/validation/1.0.11-bite-right.png) · [向左咬球](docs/validation/1.0.11-bite-left.png) · [脚边归还](docs/validation/1.0.11-returned.png) · [双向验收记录](docs/validation/1.0.11-bite-e2e.json) · [完整回归记录](docs/validation/1.0.11-state-e2e.json)。视频来自真实 Tauri 窗口与系统鼠标，保留完整等待录像；短版仅去掉中间等待。
 
 原生视觉与鼠标验收在 Linux X11 上完成；Windows/macOS 由跨平台 CI 构建，仍需在对应系统实测。
+
+## 1.0.12 叼球邀请
+
+前端 10 项、Rust 47 项通过，原生验收 13 项通过：六次真实抛球，两次自然触发邀请，按钮和靠近分别放下球，归还仅计一次，关闭开关与隐藏清理。旧包、DPI 和负坐标边界由 Rust 验证。开关原子保存到本地，复用现有 20 行动作，未修改狗图。
+
+[完整原生录像](docs/validation/1.0.12-fun.mp4) · [验收清单](docs/validation/1.0.12-fun-e2e.json)。

@@ -6,7 +6,7 @@ import CompanionPanel from "./CompanionPanel";
 import EncountersPanel, { type EncounterView } from "./EncountersPanel";
 
 type PlayView = { phase: string; catches: number };
-const PHASES: Record<string,string> = { off: "准备好陪你玩", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", releasing: "把球放在你脚边", returned: "抓起脚边的球，再扔一次吧！" };
+const PHASES: Record<string,string> = { off: "准备好陪你玩", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", teasing: "来追我呀！靠近大熊或点放下球", releasing: "把球放在你脚边", returned: "抓起脚边的球，再扔一次吧！" };
 
 export default function PlayPanel() {
   const [play,setPlay] = useState<PlayView>({phase:"off",catches:0});
@@ -28,6 +28,8 @@ export default function PlayPanel() {
     <section className="play-card">
       <h2>接球时间</h2><p role="status" data-testid="play-phase" data-phase={play.phase}>{PHASES[play.phase] || play.phase}</p>
       <div className="play-actions"><button onClick={()=>void act("show")}>拿出球</button><button className="primary" onClick={()=>void act("throw")}>抛一球</button></div>
+      {play.phase==="teasing" ? <button onClick={()=>void act("drop")}>放下球</button> : null}
+      <PlayfulSwitch />
       <button className="quiet" onClick={()=>void act("cancel")}>收起玩具</button>
       <p className="small">本次接球 <strong data-testid="catches">{play.catches}</strong> 次</p>
     </section>
@@ -45,4 +47,18 @@ export function Toy() {
     return ()=>{void off.then(fn=>fn()).catch(console.error);};
   },[]);
   return <div className="toy-stage"><div className={`toy-ball${rolling?" rolling":""}`} title="拖动后松手抛球" data-testid="toy-ball"/></div>;
+}
+
+function PlayfulSwitch() {
+  const [enabled,setEnabled]=useState(true);
+  const [error,setError]=useState("");
+  useEffect(()=>{
+    let active=true;
+    invoke<{playful_fetch:boolean}>("companion_status").then(v=>{if(active)setEnabled(v.playful_fetch);}).catch(e=>{if(active)setError(String(e));});
+    return ()=>{active=false;};
+  },[]);
+  return <><label className="small playful-switch"><input type="checkbox" checked={enabled} onChange={async e=>{
+    try {const v=await invoke<{playful_fetch:boolean}>("set_playful_fetch",{enabled:e.target.checked});setEnabled(v.playful_fetch);setError("");}
+    catch(err){setError(String(err));}
+  }}/> 偶尔叼球逗你追</label>{error ? <p role="alert">{error}</p> : null}</>;
 }

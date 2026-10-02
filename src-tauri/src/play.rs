@@ -60,6 +60,18 @@ impl Play {
         self.was_down = input.button_down;
         self.last_cursor = input.cursor;
     }
+    pub fn invite(&mut self,input:&Input) {
+        self.start(input,false);
+        if let Some((x,y))=self.ball.as_mut() {
+            let center=input.win_pos.0 as f32+(PET_X+PET_W/2) as f32*input.scale_factor as f32;
+            let dir=if *x>=center {1.0} else {-1.0};
+            *x=center+dir*68.0*input.scale_factor as f32;
+            *y=input.win_pos.1 as f32+(PET_Y+PET_H-14) as f32*input.scale_factor as f32;
+        }
+    }
+    pub fn nudge(&mut self,delta:(i32,i32)) {
+        if self.phase=="ready" { if let Some((x,y))=self.ball.as_mut() { *x+=delta.0 as f32;*y+=delta.1 as f32; } }
+    }
     pub fn tick(&mut self, input: &Input) -> PlayStep {
         let mut out = PlayStep { movement: None, direction: None, completed: false };
         if !self.active() { self.was_down = input.button_down; return out; }
@@ -165,7 +177,7 @@ mod tests {
         Input { dt_ms:16, interactive:true, cursor:(-4000,-4000), win_pos:(-1300,300),
             win_size:((300.0*scale) as i32,(240.0*scale) as i32),scale_factor:scale,
             screen:(-1920,0,1920,1080), button_down:false, look_enabled:true,
-            extra_animations:true, gravity:false,local_hour:12,sleep_frame:(crate::atlas::Row::Failed,2) }
+            extra_animations:true, encounters_enabled:false, gravity:false,local_hour:12,sleep_frame:(crate::atlas::Row::Failed,2) }
     }
     #[test]
     fn fetch_returns_once_to_origin_at_multiple_scales() {

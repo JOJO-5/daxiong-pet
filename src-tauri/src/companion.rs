@@ -8,6 +8,7 @@ pub struct Memory {
     pub version: u32,
     pub nickname: String,
     pub affection: u32,
+    pub encounters_enabled: bool,
     pub treats: u32,
     pub fetches: u32,
     pub pats: u32,
@@ -19,7 +20,7 @@ pub struct Memory {
 impl Default for Memory {
     fn default() -> Self {
         Self { version:1, nickname:String::new(), affection:0, treats:0, fetches:0, pats:0,
-            last_treat:None,last_pat:None,last_fetch_reward:None }
+            last_treat:None,last_pat:None,last_fetch_reward:None,encounters_enabled:true }
     }
 }
 
@@ -27,6 +28,7 @@ impl Default for Memory {
 pub struct MemoryView {
     pub nickname: String,
     pub affection: u32,
+    pub encounters_enabled: bool,
     pub stage: &'static str,
     pub treats: u32,
     pub fetches: u32,
@@ -74,7 +76,7 @@ impl Memory {
         Ok(value.into())
     }
     pub fn view(&self,clock:u64,error:Option<String>) -> MemoryView {
-        MemoryView { nickname:self.nickname.clone(), affection:self.affection, stage:match self.affection {
+        MemoryView { nickname:self.nickname.clone(), affection:self.affection, encounters_enabled:self.encounters_enabled,stage:match self.affection {
             0..=19=>"初次相识",20..=99=>"越来越熟",100..=299=>"默契伙伴",_=>"最好的朋友"
         },treats:self.treats,fetches:self.fetches,pats:self.pats,treat_wait:wait(self.last_treat,clock,20),error }
     }

@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import shutil
 import time
 import urllib.request
 
@@ -15,6 +16,7 @@ OUT.mkdir(exist_ok=True)
 BASE = "http://127.0.0.1:4444"
 session = None
 checks = []
+fixture = ROOT/"src-tauri/target/debug/pets/e2e-legacy"
 
 def request(method, path, data=None):
     req = urllib.request.Request(BASE + path, data=None if data is None else json.dumps(data).encode(), method=method,
@@ -85,10 +87,12 @@ try:
     native = subprocess.check_output(["xdotool", "search", "--onlyvisible", "--class", "Daxiong-pet"], text=True).strip().splitlines()[-1]
     initial_handles = set(command("GET", "/window/handles"))
     pointer("mousemove", "--window", native, 150, 160)
-    time.sleep(.15)
+    wait(lambda: js("return document.querySelector('[data-testid=pet]')?.dataset.clickable==='true'"))
     pointer("click", 3)
-    wait(lambda: len(command("GET", "/window/handles")) >= 3)
+    wait(lambda: len(command("GET", "/window/handles")) > len(initial_handles))
     panel = next(iter(set(command("GET", "/window/handles"))-initial_handles))
+    wait(lambda: invoke("plugin:window|is_visible", {"label":"playground"}))
+    time.sleep(.2)
     command("POST", "/window", {"handle":panel})
     wait(lambda: js("return !!document.querySelector('.play-panel')"))
     check("pet right-click opens real interaction window")
@@ -140,6 +144,21 @@ try:
     wait(lambda: invoke("play_status")["phase"] == "off")
     check("native pet drag interrupts play")
     check("interaction panel has no error banner", js("return !document.querySelector('[role=alert]')"))
+    fixture.mkdir(parents=True,exist_ok=True)
+    shutil.copyfile(ROOT/"public/spritesheet.webp",fixture/"spritesheet.webp")
+    (fixture/"pet.json").write_text(json.dumps({"id":"e2e-legacy","displayName":"E2E Legacy","spriteVersionNumber":2,"spritesheetPath":"spritesheet.webp"}))
+    invoke("rescan_pets")
+    click("拿出球")
+    wait(lambda: invoke("play_status")["phase"]=="ready")
+    invoke("set_pet",{"id":"e2e-legacy"})
+    wait(lambda: invoke("play_status")["phase"]=="off")
+    command("POST","/window",{"handle":main})
+    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===2288"))
+    check("legacy atlas loads and pet switching cancels toys",invoke("current_pet")["rows"]==11 and js("return Number(document.querySelector('[data-testid=pet]').dataset.row)<11"))
+    invoke("set_pet",{"id":"__builtin__"})
+    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===3328"))
+    check("switching back restores all 16 built-in animation rows")
+    command("POST","/window",{"handle":panel})
     if os.environ.get("E2E_MEMORY"):
         # Extended by the next version; kept in the same cumulative native suite.
         exec((ROOT / "scripts/e2e-memory.py").read_text(), globals())
@@ -151,6 +170,8 @@ finally:
     if error:
         OUT.joinpath("e2e.json").write_text(json.dumps({"passed":checks,"error":str(error)},ensure_ascii=False,indent=2))
         subprocess.run(["import","-window","root",str(OUT/"failure-desktop.png")],check=False)
+    if fixture.exists():
+        shutil.rmtree(fixture)
     if session:
         try:
             command("DELETE", "")

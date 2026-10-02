@@ -48,6 +48,8 @@ pub enum Row {    Idle = 0,
     /// Built-in closed-mouth carry cycle.
     CarryRight = 16,
     CarryLeft = 17,
+    DropRight = 18,
+    DropLeft = 19,
 }
 
 /// 一条动画轨道的播放参数。
@@ -82,6 +84,8 @@ impl Row {
             15 => Row::Affection,
             16 => Row::CarryRight,
             17 => Row::CarryLeft,
+            18 => Row::DropRight,
+            19 => Row::DropLeft,
             _ => return None,
         })
     }
@@ -94,6 +98,7 @@ const D_SLEEP: &[u16] = &[450, 450, 450, 450, 450, 450, 450, 450];
 const D_WAKE: &[u16] = &[200, 180, 200, 240, 240, 180, 180, 260];
 
 const D_IDLE: &[u16] = &[280, 110, 110, 140, 140, 320];
+const D_DROP: &[u16] = &[100, 100, 100, 100];
 const D_RUN8: &[u16] = &[120, 120, 120, 120, 120, 120, 120, 220];
 const D_WAVE: &[u16] = &[140, 140, 140, 280];
 const D_JUMP: &[u16] = &[140, 140, 140, 140, 280];
@@ -106,6 +111,7 @@ const D_LOOK: &[u16] = &[0, 0, 0, 0, 0, 0, 0, 0];
 
 pub fn track(row: Row) -> Track {
     match row {
+        Row::DropRight | Row::DropLeft => Track { cols: 4, durations: D_DROP, looping: false },
         Row::ShakeFur => Track { cols: 8, durations: D_SHAKE, looping: false },
         Row::Affection => Track { cols: 8, durations: D_AFFECTION, looping: false },
         Row::HappyPat => Track { cols: 8, durations: D_HAPPY, looping: false },

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Pack generated closed-mouth cycles into two new rows; preserve the first 16 rows.
+# Pack generated biting cycles into two new rows; preserve the first 16 rows.
 root=$(cd "$(dirname "$0")/.." && pwd)
 frames=$(mktemp -d)
 trap 'rm -rf "$frames"' EXIT
@@ -18,3 +18,7 @@ done
 convert "$frames/row-0.png" "$frames/row-1.png" -append -define webp:lossless=true "$root/assets/animation-source/carry-packed.webp"
 convert "$root/public/spritesheet-extended.webp" -crop 1536x3328+0+0 +repage "$frames/original-16.png"
 convert "$frames/original-16.png" "$root/assets/animation-source/carry-packed.webp" -append -define webp:lossless=true "$root/public/spritesheet-extended.webp"
+
+if [[ -f "$root/assets/animation-source/drop-mouth.png" ]]; then
+  bash "$root/scripts/pack-drop.sh"
+fi

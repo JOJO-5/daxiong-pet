@@ -5,7 +5,7 @@ exec((Path(__file__).resolve().parent/'e2e-desktop.py').read_text().split('\ntry
 samples=[]
 try:
     new_session();main=command('GET','/window')
-    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===3744"))
+    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===4160"))
     invoke('set_encounters',{'enabled':False})
     invoke('open_playground')
     handles=wait(lambda: (h if len(h:=command('GET','/window/handles'))>1 else None))
@@ -18,30 +18,45 @@ try:
     pointer('mousemove',30,30)
     invoke('plugin:event|listen',{'event':'pet:frame','target':{'kind':'Any'},'handler':js("window.__carryFrame=null;window.__carryFrames=[];return window.__TAURI_INTERNALS__.transformCallback(e=>{window.__carryFrame=e.payload;window.__carryFrames.push(e.payload)})")})
     for target,expected,name in [(100,16,'right'),(1170,17,'left')]:
-        invoke('play_action',{'action':'show'})
-        ball=wait(lambda: (v['ball'] if (v:=invoke('play_status'))['phase']=='ready' else None))
+        if name=='right': invoke('play_action',{'action':'show'})
+        ball=wait(lambda: (v['ball'] if (v:=invoke('play_status'))['phase'] in ('ready','returned') else None))
+        catches_before=invoke('play_status')['catches']
         pointer('mousemove',*ball);time.sleep(.15);pointer('mousedown',1);time.sleep(.12)
         check(f'{name}: visible ball accepts native pointer grab',invoke('play_status')['phase']=='held')
         pointer('mousemove',target,660);time.sleep(.2);pointer('mouseup',1)
         wait(lambda: invoke('play_status')['phase']=='returning',25)
-        columns=set();seen=set();shot=False
+        js('window.__carryFrames=[];return true')
+        columns=set();seen=set();shot=False;released=False;deadline=time.monotonic()+25
         while True:
+            assert time.monotonic()<deadline, 'return/release timed out'
             view=js("return {phase:document.querySelector('[data-testid=play-phase]').dataset.phase,frame:window.__carryFrame}")
-            if view['phase']!='returning': break
+            if view['phase']=='returned': break
+            if view['phase']=='releasing' and not released:
+                subprocess.run(['import','-window','root',str(OUT/f'drop-{name}.png')],check=True)
+                released=True
             frame=view['frame']
             if frame is None: continue
             if frame['row']==expected:
                 columns.add(frame['col']);seen.add(frame['row'])
                 if not shot:
                     subprocess.run(['import','-window','root',str(OUT/f'carry-{name}.png')],check=True)
+                    check(f'{name}: independent ball hidden while sprite bites it',not invoke('plugin:window|is_visible',{'label':'toy'}))
                     shot=True
             samples.append({'direction':name,'frame':frame})
             time.sleep(.08)
-        check(f'{name}: dedicated closed-mouth cycle rendered',seen=={expected})
+        check(f'{name}: dedicated biting cycle rendered',seen=={expected})
         columns={f['col'] for f in js('return window.__carryFrames') if f['row']==expected}
         check(f'{name}: all eight carrying frames exercised',columns==set(range(8)))
-        check(f'{name}: return completes once',invoke('play_status')['phase']=='returned')
-        invoke('play_action',{'action':'cancel'});time.sleep(1.5)
+        check(f'{name}: return completes once',(v:=invoke('play_status'))['phase']=='returned' and v['catches']==catches_before+1)
+        check(f'{name}: release animation exercised',released and any(f['row']==expected+2 for f in js('return window.__carryFrames')))
+        check(f'{name}: returned ball remains visible',invoke('plugin:window|is_visible',{'label':'toy'}))
+        subprocess.run(['import','-window','root',str(OUT/f'returned-{name}.png')],check=True)
+        if name=='right':
+            time.sleep(32)
+            check('returned ball survives old 30-second timeout and can be thrown again',invoke('play_status')['phase']=='returned')
+        else:
+            time.sleep(2)
+            invoke('play_action',{'action':'cancel'})
 finally:
     OUT.joinpath('carry-e2e.json').write_text(json.dumps({'version':json.loads(ROOT.joinpath('package.json').read_text())['version'],'passed':checks,'samples':samples,'error':str(sys.exc_info()[1]) if sys.exc_info()[1] else None},ensure_ascii=False,indent=2))
     if session: command('DELETE','')

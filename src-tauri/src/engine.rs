@@ -87,11 +87,15 @@ pub enum Command {
     CancelPomodoro,
     /// 正在跑就取消，没跑就开始
     TogglePomodoro,
+    ShowBall,
+    ThrowBall,
+    CancelPlay,
 }
 
 /// 触发说话的场合。具体说什么由前端从对应话术表里随机挑。
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum SayKind {
+    PlayReturned,
     Click,
     Drag,
     GentleDrag,
@@ -120,6 +124,7 @@ pub enum SayKind {
 impl SayKind {
     pub fn as_str(self) -> &'static str {
         match self {
+            SayKind::PlayReturned => "play_returned",
             SayKind::Click => "click",
             SayKind::Drag => "drag",
             SayKind::GentleDrag => "gentle_drag",
@@ -250,6 +255,7 @@ pub struct Engine {
     since_talk_ms: u64,
     rng: u64,
     cmd_rx: Option<Receiver<Command>>,
+    play: crate::play::Play,
 }
 
 impl Engine {
@@ -296,6 +302,7 @@ impl Engine {
             since_talk_ms: 0,
             rng: seed,
             cmd_rx: None,
+            play: crate::play::Play::default(),
         }
     }
 
@@ -326,6 +333,7 @@ impl Engine {
         if self.pomodoro_ms.is_some() {
             return;
         }
+        self.play.cancel();
         self.pomodoro_ms = Some(POMODORO_MS);
         self.react = None;
         self.ambient_reaction = false;
@@ -337,7 +345,7 @@ impl Engine {
 
     /// 收外部指令。
     /// 先把待处理指令收集出来再执行，避免「持有 channel 引用」与「修改 self」的借用冲突。
-    fn drain_commands(&mut self, say: &mut Option<SayKind>) {
+    fn drain_commands(&mut self, input: &Input, say: &mut Option<SayKind>) {
         let mut pending = Vec::new();
         if let Some(rx) = &self.cmd_rx {
             while let Ok(cmd) = rx.try_recv() {
@@ -356,9 +364,20 @@ impl Engine {
                     }
                 }
                 Command::CancelPomodoro => self.pomodoro_ms = None,
+                Command::ShowBall | Command::ThrowBall => {
+                    if input.interactive && self.pomodoro_ms.is_none() && !self.dragging {
+                        self.play.start(input, matches!(cmd, Command::ThrowBall));
+                        self.wander = None; self.react = None; self.sleeping = false;
+                        self.quiet_ms = 0; self.vx = 0.0; self.vy = 0.0;
+                    }
+                }
+                Command::CancelPlay => self.play.cancel(),
             }
         }
     }
+
+    pub fn play_view(&self) -> crate::play::PlayView { self.play.view() }
+    pub fn cancel_play(&mut self) { self.play.cancel(); }
 
     pub fn tick(&mut self, input: &Input) -> Output {
         let dt = input.dt_ms;
@@ -379,7 +398,7 @@ impl Engine {
         let (sx, sy, sw, sh) = input.screen;
 
         let mut say: Option<SayKind> = None;
-        self.drain_commands(&mut say);
+        self.drain_commands(input, &mut say);
 
         // 宠物中心与光标的关系（注视与命中都以宠物为基准，不是整个窗口）
         let center = (wx + physical(PET_X + PET_W / 2), wy + physical(PET_Y + PET_H / 2));
@@ -392,7 +411,7 @@ impl Engine {
         let inset_y = (PET_H as f32 * scale * HOT_INSET_Y).round() as i32;
         let px = wx + physical(PET_X);
         let py = wy + physical(PET_Y);
-        let hot = input.interactive && cx >= px + inset_x
+        let hot = input.interactive && !self.play.pointer_hot(input.cursor,input.scale_factor) && cx >= px + inset_x
             && cx < px + physical(PET_W) - inset_x
             && cy >= py + inset_y
             && cy < py + physical(PET_H) - inset_y;
@@ -414,6 +433,7 @@ impl Engine {
         }
         self.was_interactive = input.interactive;
         if !input.interactive {
+            self.play.cancel();
             self.press = None;
             self.dragging = false;
             self.trail.clear();
@@ -430,6 +450,7 @@ impl Engine {
                     self.react = None;
                     self.ambient_reaction = false;
                 }
+                self.play.cancel();
                 self.press = Some(Press { x: cx, y: cy, moved: false });
                 self.grab = (cx - wx, cy - wy);
                 self.trail.clear();
@@ -550,7 +571,7 @@ impl Engine {
         let cursor_still = (cursor_dx * cursor_dx + cursor_dy * cursor_dy).sqrt() < PAT_STILL_RADIUS * scale;
         self.last_cursor = (cx, cy);
 
-        let petting = hot && cursor_still && !input.button_down && !self.dragging;
+        let petting = !self.play.active() && hot && cursor_still && !input.button_down && !self.dragging;
         if petting {
             self.pat_ms += dt;
         } else {
@@ -578,7 +599,7 @@ impl Engine {
 
         // ---- 7. 睡眠：长时间无交互就睡，被碰到就醒 ----
         let entered = hot && !self.was_hot;
-        let interacted = commit_click || commit_drag || entered || self.dragging || petting;
+        let interacted = self.play.active() || commit_click || commit_drag || entered || self.dragging || petting;
         self.was_hot = hot;
 
         if interacted {
@@ -603,7 +624,7 @@ impl Engine {
 
         if self.dragging {
             move_to = Some((cx - self.grab.0, cy - self.grab.1));
-        } else if input.interactive {
+        } else if input.interactive && !self.play.active() {
             // 漫游时由它接管水平速度
             if let Some(w) = &self.wander {
                 self.vx = WANDER_SPEED * w.dir;
@@ -715,7 +736,7 @@ impl Engine {
             self.wander = None;
         }
 
-        let interrupt = !input.interactive
+        let interrupt = self.play.active() || !input.interactive
             || within_aware
             || self.dragging
             || self.press.is_some()
@@ -798,7 +819,7 @@ impl Engine {
 
         // 安静的小动作只在可见、静止且没有互动/提醒时出现，不发气泡。
         if input.interactive && self.clock_ms >= self.next_ambient_ms
-            && self.react.is_none() && !self.sleeping && !self.dragging
+            && !self.play.active() && self.react.is_none() && !self.sleeping && !self.dragging
             && self.press.is_none() && !hot && !moving && self.wander.is_none()
             && self.clock_ms >= self.annoyed_until_ms && say.is_none()
         {
@@ -829,9 +850,18 @@ impl Engine {
             self.ambient_reaction = false;
         }
 
+        let play_step = self.play.tick(input);
+        if let Some(position) = play_step.movement { move_to = Some(position); }
+        if play_step.completed {
+            self.start_reaction(Row::Jumping);
+            say = Some(SayKind::PlayReturned);
+        }
+
         // ---- 14. 决定播放哪一行（按优先级）----
         let target = if self.dragging {
             Row::Waiting
+        } else if let Some(right) = play_step.direction {
+            if right { Row::RunRight } else { Row::RunLeft }
         } else if let Some((r, _)) = self.react {
             r
         } else if self.pomodoro_ms.is_some() {

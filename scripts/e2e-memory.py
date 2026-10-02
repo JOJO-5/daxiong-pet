@@ -55,8 +55,8 @@ except AssertionError as e:
 check("feeding cooldown disables button",js("return [...document.querySelectorAll('button')].some(b=>b.disabled && b.textContent.includes('还在嚼饼干'))"))
 time.sleep(.15)
 # A hover is the application's existing real petting gesture.
-pointer("mousemove","--window",native,150,160)
 before_pat = invoke("companion_status")["pats"]
+pointer("mousemove","--window",native,150,160)
 wait(lambda: invoke("companion_status")["pats"]>before_pat,8)
 pointer("mousemove",30,30)
 check("real hover petting persists affection")

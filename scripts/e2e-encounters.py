@@ -37,6 +37,7 @@ for _ in range(2):
         command("POST","/window",{"handle":panel})
     else:
         check("naturally scheduled invitation displays independent ball window",invoke("plugin:window|is_visible",{"label":"toy"}) and invoke("play_status")["phase"]=="ready")
+    subprocess.run(["import","-window","root",str(OUT/f"{kind}-encounter-desktop.png")],check=True)
     phases = {event["phase"]}
     def ended():
         v=invoke("encounter_status")

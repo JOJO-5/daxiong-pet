@@ -192,7 +192,7 @@ GitHub Actions 运行前端图片测试、Rust 回归测试，以及 Linux X11 �
 ## 桌面端到端验证
 
 [趣味互动路线](ROADMAP.md)分版开发，真实 Tauri + WebKitWebDriver + X11 鼠标 E2E 通过后合并。
-Linux 测试需安装 WebKitGTK 4.1、`webkit2gtk-driver`、Xvfb、Openbox、xdotool、ImageMagick 和 D-Bus。
+Linux 测试需安装 WebKitGTK 4.1、`webkit2gtk-driver`、Xvfb、Openbox、Picom、xdotool、ImageMagick 和 D-Bus。
 
 ```bash
 npm ci && npm test && npm run build
@@ -206,3 +206,15 @@ E2E_MEMORY=1 E2E_ENCOUNTERS=1 xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-se
 
 E2E 不模拟 IPC；检查实际窗口、按钮、鼠标抛球和 Rust 接回状态。结果与桌面截图输出到 `test-results/`。
 Windows / macOS 的原生鼠标与多屏行为仍需对应平台实测，Linux E2E 不代表它们已实测。
+
+### 视频验收
+
+安装 `ffmpeg` 后，在上述 E2E 调试构建上运行：
+
+```bash
+E2E_RECORD=1 E2E_SCRIPT=scripts/e2e-video.py xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+```
+
+输出 `test-results/desktop-validation.mp4` 和 `video-scenes.json`，记录接球、昵称与喂食、自然偶遇、自然睡眠和唤醒。调试构建只缩短偶遇等待，正式版仍为 90–150 秒。
+
+状态回归使用 WebKitWebDriver 兼容渲染路径；该路径的透明窗口截图可能残留旧帧，不作为视觉通过证据。录屏使用默认 WebKit 渲染和 Picom 完整重绘。GitHub E2E 工作流将视频随验收结果上传。

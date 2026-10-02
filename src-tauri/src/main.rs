@@ -481,15 +481,21 @@ mod tests {
         for row in 11..petpack::builtin().rows {
             for col in 0..8 {
                 let mut visible = 0;
+                let mut min_y = 208;
+                let mut max_y = 0;
                 for y in 0..208 {
                     for x in 0..192 {
                         if extended.get_pixel(col * 192 + x, row * 208 + y)[3] > 40 {
                             visible += 1;
+                            min_y = min_y.min(y);
+                            max_y = max_y.max(y);
                             assert!(x >= 3 && x < 189 && y < 204, "frame {row}/{col} crosses padding");
                         }
                     }
                 }
                 assert!(visible > 5000, "frame {row}/{col} is empty");
+                // Happy petting stays standing at the original height; never shrink into a puppy.
+                if row == 11 { assert!(max_y - min_y + 1 >= 194, "petting frame {col} shrank"); }
             }
         }
     }

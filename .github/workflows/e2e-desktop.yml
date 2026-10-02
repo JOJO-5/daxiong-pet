@@ -21,7 +21,7 @@ jobs:
       - name: Install native desktop dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libx11-dev xvfb dbus-x11 webkit2gtk-driver openbox xdotool imagemagick fonts-noto-cjk
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libx11-dev xvfb dbus-x11 webkit2gtk-driver openbox picom ffmpeg xdotool imagemagick fonts-noto-cjk
       - run: npm ci
       - run: npm test
       - run: npm run build
@@ -33,6 +33,12 @@ jobs:
         env:
           E2E_MEMORY: "1"
           E2E_ENCOUNTERS: "1"
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Record native visual validation
+        env:
+          E2E_RECORD: "1"
+          E2E_OUT: "test-results/video"
+          E2E_SCRIPT: scripts/e2e-video.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Build with production timing
         run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol

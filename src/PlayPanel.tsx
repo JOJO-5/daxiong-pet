@@ -44,5 +44,5 @@ export function Toy() {
     const off=listen<EncounterView>("pet:encounter",e=>setRolling(e.payload.kind==="ball"&&e.payload.phase==="pushing"));
     return ()=>{void off.then(fn=>fn()).catch(console.error);};
   },[]);
-  return <div className={`toy-ball${rolling?" rolling":""}`} title="拖动后松手抛球" data-testid="toy-ball"/>;
+  return <div className="toy-stage"><div className={`toy-ball${rolling?" rolling":""}`} title="拖动后松手抛球" data-testid="toy-ball"/></div>;
 }

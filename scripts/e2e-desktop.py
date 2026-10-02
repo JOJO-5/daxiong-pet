@@ -11,9 +11,9 @@ import time
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "test-results"
+OUT = Path(os.environ.get("E2E_OUT", str(ROOT / "test-results")))
 OUT.mkdir(exist_ok=True)
-BASE = "http://127.0.0.1:4444"
+BASE = "http://127.0.0.1:" + os.environ.get("E2E_PORT", "4444")
 session = None
 checks = []
 fixture = ROOT/"src-tauri/target/debug/pets/e2e-legacy"

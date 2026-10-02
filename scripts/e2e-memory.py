@@ -22,7 +22,7 @@ def restart_app():
     wait(lambda: len(command("GET","/window/handles"))>len(initial))
     panel = next(iter(set(command("GET","/window/handles"))-initial))
     wait(lambda: invoke("plugin:window|is_visible",{"label":"playground"}))
-    time.sleep(.2)
+    time.sleep(.7)
     command("POST","/window",{"handle":panel})
     wait(lambda: js("return !!document.querySelector('#nickname')"))
 

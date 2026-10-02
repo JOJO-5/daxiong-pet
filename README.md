@@ -218,3 +218,5 @@ E2E_RECORD=1 E2E_SCRIPT=scripts/e2e-video.py xvfb-run -a -s '-screen 0 1280x800x
 输出 `test-results/desktop-validation.mp4` 和 `video-scenes.json`，记录接球、昵称与喂食、自然偶遇、自然睡眠和唤醒。调试构建只缩短偶遇等待，正式版仍为 90–150 秒。
 
 状态回归使用 WebKitWebDriver 兼容渲染路径；该路径的透明窗口截图可能残留旧帧，不作为视觉通过证据。录屏使用默认 WebKit 渲染和 Picom 完整重绘。GitHub E2E 工作流将视频随验收结果上传。
+
+1.0.10 修复叼球返回：内置图集追加左右闭嘴跑步两行，球按每帧嘴部锚点移动。原有 16 行像素保留；旧宠物包使用原跑步动作降级。可用 `E2E_RECORD=1 E2E_SCRIPT=scripts/e2e-carry.py` 按上面的 Xvfb 命令录制双向叼回验收。

@@ -40,6 +40,12 @@ jobs:
           E2E_OUT: "test-results/video"
           E2E_SCRIPT: scripts/e2e-video.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Record bidirectional carrying validation
+        env:
+          E2E_RECORD: "1"
+          E2E_OUT: "test-results/carry"
+          E2E_SCRIPT: scripts/e2e-carry.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Build with production timing
         run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol
       - name: Verify production encounter cadence

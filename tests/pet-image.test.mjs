@@ -4,8 +4,8 @@ import { decodePetImage, BUILTIN_SRC } from '../src/pet-image.ts';
 const pet = { id: 'external', name: '外部宠物', rows: 9, data_url: 'data:image/png;base64,test', speech: { click: ['hi'] } };
 const decoder = (width, height, error) => () => ({ src: '', naturalWidth: width, naturalHeight: height, decode: async () => { if (error) throw error; } });
 test('missing external image uses builtin dimensions and default speech', async () => {
-  const result = await decodePetImage({ ...pet, data_url: null }, decoder(1536, 3328));
-  assert.deepEqual(result, { src: BUILTIN_SRC, rows: 16, speech: undefined });
+  const result = await decodePetImage({ ...pet, data_url: null }, decoder(1536, 3744));
+  assert.deepEqual(result, { src: BUILTIN_SRC, rows: 18, speech: undefined });
 });
 test('nine-row pet keeps its dimensions and speech', async () => {
   const result = await decodePetImage(pet, decoder(1536, 1872));

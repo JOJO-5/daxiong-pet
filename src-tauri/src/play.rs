@@ -2,6 +2,10 @@
 use crate::engine::{Input, PET_H, PET_W, PET_X, PET_Y};
 use serde::Serialize;
 
+// Atlas-pixel coordinates of the lower lip/ball contact for each carry frame.
+const CARRY_RIGHT:[(f32,f32);8]=[(176.0,125.0),(173.0,127.0),(175.0,125.0),(176.0,124.0),(176.0,130.0),(176.0,113.0),(176.0,127.0),(179.0,119.0)];
+const CARRY_LEFT:[(f32,f32);8]=[(18.0,130.0),(18.0,133.0),(18.0,131.0),(18.0,132.0),(18.0,130.0),(20.0,131.0),(18.0,132.0),(18.0,132.0)];
+
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct PlayView {
     pub phase: &'static str,
@@ -71,6 +75,20 @@ impl Play {
     }
     pub fn nudge(&mut self,delta:(i32,i32)) {
         if self.phase=="ready" { if let Some((x,y))=self.ball.as_mut() { *x+=delta.0 as f32;*y+=delta.1 as f32; } }
+    }
+    /// Place the independent toy after the rendered animation frame is selected.
+    pub fn align_carried_ball(&mut self, input:&Input, position:(i32,i32), row:crate::atlas::Row, col:usize) {
+        if self.phase!="returning" { return; }
+        let anchor=match row {
+            crate::atlas::Row::CarryRight => CARRY_RIGHT[col.min(7)],
+            crate::atlas::Row::CarryLeft => CARRY_LEFT[col.min(7)],
+            crate::atlas::Row::RunRight => (182.0,94.0),
+            crate::atlas::Row::RunLeft => (10.0,94.0),
+            _ => return,
+        };
+        let scale=input.scale_factor as f32;
+        self.ball=Some((position.0 as f32+(PET_X as f32+anchor.0*0.75)*scale,
+            position.1 as f32+(PET_Y as f32+anchor.1*0.75)*scale));
     }
     pub fn tick(&mut self, input: &Input) -> PlayStep {
         let mut out = PlayStep { movement: None, direction: None, completed: false };
@@ -142,7 +160,7 @@ impl Play {
             let position = step_toward(input.win_pos,self.home,250.0*s*dt);
             out.movement = Some(position);
             out.direction = Some(dx >= 0);
-            // The toy is carried beside the muzzle; no replacement character art.
+            // Fallback placement; the engine aligns the toy to the selected mouth frame.
             x = position.0 as f32 + (if dx >= 0 { PET_X+PET_W-18 } else { PET_X+18 }) as f32*s;
             y = position.1 as f32 + (PET_Y+PET_H/3) as f32*s;
             if (dx as f32).hypot(dy as f32) <= 5.0*s {
@@ -178,6 +196,26 @@ mod tests {
             win_size:((300.0*scale) as i32,(240.0*scale) as i32),scale_factor:scale,
             screen:(-1920,0,1920,1080), button_down:false, look_enabled:true,
             extra_animations:true, encounters_enabled:false, gravity:false,local_hour:12,sleep_frame:(crate::atlas::Row::Failed,2) }
+    }
+    #[test]
+    fn carry_alignment_tracks_each_frame_at_multiple_scales() {
+        for scale in [1.0,1.25,2.0] {
+            let i=input(scale);let mut p=Play::default();p.phase="returning";
+            let mut heights=std::collections::HashSet::new();
+            for row in [crate::atlas::Row::CarryRight,crate::atlas::Row::CarryLeft] {
+                for col in 0..8 {
+                    p.align_carried_ball(&i,i.win_pos,row,col);
+                    let (x,y)=p.view().ball.unwrap();
+                    assert!(y>i.win_pos.1+(110.0*scale) as i32 && y<i.win_pos.1+(200.0*scale) as i32);
+                    assert!(x>i.win_pos.0 && x<i.win_pos.0+i.win_size.0);
+                    heights.insert(y);
+                }
+            }
+            assert!(heights.len()>3,"mouth anchors must follow gait");
+            p.phase="ready";let before=p.view().ball;
+            p.align_carried_ball(&i,(0,0),crate::atlas::Row::CarryRight,0);
+            assert_eq!(p.view().ball,before);
+        }
     }
     #[test]
     fn fetch_returns_once_to_origin_at_multiple_scales() {

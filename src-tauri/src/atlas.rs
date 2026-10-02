@@ -45,6 +45,9 @@ pub enum Row {    Idle = 0,
     ShakeFur = 14,
     /// 内置扩展：歪头抬爪撒娇
     Affection = 15,
+    /// Built-in closed-mouth carry cycle.
+    CarryRight = 16,
+    CarryLeft = 17,
 }
 
 /// 一条动画轨道的播放参数。
@@ -77,6 +80,8 @@ impl Row {
             13 => Row::WakeStretch,
             14 => Row::ShakeFur,
             15 => Row::Affection,
+            16 => Row::CarryRight,
+            17 => Row::CarryLeft,
             _ => return None,
         })
     }
@@ -107,7 +112,7 @@ pub fn track(row: Row) -> Track {
         Row::Sleep => Track { cols: 8, durations: D_SLEEP, looping: true },
         Row::WakeStretch => Track { cols: 8, durations: D_WAKE, looping: false },
         Row::Idle => Track { cols: 6, durations: D_IDLE, looping: true },
-        Row::RunRight | Row::RunLeft => Track { cols: 8, durations: D_RUN8, looping: true },
+        Row::RunRight | Row::RunLeft | Row::CarryRight | Row::CarryLeft => Track { cols: 8, durations: D_RUN8, looping: true },
         Row::Waving => Track { cols: 4, durations: D_WAVE, looping: false },
         Row::Jumping => Track { cols: 5, durations: D_JUMP, looping: false },
         Row::Failed => Track { cols: 8, durations: D_FAIL, looping: false },

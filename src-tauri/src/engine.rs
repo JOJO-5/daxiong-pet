@@ -894,7 +894,9 @@ impl Engine {
         let target = if self.dragging {
             Row::Waiting
         } else if let Some(right) = play_step.direction {
-            if right { Row::RunRight } else { Row::RunLeft }
+            if input.extra_animations && self.play.view().phase=="returning" {
+                if right { Row::CarryRight } else { Row::CarryLeft }
+            } else if right { Row::RunRight } else { Row::RunLeft }
         } else if let Some((r, _)) = self.react {
             r
         } else if let Some(row)=encounter.row {
@@ -942,6 +944,7 @@ impl Engine {
             }
         }
 
+        self.play.align_carried_ball(input, move_to.unwrap_or(input.win_pos), self.row, self.col);
         Output {
             move_to,
             // 外部拖拽经过宠物时保持穿透，避免挡住文件投放等操作。
@@ -974,6 +977,25 @@ mod tests {
             gravity: false,
             local_hour: 12,
             sleep_frame: (Row::Failed, 2),
+        }
+    }
+
+    #[test]
+    fn carrying_uses_closed_mouth_only_for_builtin_and_legacy_stays_in_bounds() {
+        for builtin in [false,true] {
+            let mut engine=Engine::new();let mut i=input(1.0);i.extra_animations=builtin;
+            engine.play.start(&i,true);let mut seen=false;
+            for _ in 0..2000 {
+                let out=engine.tick(&i);
+                if let Some(pos)=out.move_to {i.win_pos=pos;}
+                if engine.play_view().phase=="returning" {
+                    seen=true;
+                    if builtin {assert!(out.row==Row::CarryRight as u8 || out.row==Row::CarryLeft as u8);}
+                    else {assert!(out.row<11);}
+                }
+                if engine.play_view().phase=="returned" {break;}
+            }
+            assert!(seen);assert_eq!(engine.play_view().catches,1);
         }
     }
 

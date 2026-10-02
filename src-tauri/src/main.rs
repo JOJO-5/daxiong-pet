@@ -131,6 +131,11 @@ fn encounter_status(app:AppHandle)->serde_json::Value {
 }
 
 #[tauri::command]
+fn set_playful_fetch(enabled:bool,app:AppHandle)->Result<companion::MemoryView,String> {
+    update_memory(&app,|m|{m.playful_fetch=enabled;Ok(true)})
+}
+
+#[tauri::command]
 fn restore_memory(app:AppHandle) -> Result<companion::MemoryView,String> {
     let state=app.state::<AppState>();let mut stored=state.memory.lock().unwrap();
     if stored.error.is_none() { return Err("记忆正常，无需恢复".into()); }
@@ -222,7 +227,7 @@ fn play_action(action: String, app: AppHandle) -> Result<(), String> {
     if !state.requested_visible.load(Ordering::Relaxed) && action != "cancel" { return Err("先显示大熊再一起玩吧".into()); }
     let cmd = match action.as_str() {
         "show" => EngineCommand::ShowBall, "throw" => EngineCommand::ThrowBall,
-        "cancel" => EngineCommand::CancelPlay, _ => return Err("未知互动".into()),
+        "cancel" => EngineCommand::CancelPlay, "drop" => EngineCommand::DropBall, _ => return Err("未知互动".into()),
     };
     state.engine_tx.lock().unwrap().send(cmd).map_err(|e| e.to_string())?;
     Ok(())
@@ -437,6 +442,7 @@ fn spawn_engine(
                 revision = current_revision;
                 engine.cancel_play();
             }
+            engine.set_playful_fetch(app.state::<AppState>().memory.lock().unwrap().data.playful_fetch);
             let out = engine.tick(&input);
 
             if let Some((x, y)) = out.move_to {
@@ -445,7 +451,7 @@ fn spawn_engine(
 
             let play = engine.play_view();
             if let Some(toy) = app.get_webview_window("toy") {
-                let visible_ball = if input.extra_animations && play.phase == "returning" { None } else { play.ball };
+                let visible_ball = if input.extra_animations && matches!(play.phase,"returning" | "teasing") { None } else { play.ball };
                 if let Some((x,y)) = visible_ball {
                     let size = toy.outer_size().ok();
                     let half = size.map(|v| (v.width as i32/2,v.height as i32/2)).unwrap_or((14,14));
@@ -555,6 +561,7 @@ fn main() {
             feed_treat,
             restore_memory,
             set_encounters,
+            set_playful_fetch,
             encounter_status
         ])
         .setup(|app| {

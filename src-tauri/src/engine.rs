@@ -91,6 +91,7 @@ pub enum Command {
     ThrowBall,
     CancelPlay,
     FeedTreat,
+    DropBall,
 }
 
 /// 触发说话的场合。具体说什么由前端从对应话术表里随机挑。
@@ -379,6 +380,7 @@ impl Engine {
                         self.quiet_ms = 0; self.vx = 0.0; self.vy = 0.0;
                     }
                 }
+                Command::DropBall => self.play.drop_ball(),
                 Command::CancelPlay => {self.play.cancel();self.encounters.interrupt();},
                 Command::FeedTreat => {
                     self.encounters.interrupt();self.play.cancel();self.sleeping=false;self.quiet_ms=0;
@@ -390,6 +392,7 @@ impl Engine {
         }
     }
 
+    pub fn set_playful_fetch(&mut self,enabled:bool) {self.play.set_playful(enabled);}
     pub fn play_view(&self) -> crate::play::PlayView { self.play.view() }
     pub fn cancel_play(&mut self) { self.play.cancel();self.encounters.interrupt(); }
     pub fn encounter_view(&self) -> crate::encounters::EncounterView {self.encounters.view()}
@@ -896,7 +899,7 @@ impl Engine {
         } else if let Some(right) = play_step.direction {
             if input.extra_animations && self.play.view().phase=="releasing" {
                 if right { Row::DropRight } else { Row::DropLeft }
-            } else if input.extra_animations && self.play.view().phase=="returning" {
+            } else if input.extra_animations && matches!(self.play.view().phase,"returning" | "teasing") {
                 if right { Row::CarryRight } else { Row::CarryLeft }
             } else if right { Row::RunRight } else { Row::RunLeft }
         } else if let Some((r, _)) = self.react {

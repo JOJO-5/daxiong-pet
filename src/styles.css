@@ -163,3 +163,5 @@ body {
 @keyframes butterfly-leave { to { transform:translateY(-70px);opacity:0; } }
 @keyframes ball-roll { to { transform:rotate(180deg); } }
 @media (prefers-reduced-motion:reduce) { .butterfly,.butterfly .wing,.toy-ball.rolling { animation:none; } }
+
+.playful-switch { display:flex; align-items:center; gap:7px; margin:10px 0; }

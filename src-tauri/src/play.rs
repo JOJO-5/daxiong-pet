@@ -26,6 +26,9 @@ pub struct Play {
     release_ms: u64,
     release_from: (f32,f32),
     carry_right: bool,
+    playful: bool,
+    teased: bool,
+    tease_ms: u64,
 }
 
 pub struct PlayStep {
@@ -37,11 +40,13 @@ pub struct PlayStep {
 impl Default for Play {
     fn default() -> Self {
         Self { phase: "off", ball: None, velocity: (0.0, 0.0), home: (0, 0),
-            last_cursor: (0, 0), held_offset: (0.0, 0.0), was_down: false, elapsed: 0, catches: 0, release_ms: 0, release_from: (0.0,0.0), carry_right: true }
+            last_cursor: (0, 0), held_offset: (0.0, 0.0), was_down: false, elapsed: 0, catches: 0, release_ms: 0, release_from: (0.0,0.0), carry_right: true, playful:true, teased:false, tease_ms:0 }
     }
 }
 
 impl Play {
+    pub fn set_playful(&mut self,enabled:bool) {self.playful=enabled;if !enabled {self.drop_ball();}}
+    pub fn drop_ball(&mut self) {if self.phase=="teasing" {self.phase="returning";self.teased=true;}}
     pub fn active(&self) -> bool { self.phase != "off" }
     pub fn pointer_hot(&self, cursor: (i32,i32), scale: f64) -> bool {
         self.ball.is_some_and(|(x,y)| (cursor.0 as f32-x).hypot(cursor.1 as f32-y) <= 18.0*scale as f32)
@@ -64,6 +69,7 @@ impl Play {
         self.velocity = if throw { (dir*330.0*s,-380.0*s) } else { (0.0,0.0) };
         self.phase = if throw { "chasing" } else { "ready" };
         self.elapsed = 0;
+        self.teased = false; self.tease_ms = 0;
         self.was_down = input.button_down;
         self.last_cursor = input.cursor;
     }
@@ -81,7 +87,7 @@ impl Play {
     }
     /// Track the carried ball for legacy overlay and builtin release handoff.
     pub fn align_carried_ball(&mut self, input:&Input, position:(i32,i32), row:crate::atlas::Row, col:usize) {
-        if self.phase!="returning" { return; }
+        if !matches!(self.phase,"returning" | "teasing") { return; }
         let anchor=match row {
             crate::atlas::Row::CarryRight => CARRY_RIGHT[col.min(7)],
             crate::atlas::Row::CarryLeft => CARRY_LEFT[col.min(7)],
@@ -113,6 +119,7 @@ impl Play {
             self.held_offset = (x-input.cursor.0 as f32,y-input.cursor.1 as f32);
             self.velocity = (0.0,0.0);
             self.home = input.win_pos;
+            self.teased = false; self.tease_ms = 0;
             self.elapsed = 0;
         }
         if self.phase == "held" {
@@ -157,6 +164,18 @@ impl Play {
                 out.direction = Some(dx >= 0);
             }
         }
+        if self.phase == "teasing" {
+            self.tease_ms += input.dt_ms.min(50);
+            let near = (input.cursor.0 as f32-(input.win_pos.0 as f32+(PET_X+PET_W/2) as f32*s)).hypot(input.cursor.1 as f32-(input.win_pos.1 as f32+(PET_Y+PET_H/2) as f32*s)) < 85.0*s;
+            if self.tease_ms>=3500 || near || !self.playful {self.phase="returning";}
+            else {
+                let offset = if self.carry_right {-56.0*s} else {56.0*s};
+                let target=((self.home.0 as f32+offset).round() as i32,self.home.1);
+                let target=(target.0.clamp(sx,sx+sw-input.win_size.0),target.1);
+                out.movement=Some(step_toward(input.win_pos,target,110.0*s*dt));
+                out.direction=Some(self.carry_right);
+            }
+        }
         if self.phase == "returning" {
             let dx = self.home.0-input.win_pos.0;
             let dy = self.home.1-input.win_pos.1;
@@ -170,7 +189,10 @@ impl Play {
             if (dx as f32).hypot(dy as f32) <= 5.0*s {
                 out.movement = Some(self.home);
                 out.direction = None;
-                if input.extra_animations {
+                if input.extra_animations && self.playful && !self.teased && (self.catches+1)%3==0 {
+                    self.phase="teasing";self.teased=true;self.tease_ms=0;
+                    out.direction=Some(self.carry_right);
+                } else if input.extra_animations {
                     self.phase = "releasing";
                     self.release_ms = 0;
                     self.release_from = self.ball.unwrap();
@@ -222,6 +244,27 @@ mod tests {
             win_size:((300.0*scale) as i32,(240.0*scale) as i32),scale_factor:scale,
             screen:(-1920,0,1920,1080), button_down:false, look_enabled:true,
             extra_animations:true, encounters_enabled:false, gravity:false,local_hour:12,sleep_frame:(crate::atlas::Row::Failed,2) }
+    }
+    #[test]
+    fn playful_return_is_bounded_optional_and_releases_once() {
+        for scale in [1.0,1.25,2.0] {
+            for mode in [0,1,2,3] {
+                let mut i=input(scale);let mut p=Play::default();p.start(&i,false);p.phase="returning";p.catches=2;
+                if mode==3 {i.extra_animations=false;}
+                p.tick(&i);
+                if mode==3 {assert_eq!(p.view().phase,"returned");continue;}
+                assert_eq!(p.view().phase,"teasing");assert_eq!(p.catches,2);
+                if mode==1 {p.drop_ball();} else if mode==2 {p.set_playful(false);}
+                let mut completions=0;
+                for _ in 0..400 {
+                    let step=p.tick(&i);completions+=usize::from(step.completed);
+                    if let Some(pos)=step.movement {i.win_pos=pos;}
+                    assert!((i.win_pos.0-p.home.0).abs()<= (56.0*scale).round() as i32);
+                    if p.view().phase=="returned" {break;}
+                }
+                assert_eq!(p.view().phase,"returned");assert_eq!(completions,1);assert_eq!(p.catches,3);
+            }
+        }
     }
     #[test]
     fn returned_ball_persists_and_accepts_another_throw() {

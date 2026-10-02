@@ -12,6 +12,7 @@
 
 | 功能 | 触发方式 |
 | --- | --- |
+| **扔球接回** | 右键大熊或托盘打开「和大熊一起玩」，抛一球或拖动桌面球松手，大熊追上后叼回 |
 | **鼠标跟随注视** | 用满 16 个方位帧，鼠标移到哪它就看哪 |
 | **摸头** | 光标在它身上停住约 1.2 秒，会抬爪回应；生气时可安抚它 |
 | **连点会生气** | 2 秒内连点 3 次就翻脸，之后几秒不搭理你 |
@@ -185,3 +186,19 @@ GitHub Actions 运行前端图片测试、Rust 回归测试，以及 Linux X11 �
 ## 1.0.6 大熊形象一致性修正
 
 重做新增四组动作：使用原版站立、趴卧、伸展与抬爪帧作为生图参考，恢复修长身材、长腿、原版嘴鼻和像素颗粒。打包时每组使用固定比例与最近邻采样，避免柔化像素边缘；保留原有前 11 行的可见像素与行为触发规则。原参考图、生成稿和分帧坐标均保存在 `assets/animation-source/`，完整图集仍为 16 行。
+
+## 桌面端到端验证
+
+[趣味互动路线](ROADMAP.md)分版开发，真实 Tauri + WebKitWebDriver + X11 鼠标 E2E 通过后合并。
+Linux 测试需安装 WebKitGTK 4.1、`webkit2gtk-driver`、Xvfb、Openbox、xdotool、ImageMagick 和 D-Bus。
+
+```bash
+npm ci && npm test && npm run build
+cargo test --locked --manifest-path src-tauri/Cargo.toml
+cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol
+cargo install tauri-driver --version 2.1.0 --locked
+xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+```
+
+E2E 不模拟 IPC；检查实际窗口、按钮、鼠标抛球和 Rust 接回状态。结果与桌面截图输出到 `test-results/`。
+Windows / macOS 的原生鼠标与多屏行为仍需对应平台实测，Linux E2E 不代表它们已实测。

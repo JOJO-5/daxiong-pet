@@ -13,13 +13,9 @@ use tauri_plugin_autostart::ManagerExt;
 pub const TRAY_ID: &str = "daxiong-tray";
 
 fn toggle_window(app: &AppHandle) {
-    if let Some(window) = app.get_webview_window("main") {
+    if app.get_webview_window("main").is_some() {
         let visible = app.state::<crate::AppState>().requested_visible.load(Ordering::Relaxed);
-        let result = if visible { window.hide() } else { window.show() };
-        match result {
-            Ok(()) => app.state::<crate::AppState>().requested_visible.store(!visible, Ordering::Relaxed),
-            Err(e) => crate::report_error(app, "显示 / 隐藏宠物失败", e),
-        }
+        if let Err(e)=crate::apply_visibility(app,!visible) { crate::report_error(app,"显示 / 隐藏宠物失败",e); }
     }
 }
 
@@ -62,6 +58,7 @@ fn build_menu(app: &AppHandle, pets: &[PetPack], current: &str) -> tauri::Result
         true,
         None::<&str>,
     )?;
+    let play = MenuItem::with_id(app, "play", "和大熊一起玩…", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
 
     let gravity_item = CheckMenuItem::with_id(
@@ -97,6 +94,7 @@ fn build_menu(app: &AppHandle, pets: &[PetPack], current: &str) -> tauri::Result
         .item(&rescan)
         .item(&open_dir)
         .separator()
+        .item(&play)
         .item(&pomodoro)
         .item(&gravity_item)
         .separator()
@@ -156,6 +154,7 @@ fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
 
     match id {
         "toggle" => toggle_window(app),
+        "play" => { if let Err(e) = crate::open_play_window(app) { crate::report_error(app,"打开互动面板失败",e); } },
         "rescan" => {
             if let Err(err) = crate::rescan_and_refresh(app) {
                 crate::report_error(app, "重新扫描失败", err);

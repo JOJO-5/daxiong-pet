@@ -1,0 +1,204 @@
+//! Desktop toys use physical coordinates, independent of the small pet window.
+use crate::engine::{Input, PET_H, PET_W, PET_X, PET_Y};
+use serde::Serialize;
+
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct PlayView {
+    pub phase: &'static str,
+    pub ball: Option<(i32, i32)>,
+    pub catches: u32,
+}
+
+pub struct Play {
+    phase: &'static str,
+    ball: Option<(f32, f32)>,
+    velocity: (f32, f32),
+    home: (i32, i32),
+    last_cursor: (i32, i32),
+    held_offset: (f32, f32),
+    was_down: bool,
+    elapsed: u64,
+    pub catches: u32,
+}
+
+pub struct PlayStep {
+    pub movement: Option<(i32, i32)>,
+    pub direction: Option<bool>,
+    pub completed: bool,
+}
+
+impl Default for Play {
+    fn default() -> Self {
+        Self { phase: "off", ball: None, velocity: (0.0, 0.0), home: (0, 0),
+            last_cursor: (0, 0), held_offset: (0.0, 0.0), was_down: false, elapsed: 0, catches: 0 }
+    }
+}
+
+impl Play {
+    pub fn active(&self) -> bool { self.phase != "off" }
+    pub fn pointer_hot(&self, cursor: (i32,i32), scale: f64) -> bool {
+        self.ball.is_some_and(|(x,y)| (cursor.0 as f32-x).hypot(cursor.1 as f32-y) <= 18.0*scale as f32)
+    }
+    pub fn view(&self) -> PlayView {
+        PlayView { phase: self.phase, ball: self.ball.map(|(x,y)| (x.round() as i32,y.round() as i32)), catches: self.catches }
+    }
+    pub fn cancel(&mut self) { self.phase = "off"; self.ball = None; self.velocity = (0.0,0.0); }
+    pub fn start(&mut self, input: &Input, throw: bool) {
+        if !input.interactive { return; }
+        let s = input.scale_factor as f32;
+        let (sx,sy,sw,sh) = input.screen;
+        if sw < input.win_size.0 || sh < input.win_size.1 { return; }
+        self.home = (input.win_pos.0.clamp(sx,sx+sw-input.win_size.0), input.win_pos.1.clamp(sy,sy+sh-input.win_size.1));
+        let center = self.home.0 as f32 + (PET_X + PET_W/2) as f32*s;
+        let dir = if center < (sx+sw/2) as f32 { 1.0 } else { -1.0 };
+        let radius = 14.0*s;
+        self.ball = Some(((center+dir*100.0*s).clamp(sx as f32+radius,(sx+sw) as f32-radius),
+            (self.home.1 as f32+(PET_Y+PET_H-24) as f32*s).clamp(sy as f32+radius,(sy+sh) as f32-radius)));
+        self.velocity = if throw { (dir*330.0*s,-380.0*s) } else { (0.0,0.0) };
+        self.phase = if throw { "chasing" } else { "ready" };
+        self.elapsed = 0;
+        self.was_down = input.button_down;
+        self.last_cursor = input.cursor;
+    }
+    pub fn tick(&mut self, input: &Input) -> PlayStep {
+        let mut out = PlayStep { movement: None, direction: None, completed: false };
+        if !self.active() { self.was_down = input.button_down; return out; }
+        if !input.interactive { self.cancel(); return out; }
+        let s = input.scale_factor as f32;
+        let dt = input.dt_ms.min(50) as f32/1000.0;
+        self.elapsed = self.elapsed.saturating_add(input.dt_ms);
+        if self.elapsed > 30_000 { self.cancel(); return out; }
+        let radius = 14.0*s;
+        let (sx,sy,sw,sh) = input.screen;
+        if sw < input.win_size.0 || sh < input.win_size.1 { self.cancel(); return out; }
+        self.home.0 = self.home.0.clamp(sx,sx+sw-input.win_size.0);
+        self.home.1 = self.home.1.clamp(sy,sy+sh-input.win_size.1);
+        let (mut x,mut y) = self.ball.unwrap();
+        if matches!(self.phase, "ready" | "chasing" | "returned") && input.button_down && !self.was_down
+            && (input.cursor.0 as f32-x).hypot(input.cursor.1 as f32-y) <= radius+4.0*s {
+            self.phase = "held";
+            self.held_offset = (x-input.cursor.0 as f32,y-input.cursor.1 as f32);
+            self.velocity = (0.0,0.0);
+            self.home = input.win_pos;
+            self.elapsed = 0;
+        }
+        if self.phase == "held" {
+            x = input.cursor.0 as f32+self.held_offset.0;
+            y = input.cursor.1 as f32+self.held_offset.1;
+            if input.button_down {
+                if dt > 0.0 {
+                    self.velocity = (((input.cursor.0-self.last_cursor.0) as f32/dt).clamp(-900.0*s,900.0*s),
+                        ((input.cursor.1-self.last_cursor.1) as f32/dt).clamp(-900.0*s,900.0*s));
+                }
+            } else {
+                self.phase = "chasing";
+                self.elapsed = 0;
+            }
+        }
+        x = x.clamp(sx as f32+radius,(sx+sw) as f32-radius);
+        y = y.clamp(sy as f32+radius,(sy+sh) as f32-radius);
+        if self.phase == "chasing" {
+            self.velocity.1 += 1100.0*s*dt;
+            x += self.velocity.0*dt;
+            y += self.velocity.1*dt;
+            if x < sx as f32+radius || x > (sx+sw) as f32-radius {
+                x = x.clamp(sx as f32+radius,(sx+sw) as f32-radius);
+                self.velocity.0 *= -0.6;
+            }
+            if y < sy as f32+radius { y = sy as f32+radius; self.velocity.1 = self.velocity.1.abs()*0.6; }
+            if y >= (sy+sh) as f32-radius {
+                y = (sy+sh) as f32-radius;
+                self.velocity.1 = if self.velocity.1.abs() > 70.0*s { -self.velocity.1*0.45 } else { 0.0 };
+                self.velocity.0 *= 0.88_f32.powf(dt*60.0);
+            }
+            let tx = (x-(PET_X+PET_W/2) as f32*s).round() as i32;
+            let ty = (y-(PET_Y+PET_H-14) as f32*s).round() as i32;
+            let target = (tx.clamp(sx,sx+sw-input.win_size.0),ty.clamp(sy,sy+sh-input.win_size.1));
+            let dx = target.0-input.win_pos.0;
+            let dy = target.1-input.win_pos.1;
+            let distance = (dx as f32).hypot(dy as f32);
+            if distance <= 12.0*s && self.velocity.1.abs() < 120.0*s {
+                self.phase = "returning";
+            } else {
+                out.movement = Some(step_toward(input.win_pos,target,310.0*s*dt));
+                out.direction = Some(dx >= 0);
+            }
+        }
+        if self.phase == "returning" {
+            let dx = self.home.0-input.win_pos.0;
+            let dy = self.home.1-input.win_pos.1;
+            let position = step_toward(input.win_pos,self.home,250.0*s*dt);
+            out.movement = Some(position);
+            out.direction = Some(dx >= 0);
+            // The toy is carried beside the muzzle; no replacement character art.
+            x = position.0 as f32 + (if dx >= 0 { PET_X+PET_W-18 } else { PET_X+18 }) as f32*s;
+            y = position.1 as f32 + (PET_Y+PET_H/3) as f32*s;
+            if (dx as f32).hypot(dy as f32) <= 5.0*s {
+                out.movement = Some(self.home);
+                out.direction = None;
+                self.phase = "returned";
+                self.elapsed = 0;
+                self.catches = self.catches.saturating_add(1);
+                out.completed = true;
+                y = self.home.1 as f32+(PET_Y+PET_H-14) as f32*s;
+            }
+        }
+        self.ball = Some((x.clamp(sx as f32+radius,(sx+sw) as f32-radius),y.clamp(sy as f32+radius,(sy+sh) as f32-radius)));
+        self.last_cursor = input.cursor;
+        self.was_down = input.button_down;
+        out
+    }
+}
+
+fn step_toward(from: (i32,i32), to: (i32,i32), step: f32) -> (i32,i32) {
+    let dx = (to.0-from.0) as f32;
+    let dy = (to.1-from.1) as f32;
+    let distance = dx.hypot(dy);
+    if distance <= step || distance == 0.0 { return to; }
+    (from.0+(dx/distance*step).round() as i32,from.1+(dy/distance*step).round() as i32)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn input(scale: f64) -> Input {
+        Input { dt_ms:16, interactive:true, cursor:(-4000,-4000), win_pos:(-1300,300),
+            win_size:((300.0*scale) as i32,(240.0*scale) as i32),scale_factor:scale,
+            screen:(-1920,0,1920,1080), button_down:false, look_enabled:true,
+            extra_animations:true, gravity:false,local_hour:12,sleep_frame:(crate::atlas::Row::Failed,2) }
+    }
+    #[test]
+    fn fetch_returns_once_to_origin_at_multiple_scales() {
+        for scale in [1.0,1.25,2.0] {
+            let mut p=Play::default(); let mut i=input(scale); let origin=i.win_pos;
+            p.start(&i,true); let mut completed=0; let mut carried=false;
+            for _ in 0..2000 {
+                let step=p.tick(&i);
+                if let Some(pos)=step.movement { i.win_pos=pos; }
+                carried |= p.view().phase=="returning";
+                completed+=u32::from(step.completed);
+                if p.view().phase=="returned" { break; }
+            }
+            assert!(carried,"scale {scale}"); assert_eq!(completed,1);
+            assert_eq!(i.win_pos,origin); assert_eq!(p.catches,1);
+            assert!(!p.tick(&i).completed);
+        }
+    }
+    #[test]
+    fn dragging_ball_outside_screen_and_hiding_cleans_up() {
+        let mut p=Play::default(); let mut i=input(1.5); p.start(&i,false);
+        i.cursor=p.view().ball.unwrap(); i.button_down=true; p.tick(&i);
+        assert_eq!(p.view().phase,"held"); i.cursor=(9999,-9999); p.tick(&i);
+        let ball=p.view().ball.unwrap(); assert!(ball.0<0 && ball.1>=0);
+        i.button_down=false; p.tick(&i); assert_eq!(p.view().phase,"chasing");
+        i.interactive=false; let out=p.tick(&i);
+        assert!(out.movement.is_none()); assert_eq!(p.view().phase,"off"); assert!(p.view().ball.is_none());
+    }
+    #[test]
+    fn display_removal_clamps_return_point_and_long_pause_expires_play() {
+        let mut p=Play::default(); let mut i=input(1.0); p.start(&i,true);
+        i.screen=(0,0,1280,720); i.win_pos=(400,200);
+        for _ in 0..1500 { let out=p.tick(&i); if let Some(pos)=out.movement { i.win_pos=pos; assert!(pos.0>=0 && pos.0<=980 && pos.1>=0 && pos.1<=480); } }
+        i.dt_ms=60_000; p.tick(&i); assert_eq!(p.view().phase,"off");
+    }
+}

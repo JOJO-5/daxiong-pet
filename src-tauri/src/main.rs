@@ -5,6 +5,7 @@ mod atlas;
 mod config;
 mod engine;
 mod petpack;
+mod play;
 mod platform;
 mod tray;
 
@@ -67,6 +68,7 @@ struct AppState {
     engine_tx: Mutex<mpsc::Sender<EngineCommand>>,
     pet_revision: Arc<AtomicU64>,
     requested_visible: AtomicBool,
+    play: Mutex<play::PlayView>,
 }
 
 /// 前端完成精灵图解码后调用，此时才真正显示窗口，避免透明窗口白闪。
@@ -121,6 +123,52 @@ fn set_pomodoro(active: bool, app: AppHandle) -> Result<(), String> {
         EngineCommand::CancelPomodoro
     };
     tx.send(cmd).map_err(|e| e.to_string())
+}
+
+
+#[tauri::command]
+fn set_visible(visible: bool, app: AppHandle) -> Result<(), String> {
+    apply_visibility(&app,visible).map_err(|e|e.to_string())
+}
+
+pub(crate) fn apply_visibility(app: &AppHandle, visible: bool) -> tauri::Result<()> {
+    if let Some(window)=app.get_webview_window("main") {
+        if visible { window.show()?; } else { window.hide()?; }
+        app.state::<AppState>().requested_visible.store(visible,Ordering::Relaxed);
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn play_status(app: AppHandle) -> play::PlayView { app.state::<AppState>().play.lock().unwrap().clone() }
+
+#[tauri::command]
+fn play_action(action: String, app: AppHandle) -> Result<(), String> {
+    let state = app.state::<AppState>();
+    if !state.requested_visible.load(Ordering::Relaxed) && action != "cancel" { return Err("先显示大熊再一起玩吧".into()); }
+    let cmd = match action.as_str() {
+        "show" => EngineCommand::ShowBall, "throw" => EngineCommand::ThrowBall,
+        "cancel" => EngineCommand::CancelPlay, _ => return Err("未知互动".into()),
+    };
+    state.engine_tx.lock().unwrap().send(cmd).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn open_playground(app: AppHandle) -> Result<(), String> { open_play_window(&app).map_err(|e|e.to_string()) }
+
+pub(crate) fn open_play_window(app: &AppHandle) -> tauri::Result<()> {
+    if let Some(window) = app.get_webview_window("playground") { window.show()?; window.set_focus()?; return Ok(()); }
+    tauri::WebviewWindowBuilder::new(app,"playground",tauri::WebviewUrl::App("index.html?view=playground".into()))
+        .title("和大熊一起玩").inner_size(360.0,420.0).resizable(false).build()?;
+    Ok(())
+}
+
+fn create_toy(app: &AppHandle) -> tauri::Result<()> {
+    tauri::WebviewWindowBuilder::new(app,"toy",tauri::WebviewUrl::App("index.html?view=toy".into()))
+        .title("大熊的球").inner_size(28.0,28.0).transparent(true).decorations(false)
+        .resizable(false).always_on_top(true).skip_taskbar(true).shadow(false).focused(false).visible(false).build()?;
+    Ok(())
 }
 
 /// 重力是纯开关：落盘后由引擎线程每 tick 读取
@@ -304,12 +352,30 @@ fn spawn_engine(
                 prev_frame = None;
                 prev_sleeping = None;
                 revision = current_revision;
+                engine.cancel_play();
             }
             let out = engine.tick(&input);
 
             if let Some((x, y)) = out.move_to {
                 let _ = window.set_position(PhysicalPosition::new(x, y));
             }
+
+            let play = engine.play_view();
+            if let Some(toy) = app.get_webview_window("toy") {
+                if let Some((x,y)) = play.ball {
+                    let size = toy.outer_size().ok();
+                    let half = size.map(|v| (v.width as i32/2,v.height as i32/2)).unwrap_or((14,14));
+                    let _ = toy.set_position(PhysicalPosition::new(x-half.0,y-half.1));
+                    if !toy.is_visible().unwrap_or(false) { let _ = toy.show(); }
+                } else if toy.is_visible().unwrap_or(false) { let _ = toy.hide(); }
+            }
+            let state = app.state::<AppState>();
+            let mut previous = state.play.lock().unwrap();
+            if previous.phase != play.phase || previous.catches != play.catches {
+                let _ = app.emit("pet:play", &play);
+            }
+            *previous = play;
+            drop(previous);
 
             // 穿透状态只在变化时下发，避免每帧都过一遍 IPC
             if prev_clickable != Some(out.clickable) {
@@ -366,7 +432,11 @@ fn main() {
             set_pet,
             rescan_pets,
             set_gravity,
-            set_pomodoro
+            set_pomodoro,
+            play_action,
+            play_status,
+            set_visible,
+            open_playground
         ])
         .setup(|app| {
             let window = app.get_webview_window("main").expect("缺少 main 窗口");
@@ -426,8 +496,10 @@ fn main() {
                 engine_tx: Mutex::new(tx),
                 pet_revision: pet_revision.clone(),
                 requested_visible: AtomicBool::new(true),
+                play: Mutex::new(play::Play::default().view()),
             });
 
+            create_toy(app.handle())?;
             tray::build(app.handle(), &pets, &initial, saved.gravity)?;
 
             // 兜底：前端若因故没发出 ready，3 秒后也强制显示，不留一个隐形进程
@@ -466,6 +538,7 @@ mod tests {
             look_enabled: Arc::new(AtomicBool::new(true)), gravity: Arc::new(AtomicBool::new(false)),
             sleep_frame: Arc::new(AtomicU16::new(pack_sleep(5, 2))), engine_tx: Mutex::new(tx),
             pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true),
+                play: Mutex::new(play::Play::default().view()),
         }
     }
     #[test]

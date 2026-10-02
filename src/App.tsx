@@ -136,14 +136,14 @@ export default function App() {
   }, []);
 
   return (
-    <div className="stage">
+    <div className="stage" onContextMenu={e => { e.preventDefault(); void invoke("open_playground").catch(console.error); }}>
       {bubble && (
         <div className="bubble" key={bubble.id}>
           {bubble.text}
         </div>
       )}
       {/* 用一个裁剪窗口套住整张图集，靠 transform 平移来切帧 */}
-      <div className={`pet-clip${sleeping ? " sleeping" : ""}`}>
+      <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-row={frame.row} data-col={frame.col}>
         <img
           className="pet-sheet"
           alt=""

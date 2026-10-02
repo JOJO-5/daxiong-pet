@@ -13,6 +13,7 @@
 export type SpeechTable = Record<string, string[]>;
 
 export const DEFAULT_SPEECH: SpeechTable = {
+  play_returned: ["接住啦，再扔一次嘛！", "叼回来了！我的球技怎么样？", "接球可是我的拿手项目。"],
   // 被点了一下
   click: [
     "在的，我在呢。",

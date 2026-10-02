@@ -1,0 +1,38 @@
+name: Desktop E2E
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  e2e:
+    name: Real Tauri WebKit E2E (Linux X11)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Install native desktop dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libx11-dev xvfb dbus-x11 webkit2gtk-driver openbox xdotool imagemagick fonts-noto-cjk
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+      - run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol
+      - name: Install Tauri WebDriver
+        run: cargo install tauri-driver --version 2.1.0 --locked
+      - name: Run native E2E
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-e2e-results
+          path: test-results/

@@ -19,6 +19,7 @@ def restart_app():
     native = subprocess.check_output(["xdotool","search","--onlyvisible","--class","Daxiong-pet"],text=True).strip().splitlines()[-1]
     initial = set(command("GET","/window/handles"))
     invoke("open_playground")
+    time.sleep(1.2)
     wait(lambda: len(command("GET","/window/handles"))>len(initial))
     panel = next(iter(set(command("GET","/window/handles"))-initial))
     wait(lambda: invoke("plugin:window|is_visible",{"label":"playground"}))

@@ -93,6 +93,7 @@ pub enum Command {
     FeedTreat,
     DropBall,
     RollBall,
+    Trick(crate::activities::Cue,bool),
 }
 
 /// 触发说话的场合。具体说什么由前端从对应话术表里随机挑。
@@ -262,6 +263,7 @@ pub struct Engine {
     rng: u64,
     cmd_rx: Option<Receiver<Command>>,
     play: crate::play::Play,
+    activities: crate::activities::Activities,
     encounters: crate::encounters::Encounters,
 }
 
@@ -310,6 +312,7 @@ impl Engine {
             rng: seed,
             cmd_rx: None,
             play: crate::play::Play::default(),
+            activities: crate::activities::Activities::default(),
             encounters: crate::encounters::Encounters::new(seed),
         }
     }
@@ -341,7 +344,7 @@ impl Engine {
         if self.pomodoro_ms.is_some() {
             return;
         }
-        self.play.cancel();
+        self.play.cancel();self.activities.cancel();
         self.encounters.interrupt();
         self.pomodoro_ms = Some(POMODORO_MS);
         self.react = None;
@@ -376,16 +379,23 @@ impl Engine {
                 Command::ShowBall | Command::ThrowBall => {
                     if input.interactive && self.pomodoro_ms.is_none() && !self.dragging {
                         self.encounters.interrupt();
+                        self.activities.cancel();
                         self.play.start(input, matches!(cmd, Command::ThrowBall));
                         self.wander = None; self.react = None; self.sleeping = false;
                         self.quiet_ms = 0; self.vx = 0.0; self.vy = 0.0;
                     }
                 }
+                Command::Trick(cue,learned) => {
+                    if input.interactive && self.pomodoro_ms.is_none() && !self.dragging {
+                        self.play.cancel();self.encounters.interrupt();self.activities.start(cue,input,learned);
+                        self.react=None;self.wander=None;self.sleeping=false;self.quiet_ms=0;self.vx=0.0;self.vy=0.0;
+                    } else {self.activities.blocked();}
+                }
                 Command::RollBall => self.play.roll(input),
                 Command::DropBall => self.play.drop_ball(),
-                Command::CancelPlay => {self.play.cancel();self.encounters.interrupt();},
+                Command::CancelPlay => {self.play.cancel();self.activities.cancel();self.encounters.interrupt();},
                 Command::FeedTreat => {
-                    self.encounters.interrupt();self.play.cancel();self.sleeping=false;self.quiet_ms=0;
+                    self.encounters.interrupt();self.play.cancel();self.activities.cancel();self.sleeping=false;self.quiet_ms=0;
                     self.annoyed_until_ms=0;self.clicks.clear();self.wander=None;
                     self.vx=0.0;self.vy=0.0;
                     self.start_reaction(if input.extra_animations { Row::HappyPat } else { Row::Waving });
@@ -396,7 +406,8 @@ impl Engine {
 
     pub fn set_playful_fetch(&mut self,enabled:bool) {self.play.set_playful(enabled);}
     pub fn play_view(&self) -> crate::play::PlayView { self.play.view() }
-    pub fn cancel_play(&mut self) { self.play.cancel();self.encounters.interrupt(); }
+    pub fn cancel_play(&mut self) { self.play.cancel();self.activities.cancel();self.encounters.interrupt(); }
+    pub fn activity_view(&self)->crate::activities::ActivityView {self.activities.view()}
     pub fn encounter_view(&self) -> crate::encounters::EncounterView {self.encounters.view()}
 
     pub fn tick(&mut self, input: &Input) -> Output {
@@ -453,7 +464,7 @@ impl Engine {
         }
         self.was_interactive = input.interactive;
         if !input.interactive {
-            self.play.cancel();
+            self.play.cancel();self.activities.cancel();
             self.press = None;
             self.dragging = false;
             self.trail.clear();
@@ -470,7 +481,7 @@ impl Engine {
                     self.react = None;
                     self.ambient_reaction = false;
                 }
-                self.play.cancel();
+                self.play.cancel();self.activities.cancel();
                 self.press = Some(Press { x: cx, y: cy, moved: false });
                 self.grab = (cx - wx, cy - wy);
                 self.trail.clear();
@@ -591,7 +602,7 @@ impl Engine {
         let cursor_still = (cursor_dx * cursor_dx + cursor_dy * cursor_dy).sqrt() < PAT_STILL_RADIUS * scale;
         self.last_cursor = (cx, cy);
 
-        let petting = !self.play.active() && hot && cursor_still && !input.button_down && !self.dragging;
+        let petting = !self.play.active() && !self.activities.active() && hot && cursor_still && !input.button_down && !self.dragging;
         if petting {
             self.pat_ms += dt;
         } else {
@@ -619,7 +630,7 @@ impl Engine {
 
         // ---- 7. 睡眠：长时间无交互就睡，被碰到就醒 ----
         let entered = hot && !self.was_hot;
-        let interacted = (self.play.active() && !self.encounters.offering_ball()) || commit_click || commit_drag || entered || self.dragging || petting;
+        let interacted = self.activities.active() || (self.play.active() && !self.encounters.offering_ball()) || commit_click || commit_drag || entered || self.dragging || petting;
         self.was_hot = hot;
 
         if interacted {
@@ -644,7 +655,7 @@ impl Engine {
 
         if self.dragging {
             move_to = Some((cx - self.grab.0, cy - self.grab.1));
-        } else if input.interactive && !self.play.active() && !self.encounters.active() {
+        } else if input.interactive && !self.play.active() && !self.activities.active() && !self.encounters.active() {
             // 漫游时由它接管水平速度
             if let Some(w) = &self.wander {
                 self.vx = WANDER_SPEED * w.dir;
@@ -839,7 +850,7 @@ impl Engine {
 
         // 安静的小动作只在可见、静止且没有互动/提醒时出现，不发气泡。
         if input.interactive && self.clock_ms >= self.next_ambient_ms
-            && !self.play.active() && !self.encounters.active() && self.react.is_none() && !self.sleeping && !self.dragging
+            && !self.play.active() && !self.activities.active() && !self.encounters.active() && self.react.is_none() && !self.sleeping && !self.dragging
             && self.press.is_none() && !hot && !moving && self.wander.is_none()
             && self.clock_ms >= self.annoyed_until_ms && say.is_none()
         {
@@ -871,13 +882,13 @@ impl Engine {
         }
 
         let play_phase=self.play.view().phase;
-        let hard_blocked=!input.interactive || self.sleeping || self.pomodoro_ms.is_some()
+        let hard_blocked=self.activities.active() || !input.interactive || self.sleeping || self.pomodoro_ms.is_some()
             || self.dragging || self.press.is_some() || input.button_down || hot
             || self.clock_ms<self.annoyed_until_ms || (self.react.is_some() && !self.ambient_reaction)
             || (self.play.active() && !(self.encounters.offering_ball() && play_phase=="ready"));
         let encounter=self.encounters.tick(input,hard_blocked,!moving && self.wander.is_none());
         if encounter.cancel_ball && self.play.view().phase=="ready"
-            && !(input.button_down && self.play.pointer_hot(input.cursor,input.scale_factor)) { self.play.cancel(); }
+            && !(input.button_down && self.play.pointer_hot(input.cursor,input.scale_factor)) { self.play.cancel();self.activities.cancel(); }
         if encounter.offer_ball {
             self.play.invite(input);
             say=Some(SayKind::BallInvite);
@@ -897,9 +908,15 @@ impl Engine {
             say = Some(SayKind::PlayReturned);
         }
 
+        let activity=self.activities.tick(input);
+        if activity.completed {self.start_reaction(if input.extra_animations {Row::HappyPat} else {Row::Waving});}
+        if let Some(position)=activity.movement {move_to=Some(position);}
+
         // ---- 14. 决定播放哪一行（按优先级）----
         let target = if self.dragging {
             Row::Waiting
+        } else if let Some(row)=activity.row {
+            row
         } else if let Some(right) = play_step.direction {
             if input.extra_animations && self.play.view().phase=="releasing" {
                 if right { Row::DropRight } else { Row::DropLeft }
@@ -953,6 +970,7 @@ impl Engine {
             }
         }
 
+        if let Some(col)=activity.col {self.col=col.min(atlas::track(self.row).cols-1);self.acc=0;}
         self.play.align_carried_ball(input, move_to.unwrap_or(input.win_pos), self.row, self.col);
         Output {
             move_to,
@@ -989,6 +1007,14 @@ mod tests {
         }
     }
 
+    #[test]
+    fn commands_cancel_ball_and_focus_cancels_tricks_without_rewards() {
+        let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.cmd_rx=Some(rx);let i=input(1.0);
+        tx.send(Command::ShowBall).unwrap();e.tick(&i);assert!(e.play.active());
+        tx.send(Command::Trick(crate::activities::Cue::Stay,false)).unwrap();e.tick(&i);assert!(e.activities.active());assert!(!e.play.active());
+        tx.send(Command::StartPomodoro).unwrap();e.tick(&i);assert!(!e.activities.active());assert!(!e.activity_view().rewardable);
+        tx.send(Command::Trick(crate::activities::Cue::Spin,false)).unwrap();e.tick(&i);assert_eq!(e.activity_view().phase,"blocked");
+    }
     #[test]
     fn carrying_uses_biting_frames_only_for_builtin_and_legacy_stays_in_bounds() {
         for builtin in [false,true] {

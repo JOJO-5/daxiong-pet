@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod atlas;
+mod activities;
 mod config;
 mod companion;
 mod engine;
@@ -73,6 +74,8 @@ struct AppState {
     requested_visible: AtomicBool,
     play: Mutex<play::PlayView>,
     memory: Mutex<MemoryState>,
+    activity: Mutex<activities::ActivityView>,
+    rewarded_trick: AtomicU64,
     encounter: Mutex<encounters::EncounterView>,
 }
 
@@ -216,6 +219,31 @@ pub(crate) fn apply_visibility(app: &AppHandle, visible: bool) -> tauri::Result<
         app.state::<AppState>().requested_visible.store(visible,Ordering::Relaxed);
     }
     Ok(())
+}
+
+#[tauri::command]
+fn trick_status(app:AppHandle)->activities::ActivityView {app.state::<AppState>().activity.lock().unwrap().clone()}
+#[tauri::command]
+fn trick_action(cue:String,app:AppHandle)->Result<(),String> {
+    let state=app.state::<AppState>();
+    if !state.requested_visible.load(Ordering::Relaxed) {return Err("先显示大熊再练习吧".into());}
+    let cmd=if cue=="stop" {EngineCommand::CancelPlay} else {
+        let cue=activities::Cue::parse(&cue)?;
+        let learned=state.memory.lock().unwrap().data.training[cue.index()]>=3;
+        EngineCommand::Trick(cue,learned)
+    };
+    state.engine_tx.lock().unwrap().send(cmd).map_err(|e|e.to_string())?;Ok(())
+}
+#[tauri::command]
+fn reward_trick(app:AppHandle)->Result<companion::MemoryView,String> {
+    let state=app.state::<AppState>();let activity=state.activity.lock().unwrap();
+    if !activity.rewardable || activity.id==state.rewarded_trick.load(Ordering::Acquire) {return Err("先完成一个小指令再奖励吧".into());}
+    let cue=activity.kind.ok_or("没有可奖励的指令")?;
+    let view=update_memory(&app,|m|m.reward_trick(cue,companion::now()))?;
+    state.rewarded_trick.store(activity.id,Ordering::Release);
+    state.engine_tx.lock().unwrap().send(EngineCommand::FeedTreat).map_err(|e|e.to_string())?;
+    let _=app.emit("pet:treat",());let _=app.emit("pet:message",format!("谢谢{}！我记住‘{}’啦。",if view.nickname.is_empty(){"你"}else{&view.nickname},cue.label()));
+    Ok(view)
 }
 
 #[tauri::command]
@@ -449,6 +477,22 @@ fn spawn_engine(
                 let _ = window.set_position(PhysicalPosition::new(x, y));
             }
 
+            let mut activity=engine.activity_view();
+            let state=app.state::<AppState>();
+            if activity.id==state.rewarded_trick.load(Ordering::Acquire) {activity.rewardable=false;}
+            let mut previous_activity=state.activity.lock().unwrap();
+            if *previous_activity!=activity {
+                let _=app.emit("pet:activity",&activity);
+                if matches!(activity.phase,"attention" | "completed") {
+                    if let Some(cue)=activity.kind {
+                        let stored=state.memory.lock().unwrap();
+                        let text=if activity.phase=="attention" {format!("{}，我先看看你，再做‘{}’。",stored.data.address(),cue.label())}
+                            else {format!("{}，‘{}’做到了！可以给我一块奖励饼干吗？",stored.data.address(),cue.label())};
+                        let _=app.emit("pet:message",text);
+                    }
+                }
+            }
+            *previous_activity=activity;drop(previous_activity);
             let play = engine.play_view();
             if let Some(toy) = app.get_webview_window("toy") {
                 let visible_ball = if input.extra_animations && matches!(play.phase,"returning" | "teasing") { None } else { play.ball };
@@ -555,6 +599,9 @@ fn main() {
             set_gravity,
             set_pomodoro,
             play_action,
+            trick_status,
+            trick_action,
+            reward_trick,
             play_status,
             set_visible,
             open_playground,
@@ -632,6 +679,7 @@ fn main() {
                 requested_visible: AtomicBool::new(true),
                 play: Mutex::new(play::Play::default().view()),
                 memory: Mutex::new(memory),
+                activity: Mutex::new(activities::Activities::default().view()),rewarded_trick:AtomicU64::new(0),
                 encounter: Mutex::new(encounters::Encounters::new(1).view()),
             });
 
@@ -675,6 +723,7 @@ mod tests {
             sleep_frame: Arc::new(AtomicU16::new(pack_sleep(5, 2))), engine_tx: Mutex::new(tx),
             pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true),
                 play: Mutex::new(play::Play::default().view()),
+                activity: Mutex::new(activities::Activities::default().view()),rewarded_trick:AtomicU64::new(0),
                 memory: Mutex::new(MemoryState{data:companion::Memory::default(),error:None}),
                 encounter: Mutex::new(encounters::Encounters::new(1).view()),
         }

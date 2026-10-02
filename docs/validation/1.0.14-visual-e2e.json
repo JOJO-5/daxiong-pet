@@ -1,0 +1,52 @@
+{
+  "version": "1.0.14",
+  "passed": [
+    "come: looks at you before action",
+    "come physically approaches cursor",
+    "come: completed action can be rewarded",
+    "spin: looks at you before action",
+    "spin physically circles and returns",
+    "spin: completed action can be rewarded",
+    "down: looks at you before action",
+    "down: existing pose rendered without moving",
+    "down: completed action can be rewarded",
+    "stay: looks at you before action",
+    "stay: existing pose rendered without moving",
+    "stay: completed action can be rewarded",
+    "practice 1: treat saves skill progress",
+    "practice 1: repeated reward rejected",
+    "focus rejects practice without reward",
+    "manual stop cancels command"
+  ],
+  "frames": [
+    {
+      "row": 10,
+      "col": 6
+    },
+    {
+      "row": 6,
+      "col": 0
+    },
+    {
+      "row": 11,
+      "col": 0
+    },
+    {
+      "row": 8,
+      "col": 0
+    },
+    {
+      "row": 0,
+      "col": 0
+    },
+    {
+      "row": 10,
+      "col": 6
+    },
+    {
+      "row": 0,
+      "col": 0
+    }
+  ],
+  "error": null
+}

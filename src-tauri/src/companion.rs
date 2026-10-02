@@ -10,6 +10,7 @@ pub struct Memory {
     pub affection: u32,
     pub encounters_enabled: bool,
     pub playful_fetch: bool,
+    pub training: [u8;4],
     pub treats: u32,
     pub fetches: u32,
     pub pats: u32,
@@ -21,7 +22,7 @@ pub struct Memory {
 impl Default for Memory {
     fn default() -> Self {
         Self { version:1, nickname:String::new(), affection:0, treats:0, fetches:0, pats:0,
-            last_treat:None,last_pat:None,last_fetch_reward:None,encounters_enabled:true,playful_fetch:true }
+            last_treat:None,last_pat:None,last_fetch_reward:None,encounters_enabled:true,playful_fetch:true,training:[0;4] }
     }
 }
 
@@ -31,6 +32,7 @@ pub struct MemoryView {
     pub affection: u32,
     pub encounters_enabled: bool,
     pub playful_fetch: bool,
+    pub training: [u8;4],
     pub stage: &'static str,
     pub treats: u32,
     pub fetches: u32,
@@ -57,7 +59,7 @@ impl Memory {
             Ok(v)=>v, Err(e) if e.kind()==io::ErrorKind::NotFound=>return Ok(Self::default()), Err(e)=>return Err(e)
         };
         let memory:Self=serde_json::from_slice(&bytes).map_err(io::Error::other)?;
-        if memory.version != 1 || memory.affection > 1000 || Self::validated_nickname(&memory.nickname).is_err() {
+        if memory.version != 1 || memory.affection > 1000 || memory.training.iter().any(|n| *n>3) || Self::validated_nickname(&memory.nickname).is_err() {
             return Err(io::Error::other("陪伴记忆格式无效或版本不支持"));
         }
         Ok(memory)
@@ -78,7 +80,7 @@ impl Memory {
         Ok(value.into())
     }
     pub fn view(&self,clock:u64,error:Option<String>) -> MemoryView {
-        MemoryView { nickname:self.nickname.clone(), affection:self.affection, encounters_enabled:self.encounters_enabled,playful_fetch:self.playful_fetch,stage:match self.affection {
+        MemoryView { nickname:self.nickname.clone(), affection:self.affection, encounters_enabled:self.encounters_enabled,playful_fetch:self.playful_fetch,training:self.training,stage:match self.affection {
             0..=19=>"初次相识",20..=99=>"越来越熟",100..=299=>"默契伙伴",_=>"最好的朋友"
         },treats:self.treats,fetches:self.fetches,pats:self.pats,treat_wait:wait(self.last_treat,clock,20),error }
     }
@@ -102,12 +104,24 @@ impl Memory {
         self.affection=self.affection.saturating_add(points).min(1000);
         Ok(true)
     }
+    pub fn reward_trick(&mut self,cue:crate::activities::Cue,clock:u64)->Result<bool,String> {
+        self.reward(Reward::Treat,clock)?;
+        self.training[cue.index()]=self.training[cue.index()].saturating_add(1).min(3);Ok(true)
+    }
     pub fn address(&self) -> &str { if self.nickname.is_empty() { "你" } else { &self.nickname } }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn training_reward_requires_real_treat_and_survives_restart_without_decay() {
+        let dir=tempfile::tempdir().unwrap();let path=dir.path().join("memory.json");let mut m=Memory::default();
+        for i in 0..3 {m.reward_trick(crate::activities::Cue::Stay,100+i*21).unwrap();}
+        assert_eq!(m.training[3],3);m.save(&path).unwrap();let loaded=Memory::load(&path).unwrap();assert_eq!(loaded.training,m.training);
+        assert!(m.reward_trick(crate::activities::Cue::Come,143).is_err());assert_eq!(m.training[0],0);
+        let old=dir.path().join("old.json");std::fs::write(&old,b"{\"version\":1,\"nickname\":\"\",\"affection\":4}").unwrap();assert_eq!(Memory::load(&old).unwrap().training,[0;4]);
+    }
     #[test]
     fn saved_memory_survives_offline_time_without_decay_and_cooldown_survives_restart() {
         let dir=tempfile::tempdir().unwrap();let path=dir.path().join("companion.json");

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
+import TrainingPanel from "./TrainingPanel";
 import CompanionPanel from "./CompanionPanel";
 import EncountersPanel, { type EncounterView } from "./EncountersPanel";
 
@@ -35,6 +36,7 @@ export default function PlayPanel() {
       <button className="quiet" onClick={()=>void act("cancel")}>收起玩具</button>
       <p className="small">本次接球 <strong data-testid="catches">{play.catches}</strong> 次</p>
     </section>
+    <TrainingPanel />
     <CompanionPanel />
     <EncountersPanel />
     <p className="hint">也可以抓住桌面上的球，甩动后松手。<br/>拖动大熊或开始专注会收起玩具。</p>

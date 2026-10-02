@@ -165,3 +165,6 @@ body {
 @media (prefers-reduced-motion:reduce) { .butterfly,.butterfly .wing,.toy-ball.rolling { animation:none; } }
 
 .playful-switch { display:flex; align-items:center; gap:7px; margin:10px 0; }
+
+.trick-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
+.trick-actions small { display:block; color:#796e60; }

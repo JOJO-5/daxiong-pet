@@ -92,7 +92,7 @@ try:
     wait(lambda: len(command("GET", "/window/handles")) > len(initial_handles))
     panel = next(iter(set(command("GET", "/window/handles"))-initial_handles))
     wait(lambda: invoke("plugin:window|is_visible", {"label":"playground"}))
-    time.sleep(.2)
+    time.sleep(.7)
     command("POST", "/window", {"handle":panel})
     wait(lambda: js("return !!document.querySelector('.play-panel')"))
     check("pet right-click opens real interaction window")
@@ -156,8 +156,8 @@ try:
     wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===2288"))
     check("legacy atlas loads and pet switching cancels toys",invoke("current_pet")["rows"]==11 and js("return Number(document.querySelector('[data-testid=pet]').dataset.row)<11"))
     invoke("set_pet",{"id":"__builtin__"})
-    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===3328"))
-    check("switching back restores all 16 built-in animation rows")
+    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===3744"))
+    check("switching back restores all 18 built-in animation rows")
     command("POST","/window",{"handle":panel})
     if os.environ.get("E2E_MEMORY"):
         # Extended by the next version; kept in the same cumulative native suite.

@@ -24,3 +24,8 @@ for ((row=0;row<rows;row++)); do
   files+=("$frames/row-$row.png")
 done
 magick "${files[@]}" -append -define webp:lossless=true "$root/public/spritesheet-extended.webp"
+
+# Re-append dedicated carry cycles when rebuilding all built-in rows.
+if [[ "$rows" == 5 && -f "$root/assets/animation-source/carry-mouth.png" ]]; then
+  bash "$root/scripts/pack-carry.sh"
+fi

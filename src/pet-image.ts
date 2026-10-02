@@ -1,5 +1,5 @@
 export const BUILTIN_SRC = "/spritesheet-extended.webp";
-export const DEFAULT_ROWS = 16;
+export const DEFAULT_ROWS = 18;
 export type PetSwitch = {
   id: string;
   name: string;

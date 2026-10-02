@@ -30,6 +30,7 @@ export default function App() {
   const [bubble, setBubble] = useState<{ text: string; id: number } | null>(null);
   const [src, setSrc] = useState<string>(BUILTIN_SRC);
   const [rows, setRows] = useState<number>(DEFAULT_ROWS);
+  const [treating,setTreating] = useState(false);
   const [sleeping, setSleeping] = useState(false);
 
   // 图集的实际显示高度，随宠物切换
@@ -49,6 +50,7 @@ export default function App() {
     let latestFrame: Frame = { row: 0, col: 0 };
     let activeRows = DEFAULT_ROWS;
     let errorUntil = 0;
+    let treatTimer: number | null = null;
     const displayMessage = (text: string, duration = BUBBLE_MS) => {
       if (!alive) return;
       if (duration > BUBBLE_MS) errorUntil = Date.now() + duration;
@@ -108,13 +110,22 @@ export default function App() {
       if (alive) setSleeping(event.payload.sleeping);
     });
 
+    const offMessage = listen<string>("pet:message",event => {
+      if(alive && Date.now()>=errorUntil) displayMessage(event.payload);
+    });
+    const offTreat = listen("pet:treat",()=>{
+      if(!alive) return;
+      setTreating(true);
+      if(treatTimer!==null) window.clearTimeout(treatTimer);
+      treatTimer=window.setTimeout(()=>{if(alive) setTreating(false);},1800);
+    });
     const offError = listen<string>("pet:error", (event) => {
       errorUntil = Date.now() + 7000;
       displayMessage(event.payload, 7000);
     });
 
     // 监听注册完成再取快照，避免启动时漏掉帧 / 切换事件。
-    Promise.all([offFrame, offSay, offSwitch, offState, offError]).then(async () => {
+    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat]).then(async () => {
       const observed = revision;
       const pet = await invoke<PetSwitch>("current_pet");
       if (alive && revision === observed) await applyPet(pet);
@@ -126,12 +137,15 @@ export default function App() {
 
     return () => {
       alive = false;
+      if(treatTimer!==null) window.clearTimeout(treatTimer);
       if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
       offFrame.then((off) => off()).catch(console.error);
       offSay.then((off) => off()).catch(console.error);
       offSwitch.then((off) => off()).catch(console.error);
       offState.then((off) => off()).catch(console.error);
       offError.then((off) => off()).catch(console.error);
+      offMessage.then(off=>off()).catch(console.error);
+      offTreat.then(off=>off()).catch(console.error);
     };
   }, []);
 
@@ -142,6 +156,7 @@ export default function App() {
           {bubble.text}
         </div>
       )}
+      {treating ? <div className="treat-cookie" data-testid="treat-cookie" aria-hidden="true"><i/><i/><i/></div> : null}
       {/* 用一个裁剪窗口套住整张图集，靠 transform 平移来切帧 */}
       <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-row={frame.row} data-col={frame.col}>
         <img

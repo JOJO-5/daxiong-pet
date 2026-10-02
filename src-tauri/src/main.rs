@@ -3,6 +3,7 @@
 
 mod atlas;
 mod config;
+mod companion;
 mod engine;
 mod petpack;
 mod play;
@@ -69,6 +70,65 @@ struct AppState {
     pet_revision: Arc<AtomicU64>,
     requested_visible: AtomicBool,
     play: Mutex<play::PlayView>,
+    memory: Mutex<MemoryState>,
+}
+
+struct MemoryState { data: companion::Memory, error: Option<String> }
+
+fn memory_path(app: &AppHandle) -> Result<std::path::PathBuf,String> {
+    app.path().app_config_dir().map(|p|p.join("companion.json")).map_err(|e|e.to_string())
+}
+
+#[tauri::command]
+fn companion_status(app: AppHandle) -> companion::MemoryView {
+    let state=app.state::<AppState>();let m=state.memory.lock().unwrap();
+    m.data.view(companion::now(),m.error.clone())
+}
+
+fn update_memory(app:&AppHandle, change:impl FnOnce(&mut companion::Memory)->Result<bool,String>) -> Result<companion::MemoryView,String> {
+    let state=app.state::<AppState>();let mut stored=state.memory.lock().unwrap();
+    if let Some(error)=&stored.error { return Err(format!("{error}；请先在互动面板恢复记忆")); }
+    let mut next=stored.data.clone();
+    if change(&mut next)? {
+        next.save(&memory_path(app)?).map_err(|e|format!("保存陪伴记忆失败：{e}"))?;
+        stored.data=next;
+    }
+    let view=stored.data.view(companion::now(),None);
+    let _=app.emit("pet:memory",&view);
+    Ok(view)
+}
+
+#[tauri::command]
+fn set_nickname(nickname:String,app:AppHandle) -> Result<companion::MemoryView,String> {
+    let nickname=companion::Memory::validated_nickname(&nickname)?;
+    update_memory(&app,|m|{m.nickname=nickname;Ok(true)})
+}
+
+#[tauri::command]
+fn feed_treat(app:AppHandle) -> Result<companion::MemoryView,String> {
+    let state=app.state::<AppState>();
+    if !state.requested_visible.load(Ordering::Relaxed) { return Err("先显示大熊再喂饼干吧".into()); }
+    let view=update_memory(&app,|m|m.reward(companion::Reward::Treat,companion::now()))?;
+    state.engine_tx.lock().unwrap().send(EngineCommand::FeedTreat).map_err(|e|e.to_string())?;
+    let name=if view.nickname.is_empty() { "你" } else { &view.nickname };
+    let _=app.emit("pet:message",format!("谢谢{name}！这块饼干真香。"));
+    let _=app.emit("pet:treat",());
+    Ok(view)
+}
+
+#[tauri::command]
+fn restore_memory(app:AppHandle) -> Result<companion::MemoryView,String> {
+    let state=app.state::<AppState>();let mut stored=state.memory.lock().unwrap();
+    if stored.error.is_none() { return Err("记忆正常，无需恢复".into()); }
+    let path=memory_path(&app)?;
+    if path.is_file() {
+        let backup=path.with_file_name(format!("companion.backup-{}.json",std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos()));
+        std::fs::copy(&path,backup).map_err(|e|format!("备份记忆失败：{e}"))?;
+    }
+    let next=companion::Memory::default();next.save(&path).map_err(|e|e.to_string())?;
+    stored.data=next;stored.error=None;
+    let view=stored.data.view(companion::now(),None);let _=app.emit("pet:memory",&view);
+    Ok(view)
 }
 
 /// 前端完成精灵图解码后调用，此时才真正显示窗口，避免透明窗口白闪。
@@ -160,7 +220,7 @@ fn open_playground(app: AppHandle) -> Result<(), String> { open_play_window(&app
 pub(crate) fn open_play_window(app: &AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window("playground") { window.show()?; window.set_focus()?; return Ok(()); }
     tauri::WebviewWindowBuilder::new(app,"playground",tauri::WebviewUrl::App("index.html?view=playground".into()))
-        .title("和大熊一起玩").inner_size(360.0,420.0).resizable(false).build()?;
+        .title("和大熊一起玩").inner_size(360.0,650.0).resizable(false).build()?;
     Ok(())
 }
 
@@ -396,7 +456,30 @@ fn spawn_engine(
 
             // 说话是离散事件，每 tick 至多一次，不需要去重
             if let Some(kind) = out.say {
-                let _ = app.emit("pet:say", kind.as_str());
+                let reward=match kind {
+                    engine::SayKind::PlayReturned=>Some(companion::Reward::Fetch),
+                    engine::SayKind::Pat | engine::SayKind::Comfort=>Some(companion::Reward::Pat),_=>None
+                };
+                if let Some(reward)=reward {
+                    if let Err(error)=update_memory(&app,|m|m.reward(reward,companion::now())) {
+                        let _=app.emit("pet:memory-error",error);
+                    }
+                }
+                let personal=match kind {
+                    engine::SayKind::PlayReturned | engine::SayKind::Wake | engine::SayKind::Pat=>{
+                        let stored=app.state::<AppState>();let stored=stored.memory.lock().unwrap();
+                        if stored.error.is_none() && stored.data.affection>=20 && !stored.data.nickname.is_empty() {
+                            let name=stored.data.address();
+                            Some(match kind {
+                                engine::SayKind::PlayReturned=>format!("{name}，叼回来啦！再玩一次？"),
+                                engine::SayKind::Wake=>format!("{name}，我醒啦，继续陪你。"),
+                                _=>format!("{name}，最喜欢你摸摸头啦。")
+                            })
+                        } else { None }
+                    },_=>None
+                };
+                if let Some(text)=personal { let _=app.emit("pet:message",text); }
+                else { let _=app.emit("pet:say",kind.as_str()); }
             }
         }
     });
@@ -436,7 +519,11 @@ fn main() {
             play_action,
             play_status,
             set_visible,
-            open_playground
+            open_playground,
+            companion_status,
+            set_nickname,
+            feed_treat,
+            restore_memory
         ])
         .setup(|app| {
             let window = app.get_webview_window("main").expect("缺少 main 窗口");
@@ -454,6 +541,11 @@ fn main() {
                 report_error(app.handle(), "读取配置失败，使用默认设置", e);
                 Config::default()
             });
+
+            let memory=match memory_path(app.handle()).and_then(|p|companion::Memory::load(&p).map_err(|e|e.to_string())) {
+                Ok(data)=>MemoryState{data,error:None},
+                Err(e)=>MemoryState{data:companion::Memory::default(),error:Some(format!("陪伴记忆读取失败：{e}"))},
+            };
 
             // 扫描宠物包；一个都没有时用内置的兜底
             let pets = petpack::discover();
@@ -497,6 +589,7 @@ fn main() {
                 pet_revision: pet_revision.clone(),
                 requested_visible: AtomicBool::new(true),
                 play: Mutex::new(play::Play::default().view()),
+                memory: Mutex::new(memory),
             });
 
             create_toy(app.handle())?;
@@ -539,6 +632,7 @@ mod tests {
             sleep_frame: Arc::new(AtomicU16::new(pack_sleep(5, 2))), engine_tx: Mutex::new(tx),
             pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true),
                 play: Mutex::new(play::Play::default().view()),
+                memory: Mutex::new(MemoryState{data:companion::Memory::default(),error:None}),
         }
     }
     #[test]

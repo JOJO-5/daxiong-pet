@@ -30,6 +30,8 @@ jobs:
       - name: Install Tauri WebDriver
         run: cargo install tauri-driver --version 2.1.0 --locked
       - name: Run native E2E
+        env:
+          E2E_MEMORY: "1"
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - uses: actions/upload-artifact@v4
         if: always()

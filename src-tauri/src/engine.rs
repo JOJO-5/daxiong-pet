@@ -90,6 +90,7 @@ pub enum Command {
     ShowBall,
     ThrowBall,
     CancelPlay,
+    FeedTreat,
 }
 
 /// 触发说话的场合。具体说什么由前端从对应话术表里随机挑。
@@ -372,6 +373,12 @@ impl Engine {
                     }
                 }
                 Command::CancelPlay => self.play.cancel(),
+                Command::FeedTreat => {
+                    self.play.cancel();self.sleeping=false;self.quiet_ms=0;
+                    self.annoyed_until_ms=0;self.clicks.clear();self.wander=None;
+                    self.vx=0.0;self.vy=0.0;
+                    self.start_reaction(if input.extra_animations { Row::HappyPat } else { Row::Waving });
+                }
             }
         }
     }

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
+import CompanionPanel from "./CompanionPanel";
+
 type PlayView = { phase: string; catches: number };
 const PHASES: Record<string,string> = { off: "准备好陪你玩", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", returned: "再来一球？" };
 
@@ -12,7 +14,7 @@ export default function PlayPanel() {
     let active = true;
     const off = listen<PlayView>("pet:play", e => { if(active) setPlay(e.payload); });
     off.then(() => invoke<PlayView>("play_status")).then(v => { if(active) setPlay(v); }).catch(e => { if(active) setError(String(e)); });
-    return () => { active=false; void off.then(fn=>fn()); };
+    return () => { active=false; void off.then(fn=>fn()).catch(console.error); };
   },[]);
   const act = async (action:string) => {
     setError("");
@@ -27,6 +29,7 @@ export default function PlayPanel() {
       <button className="quiet" onClick={()=>void act("cancel")}>收起玩具</button>
       <p className="small">本次接球 <strong data-testid="catches">{play.catches}</strong> 次</p>
     </section>
+    <CompanionPanel />
     <p className="hint">也可以抓住桌面上的球，甩动后松手。<br/>拖动大熊或开始专注会收起玩具。</p>
     {error && <p className="panel-error" role="alert">{error}</p>}
   </main>;

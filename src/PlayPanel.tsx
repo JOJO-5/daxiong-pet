@@ -6,7 +6,7 @@ import CompanionPanel from "./CompanionPanel";
 import EncountersPanel, { type EncounterView } from "./EncountersPanel";
 
 type PlayView = { phase: string; catches: number };
-const PHASES: Record<string,string> = { off: "准备好陪你玩", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", returned: "再来一球？" };
+const PHASES: Record<string,string> = { off: "准备好陪你玩", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", releasing: "把球放在你脚边", returned: "抓起脚边的球，再扔一次吧！" };
 
 export default function PlayPanel() {
   const [play,setPlay] = useState<PlayView>({phase:"off",catches:0});

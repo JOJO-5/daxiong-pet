@@ -2,9 +2,9 @@
 use crate::engine::{Input, PET_H, PET_W, PET_X, PET_Y};
 use serde::Serialize;
 
-// Atlas-pixel coordinates of the lower lip/ball contact for each carry frame.
-const CARRY_RIGHT:[(f32,f32);8]=[(176.0,125.0),(173.0,127.0),(175.0,125.0),(176.0,124.0),(176.0,130.0),(176.0,113.0),(176.0,127.0),(179.0,119.0)];
-const CARRY_LEFT:[(f32,f32);8]=[(18.0,130.0),(18.0,133.0),(18.0,131.0),(18.0,132.0),(18.0,130.0),(20.0,131.0),(18.0,132.0),(18.0,132.0)];
+// Atlas-pixel ball centres in the baked biting frames, used for release handoff.
+const CARRY_RIGHT:[(f32,f32);8]=[(162.0,112.0),(162.0,112.0),(163.0,108.0),(163.0,109.0),(163.0,113.0),(164.0,100.0),(163.0,109.0),(163.0,110.0)];
+const CARRY_LEFT:[(f32,f32);8]=[(32.0,119.0),(32.0,120.0),(31.0,120.0),(31.0,121.0),(32.0,119.0),(31.0,117.0),(31.0,120.0),(31.0,118.0)];
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct PlayView {
@@ -23,6 +23,9 @@ pub struct Play {
     was_down: bool,
     elapsed: u64,
     pub catches: u32,
+    release_ms: u64,
+    release_from: (f32,f32),
+    carry_right: bool,
 }
 
 pub struct PlayStep {
@@ -34,7 +37,7 @@ pub struct PlayStep {
 impl Default for Play {
     fn default() -> Self {
         Self { phase: "off", ball: None, velocity: (0.0, 0.0), home: (0, 0),
-            last_cursor: (0, 0), held_offset: (0.0, 0.0), was_down: false, elapsed: 0, catches: 0 }
+            last_cursor: (0, 0), held_offset: (0.0, 0.0), was_down: false, elapsed: 0, catches: 0, release_ms: 0, release_from: (0.0,0.0), carry_right: true }
     }
 }
 
@@ -76,7 +79,7 @@ impl Play {
     pub fn nudge(&mut self,delta:(i32,i32)) {
         if self.phase=="ready" { if let Some((x,y))=self.ball.as_mut() { *x+=delta.0 as f32;*y+=delta.1 as f32; } }
     }
-    /// Place the independent toy after the rendered animation frame is selected.
+    /// Track the carried ball for legacy overlay and builtin release handoff.
     pub fn align_carried_ball(&mut self, input:&Input, position:(i32,i32), row:crate::atlas::Row, col:usize) {
         if self.phase!="returning" { return; }
         let anchor=match row {
@@ -97,7 +100,7 @@ impl Play {
         let s = input.scale_factor as f32;
         let dt = input.dt_ms.min(50) as f32/1000.0;
         self.elapsed = self.elapsed.saturating_add(input.dt_ms);
-        if self.elapsed > 30_000 { self.cancel(); return out; }
+        if self.elapsed > 30_000 && !matches!(self.phase,"ready" | "returned") { self.cancel(); return out; }
         let radius = 14.0*s;
         let (sx,sy,sw,sh) = input.screen;
         if sw < input.win_size.0 || sh < input.win_size.1 { self.cancel(); return out; }
@@ -159,18 +162,41 @@ impl Play {
             let dy = self.home.1-input.win_pos.1;
             let position = step_toward(input.win_pos,self.home,250.0*s*dt);
             out.movement = Some(position);
-            out.direction = Some(dx >= 0);
+            if dx != 0 { self.carry_right = dx > 0; }
+            out.direction = Some(self.carry_right);
             // Fallback placement; the engine aligns the toy to the selected mouth frame.
-            x = position.0 as f32 + (if dx >= 0 { PET_X+PET_W-18 } else { PET_X+18 }) as f32*s;
+            x = position.0 as f32 + (if self.carry_right { PET_X+PET_W-18 } else { PET_X+18 }) as f32*s;
             y = position.1 as f32 + (PET_Y+PET_H/3) as f32*s;
             if (dx as f32).hypot(dy as f32) <= 5.0*s {
                 out.movement = Some(self.home);
                 out.direction = None;
-                self.phase = "returned";
-                self.elapsed = 0;
+                if input.extra_animations {
+                    self.phase = "releasing";
+                    self.release_ms = 0;
+                    self.release_from = self.ball.unwrap();
+                    x = self.release_from.0; y = self.release_from.1;
+                    out.direction = Some(self.carry_right);
+                } else {
+                    self.phase = "returned";
+                    self.elapsed = 0;
+                    self.catches = self.catches.saturating_add(1);
+                    out.completed = true;
+                    y = self.home.1 as f32+(PET_Y+PET_H-14) as f32*s;
+                }
+            }
+        }
+        if self.phase == "releasing" {
+            self.release_ms += input.dt_ms.min(50);
+            out.movement = Some(self.home);
+            out.direction = Some(self.carry_right);
+            let t = (self.release_ms as f32/400.0).min(1.0);
+            let floor = self.home.1 as f32+(PET_Y+PET_H-14) as f32*s;
+            x = self.release_from.0;
+            y = self.release_from.1+(floor-self.release_from.1)*t*t;
+            if self.release_ms >= 400 {
+                self.phase = "returned"; self.elapsed = 0;
                 self.catches = self.catches.saturating_add(1);
-                out.completed = true;
-                y = self.home.1 as f32+(PET_Y+PET_H-14) as f32*s;
+                out.direction = None; out.completed = true;
             }
         }
         self.ball = Some((x.clamp(sx as f32+radius,(sx+sw) as f32-radius),y.clamp(sy as f32+radius,(sy+sh) as f32-radius)));
@@ -196,6 +222,48 @@ mod tests {
             win_size:((300.0*scale) as i32,(240.0*scale) as i32),scale_factor:scale,
             screen:(-1920,0,1920,1080), button_down:false, look_enabled:true,
             extra_animations:true, encounters_enabled:false, gravity:false,local_hour:12,sleep_frame:(crate::atlas::Row::Failed,2) }
+    }
+    #[test]
+    fn returned_ball_persists_and_accepts_another_throw() {
+        let mut i=input(1.0);let mut p=Play::default();p.start(&i,false);
+        p.phase="returned";
+        for _ in 0..2500 {p.tick(&i);}
+        assert_eq!(p.view().phase,"returned");
+        i.cursor=p.view().ball.unwrap();i.button_down=true;p.tick(&i);
+        assert_eq!(p.view().phase,"held");
+        i.button_down=false;p.tick(&i);
+        assert_eq!(p.view().phase,"chasing");
+        p.cancel();assert!(p.view().ball.is_none());
+    }
+    #[test]
+    fn reaching_home_exactly_preserves_left_release_direction() {
+        for scale in [1.0,2.0] {
+            let mut i=input(scale);i.dt_ms=50;
+            let mut p=Play::default();p.start(&i,false);p.phase="returning";p.carry_right=false;
+            i.win_pos.0+=20;
+            for _ in 0..10 {
+                let out=p.tick(&i);if let Some(pos)=out.movement {i.win_pos=pos;}
+                if p.view().phase=="releasing" {assert_eq!(out.direction,Some(false));break;}
+            }
+            assert_eq!(p.view().phase,"releasing");
+        }
+    }
+    #[test]
+    fn builtin_release_falls_to_feet_and_counts_once() {
+        for scale in [1.0,1.25,2.0] {
+            let mut i=input(scale);let mut p=Play::default();p.start(&i,false);
+            p.phase="returning";p.ball=Some((i.win_pos.0 as f32+170.0*scale as f32,i.win_pos.1 as f32+170.0*scale as f32));
+            let first=p.tick(&i);assert!(!first.completed);assert_eq!(p.view().phase,"releasing");
+            let mut y=p.view().ball.unwrap().1;
+            let mut completed=0;
+            for _ in 0..40 {
+                let step=p.tick(&i);completed+=usize::from(step.completed);
+                let next=p.view().ball.unwrap().1;assert!(next>=y);y=next;
+            }
+            assert_eq!(completed,1);assert_eq!(p.catches,1);assert_eq!(p.view().phase,"returned");
+            assert_eq!(y,i.win_pos.1+((PET_Y+PET_H-14) as f64*scale).round() as i32);
+            i.button_down=true;i.cursor=p.view().ball.unwrap();p.tick(&i);assert_eq!(p.view().phase,"held");
+        }
     }
     #[test]
     fn carry_alignment_tracks_each_frame_at_multiple_scales() {
@@ -249,6 +317,7 @@ mod tests {
         let mut p=Play::default(); let mut i=input(1.0); p.start(&i,true);
         i.screen=(0,0,1280,720); i.win_pos=(400,200);
         for _ in 0..1500 { let out=p.tick(&i); if let Some(pos)=out.movement { i.win_pos=pos; assert!(pos.0>=0 && pos.0<=980 && pos.1>=0 && pos.1<=480); } }
-        i.dt_ms=60_000; p.tick(&i); assert_eq!(p.view().phase,"off");
+        assert_eq!(p.view().phase,"returned");
+        p.start(&i,true);i.dt_ms=60_000; p.tick(&i); assert_eq!(p.view().phase,"off");
     }
 }

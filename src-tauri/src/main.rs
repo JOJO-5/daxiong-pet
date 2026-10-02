@@ -445,7 +445,8 @@ fn spawn_engine(
 
             let play = engine.play_view();
             if let Some(toy) = app.get_webview_window("toy") {
-                if let Some((x,y)) = play.ball {
+                let visible_ball = if input.extra_animations && play.phase == "returning" { None } else { play.ball };
+                if let Some((x,y)) = visible_ball {
                     let size = toy.outer_size().ok();
                     let half = size.map(|v| (v.width as i32/2,v.height as i32/2)).unwrap_or((14,14));
                     let _ = toy.set_position(PhysicalPosition::new(x-half.0,y-half.1));
@@ -715,7 +716,7 @@ mod tests {
     fn builtin_payload_has_matching_dimensions_and_no_external_image() {
         let state = state(vec![petpack::builtin()]);
         let payload = payload_for(&state, "__builtin__").unwrap();
-        assert_eq!(payload.rows, 18);
+        assert_eq!(payload.rows, 20);
         assert!(payload.data_url.is_none());
         assert!(payload.speech.is_none());
     }

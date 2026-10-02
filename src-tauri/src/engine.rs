@@ -894,7 +894,9 @@ impl Engine {
         let target = if self.dragging {
             Row::Waiting
         } else if let Some(right) = play_step.direction {
-            if input.extra_animations && self.play.view().phase=="returning" {
+            if input.extra_animations && self.play.view().phase=="releasing" {
+                if right { Row::DropRight } else { Row::DropLeft }
+            } else if input.extra_animations && self.play.view().phase=="returning" {
                 if right { Row::CarryRight } else { Row::CarryLeft }
             } else if right { Row::RunRight } else { Row::RunLeft }
         } else if let Some((r, _)) = self.react {
@@ -981,10 +983,10 @@ mod tests {
     }
 
     #[test]
-    fn carrying_uses_closed_mouth_only_for_builtin_and_legacy_stays_in_bounds() {
+    fn carrying_uses_biting_frames_only_for_builtin_and_legacy_stays_in_bounds() {
         for builtin in [false,true] {
             let mut engine=Engine::new();let mut i=input(1.0);i.extra_animations=builtin;
-            engine.play.start(&i,true);let mut seen=false;
+            engine.play.start(&i,true);let mut seen=false;let mut released=false;
             for _ in 0..2000 {
                 let out=engine.tick(&i);
                 if let Some(pos)=out.move_to {i.win_pos=pos;}
@@ -993,9 +995,12 @@ mod tests {
                     if builtin {assert!(out.row==Row::CarryRight as u8 || out.row==Row::CarryLeft as u8);}
                     else {assert!(out.row<11);}
                 }
+                if engine.play_view().phase=="releasing" {
+                    released=true;assert!(builtin);assert!(out.row==Row::DropRight as u8 || out.row==Row::DropLeft as u8);
+                }
                 if engine.play_view().phase=="returned" {break;}
             }
-            assert!(seen);assert_eq!(engine.play_view().catches,1);
+            assert!(seen);assert_eq!(released,builtin);assert_eq!(engine.play_view().catches,1);
         }
     }
 

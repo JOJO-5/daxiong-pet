@@ -1,0 +1,639 @@
+{
+  "version": "1.0.11",
+  "passed": [
+    "right: visible ball accepts native pointer grab",
+    "right: independent ball hidden while sprite bites it",
+    "right: dedicated biting cycle rendered",
+    "right: all eight carrying frames exercised",
+    "right: return completes once",
+    "right: release animation exercised",
+    "right: returned ball remains visible",
+    "returned ball survives old 30-second timeout and can be thrown again",
+    "left: visible ball accepts native pointer grab",
+    "left: independent ball hidden while sprite bites it",
+    "left: dedicated biting cycle rendered",
+    "left: all eight carrying frames exercised",
+    "left: return completes once",
+    "left: release animation exercised",
+    "left: returned ball remains visible"
+  ],
+  "samples": [
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 0
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 1
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 2
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 3
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 3
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 4
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 5
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 5
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 6
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 7
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 7
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 7
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 0
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 0
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 1
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 2
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 2
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 3
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 4
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 4
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 5
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 5
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 6
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 7
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 16,
+        "col": 7
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 18,
+        "col": 0
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 18,
+        "col": 2
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 18,
+        "col": 2
+      }
+    },
+    {
+      "direction": "right",
+      "frame": {
+        "row": 18,
+        "col": 3
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 0
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 1
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 2
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 3
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 3
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 4
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 5
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 5
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 6
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 0
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 0
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 1
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 2
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 2
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 3
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 3
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 4
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 5
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 5
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 6
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 0
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 0
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 1
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 2
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 2
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 3
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 3
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 4
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 5
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 5
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 6
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 0
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 1
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 1
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 2
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 2
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 3
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 4
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 4
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 5
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 6
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 6
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 7
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 17,
+        "col": 0
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 19,
+        "col": 0
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 19,
+        "col": 1
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 19,
+        "col": 2
+      }
+    },
+    {
+      "direction": "left",
+      "frame": {
+        "row": 19,
+        "col": 3
+      }
+    }
+  ],
+  "error": null
+}

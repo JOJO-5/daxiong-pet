@@ -11,6 +11,8 @@ pub struct PlayView {
     pub phase: &'static str,
     pub ball: Option<(i32, i32)>,
     pub catches: u32,
+    pub streak: u32,
+    pub style: &'static str,
 }
 
 pub struct Play {
@@ -29,6 +31,8 @@ pub struct Play {
     playful: bool,
     teased: bool,
     tease_ms: u64,
+    streak: u32,
+    style: &'static str,
 }
 
 pub struct PlayStep {
@@ -40,7 +44,7 @@ pub struct PlayStep {
 impl Default for Play {
     fn default() -> Self {
         Self { phase: "off", ball: None, velocity: (0.0, 0.0), home: (0, 0),
-            last_cursor: (0, 0), held_offset: (0.0, 0.0), was_down: false, elapsed: 0, catches: 0, release_ms: 0, release_from: (0.0,0.0), carry_right: true, playful:true, teased:false, tease_ms:0 }
+            last_cursor: (0, 0), held_offset: (0.0, 0.0), was_down: false, elapsed: 0, catches: 0, release_ms: 0, release_from: (0.0,0.0), carry_right: true, playful:true, teased:false, tease_ms:0, streak:0, style:"normal" }
     }
 }
 
@@ -52,11 +56,21 @@ impl Play {
         self.ball.is_some_and(|(x,y)| (cursor.0 as f32-x).hypot(cursor.1 as f32-y) <= 18.0*scale as f32)
     }
     pub fn view(&self) -> PlayView {
-        PlayView { phase: self.phase, ball: self.ball.map(|(x,y)| (x.round() as i32,y.round() as i32)), catches: self.catches }
+        PlayView { phase: self.phase, ball: self.ball.map(|(x,y)| (x.round() as i32,y.round() as i32)), catches: self.catches, streak:self.streak, style:self.style }
     }
-    pub fn cancel(&mut self) { self.phase = "off"; self.ball = None; self.velocity = (0.0,0.0); }
+    pub fn cancel(&mut self) { self.phase = "off"; self.ball = None; self.velocity = (0.0,0.0); self.streak=0; }
+    pub fn roll(&mut self,input:&Input) {
+        if self.phase!="returned" {return;}
+        if let Some((x,_))=self.ball {
+            let dir=if input.cursor.0 as f32>=x {1.0} else {-1.0};
+            self.velocity=(dir*200.0*input.scale_factor as f32,0.0);self.phase="rolling";self.elapsed=0;
+        }
+    }
+    pub fn chase_speed(&self)->f32 {match self.style {"near"=>180.0,"far"=>390.0,_=>310.0}}
     pub fn start(&mut self, input: &Input, throw: bool) {
         if !input.interactive { return; }
+        if self.phase=="off" || !throw {self.streak=0;}
+        self.style=if throw {"far"} else {"normal"};
         let s = input.scale_factor as f32;
         let (sx,sy,sw,sh) = input.screen;
         if sw < input.win_size.0 || sh < input.win_size.1 { return; }
@@ -113,7 +127,7 @@ impl Play {
         self.home.0 = self.home.0.clamp(sx,sx+sw-input.win_size.0);
         self.home.1 = self.home.1.clamp(sy,sy+sh-input.win_size.1);
         let (mut x,mut y) = self.ball.unwrap();
-        if matches!(self.phase, "ready" | "chasing" | "returned") && input.button_down && !self.was_down
+        if matches!(self.phase, "ready" | "chasing" | "returned" | "rolling") && input.button_down && !self.was_down
             && (input.cursor.0 as f32-x).hypot(input.cursor.1 as f32-y) <= radius+4.0*s {
             self.phase = "held";
             self.held_offset = (x-input.cursor.0 as f32,y-input.cursor.1 as f32);
@@ -132,11 +146,20 @@ impl Play {
                 }
             } else {
                 self.phase = "chasing";
+                let distance=(x-(self.home.0 as f32+(PET_X+PET_W/2) as f32*s)).hypot(y-(self.home.1 as f32+(PET_Y+PET_H-14) as f32*s))/s;
+                self.style=if distance<140.0 {"near"} else if distance>300.0 {"far"} else {"normal"};
                 self.elapsed = 0;
             }
         }
         x = x.clamp(sx as f32+radius,(sx+sw) as f32-radius);
         y = y.clamp(sy as f32+radius,(sy+sh) as f32-radius);
+        if self.phase == "rolling" {
+            x+=self.velocity.0*dt;
+            self.velocity.0*=0.97_f32.powf(dt*60.0);
+            if self.elapsed>=2500 || x<=sx as f32+radius || x>=(sx+sw) as f32-radius || self.velocity.0.abs()<6.0*s {
+                self.phase="returned";self.velocity=(0.0,0.0);
+            }
+        }
         if self.phase == "chasing" {
             self.velocity.1 += 1100.0*s*dt;
             x += self.velocity.0*dt;
@@ -160,7 +183,7 @@ impl Play {
             if distance <= 12.0*s && self.velocity.1.abs() < 120.0*s {
                 self.phase = "returning";
             } else {
-                out.movement = Some(step_toward(input.win_pos,target,310.0*s*dt));
+                out.movement = Some(step_toward(input.win_pos,target,self.chase_speed()*s*dt));
                 out.direction = Some(dx >= 0);
             }
         }
@@ -179,7 +202,7 @@ impl Play {
         if self.phase == "returning" {
             let dx = self.home.0-input.win_pos.0;
             let dy = self.home.1-input.win_pos.1;
-            let position = step_toward(input.win_pos,self.home,250.0*s*dt);
+            let position = step_toward(input.win_pos,self.home,(if self.style=="near" {150.0} else {250.0})*s*dt);
             out.movement = Some(position);
             if dx != 0 { self.carry_right = dx > 0; }
             out.direction = Some(self.carry_right);
@@ -189,7 +212,7 @@ impl Play {
             if (dx as f32).hypot(dy as f32) <= 5.0*s {
                 out.movement = Some(self.home);
                 out.direction = None;
-                if input.extra_animations && self.playful && !self.teased && (self.catches+1)%3==0 {
+                if input.extra_animations && self.playful && !self.teased && (self.streak+1)%3==0 {
                     self.phase="teasing";self.teased=true;self.tease_ms=0;
                     out.direction=Some(self.carry_right);
                 } else if input.extra_animations {
@@ -202,6 +225,7 @@ impl Play {
                     self.phase = "returned";
                     self.elapsed = 0;
                     self.catches = self.catches.saturating_add(1);
+                    self.streak=self.streak.saturating_add(1);
                     out.completed = true;
                     y = self.home.1 as f32+(PET_Y+PET_H-14) as f32*s;
                 }
@@ -218,6 +242,7 @@ impl Play {
             if self.release_ms >= 400 {
                 self.phase = "returned"; self.elapsed = 0;
                 self.catches = self.catches.saturating_add(1);
+                    self.streak=self.streak.saturating_add(1);
                 out.direction = None; out.completed = true;
             }
         }
@@ -246,10 +271,29 @@ mod tests {
             extra_animations:true, encounters_enabled:false, gravity:false,local_hour:12,sleep_frame:(crate::atlas::Row::Failed,2) }
     }
     #[test]
+    fn real_release_distance_changes_pace_and_rolling_remains_grabbable() {
+        for scale in [1.0,1.25,2.0] {
+            let mut i=input(scale);
+            let mut speeds=Vec::new();
+            for distance in [60.0,400.0] {
+                let mut p=Play::default();p.start(&i,false);p.phase="held";p.held_offset=(0.0,0.0);
+                i.cursor=(i.win_pos.0+((PET_X+PET_W/2) as f64*scale+distance*scale) as i32,i.win_pos.1+((PET_Y+PET_H-14) as f64*scale) as i32);
+                p.tick(&i);speeds.push(p.chase_speed());
+                assert_eq!(p.view().style,if distance<140.0 {"near"} else {"far"});
+            }
+            assert!(speeds[1]>speeds[0]*2.0);
+            let mut p=Play::default();p.start(&i,false);p.phase="returned";p.catches=2;p.streak=2;
+            let before=p.view().ball.unwrap();p.roll(&i);p.tick(&i);
+            assert_eq!(p.view().phase,"rolling");assert_ne!(p.view().ball.unwrap().0,before.0);
+            i.cursor=p.view().ball.unwrap();i.button_down=true;p.tick(&i);assert_eq!(p.view().phase,"held");
+            assert_eq!(p.catches,2);assert_eq!(p.streak,2);
+        }
+    }
+    #[test]
     fn playful_return_is_bounded_optional_and_releases_once() {
         for scale in [1.0,1.25,2.0] {
             for mode in [0,1,2,3] {
-                let mut i=input(scale);let mut p=Play::default();p.start(&i,false);p.phase="returning";p.catches=2;
+                let mut i=input(scale);let mut p=Play::default();p.start(&i,false);p.phase="returning";p.catches=2;p.streak=2;
                 if mode==3 {i.extra_animations=false;}
                 p.tick(&i);
                 if mode==3 {assert_eq!(p.view().phase,"returned");continue;}

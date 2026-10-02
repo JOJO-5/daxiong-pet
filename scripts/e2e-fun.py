@@ -39,6 +39,32 @@ try:
     check('disabled playful fetch still returns usable ball')
     invoke('set_visible',{'visible':False});wait(lambda: phase()=='off')
     check('hiding cleans toy and play',not invoke('plugin:window|is_visible',{'label':'toy'}))
+    if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=13:
+        invoke('set_visible',{'visible':True});wait(lambda: invoke('plugin:window|is_visible',{'label':'main'}))
+        for turn,style,row in [(1,'near',4),(2,'far',11),(3,'far',15)]:
+            if phase()=='off': invoke('play_action',{'action':'show'})
+            ball=wait(lambda: (v['ball'] if (v:=invoke('play_status'))['phase'] in ('ready','returned') else None))
+            geom=dict(line.split('=') for line in subprocess.check_output(['xdotool','getwindowgeometry','--shell',native],text=True).strip().splitlines())
+            wx,wy=int(geom['X']),int(geom['Y'])
+            tx=min(1200,wx+210) if style=='near' else (100 if wx+150>600 else 1170)
+            ty=min(760,wy+226)
+            pointer('mousemove',*ball);pointer('mousedown',1);time.sleep(.12)
+            check(f'{style}: real returned ball grabbed',phase()=='held')
+            pointer('mousemove',tx,ty);time.sleep(.2);pointer('mouseup',1)
+            wait(lambda: invoke('play_status')['style']==style)
+            check(f'{style}: actual release selects distance feedback')
+            wait(lambda: phase()=='returned',25)
+            wait(lambda: any(f['row']==row for f in js('return window.__frames')[-20:]))
+            check(f'fetch streak {turn}: celebration row {row} rendered',invoke('play_status')['streak']==turn)
+            shoot(f'variety-{turn}')
+        click('推回给我');wait(lambda: phase()=='rolling')
+        before=invoke('play_status')['ball'];time.sleep(.2);after=invoke('play_status')['ball']
+        check('push back moves ball horizontally',after[0]!=before[0] and after[1]==before[1])
+        shoot('rolling')
+        pointer('mousemove',*after);pointer('mousedown',1)
+        wait(lambda: phase()=='held');check('rolling ball accepts real pointer grab')
+        pointer('mouseup',1);wait(lambda: phase()=='returned',25)
+        invoke('play_action',{'action':'cancel'})
 finally:
     frames=js('return window.__frames') if session and not sys.exc_info()[1] else []
     OUT.joinpath('fun-e2e.json').write_text(json.dumps({'version':json.loads(ROOT.joinpath('package.json').read_text())['version'],'passed':checks,'frames':frames,'error':str(sys.exc_info()[1]) if sys.exc_info()[1] else None},ensure_ascii=False,indent=2))

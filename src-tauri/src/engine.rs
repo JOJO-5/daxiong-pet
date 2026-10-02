@@ -92,6 +92,7 @@ pub enum Command {
     CancelPlay,
     FeedTreat,
     DropBall,
+    RollBall,
 }
 
 /// 触发说话的场合。具体说什么由前端从对应话术表里随机挑。
@@ -380,6 +381,7 @@ impl Engine {
                         self.quiet_ms = 0; self.vx = 0.0; self.vy = 0.0;
                     }
                 }
+                Command::RollBall => self.play.roll(input),
                 Command::DropBall => self.play.drop_ball(),
                 Command::CancelPlay => {self.play.cancel();self.encounters.interrupt();},
                 Command::FeedTreat => {
@@ -889,7 +891,9 @@ impl Engine {
         let play_step = self.play.tick(input);
         if let Some(position) = play_step.movement { move_to = Some(position); }
         if play_step.completed {
-            self.start_reaction(Row::Jumping);
+            let streak=self.play.view().streak;
+            self.start_reaction(if input.extra_animations && streak%3==0 {Row::Affection}
+                else if input.extra_animations && streak%3==2 {Row::HappyPat} else {Row::Jumping});
             say = Some(SayKind::PlayReturned);
         }
 
@@ -937,7 +941,7 @@ impl Engine {
                 self.col = (idx % 8) as usize;
             }
         } else {
-            self.acc += dt;
+            self.acc += if self.play.view().style=="near" && matches!(self.play.view().phase,"chasing" | "returning") {dt/2} else {dt};
             let dur = track.durations[self.col.min(track.cols - 1)] as u64;
             if self.acc >= dur {
                 self.acc = 0;

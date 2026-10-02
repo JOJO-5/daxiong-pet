@@ -227,7 +227,7 @@ fn play_action(action: String, app: AppHandle) -> Result<(), String> {
     if !state.requested_visible.load(Ordering::Relaxed) && action != "cancel" { return Err("先显示大熊再一起玩吧".into()); }
     let cmd = match action.as_str() {
         "show" => EngineCommand::ShowBall, "throw" => EngineCommand::ThrowBall,
-        "cancel" => EngineCommand::CancelPlay, "drop" => EngineCommand::DropBall, _ => return Err("未知互动".into()),
+        "cancel" => EngineCommand::CancelPlay, "drop" => EngineCommand::DropBall, "roll" => EngineCommand::RollBall, _ => return Err("未知互动".into()),
     };
     state.engine_tx.lock().unwrap().send(cmd).map_err(|e| e.to_string())?;
     Ok(())
@@ -461,7 +461,7 @@ fn spawn_engine(
             }
             let state = app.state::<AppState>();
             let mut previous = state.play.lock().unwrap();
-            if previous.phase != play.phase || previous.catches != play.catches {
+            if previous.phase != play.phase || previous.catches != play.catches || previous.style != play.style {
                 let _ = app.emit("pet:play", &play);
             }
             *previous = play;
@@ -513,6 +513,9 @@ fn spawn_engine(
                         } else { None }
                     },_=>None
                 };
+                let personal=if kind==engine::SayKind::PlayReturned && engine.play_view().streak>=3 {
+                    Some(format!("连续接住 {} 次啦！再来一球？",engine.play_view().streak))
+                } else {personal};
                 if let Some(text)=personal { let _=app.emit("pet:message",text); }
                 else { let _=app.emit("pet:say",kind.as_str()); }
             }

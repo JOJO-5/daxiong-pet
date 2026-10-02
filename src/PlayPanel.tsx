@@ -5,11 +5,11 @@ import { listen } from "@tauri-apps/api/event";
 import CompanionPanel from "./CompanionPanel";
 import EncountersPanel, { type EncounterView } from "./EncountersPanel";
 
-type PlayView = { phase: string; catches: number };
-const PHASES: Record<string,string> = { off: "准备好陪你玩", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", teasing: "来追我呀！靠近大熊或点放下球", releasing: "把球放在你脚边", returned: "抓起脚边的球，再扔一次吧！" };
+type PlayView = { phase: string; catches: number; streak:number; style:string };
+const PHASES: Record<string,string> = { off: "准备好陪你玩", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", teasing: "来追我呀！靠近大熊或点放下球", releasing: "把球放在你脚边", rolling: "把球推给你啦，抓住再扔吧！", returned: "抓起脚边的球，再扔一次吧！" };
 
 export default function PlayPanel() {
-  const [play,setPlay] = useState<PlayView>({phase:"off",catches:0});
+  const [play,setPlay] = useState<PlayView>({phase:"off",catches:0,streak:0,style:"normal"});
   const [error,setError] = useState("");
   useEffect(() => {
     let active = true;
@@ -29,6 +29,8 @@ export default function PlayPanel() {
       <h2>接球时间</h2><p role="status" data-testid="play-phase" data-phase={play.phase}>{PHASES[play.phase] || play.phase}</p>
       <div className="play-actions"><button onClick={()=>void act("show")}>拿出球</button><button className="primary" onClick={()=>void act("throw")}>抛一球</button></div>
       {play.phase==="teasing" ? <button onClick={()=>void act("drop")}>放下球</button> : null}
+      {play.phase==="returned" ? <button onClick={()=>void act("roll")}>推回给我</button> : null}
+      <p className="small" data-testid="fetch-style">{play.style==="near"?"近近的，慢悠悠捡回来":play.style==="far"?"扔得好远，兴奋追球！":"陪你一起接球"} · 连续 {play.streak} 次</p>
       <PlayfulSwitch />
       <button className="quiet" onClick={()=>void act("cancel")}>收起玩具</button>
       <p className="small">本次接球 <strong data-testid="catches">{play.catches}</strong> 次</p>

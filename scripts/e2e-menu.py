@@ -25,7 +25,7 @@ try:
     panel=next(iter(set(command('GET','/window/handles'))-initial));command('POST','/window',{'handle':panel})
     wait(lambda:js("return !!document.querySelector('.play-panel')"))
     check('right-click first item opens real panel',visible())
-    check('common games and feed visible while settings collapsed',js("const f=[...document.querySelectorAll('button')].find(b=>b.textContent==='喂一块饼干').getBoundingClientRect();return !document.querySelector('details').open&&f.bottom<innerHeight&&document.querySelectorAll('.game-picker button').length===4"))
+    check('common games and feed visible while settings collapsed',js("const f=[...document.querySelectorAll('button')].find(b=>b.textContent==='喂一块饼干').getBoundingClientRect();return !document.querySelector('details').open&&f.bottom<innerHeight&&document.querySelectorAll('.game-picker button').length===5"))
     time.sleep(.8);shoot('compact-panel')
     pos=invoke('plugin:window|outer_position',{'label':'playground'});size=invoke('plugin:window|outer_size',{'label':'playground'})
     check('nearby panel remains inside screen',pos['x']>=0 and pos['y']>=0 and pos['x']+size['width']<=1280 and pos['y']+size['height']<=800)

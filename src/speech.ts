@@ -14,6 +14,7 @@ export type SpeechTable = Record<string, string[]>;
 
 export const DEFAULT_SPEECH: SpeechTable = {
   ball_invite: ["把球推过来啦，陪我接一球？", "我的球准备好啦，来玩吗？"],
+  tug_finished: ["拉得好开心！再来一轮？", "嘿嘿，我们都好有力气！", "松松口，歇一下再玩。"],
   play_returned: ["接住啦，再扔一次嘛！", "叼回来了！我的球技怎么样？", "接球可是我的拿手项目。"],
   // 被点了一下
   click: [

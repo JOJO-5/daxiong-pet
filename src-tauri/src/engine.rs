@@ -87,6 +87,7 @@ pub enum Command {
     CancelPomodoro,
     /// 正在跑就取消，没跑就开始
     TogglePomodoro,
+    StartTug,
     ShowBall,
     ThrowBall,
     CancelPlay,
@@ -105,6 +106,7 @@ pub enum Command {
 pub enum SayKind {
     BallInvite,
     PlayReturned,
+    TugFinished,
     Click,
     Drag,
     GentleDrag,
@@ -135,6 +137,7 @@ impl SayKind {
         match self {
             SayKind::BallInvite => "ball_invite",
             SayKind::PlayReturned => "play_returned",
+            SayKind::TugFinished => "tug_finished",
             SayKind::Click => "click",
             SayKind::Drag => "drag",
             SayKind::GentleDrag => "gentle_drag",
@@ -380,11 +383,12 @@ impl Engine {
                     }
                 }
                 Command::CancelPomodoro => self.pomodoro_ms = None,
-                Command::ShowBall | Command::ThrowBall | Command::ShowFrisbee | Command::ThrowFrisbee => {
+                Command::StartTug | Command::ShowBall | Command::ThrowBall | Command::ShowFrisbee | Command::ThrowFrisbee => {
                     if input.interactive && self.pomodoro_ms.is_none() && !self.dragging {
                         self.encounters.interrupt();
                         self.activities.cancel();
-                        if matches!(cmd, Command::ShowFrisbee | Command::ThrowFrisbee) {self.play.start_frisbee(input,matches!(cmd,Command::ThrowFrisbee));}
+                        if matches!(cmd,Command::StartTug) {self.play.start_tug(input);}
+                        else if matches!(cmd, Command::ShowFrisbee | Command::ThrowFrisbee) {self.play.start_frisbee(input,matches!(cmd,Command::ThrowFrisbee));}
                         else {self.play.start(input, matches!(cmd, Command::ThrowBall));}
                         self.wander = None; self.react = None; self.sleeping = false;
                         self.quiet_ms = 0; self.vx = 0.0; self.vy = 0.0;
@@ -919,7 +923,7 @@ impl Engine {
             let streak=self.play.view().streak;
             self.start_reaction(if input.extra_animations && streak%3==0 {Row::Affection}
                 else if input.extra_animations && streak%3==2 {Row::HappyPat} else {Row::Jumping});
-            say = Some(SayKind::PlayReturned);
+            say = Some(if self.play.view().toy=="rope" {SayKind::TugFinished} else {SayKind::PlayReturned});
         }
 
         let activity=self.activities.tick(input);
@@ -1021,6 +1025,39 @@ mod tests {
             local_hour: 12,
             sleep_frame: (Row::Failed, 2),
         }
+    }
+
+    #[test]
+    fn tug_rounds_do_not_reward_fetch_and_new_games_hide_and_focus_cancel_rope() {
+        for builtin in [false,true] {
+            let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.attach_commands(rx);
+            let mut i=input(1.25);i.extra_animations=builtin;
+            tx.send(Command::StartTug).unwrap();e.tick(&i);
+            i.cursor=e.play_view().tug.unwrap().handle;i.button_down=true;e.tick(&i);
+            assert_eq!(e.play_view().phase,"tugging");assert!(!e.dragging);
+            for _ in 0..120 {
+                let rope=e.play_view().tug.unwrap();
+                i.cursor=(rope.mouth.0+if rope.right {180} else {-180},rope.mouth.1);
+                let out=e.tick(&i);if let Some(pos)=out.move_to {i.win_pos=pos;}
+                assert!(!e.dragging);assert!(out.row<11);assert_ne!(out.say,Some(SayKind::PlayReturned));
+            }
+            i.button_down=false;let out=e.tick(&i);
+            assert_eq!(out.say,Some(SayKind::TugFinished));assert_eq!(e.play_view().tug_rounds,1);assert_eq!(e.play_view().catches,0);
+            tx.send(Command::ShowFrisbee).unwrap();e.tick(&i);assert!(e.play_view().tug.is_none());assert_eq!(e.play_view().toy,"frisbee");
+            tx.send(Command::StartTug).unwrap();e.tick(&i);tx.send(Command::PlaceSnack(false)).unwrap();e.tick(&i);assert!(e.play_view().tug.is_none());
+            tx.send(Command::StartTug).unwrap();e.tick(&i);i.interactive=false;e.tick(&i);assert!(e.play_view().ball.is_none());assert!(e.play_view().tug.is_none());
+            i.interactive=true;tx.send(Command::StartTug).unwrap();e.tick(&i);tx.send(Command::StartPomodoro).unwrap();e.tick(&i);
+            assert_eq!(e.play_view().phase,"off");assert!(e.play_view().tug.is_none());
+            tx.send(Command::StartTug).unwrap();e.tick(&i);assert_eq!(e.play_view().phase,"off");
+        }
+    }
+    #[test]
+    fn dragging_pet_cancels_ready_rope_and_switching_pet_cleans_up() {
+        let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.attach_commands(rx);let mut i=input(1.0);
+        tx.send(Command::StartTug).unwrap();e.tick(&i);
+        i.cursor=(i.win_pos.0+PET_X+PET_W/2,i.win_pos.1+PET_Y+PET_H/2);i.button_down=true;e.tick(&i);
+        i.cursor.0+=30;e.tick(&i);assert!(e.dragging);assert!(e.play_view().tug.is_none());
+        i.button_down=false;e.tick(&i);tx.send(Command::StartTug).unwrap();e.tick(&i);e.cancel_play();assert!(e.play_view().tug.is_none());
     }
 
     #[test]

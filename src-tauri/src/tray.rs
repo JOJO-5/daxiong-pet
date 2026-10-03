@@ -153,7 +153,7 @@ pub(crate) fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
 
     match id {
         "pet_feed"=>{if let Err(e)=crate::feed_treat(app.clone()) {crate::report_error(app,"投喂失败",e);}},
-        "pet_ball" | "pet_frisbee" | "pet_stop"=>{let action=match id {"pet_ball"=>"throw","pet_frisbee"=>"throw_frisbee",_=>"cancel"};if let Err(e)=crate::play_action(action.into(),app.clone()) {crate::report_error(app,"互动失败",e);}},
+        "pet_ball" | "pet_frisbee" | "pet_tug" | "pet_stop"=>{let action=match id {"pet_ball"=>"throw","pet_frisbee"=>"throw_frisbee","pet_tug"=>"start_tug",_=>"cancel"};if let Err(e)=crate::play_action(action.into(),app.clone()) {crate::report_error(app,"互动失败",e);}},
         "pet_come"=>{if let Err(e)=crate::trick_action("come".into(),app.clone()) {crate::report_error(app,"指令失败",e);}},
         "pet_preferences"=>{if let Err(e)=crate::open_preferences(app) {crate::report_error(app,"打开偏好失败",e);}},
         "toggle" => toggle_window(app),

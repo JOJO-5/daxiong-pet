@@ -10,6 +10,8 @@ const CARRY_LEFT:[(f32,f32);8]=[(32.0,119.0),(32.0,120.0),(31.0,120.0),(31.0,121
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct PlayView {
+    pub tug: Option<crate::tug::TugView>,
+    pub tug_rounds: u32,
     pub phase: &'static str,
     pub ball: Option<(i32, i32)>,
     pub catches: u32,
@@ -20,6 +22,8 @@ pub struct PlayView {
 }
 
 pub struct Play {
+    tug: Option<crate::tug::Tug>,
+    tug_rounds: u32,
     phase: &'static str,
     ball: Option<(f32, f32)>,
     velocity: (f32, f32),
@@ -51,7 +55,7 @@ pub struct PlayStep {
 
 impl Default for Play {
     fn default() -> Self {
-        Self { phase: "off", ball: None, velocity: (0.0, 0.0), home: (0, 0),
+        Self { tug: None, tug_rounds: 0, phase: "off", ball: None, velocity: (0.0, 0.0), home: (0, 0),
             last_cursor: (0, 0), held_offset: (0.0, 0.0), was_down: false, elapsed: 0, catches: 0, release_ms: 0, release_from: (0.0,0.0), carry_right: true, playful:true, teased:false, tease_ms:0, streak:0, toy:"ball", last_catch:"none", catch_ms:0, catch_home:(0,0), style:"normal" }
     }
 }
@@ -61,12 +65,13 @@ impl Play {
     pub fn drop_ball(&mut self) {if self.phase=="teasing" {self.phase="returning";self.teased=true;}}
     pub fn active(&self) -> bool { self.phase != "off" }
     pub fn pointer_hot(&self, cursor: (i32,i32), scale: f64) -> bool {
+        if let Some(tug)=&self.tug {return tug.pointer_hot(cursor,scale);}
         self.ball.is_some_and(|(x,y)| (cursor.0 as f32-x).hypot(cursor.1 as f32-y) <= (if self.toy=="frisbee" {22.0} else {18.0})*scale as f32)
     }
     pub fn view(&self) -> PlayView {
-        PlayView { phase: self.phase, ball: self.ball.map(|(x,y)| (x.round() as i32,y.round() as i32)), catches: self.catches, streak:self.streak, style:self.style, toy:self.toy, last_catch:self.last_catch }
+        PlayView { tug:self.tug.as_ref().and_then(|t|t.view()), tug_rounds:self.tug_rounds, phase: self.phase, ball: self.ball.map(|(x,y)| (x.round() as i32,y.round() as i32)), catches: self.catches, streak:self.streak, style:self.style, toy:self.toy, last_catch:self.last_catch }
     }
-    pub fn cancel(&mut self) { self.phase = "off"; self.ball = None; self.velocity = (0.0,0.0); self.streak=0; }
+    pub fn cancel(&mut self) { self.tug=None; self.phase = "off"; self.ball = None; self.velocity = (0.0,0.0); self.streak=0; }
     pub fn roll(&mut self,input:&Input) {
         if self.phase!="returned" || self.toy=="frisbee" {return;}
         if let Some((x,_))=self.ball {
@@ -76,9 +81,16 @@ impl Play {
     }
     pub fn chase_speed(&self)->f32 {if self.toy=="frisbee" {return 560.0;}match self.style {"near"=>180.0,"far"=>390.0,_=>310.0}}
     pub fn start(&mut self,input:&Input,throw:bool) {if self.toy!="ball" {self.streak=0;}self.toy="ball";self.launch(input,throw);}
+    pub fn start_tug(&mut self,input:&Input) {
+        self.cancel();self.toy="rope";
+        self.tug=crate::tug::Tug::new(input);
+        self.phase=self.tug.as_ref().map_or("off",|t|t.phase);
+        self.ball=self.tug.as_ref().and_then(|t|t.view()).map(|v|(v.handle.0 as f32,v.handle.1 as f32));
+    }
     pub fn start_frisbee(&mut self,input:&Input,throw:bool) {if self.toy!="frisbee" {self.streak=0;}self.toy="frisbee";self.launch(input,throw);}
     fn launch(&mut self, input: &Input, throw: bool) {
         if !input.interactive { return; }
+        self.tug=None;
         if self.phase=="off" || !throw {self.streak=0;}
         self.last_catch="none";self.catch_ms=0;
         self.style=if throw {"far"} else {"normal"};
@@ -112,6 +124,11 @@ impl Play {
     }
     /// Track the carried ball for legacy overlay and builtin release handoff.
     pub fn align_carried_ball(&mut self, input:&Input, position:(i32,i32), row:crate::atlas::Row, col:usize) {
+        if let Some(tug)=self.tug.as_mut() {
+            tug.align(input,position);
+            self.ball=tug.view().map(|v|(v.handle.0 as f32,v.handle.1 as f32));
+            return;
+        }
         if !matches!(self.phase,"returning" | "teasing" | "catching") { return; }
         let anchor=match row {
             crate::atlas::Row::DiscRight => DISC_RIGHT[col.min(7)],
@@ -128,6 +145,13 @@ impl Play {
     }
     pub fn tick(&mut self, input: &Input) -> PlayStep {
         let mut out = PlayStep { movement: None, direction: None, completed: false };
+        if let Some(tug)=self.tug.as_mut() {
+            let step=tug.tick(input);
+            self.phase=tug.phase;
+            self.ball=tug.view().map(|v|(v.handle.0 as f32,v.handle.1 as f32));
+            if step.completed {self.tug_rounds=self.tug_rounds.saturating_add(1);}
+            return PlayStep {movement:step.movement,direction:tug.direction(),completed:step.completed};
+        }
         if !self.active() { self.was_down = input.button_down; return out; }
         if !input.interactive { self.cancel(); return out; }
         let s = input.scale_factor as f32;

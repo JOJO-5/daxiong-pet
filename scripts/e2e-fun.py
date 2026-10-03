@@ -5,8 +5,8 @@ exec((Path(__file__).resolve().parent/'e2e-desktop.py').read_text().split('\ntry
 frames=[]
 scope=os.environ.get("E2E_FUN_SCOPE","all")
 def click_id(value):
-    element=command('POST','/element',{'using':'css selector','value':f'[data-testid={value}]'})['element-6066-11e4-a52e-4f735466cecf']
-    command('POST',f'/element/{element}/click',{})
+    native_click("document.querySelector("+json.dumps(f'[data-testid={value}]')+")")
+
 def geometry():
     g=dict(line.split('=') for line in subprocess.check_output(['xdotool','getwindowgeometry','--shell',native],text=True).strip().splitlines())
     return (int(g['X']),int(g['Y']))
@@ -26,7 +26,7 @@ try:
     panel_native=next(w for w in native_windows if 'WIDTH=360' in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True))
     pointer('windowmove',panel_native,870,30);pointer('mousemove',30,30)
     invoke('plugin:event|listen',{'event':'pet:frame','target':{'kind':'Any'},'handler':js("window.__frames=[];return window.__TAURI_INTERNALS__.transformCallback(e=>window.__frames.push(e.payload))")})
-    if scope=="all":
+    if scope in ("all","fetch"):
         for turn in range(1,7):
             click('抛一球')
             wait(lambda: phase() in ('returning','teasing'),25)
@@ -47,7 +47,7 @@ try:
         check('disabled playful fetch still returns usable ball')
         invoke('set_visible',{'visible':False});wait(lambda: phase()=='off')
         check('hiding cleans toy and play',not invoke('plugin:window|is_visible',{'label':'toy'}))
-    if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=13 and scope=='all':
+    if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=13 and scope in ('all','fetch'):
         invoke('set_visible',{'visible':True});wait(lambda: invoke('plugin:window|is_visible',{'label':'main'}))
         for turn,style,row in [(1,'near',4),(2,'far',11),(3,'far',15)]:
             if phase()=='off': invoke('play_action',{'action':'show'})
@@ -73,7 +73,8 @@ try:
         wait(lambda: phase()=='held');check('rolling ball accepts real pointer grab')
         pointer('mouseup',1);wait(lambda: phase()=='returned',25)
         invoke('play_action',{'action':'cancel'})
-    if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=14:
+    if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=14 and scope in ('all','learning','tricks'):
+        if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=15: click('小指令')
         def trick_phase(): return js("return document.querySelector('[data-testid=trick-phase]').dataset.phase")
         for cue,expected in [('come',None),('spin',None),('down',12),('stay',6)]:
             before=geometry();js('window.__frames=[];return true');click_id(f'trick-{cue}')
@@ -106,6 +107,7 @@ try:
             check('three rewarded practices visibly learn command');shoot('learned-stay')
             exec(ROOT.joinpath('scripts/e2e-memory.py').read_text().split('\nwait(lambda: js(')[0])
             restart_app()
+            if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=15: click('小指令')
             check('real restart preserves learned commands',invoke('companion_status')['training'][3]==3)
             click_id('trick-stay');pointer('mousemove',30,30);wait(lambda: trick_phase()=='performing')
             check('learned command executes after restart')
@@ -114,6 +116,45 @@ try:
         check('focus rejects practice without reward',not invoke('trick_status')['rewardable'])
         invoke('set_pomodoro',{'active':False});click_id('trick-spin');wait(lambda: trick_phase()=='attention')
         click('结束练习');wait(lambda: trick_phase()=='off');check('manual stop cancels command')
+    if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=15 and scope in ('all','snack'):
+        click('找零食')
+        def snack_phase(): return js("return document.querySelector('[data-testid=snack-phase]').dataset.phase")
+        treats_before=invoke('companion_status')['treats']
+        for difficulty,target in [('easy',(350,700)),('far',(850,650))]:
+            if difficulty=='far':
+                native_click("document.querySelector('select[aria-label=寻找难度]')");pointer('key','End','Return')
+                wait(lambda: js("return document.querySelector('select[aria-label=寻找难度]').value==='far'"))
+            click('藏一块零食');wait(lambda: snack_phase()=='placing')
+            check(f'{difficulty}: independent treat is visible',invoke('plugin:window|is_visible',{'label':'toy'}))
+            cookie=invoke('trick_status')['treat'];pointer('mousemove',*cookie);pointer('mousedown',1)
+            wait(lambda: snack_phase()=='held');check(f'{difficulty}: native pointer grabs cookie')
+            pointer('mousemove',*target);time.sleep(.15);pointer('mouseup',1);wait(lambda: snack_phase()=='ready')
+            check(f'{difficulty}: cookie placed at real desktop position',invoke('trick_status')['treat']==list(target))
+            shoot(f'snack-placed-{difficulty}')
+            pixel=subprocess.check_output(['convert',str(OUT/f'snack-placed-{difficulty}.png'),'-crop',f'1x1+{target[0]}+{target[1]}','+repage','-format','%[fx:r*255] %[fx:g*255] %[fx:b*255]','info:'],text=True).split()
+            r,g,b=map(float,pixel);check(f'{difficulty}: visible cookie centre matches hit point',r>g+10 and g>b+10)
+            before=invoke('trick_status')['finds'];click('开始寻找');wait(lambda: snack_phase()=='attention')
+            pointer('mousemove',30,30);seen=set();positions=[];deadline=time.monotonic()+20
+            while snack_phase()!='found':
+                assert time.monotonic()<deadline,'search did not complete'
+                seen.add(snack_phase());positions.append(geometry());time.sleep(.12)
+            status=invoke('trick_status')
+            check(f'{difficulty}: pet really moves and finds once',len(set(positions))>3 and status['finds']==before+1)
+            check(f'{difficulty}: cookie cleaned after finding',status['treat'] is None and not invoke('plugin:window|is_visible',{'label':'toy'}))
+            if difficulty=='far': check('far search pauses to observe along route','observing' in seen)
+            shoot(f'snack-found-{difficulty}');time.sleep(1)
+        check('finding does not bypass feeding cooldown or counters',invoke('companion_status')['treats']==treats_before)
+        click('藏一块零食');wait(lambda: snack_phase()=='placing')
+        invoke('set_pomodoro',{'active':True});wait(lambda: snack_phase()=='off')
+        check('focus removes hidden treat',not invoke('plugin:window|is_visible',{'label':'toy'}))
+        invoke('set_pomodoro',{'active':False});click('藏一块零食');wait(lambda: snack_phase()=='placing')
+        pointer('mousemove','--window',native,150,160);pointer('mousedown',1);time.sleep(.12);pointer('mousemove_relative','--',35,0);pointer('mouseup',1)
+        wait(lambda: snack_phase()=='off');check('real pet dragging cancels snack game',not invoke('plugin:window|is_visible',{'label':'toy'}))
+        pointer('mousemove',30,30);click('藏一块零食');wait(lambda: snack_phase()=='placing')
+        click('接球');click('拿出球');wait(lambda: phase()=='ready')
+        check('starting another game clears snack',invoke('trick_status')['treat'] is None and phase()=='ready')
+        invoke('set_visible',{'visible':False});wait(lambda: phase()=='off')
+        check('hiding final game leaves no toys',not invoke('plugin:window|is_visible',{'label':'toy'}))
 finally:
     if sys.exc_info()[1]: shoot('failure')
     frames=js('return window.__frames') if session and not sys.exc_info()[1] else []

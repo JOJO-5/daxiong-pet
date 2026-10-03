@@ -94,6 +94,8 @@ pub enum Command {
     DropBall,
     RollBall,
     Trick(crate::activities::Cue,bool),
+    PlaceSnack(bool),
+    FindSnack,
 }
 
 /// 触发说话的场合。具体说什么由前端从对应话术表里随机挑。
@@ -385,6 +387,13 @@ impl Engine {
                         self.quiet_ms = 0; self.vx = 0.0; self.vy = 0.0;
                     }
                 }
+                Command::PlaceSnack(far) => {
+                    if input.interactive && self.pomodoro_ms.is_none() && !self.dragging {
+                        self.play.cancel();self.encounters.interrupt();self.activities.place_snack(input,far);
+                        self.react=None;self.wander=None;self.sleeping=false;self.quiet_ms=0;self.vx=0.0;self.vy=0.0;
+                    } else {self.activities.blocked();}
+                }
+                Command::FindSnack => self.activities.find_snack(input),
                 Command::Trick(cue,learned) => {
                     if input.interactive && self.pomodoro_ms.is_none() && !self.dragging {
                         self.play.cancel();self.encounters.interrupt();self.activities.start(cue,input,learned);
@@ -442,7 +451,7 @@ impl Engine {
         let inset_y = (PET_H as f32 * scale * HOT_INSET_Y).round() as i32;
         let px = wx + physical(PET_X);
         let py = wy + physical(PET_Y);
-        let hot = input.interactive && !self.play.pointer_hot(input.cursor,input.scale_factor) && cx >= px + inset_x
+        let hot = input.interactive && !self.activities.pointer_hot(input.cursor,input.scale_factor) && !self.play.pointer_hot(input.cursor,input.scale_factor) && cx >= px + inset_x
             && cx < px + physical(PET_W) - inset_x
             && cy >= py + inset_y
             && cy < py + physical(PET_H) - inset_y;
@@ -1007,6 +1016,15 @@ mod tests {
         }
     }
 
+    #[test]
+    fn snack_pointer_does_not_drag_pet_and_new_game_clears_cookie() {
+        let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.cmd_rx=Some(rx);let mut i=input(1.0);
+        tx.send(Command::PlaceSnack(false)).unwrap();e.tick(&i);i.cursor=e.activity_view().treat.unwrap();i.button_down=true;e.tick(&i);
+        assert_eq!(e.activity_view().phase,"held");assert!(!e.dragging);
+        i.button_down=false;e.tick(&i);tx.send(Command::ShowBall).unwrap();e.tick(&i);assert!(e.activity_view().treat.is_none());assert!(e.play.active());
+        tx.send(Command::PlaceSnack(true)).unwrap();e.tick(&i);assert!(!e.play.active());assert!(e.activity_view().treat.is_some());
+        tx.send(Command::StartPomodoro).unwrap();e.tick(&i);assert!(e.activity_view().treat.is_none());assert!(!e.activities.active());
+    }
     #[test]
     fn commands_cancel_ball_and_focus_cancels_tricks_without_rewards() {
         let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.cmd_rx=Some(rx);let i=input(1.0);

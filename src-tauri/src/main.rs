@@ -222,6 +222,16 @@ pub(crate) fn apply_visibility(app: &AppHandle, visible: bool) -> tauri::Result<
 }
 
 #[tauri::command]
+fn snack_action(action:String,difficulty:Option<String>,app:AppHandle)->Result<(),String> {
+    let state=app.state::<AppState>();
+    if !state.requested_visible.load(Ordering::Relaxed) && action!="cancel" {return Err("先显示大熊再找零食吧".into());}
+    let cmd=match action.as_str() {
+        "place"=>{let far=match difficulty.as_deref().unwrap_or("easy") {"easy"=>false,"far"=>true,_=>return Err("未知难度".into())};EngineCommand::PlaceSnack(far)},
+        "find"=>EngineCommand::FindSnack,"cancel"=>EngineCommand::CancelPlay,_=>return Err("未知零食游戏操作".into())
+    };
+    state.engine_tx.lock().unwrap().send(cmd).map_err(|e|e.to_string())?;Ok(())
+}
+#[tauri::command]
 fn trick_status(app:AppHandle)->activities::ActivityView {app.state::<AppState>().activity.lock().unwrap().clone()}
 #[tauri::command]
 fn trick_action(cue:String,app:AppHandle)->Result<(),String> {
@@ -416,6 +426,7 @@ fn spawn_engine(
         let mut prev_frame: Option<(u8, usize)> = None;
         let mut prev_clickable: Option<bool> = None;
         let mut prev_sleeping: Option<bool> = None;
+        let mut prev_toy_hot:Option<bool>=None;
         let mut screen = screen_rect(&window);
         let mut last_screen_update = Instant::now();
         let mut visible = false;
@@ -481,8 +492,11 @@ fn spawn_engine(
             let state=app.state::<AppState>();
             if activity.id==state.rewarded_trick.load(Ordering::Acquire) {activity.rewardable=false;}
             let mut previous_activity=state.activity.lock().unwrap();
-            if *previous_activity!=activity {
+            if previous_activity.id!=activity.id || previous_activity.phase!=activity.phase || previous_activity.rewardable!=activity.rewardable || previous_activity.treat.is_some()!=activity.treat.is_some() {
                 let _=app.emit("pet:activity",&activity);
+                if activity.phase=="found" {
+                    let _=app.emit("pet:message","找到啦！再藏一块让我找找？");let _=app.emit("pet:treat",());
+                }
                 if matches!(activity.phase,"attention" | "completed") {
                     if let Some(cue)=activity.kind {
                         let stored=state.memory.lock().unwrap();
@@ -492,16 +506,21 @@ fn spawn_engine(
                     }
                 }
             }
+            let snack_position=activity.treat;
             *previous_activity=activity;drop(previous_activity);
             let play = engine.play_view();
             if let Some(toy) = app.get_webview_window("toy") {
-                let visible_ball = if input.extra_animations && matches!(play.phase,"returning" | "teasing") { None } else { play.ball };
+                let visible_ball = snack_position.or_else(||if input.extra_animations && matches!(play.phase,"returning" | "teasing") { None } else { play.ball });
+                let toy_hot=visible_ball.is_some_and(|(x,y)| ((input.cursor.0-x) as f64).hypot((input.cursor.1-y) as f64)<=18.0*input.scale_factor);
+                // GTK must realize the native window before applying its input shape.
+                // Keep the transparent area click-through; only the actual toy accepts input.
+                if toy.is_visible().unwrap_or(false) && prev_toy_hot!=Some(toy_hot) {let _=toy.set_ignore_cursor_events(!toy_hot);prev_toy_hot=Some(toy_hot);}
                 if let Some((x,y)) = visible_ball {
                     let size = toy.outer_size().ok();
                     let half = size.map(|v| (v.width as i32/2,v.height as i32/2)).unwrap_or((14,14));
                     let _ = toy.set_position(PhysicalPosition::new(x-half.0,y-half.1));
                     if !toy.is_visible().unwrap_or(false) { let _ = toy.show(); }
-                } else if toy.is_visible().unwrap_or(false) { let _ = toy.hide(); }
+                } else if toy.is_visible().unwrap_or(false) { let _ = toy.hide(); prev_toy_hot=None; }
             }
             let state = app.state::<AppState>();
             let mut previous = state.play.lock().unwrap();
@@ -600,6 +619,7 @@ fn main() {
             set_pomodoro,
             play_action,
             trick_status,
+            snack_action,
             trick_action,
             reward_trick,
             play_status,

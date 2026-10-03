@@ -593,10 +593,11 @@ fn spawn_engine(
                 if toy.is_visible().unwrap_or(false) && prev_toy_hot!=Some(toy_hot) {let _=toy.set_ignore_cursor_events(!toy_hot);prev_toy_hot=Some(toy_hot);}
                 if let Some((x,y)) = visible_ball {
                     let (center,desired)=if let Some(rope)=&play.tug {
-                        let scale=input.scale_factor;
-                        (((rope.mouth.0+rope.handle.0)/2,(rope.mouth.1+rope.handle.1)/2),
-                            ((((rope.mouth.0-rope.handle.0).abs() as f64/scale).ceil() as i32+44).max(44),
-                             (((rope.mouth.1-rope.handle.1).abs() as f64/scale).ceil() as i32+44).max(44)))
+                        // Keep the viewport stable while pulling. Native resize and WebKit
+                        // resize events can otherwise render new endpoints in an old size,
+                        // briefly detaching the rope from the baked bite tip. The maximum
+                        // pull is 170 x 48 logical pixels, plus handle padding.
+                        (((rope.mouth.0+rope.handle.0)/2,(rope.mouth.1+rope.handle.1)/2),(224,144))
                     } else {((x,y),(44,44))};
                     if desired!=toy_logical_size {
                         if toy.set_size(tauri::LogicalSize::new(desired.0 as f64,desired.1 as f64)).is_ok() {toy_logical_size=desired;}

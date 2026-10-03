@@ -71,6 +71,9 @@ impl Play {
     pub fn view(&self) -> PlayView {
         PlayView { tug:self.tug.as_ref().and_then(|t|t.view()), tug_rounds:self.tug_rounds, phase: self.phase, ball: self.ball.map(|(x,y)| (x.round() as i32,y.round() as i32)), catches: self.catches, streak:self.streak, style:self.style, toy:self.toy, last_catch:self.last_catch }
     }
+    pub fn tug_frame(&self) -> Option<usize> {
+        self.tug.as_ref().filter(|t|t.direction().is_some()).map(|t|t.frame())
+    }
     pub fn cancel(&mut self) { self.tug=None; self.phase = "off"; self.ball = None; self.velocity = (0.0,0.0); self.streak=0; }
     pub fn roll(&mut self,input:&Input) {
         if self.phase!="returned" || self.toy=="frisbee" {return;}

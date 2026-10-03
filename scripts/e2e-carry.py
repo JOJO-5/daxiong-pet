@@ -5,7 +5,7 @@ exec((Path(__file__).resolve().parent/'e2e-desktop.py').read_text().split('\ntry
 samples=[]
 try:
     new_session();main=command('GET','/window')
-    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===4784"))
+    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
     invoke('set_encounters',{'enabled':False})
     invoke('open_playground')
     handles=wait(lambda: (h if len(h:=command('GET','/window/handles'))>1 else None))

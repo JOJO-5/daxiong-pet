@@ -14,7 +14,7 @@ def choose(index):
 def visible(): return invoke('plugin:window|is_visible',{'label':'playground'})
 try:
     new_session();main=command('GET','/window')
-    wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===4784"))
+    wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
     invoke('set_encounters',{'enabled':False});time.sleep(.7)
     native=pet_native()
     initial=set(command('GET','/window/handles'))

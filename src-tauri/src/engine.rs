@@ -936,7 +936,9 @@ impl Engine {
         } else if let Some(row)=activity.row {
             row
         } else if let Some(right) = play_step.direction {
-            if input.extra_animations && self.play.view().toy=="frisbee" && matches!(self.play.view().phase,"catching" | "returning") {
+            if input.extra_animations && self.play.view().toy=="rope" {
+                if right {Row::TugRight} else {Row::TugLeft}
+            } else if input.extra_animations && self.play.view().toy=="frisbee" && matches!(self.play.view().phase,"catching" | "returning") {
                 if right {Row::DiscRight} else {Row::DiscLeft}
             } else if input.extra_animations && self.play.view().phase=="releasing" {
                 if right { Row::DropRight } else { Row::DropLeft }
@@ -991,6 +993,7 @@ impl Engine {
         }
 
         if let Some(col)=activity.col {self.col=col.min(atlas::track(self.row).cols-1);self.acc=0;}
+        if matches!(self.row,Row::TugRight|Row::TugLeft) {self.col=self.play.tug_frame().unwrap_or(0);self.acc=0;}
         self.play.align_carried_ball(input, move_to.unwrap_or(input.win_pos), self.row, self.col);
         Output {
             move_to,
@@ -1039,7 +1042,7 @@ mod tests {
                 let rope=e.play_view().tug.unwrap();
                 i.cursor=(rope.mouth.0+if rope.right {180} else {-180},rope.mouth.1);
                 let out=e.tick(&i);if let Some(pos)=out.move_to {i.win_pos=pos;}
-                assert!(!e.dragging);assert!(out.row<11);assert_ne!(out.say,Some(SayKind::PlayReturned));
+                assert!(!e.dragging);assert!(if builtin {matches!(out.row,23|24)} else {out.row<11});assert_ne!(out.say,Some(SayKind::PlayReturned));
             }
             i.button_down=false;let out=e.tick(&i);
             assert_eq!(out.say,Some(SayKind::TugFinished));assert_eq!(e.play_view().tug_rounds,1);assert_eq!(e.play_view().catches,0);

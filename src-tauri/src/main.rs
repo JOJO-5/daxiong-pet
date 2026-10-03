@@ -901,7 +901,7 @@ mod tests {
     fn builtin_payload_has_matching_dimensions_and_no_external_image() {
         let state = state(vec![petpack::builtin()]);
         let payload = payload_for(&state, "__builtin__").unwrap();
-        assert_eq!(payload.rows, 23);
+        assert_eq!(payload.rows, 25);
         assert!(payload.data_url.is_none());
         assert!(payload.speech.is_none());
     }

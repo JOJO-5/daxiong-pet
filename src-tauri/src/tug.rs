@@ -1,6 +1,7 @@
 //! A mouse-held rope game. Positions are physical pixels; effort uses real time.
 use crate::engine::{Input, PET_X, PET_Y};
 use serde::Serialize;
+include!("../../assets/animation-source/tug-anchors.rs");
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct TugView {
@@ -58,11 +59,20 @@ impl Tug {
         if matches!(self.phase, "tug_ready" | "tugging") { Some(self.right) } else { None }
     }
 
+    pub fn frame(&self) -> usize {
+        if self.phase=="tugging" {((self.elapsed/275)%4) as usize} else {0}
+    }
+
     pub fn align(&mut self, input: &Input, position: (i32, i32)) {
         let s = input.scale_factor as f32;
-        // Same mouth anchors as the original left/right run tracks; no baked ball.
-        self.mouth = (position.0 + ((PET_X as f32 + if self.right {136.5} else {7.5}) * s).round() as i32,
-            position.1 + ((PET_Y as f32 + 70.5) * s).round() as i32);
+        // Builtin has a short rope end baked between the jaws; join at its cut tip.
+        // Legacy pets retain their existing run-row anchors and never access new rows.
+        let anchor=if input.extra_animations {
+            let (x,y)=if self.right {TUG_RIGHT[self.frame()]} else {TUG_LEFT[self.frame()]};
+            (x*0.75,y*0.75)
+        } else {(if self.right {136.5} else {7.5},70.5)};
+        self.mouth = (position.0 + ((PET_X as f32 + anchor.0) * s).round() as i32,
+            position.1 + ((PET_Y as f32 + anchor.1) * s).round() as i32);
         if self.phase == "tug_ready" {
             let dir = if self.right {1.0} else {-1.0};
             self.handle = (self.mouth.0 + (dir * 80.0 * s).round() as i32, self.mouth.1);
@@ -157,6 +167,25 @@ mod tests {
                 assert_eq!(t.phase,"tug_ready");assert!(t.view().is_some());
             }
         }
+    }
+    #[test]
+    fn builtin_bite_tip_tracks_each_pose_at_all_scales_and_directions() {
+        for scale in [1.0,1.25,2.0] {for right in [false,true] {
+            let mut i=input(scale);i.extra_animations=true;
+            if !right {i.win_pos.0=-700;}
+            let mut t=Tug::new(&i).unwrap();assert_eq!(t.right,right);
+            i.cursor=t.handle;i.button_down=true;t.tick(&i);i.dt_ms=275;
+            let mut seen=std::collections::BTreeSet::new();
+            for _ in 0..12 {
+                i.cursor=(t.mouth.0+(if right {150.0} else {-150.0}*scale) as i32,t.mouth.1);
+                let step=t.tick(&i);if let Some(p)=step.movement {i.win_pos=p;}
+                let col=t.frame();seen.insert(col);
+                let (x,y)=if right {TUG_RIGHT[col]} else {TUG_LEFT[col]};
+                assert_eq!(t.mouth,(i.win_pos.0+((PET_X as f32+x*0.75)*scale as f32).round() as i32,
+                    i.win_pos.1+((PET_Y as f32+y*0.75)*scale as f32).round() as i32));
+            }
+            assert_eq!(seen,std::collections::BTreeSet::from([0,1,2,3]));
+        }}
     }
     #[test]
     fn clicks_no_pull_and_suspension_do_not_complete_a_round() {

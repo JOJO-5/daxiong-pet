@@ -82,7 +82,7 @@ impl Activities {
         out.movement=Some(Self::bound(input,pos));out.row=Some(if dx>=0.0 {Row::RunRight} else {Row::RunLeft});out.col=None;
         if d<8.0*s {
             if self.waypoint.take().is_some() {self.view.phase="observing";self.observe_until=self.elapsed+600;}
-            else {self.view.phase="found";self.view.treat=None;self.view.finds=self.view.finds.saturating_add(1);out.completed=true;out.row=Some(if input.extra_animations {Row::HappyPat} else {Row::Waving});}
+            else {self.view.phase="found";self.view.treat=None;self.view.finds=self.view.finds.saturating_add(1);out.completed=true;out.row=Some(if input.extra_animations {Row::EatTreat} else {Row::Waving});}
         }
         out
     }

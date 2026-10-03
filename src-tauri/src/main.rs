@@ -775,7 +775,7 @@ mod tests {
                 }
                 assert!(visible > 5000, "frame {row}/{col} is empty");
                 // Happy petting stays standing at the original height; never shrink into a puppy.
-                if row == 11 { assert!(max_y - min_y + 1 >= 194, "petting frame {col} shrank"); }
+                if row == 11 || row == 20 { assert!(max_y - min_y + 1 >= 194, "standing frame {row}/{col} shrank"); }
             }
         }
     }
@@ -795,7 +795,7 @@ mod tests {
     fn builtin_payload_has_matching_dimensions_and_no_external_image() {
         let state = state(vec![petpack::builtin()]);
         let payload = payload_for(&state, "__builtin__").unwrap();
-        assert_eq!(payload.rows, 20);
+        assert_eq!(payload.rows, 21);
         assert!(payload.data_url.is_none());
         assert!(payload.speech.is_none());
     }

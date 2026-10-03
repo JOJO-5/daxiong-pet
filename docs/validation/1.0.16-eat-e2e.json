@@ -1,0 +1,16 @@
+{
+  "version": "1.0.16",
+  "passed": [
+    "feeding: all eight taking, biting, chewing and licking frames rendered",
+    "feeding: no second floating biscuit overlay",
+    "normal feeding saves exactly one biscuit",
+    "cooldown rejects repeated feeding",
+    "reward: all eight taking, biting, chewing and licking frames rendered",
+    "reward: no second floating biscuit overlay",
+    "training reward saves one learned practice",
+    "found: all eight taking, biting, chewing and licking frames rendered",
+    "found: no second floating biscuit overlay",
+    "found snack eats without increasing feeding counters"
+  ],
+  "error": null
+}

@@ -30,6 +30,10 @@ user.GetWindowLongW.restype=w.LONG
 user.mouse_event.argtypes=[w.DWORD,w.DWORD,w.DWORD,w.DWORD,c.c_size_t]
 user.keybd_event.argtypes=[w.BYTE,w.BYTE,w.DWORD,c.c_size_t]
 user.SetCursorPos.argtypes=[c.c_int,c.c_int]
+user.SendMessageW.argtypes=[w.HWND,w.UINT,w.WPARAM,w.LPARAM];user.SendMessageW.restype=c.c_ssize_t
+user.GetMenuStringW.argtypes=[w.HMENU,w.UINT,w.LPWSTR,c.c_int,w.UINT]
+user.GetMenuItemCount.argtypes=[w.HMENU]
+user.GetMenuItemRect.argtypes=[w.HWND,w.HMENU,w.UINT,c.POINTER(w.RECT)]
 process=None
 cursor=w.POINT();user.GetCursorPos(c.byref(cursor))
 
@@ -64,10 +68,33 @@ def check(name,condition=True):
 def key(code):
     user.keybd_event(code,0,0,0);user.keybd_event(code,0,2,0);time.sleep(.12)
 
-def menu(hwnd):
+def choose(hwnd,label):
     r=rect(hwnd);scale=(r.right-r.left)/300
-    user.SetCursorPos(round(r.left+150*scale),round(r.top+160*scale));time.sleep(.25)
-    user.mouse_event(0x0008,0,0,0,0);user.mouse_event(0x0010,0,0,0,0);time.sleep(.4)
+    user.SetForegroundWindow(hwnd)
+    assert user.SetCursorPos(round(r.left+150*scale),round(r.top+160*scale)),f'SetCursorPos: {c.get_last_error()}'
+    time.sleep(.35)
+    actual=w.POINT();assert user.GetCursorPos(c.byref(actual))
+    report['menu_pointer']={'requested':[round(r.left+150*scale),round(r.top+160*scale)],'actual':[actual.x,actual.y],
+        'extended_at_pet':hex(user.GetWindowLongW(hwnd,-20)&0xffffffff)}
+    check('hovered pet accepts native input',not user.GetWindowLongW(hwnd,-20)&0x00000020)
+    user.mouse_event(0x0008,0,0,0,0);user.mouse_event(0x0010,0,0,0,0)
+    def popup():
+        for window in windows():
+            name=c.create_unicode_buffer(256);user.GetClassNameW(window,name,256)
+            if name.value=='#32768':return window
+    native_menu=wait(popup)
+    menu_handle=user.SendMessageW(native_menu,0x01E1,0,0) # MN_GETHMENU
+    assert menu_handle,'native popup has no HMENU'
+    names=[];item=None
+    for index in range(user.GetMenuItemCount(menu_handle)):
+        text=c.create_unicode_buffer(256);user.GetMenuStringW(menu_handle,index,text,256,0x0400)
+        names.append(text.value)
+        if text.value.startswith(label):item=index
+    report['native_menu_items']=names
+    assert item is not None,f'menu item missing: {label}: {names}'
+    target=w.RECT();assert user.GetMenuItemRect(None,menu_handle,item,c.byref(target))
+    user.SetCursorPos((target.left+target.right)//2,(target.top+target.bottom)//2);time.sleep(.12)
+    user.mouse_event(0x0002,0,0,0,0);user.mouse_event(0x0004,0,0,0,0)
 
 def capture(name):
     target=str((out/name).resolve()).replace("'","''")
@@ -88,16 +115,13 @@ try:
     check('pet is always on top',bool(extended&0x00000008))
     user.SetCursorPos(5,5);time.sleep(.4)
     check('transparent desktop area is click-through',bool(user.GetWindowLongW(main,-20)&0x00000020))
-    menu(main);key(0x24);key(0x0D)
+    choose(main,"打开互动面板")
     panel=wait(lambda:next(iter(windows('和大熊一起玩')),None))
     check('real right-click menu opens interaction panel')
     user.PostMessageW(panel,0x0010,0,0)
     wait(lambda:not windows('和大熊一起玩'))
     check('closing panel keeps pet alive',process.poll() is None)
-    # Fresh test profile: feeding is available, so Home + four Down selects tug.
-    menu(main);key(0x24)
-    for _ in range(4):key(0x28)
-    key(0x0D)
+    choose(main,"一起拔河")
     toy=wait(lambda:next(iter(windows('大熊的球')),None))
     r=rect(main);scale=(r.right-r.left)/300
     # The engine chooses the side with more work-area room on this display.

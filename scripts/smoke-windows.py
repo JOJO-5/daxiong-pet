@@ -19,6 +19,7 @@ user.SetProcessDPIAware()
 user.EnumWindows.argtypes=[c.WINFUNCTYPE(w.BOOL,w.HWND,w.LPARAM),w.LPARAM]
 user.GetWindowThreadProcessId.argtypes=[w.HWND,c.POINTER(w.DWORD)]
 user.GetWindowRect.argtypes=[w.HWND,c.POINTER(w.RECT)]
+user.GetClientRect.argtypes=[w.HWND,c.POINTER(w.RECT)]
 user.GetWindowTextW.argtypes=[w.HWND,w.LPWSTR,c.c_int]
 user.GetClassNameW.argtypes=[w.HWND,w.LPWSTR,c.c_int]
 user.IsWindowVisible.argtypes=[w.HWND]
@@ -79,7 +80,12 @@ try:
     time.sleep(1)
     check('built-in pet creates a visible native window')
     style=user.GetWindowLongW(main,-16);extended=user.GetWindowLongW(main,-20)
-    check('pet is borderless and always on top',not style&0x00C00000 and bool(extended&0x00000008))
+    r=rect(main);client=w.RECT();assert user.GetClientRect(main,c.byref(client))
+    report['native_style']={'style':hex(style&0xffffffff),'extended':hex(extended&0xffffffff),
+        'outer':[r.left,r.top,r.right,r.bottom],'client':[client.left,client.top,client.right,client.bottom]}
+    # Tao can retain caption style bits while removing the non-client frame with WM_NCCALCSIZE.
+    check('pet has no non-client border',r.right-r.left==client.right-client.left and r.bottom-r.top==client.bottom-client.top)
+    check('pet is always on top',bool(extended&0x00000008))
     user.SetCursorPos(5,5);time.sleep(.4)
     check('transparent desktop area is click-through',bool(user.GetWindowLongW(main,-20)&0x00000020))
     menu(main);key(0x24);key(0x0D)

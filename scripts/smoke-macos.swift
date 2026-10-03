@@ -1,4 +1,4 @@
-// Native startup/window evidence on macOS. Interaction needs Accessibility permission.
+// Native startup and mouse-held tug on macOS when Accessibility permission is available.
 import Foundation
 import CoreGraphics
 import ApplicationServices
@@ -16,6 +16,53 @@ app.standardOutput = handle; app.standardError = handle
 var report: [String: Any] = ["platform":"macOS", "scope":"native startup and visible window only", "passed":[String](), "interaction":"not run", "multi_display":"not run"]
 var passed = [String]()
 var failure: String? = nil
+func ownWindows() -> [[String: Any]] {
+    let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly,.excludeDesktopElements],kCGNullWindowID) as? [[String: Any]] ?? []
+    return windows.filter { ($0[kCGWindowOwnerPID as String] as? Int) == Int(app.processIdentifier) }
+}
+func named(_ name: String) -> [String: Any]? {
+    return ownWindows().first { ($0[kCGWindowName as String] as? String) == name }
+}
+func bounds(_ window: [String: Any]) -> CGRect {
+    let b = window[kCGWindowBounds as String] as! [String: Any]
+    return CGRect(x: b["X"] as! Double,y: b["Y"] as! Double,width: b["Width"] as! Double,height: b["Height"] as! Double)
+}
+func require(_ condition: Bool, _ name: String) throws {
+    if !condition { throw NSError(domain:"NativeSmoke",code:2,userInfo:[NSLocalizedDescriptionKey:name]) }
+    passed.append(name)
+}
+func waitWindow(_ name: String, visible: Bool = true, timeout: Double = 15) throws -> [String: Any]? {
+    let end = Date().addingTimeInterval(timeout)
+    while Date() < end && app.isRunning {
+        let window = named(name)
+        if (window != nil) == visible { return window }
+        Thread.sleep(forTimeInterval:0.08)
+    }
+    throw NSError(domain:"NativeSmoke",code:3,userInfo:[NSLocalizedDescriptionKey:"Timed out waiting for native window: \(name), visible=\(visible)"])
+}
+func mouse(_ kind: CGEventType, _ point: CGPoint, _ button: CGMouseButton = .left) {
+    CGEvent(mouseEventSource:nil,mouseType:kind,mouseCursorPosition:point,mouseButton:button)?.post(tap:.cghidEventTap)
+}
+func key(_ code: CGKeyCode) {
+    CGEvent(keyboardEventSource:nil,virtualKey:code,keyDown:true)?.post(tap:.cghidEventTap)
+    CGEvent(keyboardEventSource:nil,virtualKey:code,keyDown:false)?.post(tap:.cghidEventTap)
+    Thread.sleep(forTimeInterval:0.12)
+}
+func petMenu() throws {
+    let window = try waitWindow("大熊")!
+    let r = bounds(window);let point = CGPoint(x:r.minX+150,y:r.minY+160)
+    mouse(.mouseMoved,point);Thread.sleep(forTimeInterval:0.3)
+    mouse(.rightMouseDown,point,.right);mouse(.rightMouseUp,point,.right)
+    Thread.sleep(forTimeInterval:0.4)
+}
+func screenshot(_ name: String) throws {
+    if CGPreflightScreenCaptureAccess() {
+        let shot=Process();shot.executableURL=URL(fileURLWithPath:"/usr/sbin/screencapture")
+        shot.arguments=["-x",directory.appendingPathComponent(name).path]
+        try shot.run();shot.waitUntilExit()
+        if shot.terminationStatus != 0 { throw NSError(domain:"NativeSmoke",code:4,userInfo:[NSLocalizedDescriptionKey:"Screen capture failed"]) }
+    }
+}
 do {
     try app.run()
     var pet: [String: Any]? = nil
@@ -37,14 +84,48 @@ do {
     report["window"] = petWindow
     report["accessibility_ready"] = AXIsProcessTrusted()
     report["screen_recording_ready"] = CGPreflightScreenCaptureAccess()
-    // Never label launch evidence as mouse interaction validation, even with permission.
-    if !AXIsProcessTrusted() { report["interaction_blocker"] = "Runner lacks Accessibility permission; run the manual checklist on an authorized Mac" }
-    if CGPreflightScreenCaptureAccess() {
-        let shot = Process();shot.executableURL = URL(fileURLWithPath:"/usr/sbin/screencapture")
-        shot.arguments = ["-x",directory.appendingPathComponent("desktop.png").path]
-        try shot.run();shot.waitUntilExit();report["screenshot_exit"] = shot.terminationStatus
+    try screenshot("desktop.png")
+    if AXIsProcessTrusted() {
+        report["scope"] = "native startup, menu, panel and mouse-held tug; single display"
+        Thread.sleep(forTimeInterval:1)
+        try petMenu();key(115);key(36)
+        let panel=try waitWindow("和大熊一起玩")!
+        try require(!bounds(panel).isEmpty,"real right-click menu opens interaction panel")
+        // Use the native titlebar close button; the application should hide the panel.
+        let pr=bounds(panel);let close=CGPoint(x:pr.minX+13,y:pr.minY+13)
+        mouse(.mouseMoved,close);mouse(.leftMouseDown,close);mouse(.leftMouseUp,close)
+        _=try waitWindow("和大熊一起玩",visible:false)
+        try require(app.isRunning,"closing panel keeps pet alive")
+        try petMenu();key(115)
+        for _ in 0..<4 { key(125) }
+        key(36)
+        let toy=try waitWindow("大熊的球")!
+        let tr=bounds(toy);let mr=bounds(try waitWindow("大熊")!)
+        let direction:Double = mr.midX < CGDisplayBounds(CGMainDisplayID()).midX ? 1 : -1
+        let grab=CGPoint(x:tr.midX+direction*40,y:tr.midY)
+        mouse(.mouseMoved,grab);Thread.sleep(forTimeInterval:0.3)
+        mouse(.leftMouseDown,grab);Thread.sleep(forTimeInterval:0.2)
+        let before=bounds(try waitWindow("大熊")!)
+        let pull=CGPoint(x:grab.x+direction*70,y:grab.y)
+        mouse(.leftMouseDragged,pull);Thread.sleep(forTimeInterval:2.1)
+        let after=bounds(try waitWindow("大熊")!)
+        try require(before.minX != after.minX,"real held rope makes pet resist")
+        try screenshot("tug-pulling.png")
+        mouse(.leftMouseUp,pull)
+        _=try waitWindow("大熊的球",visible:false,timeout:1.5)
+        passed.append("release hides rope for celebration")
+        _=try waitWindow("大熊的球",timeout:5)
+        passed.append("rope returns for another round")
+        try screenshot("tug-ready.png")
+        report["interaction"]="passed native menu and tug smoke"
+    } else {
+        report["interaction_blocker"] = "Runner lacks Accessibility permission; run the manual checklist on an authorized Mac"
     }
-} catch { failure = error.localizedDescription }
+} catch {
+    failure = error.localizedDescription
+    try? screenshot("failure.png")
+}
+if let cursor=CGEvent(source:nil)?.location { mouse(.leftMouseUp,cursor) }
 if app.isRunning { app.terminate();app.waitUntilExit() }
 report["passed"] = passed
 if let error = failure { report["error"] = error } else { report["error"] = NSNull() }

@@ -7,7 +7,7 @@
 `Build desktop packages` 在 PR 和 main 上运行 Windows x64、macOS Intel / Apple Silicon、Linux X11 的前端测试、完整 Rust 测试与安装包构建。
 
 - Windows：`scripts/smoke-windows.py` 使用真实 Win32 鼠标与键盘，检查可见窗口、无边框置顶、点击穿透、右键打开面板、关闭面板、拔河拉扯和松手。仅用于有交互桌面的临时测试用户；菜单导航假定新的配置，没有投喂冷却。产物包含 JSON、日志和截图。
-- macOS：`scripts/smoke-macos.swift` 启动构建产物，检查实际原生窗口与进程。报告辅助功能和录屏权限；有录屏权限才截图。该脚本没有验证鼠标交互，多屏与实际功耗也未覆盖。
+- macOS：`scripts/smoke-macos.swift` 启动构建产物，检查实际原生窗口与进程。报告辅助功能和录屏权限；有辅助功能权限时用真实 Quartz 鼠标/键盘验证右键菜单、面板关闭、拔河拉扯与松手，有录屏权限才截图。权限不足会明确记录未验证。多屏与实际功耗未覆盖。
 - Linux：`Desktop E2E` 先运行原生鼠标拔河并录屏，再运行原有回归。状态清单与视频随 CI 上传，失败轮次不能作为通过证据。
 - 不需要 WebView 的行为测试：`cargo test --locked --manifest-path scripts/engine-check/Cargo.toml`，直接编译生产代码，覆盖状态机、DPI、边界与取消逻辑；不代表桌面交互通过。
 

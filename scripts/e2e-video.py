@@ -28,7 +28,7 @@ try:
     check('recorded real fetch return')
     time.sleep(2)
     click('收起玩具')
-    mark('nickname-and-treat')
+    mark('nickname-and-treat');open_more()
     field=command('POST','/element',{'using':'css selector','value':'#nickname'})['element-6066-11e4-a52e-4f735466cecf']
     command('POST',f'/element/{field}/value',{'text':'乔乔'})
     click('记住昵称')
@@ -63,7 +63,7 @@ try:
     subprocess.run(['import','-window','root',str(OUT/'video-sleep.png')],check=True)
     check('recorded natural sleep animation')
     mark('wake')
-    native=subprocess.check_output(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],text=True).strip().splitlines()[-1]
+    native=pet_native()
     pointer('mousemove','--window',native,150,160)
     wait(lambda: js("return document.querySelector('[data-testid=pet]').dataset.sleeping==='false'"))
     time.sleep(3)

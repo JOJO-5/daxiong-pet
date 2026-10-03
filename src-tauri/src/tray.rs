@@ -116,7 +116,6 @@ pub fn build(app: &AppHandle, pets: &[PetPack], current: &str, _gravity: bool) -
         .tooltip("桌面宠物")
         .menu(&menu)
         .show_menu_on_left_click(false)
-        .on_menu_event(on_menu_event)
         .on_tray_icon_event(|tray, event| {
             if let TrayIconEvent::Click {
                 button: MouseButton::Left,
@@ -141,7 +140,7 @@ pub fn refresh(app: &AppHandle, pets: &[PetPack], current: &str, _gravity: bool)
     if let Err(e) = result { crate::report_error(app, "更新托盘菜单失败", e); }
 }
 
-fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
+pub(crate) fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     let id = event.id().as_ref();
 
     // 宠物切换项统一以 pet: 前缀命名
@@ -153,6 +152,10 @@ fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     }
 
     match id {
+        "pet_feed"=>{if let Err(e)=crate::feed_treat(app.clone()) {crate::report_error(app,"投喂失败",e);}},
+        "pet_ball" | "pet_frisbee" | "pet_stop"=>{let action=match id {"pet_ball"=>"throw","pet_frisbee"=>"throw_frisbee",_=>"cancel"};if let Err(e)=crate::play_action(action.into(),app.clone()) {crate::report_error(app,"互动失败",e);}},
+        "pet_come"=>{if let Err(e)=crate::trick_action("come".into(),app.clone()) {crate::report_error(app,"指令失败",e);}},
+        "pet_preferences"=>{if let Err(e)=crate::open_preferences(app) {crate::report_error(app,"打开偏好失败",e);}},
         "toggle" => toggle_window(app),
         "play" => { if let Err(e) = crate::open_play_window(app) { crate::report_error(app,"打开互动面板失败",e); } },
         "rescan" => {

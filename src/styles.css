@@ -176,3 +176,10 @@ body {
 .toy-frisbee { width:36px; height:20px; pointer-events:none; }
 .toy-frisbee.flying { animation:disc-glide 500ms ease-in-out infinite alternate; }
 @keyframes disc-glide { from {transform:rotate(-8deg) scaleY(.8);} to {transform:rotate(8deg) scaleY(1);} }
+
+.panel-heading { display:flex; align-items:center; gap:10px; }
+.panel-heading h1 { margin:0; flex:1; font-size:20px; }
+.play-panel .panel-close { border:0; background:transparent; font-size:24px; padding:0 4px; }
+.more-settings { margin:12px 0; }
+.more-settings summary { cursor:pointer; font-size:13px; color:#675a48; padding:10px 0; }
+.shortcut-switch { display:flex; align-items:center; gap:8px; }

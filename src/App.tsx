@@ -79,7 +79,10 @@ export default function App() {
         loading = false;
         if (!readySent.current) {
           await invoke("pet_ready");
-          if (alive) readySent.current = true;
+          if (alive) {
+            readySent.current = true;
+            try {if(!localStorage.getItem("pet-menu-intro-v1")){displayMessage("右键我，可以喂饼干、扔飞盘，也能打开互动面板。",5000);localStorage.setItem("pet-menu-intro-v1","seen");}}catch { /* The menu still works when browser storage is unavailable. */ }
+          }
         }
       } catch (error) {
         if (!alive || request !== revision) return;
@@ -155,7 +158,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="stage" onContextMenu={e => { e.preventDefault(); void invoke("open_playground").catch(console.error); }}>
+    <div className="stage" onContextMenu={e => { e.preventDefault(); void invoke("open_pet_menu").catch(error=>{if(hideTimer.current!==null)clearTimeout(hideTimer.current);setBubble({id:Date.now(),text:`菜单没打开：${String(error)}`});hideTimer.current=window.setTimeout(()=>setBubble(null),5000);}); }}>
       {bubble && (
         <div className="bubble" key={bubble.id}>
           {bubble.text}

@@ -67,6 +67,11 @@ def native_click(expression):
     pointer('mousemove',int(geometry['X'])+round(rect['x']),int(geometry['Y'])+round(rect['y']))
     time.sleep(.08);pointer('click',1);time.sleep(.08)
 
+def open_more():
+    if not js("return document.querySelector('details').open"):
+        native_click("document.querySelector('details summary')")
+        wait(lambda: js("return document.querySelector('details').open"))
+
 def click(text):
     native_click("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==="+json.dumps(text)+")")
 
@@ -76,6 +81,10 @@ def window(title):
         if js("return document.title") == title:
             return handle
     return None
+
+def pet_native():
+    windows=subprocess.check_output(["xdotool","search","--onlyvisible","--class","Daxiong-pet"],text=True).strip().splitlines()
+    return next(w for w in windows if "WIDTH=300" in subprocess.check_output(["xdotool","getwindowgeometry","--shell",w],text=True))
 
 def pointer(*args):
     subprocess.run(["xdotool", *map(str, args)], check=True)
@@ -95,18 +104,19 @@ try:
     # Right click through actual OS pointer events to open the same user-facing panel.
     wait(lambda: invoke("plugin:window|is_visible", {"label":"main"}))
     time.sleep(.65)
-    native = subprocess.check_output(["xdotool", "search", "--onlyvisible", "--class", "Daxiong-pet"], text=True).strip().splitlines()[-1]
+    native = pet_native()
     initial_handles = set(command("GET", "/window/handles"))
     pointer("mousemove", "--window", native, 150, 160)
     wait(lambda: js("return document.querySelector('[data-testid=pet]')?.dataset.clickable==='true'"))
     pointer("click", 3)
+    time.sleep(.35);pointer("key","Home","Return")
     wait(lambda: len(command("GET", "/window/handles")) > len(initial_handles))
     panel = next(iter(set(command("GET", "/window/handles"))-initial_handles))
     wait(lambda: invoke("plugin:window|is_visible", {"label":"playground"}))
     time.sleep(.7)
     command("POST", "/window", {"handle":panel})
     wait(lambda: js("return !!document.querySelector('.play-panel')"))
-    check("pet right-click opens real interaction window")
+    check("pet native context menu opens real interaction window")
     wait(lambda: js("return !!document.querySelector('[data-testid=play-phase]')"))
     click("抛一球")
     phases = set()

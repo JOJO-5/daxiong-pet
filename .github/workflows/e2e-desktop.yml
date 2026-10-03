@@ -21,7 +21,7 @@ jobs:
       - name: Install native desktop dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libx11-dev xvfb dbus-x11 webkit2gtk-driver openbox picom ffmpeg xdotool imagemagick fonts-noto-cjk
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libx11-dev xvfb dbus-x11 webkit2gtk-driver openbox picom ffmpeg xdotool x11-utils imagemagick fonts-noto-cjk
       - run: npm ci
       - run: npm test
       - run: npm run build
@@ -67,9 +67,9 @@ jobs:
           E2E_OUT: "test-results/fun-tricks"
           E2E_SCRIPT: scripts/e2e-fun.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
-      - name: Record hidden treat search
+      - name: Verify hidden treat search and game switching
         env:
-          E2E_RECORD: "1"
+          E2E_RECORD: "0"
           E2E_FUN_SCOPE: snack
           E2E_OUT: "test-results/fun-snack"
           E2E_SCRIPT: scripts/e2e-fun.py
@@ -86,6 +86,23 @@ jobs:
           E2E_TREAT_SCOPE: compat
           E2E_OUT: "test-results/treat-compat"
           E2E_SCRIPT: scripts/e2e-treat.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Verify native menus, shortcut persistence and rollback
+        env:
+          E2E_OUT: "test-results/menu"
+          E2E_SCRIPT: scripts/e2e-menu.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Record native menus and nearby panel
+        env:
+          E2E_RECORD: "1"
+          E2E_OUT: "test-results/menu-video"
+          E2E_SCRIPT: scripts/e2e-menu.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Record frisbee glide, biting and reusable return
+        env:
+          E2E_RECORD: "1"
+          E2E_OUT: "test-results/frisbee"
+          E2E_SCRIPT: scripts/e2e-frisbee.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Build with production timing
         run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol

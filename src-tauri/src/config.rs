@@ -13,6 +13,8 @@ pub struct Config {
     /// 重力开关：开启后宠物会往下掉，落到屏幕底部
     #[serde(default)]
     pub gravity: bool,
+    #[serde(default)]
+    pub shortcut_enabled: bool,
 }
 
 impl Config {
@@ -62,9 +64,9 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("config.json");
         Config::default().save_path(&path).unwrap();
-        Config { pet_id: Some("daxiong".into()), gravity: true }.save_path(&path).unwrap();
+        Config { pet_id: Some("daxiong".into()), gravity: true, shortcut_enabled:true }.save_path(&path).unwrap();
         let loaded = Config::load_path(&path).unwrap();
-        assert!(loaded.gravity);
+        assert!(loaded.gravity);assert!(loaded.shortcut_enabled);
         assert_eq!(loaded.pet_id.as_deref(), Some("daxiong"));
         assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
     }

@@ -3,36 +3,56 @@
 from pathlib import Path
 exec((Path(__file__).resolve().parent/'e2e-desktop.py').read_text().split('\ntry:\n    new_session()')[0])
 def shoot(name): subprocess.run(['import','-window','root',str(OUT/f'{name}.png')],check=True)
+menu_origin=None
 def pet_menu():
-    current=command('GET','/window');command('POST','/window',{'handle':main})
-    pointer('mousemove','--window',native,150,160)
-    wait(lambda:js("return document.querySelector('[data-testid=pet]').dataset.clickable==='true'"))
+    global menu_origin
+    menu_origin=command('GET','/window')
+    if menu_origin!=main:command('POST','/window',{'handle':main})
+    # Re-enter the webview after GTK releases a popup's native pointer grab.
+    pointer('mousemove',30,30);time.sleep(.15)
+    # GTK/Openbox may finish placing the window after it first becomes visible.
+    # Follow its actual position until the real cursor is inside the pet hit area.
+    def hover_current_position():
+        pointer('mousemove','--window',native,150,160)
+        return js("return document.querySelector('[data-testid=pet]').dataset.clickable==='true'")
+    wait(hover_current_position)
     time.sleep(.15);pointer('click',3);time.sleep(.4)
-    command('POST','/window',{'handle':current})
+    # Changing the WebDriver window focuses its webview and can dismiss GTK's popup.
+    # Restore the previous inspection target only after the native key action.
+def finish_menu(*keys):
+    pointer('key',*keys);time.sleep(.3)
+    if menu_origin!=main:command('POST','/window',{'handle':menu_origin})
 def choose(index):
-    pointer('key','Home',*(['Down']*index),'Return');time.sleep(.3)
+    finish_menu('Home',*(['Down']*index),'Return')
 def visible(): return invoke('plugin:window|is_visible',{'label':'playground'})
 try:
     new_session();main=command('GET','/window')
-    wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===4784"))
+    wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
     invoke('set_encounters',{'enabled':False});time.sleep(.7)
     native=pet_native()
     initial=set(command('GET','/window/handles'))
-    pet_menu();shoot('native-menu');pointer('key','Escape');time.sleep(.2)
+    pet_menu();shoot('native-menu');finish_menu('Escape');time.sleep(.2)
     check('Escape dismisses native menu without starting a game',invoke('play_status')['phase']=='off' and set(command('GET','/window/handles'))==initial)
     pet_menu();choose(0)
     wait(lambda:len(command('GET','/window/handles'))>len(initial))
     panel=next(iter(set(command('GET','/window/handles'))-initial));command('POST','/window',{'handle':panel})
     wait(lambda:js("return !!document.querySelector('.play-panel')"))
     check('right-click first item opens real panel',visible())
-    check('common games and feed visible while settings collapsed',js("const f=[...document.querySelectorAll('button')].find(b=>b.textContent==='喂一块饼干').getBoundingClientRect();return !document.querySelector('details').open&&f.bottom<innerHeight&&document.querySelectorAll('.game-picker button').length===4"))
+    # Cache the persistent panel before moving/disappearing toy and tooltip windows.
+    def find_native_panel():
+        found=subprocess.run(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],capture_output=True,text=True)
+        for candidate in found.stdout.splitlines():
+            geometry=subprocess.run(['xdotool','getwindowgeometry','--shell',candidate],capture_output=True,text=True)
+            if geometry.returncode==0 and 'WIDTH=360' in geometry.stdout:return candidate
+        return None
+    panel_native=wait(find_native_panel)
+    check('common games and feed visible while settings collapsed',js("const f=[...document.querySelectorAll('button')].find(b=>b.textContent==='喂一块饼干').getBoundingClientRect();return !document.querySelector('details').open&&f.bottom<innerHeight&&document.querySelectorAll('.game-picker button').length===5"))
     time.sleep(.8);shoot('compact-panel')
     pos=invoke('plugin:window|outer_position',{'label':'playground'});size=invoke('plugin:window|outer_size',{'label':'playground'})
     check('nearby panel remains inside screen',pos['x']>=0 and pos['y']>=0 and pos['x']+size['width']<=1280 and pos['y']+size['height']<=800)
     pet_menu();choose(3)
     wait(lambda:js("return document.querySelector('[data-testid=play-phase]')?.dataset.phase==='chasing'"))
     check('native frisbee item routes existing panel to frisbee',js("return [...document.querySelectorAll('.game-picker button')].find(b=>b.textContent==='飞盘').getAttribute('aria-pressed')==='true'") and invoke('play_status')['toy']=='frisbee')
-    panel_native=next(w for w in subprocess.check_output(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],text=True).strip().splitlines() if 'WIDTH=360' in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True))
     pointer('windowactivate','--sync',panel_native);pointer('key','Escape');wait(lambda:not visible())
     wait(lambda:invoke('play_status')['phase']=='returned',25)
     check('closing panel retains ongoing frisbee and reusable return',invoke('play_status')['catches']==1)
@@ -40,7 +60,7 @@ try:
     check('reopening retains selected game and completed phase',js("return document.querySelector('[data-testid=play-phase]').dataset.phase==='returned'"))
     pet_menu();choose(1);wait(lambda:invoke('companion_status')['treats']==1)
     check('native feeding commits exactly once and shows cooldown',js("return [...document.querySelectorAll('button')].some(b=>b.disabled&&b.textContent.includes('下块饼干'))"))
-    pet_menu();shoot('cooldown-menu');pointer('key','Escape')
+    pet_menu();shoot('cooldown-menu');finish_menu('Escape')
     open_more();check('shortcut defaults off',not invoke('shortcut_status')['enabled'])
     native_click("document.querySelector('[data-testid=shortcut-switch]')")
     wait(lambda:invoke('shortcut_status')['enabled']);check('real checkbox registers OS shortcut')
@@ -87,11 +107,11 @@ d=x.XOpenDisplay(None);key=x.XKeysymToKeycode(d,ord('p'));x.XGrabKey(d,key,12,x.
     wait(lambda:js("return [...document.querySelectorAll('.game-picker button')].find(b=>b.textContent==='接球').getAttribute('aria-pressed')==='true'"))
     check('natural ball invitation routes an existing frisbee panel to fetch',js("return [...document.querySelectorAll('.game-picker button')].find(b=>b.textContent==='接球').getAttribute('aria-pressed')==='true'"))
     invoke('set_encounters',{'enabled':False})
-    pet_menu();pointer('key','End','Up','Return');wait(lambda:invoke('play_status')['phase']=='off')
+    pet_menu();finish_menu('End','Up','Return');wait(lambda:invoke('play_status')['phase']=='off')
     check('native stop removes invitation and independent toy',not invoke('plugin:window|is_visible',{'label':'toy'}))
-    pet_menu();pointer('key','End','Up','Up','Return');time.sleep(.3);wait(lambda:js("return document.querySelector('[data-testid=trick-phase]')?.dataset.phase&&['attention','performing','completed'].includes(document.querySelector('[data-testid=trick-phase]').dataset.phase)"))
+    pet_menu();finish_menu('End','Up','Up','Return');time.sleep(.3);wait(lambda:js("return document.querySelector('[data-testid=trick-phase]')?.dataset.phase&&['attention','performing','completed'].includes(document.querySelector('[data-testid=trick-phase]').dataset.phase)"))
     check('native come item selects and starts real command',invoke('trick_status')['kind']=='come')
-    pet_menu();pointer('key','End','Up','Return');wait(lambda:invoke('trick_status')['phase']=='off')
+    pet_menu();finish_menu('End','Up','Return');wait(lambda:invoke('trick_status')['phase']=='off')
     check('native stop cancels command without a reward',not invoke('trick_status')['rewardable'])
     invoke('set_pomodoro',{'active':True});time.sleep(.3)
     try:invoke('play_action',{'action':'throw_frisbee'});raise AssertionError('focus accepted')

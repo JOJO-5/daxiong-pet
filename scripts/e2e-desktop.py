@@ -8,24 +8,14 @@ import subprocess
 import sys
 import shutil
 import time
-import urllib.request
+from webdriver_http import request
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = Path(os.environ.get("E2E_OUT", str(ROOT / "test-results")))
-OUT.mkdir(exist_ok=True)
-BASE = "http://127.0.0.1:" + os.environ.get("E2E_PORT", "4444")
+OUT.mkdir(parents=True, exist_ok=True)
 session = None
 checks = []
 fixture = ROOT/"src-tauri/target/debug/pets/e2e-legacy"
-
-def request(method, path, data=None):
-    req = urllib.request.Request(BASE + path, data=None if data is None else json.dumps(data).encode(), method=method,
-                                 headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=40) as r:
-        value = json.load(r).get("value")
-    if isinstance(value, dict) and "error" in value:
-        raise AssertionError(value)
-    return value
 
 def command(method, path, data=None):
     return request(method, f"/session/{session}" + path, data)
@@ -177,8 +167,8 @@ try:
     wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===2288"))
     check("legacy atlas loads and pet switching cancels toys",invoke("current_pet")["rows"]==11 and js("return Number(document.querySelector('[data-testid=pet]').dataset.row)<11"))
     invoke("set_pet",{"id":"__builtin__"})
-    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===4784"))
-    check("switching back restores all 23 built-in animation rows")
+    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
+    check("switching back restores all 25 built-in animation rows")
     command("POST","/window",{"handle":panel})
     if os.environ.get("E2E_MEMORY"):
         # Extended by the next version; kept in the same cumulative native suite.

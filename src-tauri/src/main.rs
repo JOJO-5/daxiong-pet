@@ -9,6 +9,7 @@ mod engine;
 mod encounters;
 mod petpack;
 mod play;
+mod tug;
 mod platform;
 mod tray;
 
@@ -274,12 +275,13 @@ fn play_action(action: String, app: AppHandle) -> Result<(), String> {
     if !state.requested_visible.load(Ordering::Relaxed) && action != "cancel" { return Err("先显示大熊再一起玩吧".into()); }
     if action!="cancel" && state.focusing.load(Ordering::Relaxed) {return Err("正在专注，结束专注后再玩吧".into());}
     let cmd = match action.as_str() {
+        "start_tug" => EngineCommand::StartTug,
         "show" => EngineCommand::ShowBall, "throw" => EngineCommand::ThrowBall,
         "show_frisbee"=>EngineCommand::ShowFrisbee,"throw_frisbee"=>EngineCommand::ThrowFrisbee,
         "cancel" => EngineCommand::CancelPlay, "drop" => EngineCommand::DropBall, "roll" => EngineCommand::RollBall, _ => return Err("未知互动".into()),
     };
     state.engine_tx.lock().unwrap().send(cmd).map_err(|e| e.to_string())?;
-    if matches!(action.as_str(),"show"|"throw"|"show_frisbee"|"throw_frisbee") {let _=app.emit_to("playground","pet:game",if action.contains("frisbee"){"frisbee"}else{"fetch"});}
+    if matches!(action.as_str(),"start_tug"|"show"|"throw"|"show_frisbee"|"throw_frisbee") {let _=app.emit_to("playground","pet:game",if action=="start_tug" {"tug"} else if action.contains("frisbee"){"frisbee"}else{"fetch"});}
     Ok(())
 }
 
@@ -319,7 +321,7 @@ fn open_pet_menu(app:AppHandle)->Result<(),String> {
     let feed=MenuItem::with_id(&app,"pet_feed",label,view.treat_wait==0 && view.error.is_none(),None::<&str>).map_err(|e|e.to_string())?;
     let more=SubmenuBuilder::new(&app,"更多").text("pet_preferences","记忆与偏好…").text("pomodoro","专注 / 结束专注").text("toggle","隐藏大熊").build().map_err(|e|e.to_string())?;
     let menu=MenuBuilder::new(&app).text("play","打开互动面板…").separator().item(&feed)
-        .text("pet_ball","抛一球").text("pet_frisbee","扔飞盘").text("pet_come","过来")
+        .text("pet_ball","抛一球").text("pet_frisbee","扔飞盘").text("pet_tug","一起拔河").text("pet_come","过来")
         .text("pet_stop","收起玩具 / 结束练习").separator().item(&more).build().map_err(|e|e.to_string())?;
     *app.state::<AppState>().pet_menu.lock().unwrap()=Some(menu.clone());
     menu.popup(window.as_ref().window()).map_err(|e|e.to_string())
@@ -499,6 +501,7 @@ fn spawn_engine(
         let mut prev_clickable: Option<bool> = None;
         let mut prev_sleeping: Option<bool> = None;
         let mut prev_toy_hot:Option<bool>=None;
+        let mut toy_logical_size=(44_i32,44_i32);
         let mut screen = screen_rect(&window);
         let mut last_screen_update = Instant::now();
         let mut visible = false;
@@ -589,17 +592,27 @@ fn spawn_engine(
                 // Keep the transparent area click-through; only the actual toy accepts input.
                 if toy.is_visible().unwrap_or(false) && prev_toy_hot!=Some(toy_hot) {let _=toy.set_ignore_cursor_events(!toy_hot);prev_toy_hot=Some(toy_hot);}
                 if let Some((x,y)) = visible_ball {
+                    let (center,desired)=if let Some(rope)=&play.tug {
+                        // Keep the viewport stable while pulling. Native resize and WebKit
+                        // resize events can otherwise render new endpoints in an old size,
+                        // briefly detaching the rope from the baked bite tip. The maximum
+                        // pull is 170 x 48 logical pixels, plus handle padding.
+                        (((rope.mouth.0+rope.handle.0)/2,(rope.mouth.1+rope.handle.1)/2),(224,144))
+                    } else {((x,y),(44,44))};
+                    if desired!=toy_logical_size {
+                        if toy.set_size(tauri::LogicalSize::new(desired.0 as f64,desired.1 as f64)).is_ok() {toy_logical_size=desired;}
+                    }
                     let size = toy.outer_size().ok();
-                    let half = size.map(|v| (v.width as i32/2,v.height as i32/2)).unwrap_or((14,14));
-                    let _ = toy.set_position(PhysicalPosition::new(x-half.0,y-half.1));
+                    let half = size.map(|v| (v.width as i32/2,v.height as i32/2)).unwrap_or((22,22));
+                    let _ = toy.set_position(PhysicalPosition::new(center.0-half.0,center.1-half.1));
                     if !toy.is_visible().unwrap_or(false) { let _ = toy.show(); }
                 } else if toy.is_visible().unwrap_or(false) { let _ = toy.hide(); prev_toy_hot=None; }
             }
             let state = app.state::<AppState>();
             let mut previous = state.play.lock().unwrap();
-            if previous.toy != play.toy || previous.last_catch != play.last_catch || previous.phase != play.phase || previous.catches != play.catches || previous.style != play.style {
+            if previous.tug != play.tug || previous.tug_rounds != play.tug_rounds || previous.toy != play.toy || previous.last_catch != play.last_catch || previous.phase != play.phase || previous.catches != play.catches || previous.style != play.style {
                 let _ = app.emit("pet:play", &play);
-                if play.phase!="off" && (previous.phase=="off" || previous.toy!=play.toy) {let _=app.emit_to("playground","pet:game",if play.toy=="frisbee" {"frisbee"} else {"fetch"});}
+                if play.phase!="off" && (previous.phase=="off" || previous.toy!=play.toy) {let _=app.emit_to("playground","pet:game",if play.toy=="rope" {"tug"} else if play.toy=="frisbee" {"frisbee"} else {"fetch"});}
             }
             *previous = play;
             drop(previous);
@@ -889,7 +902,7 @@ mod tests {
     fn builtin_payload_has_matching_dimensions_and_no_external_image() {
         let state = state(vec![petpack::builtin()]);
         let payload = payload_for(&state, "__builtin__").unwrap();
-        assert_eq!(payload.rows, 23);
+        assert_eq!(payload.rows, 25);
         assert!(payload.data_url.is_none());
         assert!(payload.speech.is_none());
     }

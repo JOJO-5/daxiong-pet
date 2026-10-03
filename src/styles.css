@@ -169,7 +169,7 @@ body {
 .trick-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
 .trick-actions small { display:block; color:#796e60; }
 
-.game-picker { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:16px 0; }
+.game-picker { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:16px 0; }
 .game-picker button[aria-pressed=true] { background:#567b42; color:white; }
 [data-testid=search-panel] select { margin:0 0 12px 8px; padding:5px; }
 
@@ -183,3 +183,5 @@ body {
 .more-settings { margin:12px 0; }
 .more-settings summary { cursor:pointer; font-size:13px; color:#675a48; padding:10px 0; }
 .shortcut-switch { display:flex; align-items:center; gap:8px; }
+
+.tug-rope { display:block; cursor:grab; }

@@ -2,6 +2,7 @@ name: Build desktop packages
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
@@ -63,6 +64,19 @@ jobs:
       - name: Smoke test Linux single instance
         if: runner.os == 'Linux'
         run: xvfb-run -a dbus-run-session -- bash scripts/smoke-linux.sh
+      - name: Native Windows input and tug smoke
+        if: runner.os == 'Windows'
+        run: python scripts/smoke-windows.py --application src-tauri/target/${{ matrix.target }}/release/daxiong-pet.exe --out test-results/windows
+      - name: Native macOS startup smoke
+        if: runner.os == 'macOS'
+        run: swift scripts/smoke-macos.swift "$PWD/src-tauri/target/${{ matrix.target }}/release/daxiong-pet" test-results/macos
+      - name: Upload native platform evidence
+        if: always() && runner.os != 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.artifact }}
+          if-no-files-found: warn
+          path: test-results/
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:

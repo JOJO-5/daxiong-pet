@@ -54,6 +54,9 @@ pub enum Row {    Idle = 0,
     EatTreat = 20,
     DiscRight = 21,
     DiscLeft = 22,
+    /// Original-identity planted-paw rope bite.
+    TugRight = 23,
+    TugLeft = 24,
 }
 
 /// 一条动画轨道的播放参数。
@@ -93,6 +96,8 @@ impl Row {
             20 => Row::EatTreat,
             21 => Row::DiscRight,
             22 => Row::DiscLeft,
+            23 => Row::TugRight,
+            24 => Row::TugLeft,
             _ => return None,
         })
     }
@@ -119,6 +124,7 @@ const D_LOOK: &[u16] = &[0, 0, 0, 0, 0, 0, 0, 0];
 
 pub fn track(row: Row) -> Track {
     match row {
+        Row::TugRight | Row::TugLeft => Track { cols: 8, durations: D_RUN8, looping: true },
         Row::DropRight | Row::DropLeft => Track { cols: 4, durations: D_DROP, looping: false },
         Row::ShakeFur => Track { cols: 8, durations: D_SHAKE, looping: false },
         Row::Affection => Track { cols: 8, durations: D_AFFECTION, looping: false },

@@ -10,6 +10,8 @@ const CARRY_LEFT:[(f32,f32);8]=[(32.0,119.0),(32.0,120.0),(31.0,120.0),(31.0,121
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct PlayView {
+    pub tug: Option<crate::tug::TugView>,
+    pub tug_rounds: u32,
     pub phase: &'static str,
     pub ball: Option<(i32, i32)>,
     pub catches: u32,
@@ -20,6 +22,8 @@ pub struct PlayView {
 }
 
 pub struct Play {
+    tug: Option<crate::tug::Tug>,
+    tug_rounds: u32,
     phase: &'static str,
     ball: Option<(f32, f32)>,
     velocity: (f32, f32),
@@ -51,7 +55,7 @@ pub struct PlayStep {
 
 impl Default for Play {
     fn default() -> Self {
-        Self { phase: "off", ball: None, velocity: (0.0, 0.0), home: (0, 0),
+        Self { tug: None, tug_rounds: 0, phase: "off", ball: None, velocity: (0.0, 0.0), home: (0, 0),
             last_cursor: (0, 0), held_offset: (0.0, 0.0), was_down: false, elapsed: 0, catches: 0, release_ms: 0, release_from: (0.0,0.0), carry_right: true, playful:true, teased:false, tease_ms:0, streak:0, toy:"ball", last_catch:"none", catch_ms:0, catch_home:(0,0), style:"normal" }
     }
 }
@@ -61,12 +65,16 @@ impl Play {
     pub fn drop_ball(&mut self) {if self.phase=="teasing" {self.phase="returning";self.teased=true;}}
     pub fn active(&self) -> bool { self.phase != "off" }
     pub fn pointer_hot(&self, cursor: (i32,i32), scale: f64) -> bool {
+        if let Some(tug)=&self.tug {return tug.pointer_hot(cursor,scale);}
         self.ball.is_some_and(|(x,y)| (cursor.0 as f32-x).hypot(cursor.1 as f32-y) <= (if self.toy=="frisbee" {22.0} else {18.0})*scale as f32)
     }
     pub fn view(&self) -> PlayView {
-        PlayView { phase: self.phase, ball: self.ball.map(|(x,y)| (x.round() as i32,y.round() as i32)), catches: self.catches, streak:self.streak, style:self.style, toy:self.toy, last_catch:self.last_catch }
+        PlayView { tug:self.tug.as_ref().and_then(|t|t.view()), tug_rounds:self.tug_rounds, phase: self.phase, ball: self.ball.map(|(x,y)| (x.round() as i32,y.round() as i32)), catches: self.catches, streak:self.streak, style:self.style, toy:self.toy, last_catch:self.last_catch }
     }
-    pub fn cancel(&mut self) { self.phase = "off"; self.ball = None; self.velocity = (0.0,0.0); self.streak=0; }
+    pub fn tug_frame(&self) -> Option<usize> {
+        self.tug.as_ref().filter(|t|t.direction().is_some()).map(|t|t.frame())
+    }
+    pub fn cancel(&mut self) { self.tug=None; self.phase = "off"; self.ball = None; self.velocity = (0.0,0.0); self.streak=0; }
     pub fn roll(&mut self,input:&Input) {
         if self.phase!="returned" || self.toy=="frisbee" {return;}
         if let Some((x,_))=self.ball {
@@ -75,10 +83,23 @@ impl Play {
         }
     }
     pub fn chase_speed(&self)->f32 {if self.toy=="frisbee" {return 560.0;}match self.style {"near"=>180.0,"far"=>390.0,_=>310.0}}
-    pub fn start(&mut self,input:&Input,throw:bool) {if self.toy!="ball" {self.streak=0;}self.toy="ball";self.launch(input,throw);}
-    pub fn start_frisbee(&mut self,input:&Input,throw:bool) {if self.toy!="frisbee" {self.streak=0;}self.toy="frisbee";self.launch(input,throw);}
-    fn launch(&mut self, input: &Input, throw: bool) {
+    pub fn start(&mut self,input:&Input,throw:bool) {if self.toy!="ball" {self.streak=0;}self.toy="ball";self.launch(input,throw,None);}
+    pub fn start_tug(&mut self,input:&Input) {
+        self.cancel();self.toy="rope";
+        self.tug=crate::tug::Tug::new(input);
+        self.phase=self.tug.as_ref().map_or("off",|t|t.phase);
+        self.ball=self.tug.as_ref().and_then(|t|t.view()).map(|v|(v.handle.0 as f32,v.handle.1 as f32));
+    }
+    pub fn start_frisbee(&mut self,input:&Input,throw:bool) {
+        // A button throw reuses the visible disc, including its exact release spot.
+        // Capture this before changing toys so a returned ball never becomes a disc origin.
+        let origin=if throw && self.toy=="frisbee" && matches!(self.phase,"ready"|"returned") {self.ball} else {None};
+        if self.toy!="frisbee" {self.streak=0;}
+        self.toy="frisbee";self.launch(input,throw,origin);
+    }
+    fn launch(&mut self, input: &Input, throw: bool, origin: Option<(f32,f32)>) {
         if !input.interactive { return; }
+        self.tug=None;
         if self.phase=="off" || !throw {self.streak=0;}
         self.last_catch="none";self.catch_ms=0;
         self.style=if throw {"far"} else {"normal"};
@@ -87,10 +108,11 @@ impl Play {
         if sw < input.win_size.0 || sh < input.win_size.1 { return; }
         self.home = (input.win_pos.0.clamp(sx,sx+sw-input.win_size.0), input.win_pos.1.clamp(sy,sy+sh-input.win_size.1));
         let center = self.home.0 as f32 + (PET_X + PET_W/2) as f32*s;
-        let dir = if center < (sx+sw/2) as f32 { 1.0 } else { -1.0 };
-        let radius = 14.0*s;
-        self.ball = Some(((center+dir*100.0*s).clamp(sx as f32+radius,(sx+sw) as f32-radius),
-            (self.home.1 as f32+(PET_Y+PET_H-24) as f32*s).clamp(sy as f32+radius,(sy+sh) as f32-radius)));
+        let dir = if origin.map_or(center,|p|p.0) < (sx+sw/2) as f32 { 1.0 } else { -1.0 };
+        let radius = (if self.toy=="frisbee" {18.0} else {14.0})*s;
+        let (x,y)=origin.unwrap_or((center+dir*100.0*s,self.home.1 as f32+(PET_Y+PET_H-24) as f32*s));
+        self.ball = Some((x.clamp(sx as f32+radius,(sx+sw) as f32-radius),
+            y.clamp(sy as f32+radius,(sy+sh) as f32-radius)));
         self.velocity = if throw { if self.toy=="frisbee" {(dir*430.0*s,-130.0*s)} else {(dir*330.0*s,-380.0*s)} } else { (0.0,0.0) };
         self.phase = if throw { "chasing" } else { "ready" };
         self.elapsed = 0;
@@ -112,6 +134,11 @@ impl Play {
     }
     /// Track the carried ball for legacy overlay and builtin release handoff.
     pub fn align_carried_ball(&mut self, input:&Input, position:(i32,i32), row:crate::atlas::Row, col:usize) {
+        if let Some(tug)=self.tug.as_mut() {
+            tug.align(input,position);
+            self.ball=tug.view().map(|v|(v.handle.0 as f32,v.handle.1 as f32));
+            return;
+        }
         if !matches!(self.phase,"returning" | "teasing" | "catching") { return; }
         let anchor=match row {
             crate::atlas::Row::DiscRight => DISC_RIGHT[col.min(7)],
@@ -128,6 +155,13 @@ impl Play {
     }
     pub fn tick(&mut self, input: &Input) -> PlayStep {
         let mut out = PlayStep { movement: None, direction: None, completed: false };
+        if let Some(tug)=self.tug.as_mut() {
+            let step=tug.tick(input);
+            self.phase=tug.phase;
+            self.ball=tug.view().map(|v|(v.handle.0 as f32,v.handle.1 as f32));
+            if step.completed {self.tug_rounds=self.tug_rounds.saturating_add(1);}
+            return PlayStep {movement:step.movement,direction:tug.direction(),completed:step.completed};
+        }
         if !self.active() { self.was_down = input.button_down; return out; }
         if !input.interactive { self.cancel(); return out; }
         let s = input.scale_factor as f32;
@@ -429,6 +463,39 @@ mod tests {
             i.button_down=false;p.tick(&i);assert_eq!(p.phase,"chasing");
             i.interactive=false;p.tick(&i);assert_eq!(p.phase,"off");assert!(p.ball.is_none());
         }}
+    }
+    #[test]
+    fn button_rethrows_disc_from_its_return_spot_and_counts_each_round_once() {
+        for scale in [1.0,1.25,2.0] {for builtin in [false,true] {
+            let mut i=input(scale);i.extra_animations=builtin;
+            let mut p=Play::default();p.start_frisbee(&i,true);
+            for round in 1..=3 {
+                let mut completed=0;
+                for _ in 0..3000 {
+                    let step=p.tick(&i);completed+=usize::from(step.completed);
+                    if let Some(pos)=step.movement {i.win_pos=pos;}
+                    if p.phase=="returned" {break;}
+                }
+                assert_eq!(p.phase,"returned");assert_eq!(completed,1);
+                assert_eq!(p.catches,round);assert_eq!(p.streak,round);
+                let returned=p.ball.unwrap();
+                p.start_frisbee(&i,true);
+                assert_eq!(p.ball,Some(returned),"button must not teleport the returned disc");
+                assert_eq!(p.phase,"chasing");assert_eq!(p.catches,round);assert_eq!(p.streak,round);
+                assert_eq!(p.last_catch,"none");assert_eq!(p.home,i.win_pos);
+            }
+        }}
+    }
+    #[test]
+    fn button_uses_ready_disc_but_not_a_different_toy_or_stale_screen_position() {
+        let mut i=input(1.0);let mut p=Play::default();p.start_frisbee(&i,false);
+        let ready=p.ball;p.start_frisbee(&i,true);assert_eq!(p.ball,ready);
+        p.start(&i,false);p.phase="returned";p.ball=Some((-1800.0,800.0));
+        p.start_frisbee(&i,true);assert_ne!(p.ball,Some((-1800.0,800.0)));
+        p.phase="returned";p.ball=Some((-1800.0,800.0));
+        i.screen=(0,0,1280,720);i.win_pos=(400,200);
+        p.start_frisbee(&i,true);assert_eq!(p.ball,Some((18.0,702.0)));
+        assert!(p.velocity.0>0.0,"launch toward available room on the current screen");
     }
     #[test]
     fn dragging_ball_outside_screen_and_hiding_cleans_up() {

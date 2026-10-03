@@ -20,3 +20,4 @@ Thumbs.db
 /test-results/
 
 __pycache__/
+scripts/engine-check/target/

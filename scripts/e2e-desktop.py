@@ -54,10 +54,21 @@ def check(name, condition=True):
     checks.append(name)
     print("PASS:", name, flush=True)
 
+def native_click(expression):
+    rect=js("const e="+expression+";if(!e||e.disabled)return null;e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};")
+    assert rect,'button not found or disabled'
+    time.sleep(.12)
+    candidates=subprocess.check_output(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],text=True).strip().splitlines()
+    panel_window=next(w for w in candidates if 'WIDTH=360' in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True))
+    info=subprocess.check_output(['xwininfo','-id',panel_window],text=True)
+    import re
+    geometry={axis: int(re.search(r'Absolute upper-left '+axis+r':\s*(-?\d+)',info).group(1)) for axis in ('X','Y')}
+    pointer('windowraise',panel_window)
+    pointer('mousemove',int(geometry['X'])+round(rect['x']),int(geometry['Y'])+round(rect['y']))
+    time.sleep(.08);pointer('click',1);time.sleep(.08)
+
 def click(text):
-    result = command("POST", "/element", {"using": "xpath", "value": f"//button[normalize-space()='{text}']"})
-    element = result["element-6066-11e4-a52e-4f735466cecf"]
-    command("POST", f"/element/{element}/click", {})
+    native_click("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==="+json.dumps(text)+")")
 
 def window(title):
     for handle in command("GET", "/window/handles"):

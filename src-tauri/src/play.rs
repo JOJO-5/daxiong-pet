@@ -188,7 +188,7 @@ impl Play {
             }
         }
         if self.phase == "teasing" {
-            self.tease_ms += input.dt_ms.min(50);
+            self.tease_ms = self.tease_ms.saturating_add(input.dt_ms);
             let near = (input.cursor.0 as f32-(input.win_pos.0 as f32+(PET_X+PET_W/2) as f32*s)).hypot(input.cursor.1 as f32-(input.win_pos.1 as f32+(PET_Y+PET_H/2) as f32*s)) < 85.0*s;
             if self.tease_ms>=3500 || near || !self.playful {self.phase="returning";}
             else {
@@ -232,7 +232,7 @@ impl Play {
             }
         }
         if self.phase == "releasing" {
-            self.release_ms += input.dt_ms.min(50);
+            self.release_ms = self.release_ms.saturating_add(input.dt_ms);
             out.movement = Some(self.home);
             out.direction = Some(self.carry_right);
             let t = (self.release_ms as f32/400.0).min(1.0);

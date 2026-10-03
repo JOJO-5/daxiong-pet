@@ -47,6 +47,9 @@ cleanup() {
   fi
   kill "$driver_pid" "$wm_pid" 2>/dev/null || true
   wait "$driver_pid" "$wm_pid" 2>/dev/null || true
+  # Keep the actual driver/window-manager logs with both passing and failing runs.
+  mkdir -p "${E2E_OUT:-test-results}"
+  cp "$test_dir"/*.log "${E2E_OUT:-test-results}/" 2>/dev/null || true
 }
 trap cleanup EXIT
 for _ in {1..50}; do

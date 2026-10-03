@@ -1,22 +1,16 @@
 #!/usr/bin/env python3
 """Check the real, unshortened encounter interval in a production-timing build."""
 import json
+import os
 from pathlib import Path
 import subprocess
 import time
-import urllib.request
+from webdriver_http import request
 
 root=Path(__file__).resolve().parents[1]
-out=root/"test-results"
-out.mkdir(exist_ok=True)
-base="http://127.0.0.1:4444"
+out=Path(os.environ.get("E2E_OUT", str(root/"test-results")))
+out.mkdir(parents=True, exist_ok=True)
 session=None
-
-def request(method,path,data=None):
-    req=urllib.request.Request(base+path,data=None if data is None else json.dumps(data).encode(),method=method,headers={"Content-Type":"application/json"})
-    with urllib.request.urlopen(req,timeout=30) as r: value=json.load(r)["value"]
-    assert not(isinstance(value,dict) and "error" in value),value
-    return value
 
 def invoke(name,args=None):
     script="const done=arguments[arguments.length-1];window.__TAURI_INTERNALS__.invoke("+json.dumps(name)+","+json.dumps(args or {})+").then(done).catch(e=>done({error:String(e)}));"

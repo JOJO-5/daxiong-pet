@@ -212,7 +212,9 @@ E2E_MEMORY=1 E2E_ENCOUNTERS=1 xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-se
 
 `e2e` 仅在调试构建中把事件等待间隔缩短到 3–4 秒，方便等待真实调度；正式构建仍为 90–150 秒，睡眠和专注时长不缩短。
 
-E2E 不模拟 IPC；检查实际窗口、按钮、鼠标抛球和 Rust 接回状态。结果与桌面截图输出到 `test-results/`。
+Linux 桌面或装齐依赖的 Docker 容器都能本地运行上述回归，不必等待 GitHub Actions；没有系统安装权限时先检查 Docker 是否可用。
+E2E 不模拟 IPC；检查实际窗口、按钮、鼠标抛球和 Rust 接回状态。结果、桌面截图与原生驱动日志输出到 `test-results/`。
+回归客户端共用 `scripts/webdriver_http.py` 的持久 HTTP/1.1 连接，避免 `urllib` 强制关闭连接与 WebKit 响应缺少关闭标记造成的驱动连接复用竞态；鼠标、按钮和状态修改请求不自动重试。
 Windows / macOS 的原生鼠标与多屏行为仍需对应平台实测，Linux E2E 不代表它们已实测。
 
 ### 视频验收

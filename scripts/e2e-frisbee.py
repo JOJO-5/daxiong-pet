@@ -13,6 +13,8 @@ try:
  native_windows=subprocess.check_output(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],text=True).strip().splitlines()
  native=next(w for w in native_windows if 'WIDTH=300' in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True))
  panel_native=next(w for w in native_windows if 'WIDTH=360' in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True));pointer('windowmove',panel_native,870,30)
+ # Choose actual native positions so both carry directions are deterministic.
+ pointer('windowmove',native,70,320);time.sleep(.25)
  invoke('plugin:event|listen',{'event':'pet:frame','target':{'kind':'Any'},'handler':js('window.__frames=[];return window.__TAURI_INTERNALS__.transformCallback(e=>window.__frames.push(e.payload))')})
  invoke('plugin:event|listen',{'event':'pet:play','target':{'kind':'Any'},'handler':js('window.__plays=[];return window.__TAURI_INTERNALS__.transformCallback(e=>window.__plays.push(e.payload))')})
  click('飞盘');click('拿出飞盘');wait(lambda:phase()=='ready')
@@ -21,6 +23,7 @@ try:
   js('window.__frames=[];window.__plays=[];return true');seen=set();checked=set()
   if turn==1:click('扔飞盘');pointer('mousemove',30,30)
   else:
+   pointer('windowmove',native,600,320);time.sleep(.25)
    ball=invoke('play_status')['ball'];pointer('mousemove',*ball);time.sleep(.1);pointer('mousedown',1);wait(lambda:phase()=='held')
    check('returned frisbee accepts real pointer grab')
    pointer('mousemove',180,550);time.sleep(.2);pointer('mouseup',1);pointer('mousemove',30,30)

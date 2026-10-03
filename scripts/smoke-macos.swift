@@ -99,17 +99,27 @@ do {
         try petMenu();key(115)
         for _ in 0..<4 { key(125) }
         key(36)
+        _=try waitWindow("大熊的球")
+        Thread.sleep(forTimeInterval:0.35)
         let toy=try waitWindow("大熊的球")!
         let tr=bounds(toy);let mr=bounds(try waitWindow("大熊")!)
-        let direction:Double = mr.midX < CGDisplayBounds(CGMainDisplayID()).midX ? 1 : -1
+        // Infer the actual rope side, rather than assuming the main display's work area.
+        let direction:Double = tr.midX > mr.midX ? 1 : -1
         let grab=CGPoint(x:tr.midX+direction*40,y:tr.midY)
         mouse(.mouseMoved,grab);Thread.sleep(forTimeInterval:0.3)
         mouse(.leftMouseDown,grab);Thread.sleep(forTimeInterval:0.2)
         let before=bounds(try waitWindow("大熊")!)
         let pull=CGPoint(x:grab.x+direction*70,y:grab.y)
-        mouse(.leftMouseDragged,pull);Thread.sleep(forTimeInterval:2.1)
+        report["rope_input"]=["grabX":Double(grab.x),"grabY":Double(grab.y),"pullX":Double(pull.x),"pullY":Double(pull.y)]
+        mouse(.leftMouseDragged,pull)
+        var resisted=false
+        for _ in 0..<21 {
+            Thread.sleep(forTimeInterval:0.1)
+            if bounds(try waitWindow("大熊")!).minX != before.minX {resisted=true}
+        }
         let after=bounds(try waitWindow("大熊")!)
-        try require(before.minX != after.minX,"real held rope makes pet resist")
+        report["pet_motion"]=["beforeX":Double(before.minX),"afterX":Double(after.minX)]
+        try require(resisted,"real held rope makes pet resist")
         try screenshot("tug-pulling.png")
         mouse(.leftMouseUp,pull)
         _=try waitWindow("大熊的球",visible:false,timeout:1.5)

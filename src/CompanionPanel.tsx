@@ -42,7 +42,7 @@ export default function CompanionPanel() {
       <p className="small memory-stats">摸头 <span data-testid="memory-pats">{memory.pats}</span> · 饼干 <span data-testid="memory-treats">{memory.treats}</span> · 接球 <span data-testid="memory-fetches">{memory.fetches}</span></p>
       <label className="nickname-label" htmlFor="nickname">大熊怎么称呼你？</label>
       <div className="nickname-row"><input id="nickname" value={nickname} maxLength={16} placeholder="你的昵称" onChange={e=>setNickname(e.target.value)}/><button disabled={busy||!!memory.error} onClick={()=>void act("set_nickname",{nickname})}>记住昵称</button></div>
-      <button className="primary treat-button" disabled={busy||wait>0||!!memory.error} onClick={()=>void act("feed_treat")}>{wait>0?`还在嚼饼干 · ${wait}s`:"喂一块饼干"}</button>
+      <button className="primary treat-button" disabled={busy||wait>0||!!memory.error} onClick={()=>void act("feed_treat")}>{wait>0?`下块饼干 · ${wait}s`:"喂一块饼干"}</button>
       <p className="small">记在这台电脑上。暂时离开，感情也不会变淡。</p>
       {memory.error ? <><p className="panel-error" role="alert">{memory.error}。恢复会备份旧文件，并重新开始记录。</p><button disabled={busy} onClick={()=>void act("restore_memory")}>备份旧记忆并重新开始</button></> : null}
     </> : <p>正在读取记忆…</p>}

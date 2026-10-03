@@ -162,7 +162,7 @@ export default function App() {
         </div>
       )}
       <Butterfly event={encounter}/>
-      {treating ? <div className="treat-cookie" data-testid="treat-cookie" aria-hidden="true"><i/><i/><i/></div> : null}
+      {treating && (src!==BUILTIN_SRC || rows<21) ? <div className="treat-cookie" data-testid="treat-cookie" aria-hidden="true"><i/><i/><i/></div> : null}
       {/* 用一个裁剪窗口套住整张图集，靠 transform 平移来切帧 */}
       <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-clickable={clickable} data-sleeping={sleeping} data-row={frame.row} data-col={frame.col}>
         <img

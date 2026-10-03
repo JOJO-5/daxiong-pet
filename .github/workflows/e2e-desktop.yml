@@ -74,6 +74,19 @@ jobs:
           E2E_OUT: "test-results/fun-snack"
           E2E_SCRIPT: scripts/e2e-fun.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Record biscuit taking and chewing
+        env:
+          E2E_RECORD: "1"
+          E2E_OUT: "test-results/treat"
+          E2E_SCRIPT: scripts/e2e-treat.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Verify feeding cancellation and legacy pets
+        env:
+          E2E_RECORD: "0"
+          E2E_TREAT_SCOPE: compat
+          E2E_OUT: "test-results/treat-compat"
+          E2E_SCRIPT: scripts/e2e-treat.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Build with production timing
         run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol
       - name: Verify production encounter cadence

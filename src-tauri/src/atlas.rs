@@ -50,6 +50,8 @@ pub enum Row {    Idle = 0,
     CarryLeft = 17,
     DropRight = 18,
     DropLeft = 19,
+    /// Built-in biscuit taking, chewing and licking sequence.
+    EatTreat = 20,
 }
 
 /// 一条动画轨道的播放参数。
@@ -86,6 +88,7 @@ impl Row {
             17 => Row::CarryLeft,
             18 => Row::DropRight,
             19 => Row::DropLeft,
+            20 => Row::EatTreat,
             _ => return None,
         })
     }
@@ -98,6 +101,7 @@ const D_SLEEP: &[u16] = &[450, 450, 450, 450, 450, 450, 450, 450];
 const D_WAKE: &[u16] = &[200, 180, 200, 240, 240, 180, 180, 260];
 
 const D_IDLE: &[u16] = &[280, 110, 110, 140, 140, 320];
+const D_EAT: &[u16] = &[450, 350, 350, 300, 300, 300, 350, 400];
 const D_DROP: &[u16] = &[100, 100, 100, 100];
 const D_RUN8: &[u16] = &[120, 120, 120, 120, 120, 120, 120, 220];
 const D_WAVE: &[u16] = &[140, 140, 140, 280];
@@ -114,6 +118,7 @@ pub fn track(row: Row) -> Track {
         Row::DropRight | Row::DropLeft => Track { cols: 4, durations: D_DROP, looping: false },
         Row::ShakeFur => Track { cols: 8, durations: D_SHAKE, looping: false },
         Row::Affection => Track { cols: 8, durations: D_AFFECTION, looping: false },
+        Row::EatTreat => Track { cols: 8, durations: D_EAT, looping: false },
         Row::HappyPat => Track { cols: 8, durations: D_HAPPY, looping: false },
         Row::Sleep => Track { cols: 8, durations: D_SLEEP, looping: true },
         Row::WakeStretch => Track { cols: 8, durations: D_WAKE, looping: false },

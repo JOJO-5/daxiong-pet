@@ -1,0 +1,8 @@
+{
+  "version": "1.0.16",
+  "passed": [
+    "focus immediately interrupts eating",
+    "legacy pet keeps supported reaction and cookie fallback"
+  ],
+  "error": null
+}

@@ -407,7 +407,7 @@ impl Engine {
                     self.encounters.interrupt();self.play.cancel();self.activities.cancel();self.sleeping=false;self.quiet_ms=0;
                     self.annoyed_until_ms=0;self.clicks.clear();self.wander=None;
                     self.vx=0.0;self.vy=0.0;
-                    self.start_reaction(if input.extra_animations { Row::HappyPat } else { Row::Waving });
+                    self.start_reaction(if input.extra_animations { Row::EatTreat } else { Row::Waving });
                 }
             }
         }
@@ -918,7 +918,7 @@ impl Engine {
         }
 
         let activity=self.activities.tick(input);
-        if activity.completed {self.start_reaction(if input.extra_animations {Row::HappyPat} else {Row::Waving});}
+        if activity.completed {self.start_reaction(if input.extra_animations {if self.activities.view().game=="snack" {Row::EatTreat} else {Row::HappyPat}} else {Row::Waving});}
         if let Some(position)=activity.movement {move_to=Some(position);}
 
         // ---- 14. 决定播放哪一行（按优先级）----
@@ -1016,6 +1016,19 @@ mod tests {
         }
     }
 
+    #[test]
+    fn feeding_plays_every_eating_frame_once_and_legacy_stays_in_bounds() {
+        for builtin in [false,true] {
+            let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.cmd_rx=Some(rx);
+            let mut i=input(1.0);i.extra_animations=builtin;
+            tx.send(Command::FeedTreat).unwrap();
+            let mut cols=std::collections::BTreeSet::new();
+            for _ in 0..220 {let out=e.tick(&i);if out.row==Row::EatTreat as u8 {cols.insert(out.col);}if !builtin {assert!(out.row<11);}}
+            assert_eq!(cols.len(),if builtin {8} else {0});assert!(e.react.is_none());
+            tx.send(Command::FeedTreat).unwrap();e.tick(&i);tx.send(Command::StartPomodoro).unwrap();
+            assert_ne!(e.tick(&i).row,Row::EatTreat as u8);
+        }
+    }
     #[test]
     fn snack_pointer_does_not_drag_pet_and_new_game_clears_cookie() {
         let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.cmd_rx=Some(rx);let mut i=input(1.0);

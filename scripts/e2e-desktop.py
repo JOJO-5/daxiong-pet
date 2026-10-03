@@ -167,8 +167,8 @@ try:
     wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===2288"))
     check("legacy atlas loads and pet switching cancels toys",invoke("current_pet")["rows"]==11 and js("return Number(document.querySelector('[data-testid=pet]').dataset.row)<11"))
     invoke("set_pet",{"id":"__builtin__"})
-    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===4160"))
-    check("switching back restores all 20 built-in animation rows")
+    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===4368"))
+    check("switching back restores all 21 built-in animation rows")
     command("POST","/window",{"handle":panel})
     if os.environ.get("E2E_MEMORY"):
         # Extended by the next version; kept in the same cumulative native suite.

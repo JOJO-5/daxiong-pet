@@ -45,15 +45,15 @@ click("喂一块饼干")
 wait(lambda: invoke("companion_status")["treats"]==before["treats"]+1)
 check("treat awards affection only after local save",invoke("companion_status")["affection"]==before["affection"]+4)
 command("POST","/window",{"handle":main})
-wait(lambda: js("return !!document.querySelector('[data-testid=treat-cookie]')"),3)
-check("pet renders cookie and personalized thank-you",js("return document.querySelector('.bubble')?.textContent.includes('乔乔')"))
+wait(lambda: js("return document.querySelector('[data-testid=pet]')?.dataset.row==='20' || !!document.querySelector('[data-testid=treat-cookie]')"),3)
+check("pet renders eating response and personalized thank-you",js("return document.querySelector('.bubble')?.textContent.includes('乔乔')"))
 command("POST","/window",{"handle":panel})
 try:
     invoke("feed_treat")
     raise AssertionError("cooldown was bypassed")
 except AssertionError as e:
     check("feeding cooldown is enforced in Rust", "饼干" in str(e))
-check("feeding cooldown disables button",js("return [...document.querySelectorAll('button')].some(b=>b.disabled && b.textContent.includes('还在嚼饼干'))"))
+check("feeding cooldown disables button",js("return [...document.querySelectorAll('button')].some(b=>b.disabled && b.textContent.includes('下块饼干'))"))
 time.sleep(.15)
 # A hover is the application's existing real petting gesture.
 before_pat = invoke("companion_status")["pats"]

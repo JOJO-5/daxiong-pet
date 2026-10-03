@@ -52,6 +52,8 @@ pub enum Row {    Idle = 0,
     DropLeft = 19,
     /// Built-in biscuit taking, chewing and licking sequence.
     EatTreat = 20,
+    DiscRight = 21,
+    DiscLeft = 22,
 }
 
 /// 一条动画轨道的播放参数。
@@ -89,6 +91,8 @@ impl Row {
             18 => Row::DropRight,
             19 => Row::DropLeft,
             20 => Row::EatTreat,
+            21 => Row::DiscRight,
+            22 => Row::DiscLeft,
             _ => return None,
         })
     }
@@ -123,7 +127,7 @@ pub fn track(row: Row) -> Track {
         Row::Sleep => Track { cols: 8, durations: D_SLEEP, looping: true },
         Row::WakeStretch => Track { cols: 8, durations: D_WAKE, looping: false },
         Row::Idle => Track { cols: 6, durations: D_IDLE, looping: true },
-        Row::RunRight | Row::RunLeft | Row::CarryRight | Row::CarryLeft => Track { cols: 8, durations: D_RUN8, looping: true },
+        Row::RunRight | Row::RunLeft | Row::CarryRight | Row::CarryLeft | Row::DiscRight | Row::DiscLeft => Track { cols: 8, durations: D_RUN8, looping: true },
         Row::Waving => Track { cols: 4, durations: D_WAVE, looping: false },
         Row::Jumping => Track { cols: 5, durations: D_JUMP, looping: false },
         Row::Failed => Track { cols: 8, durations: D_FAIL, looping: false },

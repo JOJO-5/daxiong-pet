@@ -169,6 +169,10 @@ body {
 .trick-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
 .trick-actions small { display:block; color:#796e60; }
 
-.game-picker { display:flex; gap:8px; margin:16px 0; }
+.game-picker { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:16px 0; }
 .game-picker button[aria-pressed=true] { background:#567b42; color:white; }
 [data-testid=search-panel] select { margin:0 0 12px 8px; padding:5px; }
+
+.toy-frisbee { width:36px; height:20px; pointer-events:none; }
+.toy-frisbee.flying { animation:disc-glide 500ms ease-in-out infinite alternate; }
+@keyframes disc-glide { from {transform:rotate(-8deg) scaleY(.8);} to {transform:rotate(8deg) scaleY(1);} }

@@ -1,6 +1,6 @@
 [package]
 name = "daxiong-pet"
-version = "1.0.16"
+version = "1.0.17"
 description = "大熊桌面宠物"
 edition = "2021"
 rust-version = "1.88"

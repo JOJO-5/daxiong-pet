@@ -8,13 +8,13 @@ import TrainingPanel from "./TrainingPanel";
 import CompanionPanel from "./CompanionPanel";
 import EncountersPanel, { type EncounterView } from "./EncountersPanel";
 
-type PlayView = { phase: string; catches: number; streak:number; style:string };
-const PHASES: Record<string,string> = { off: "准备好陪你玩", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", teasing: "来追我呀！靠近大熊或点放下球", releasing: "把球放在你脚边", rolling: "把球推给你啦，抓住再扔吧！", returned: "抓起脚边的球，再扔一次吧！" };
+type PlayView = { phase: string; catches: number; streak:number; style:string; toy:string; last_catch:string };
+const PHASES: Record<string,string> = { off: "准备好陪你玩", catching:"跃起接住飞盘啦！", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", teasing: "来追我呀！靠近大熊或点放下球", releasing: "把球放在你脚边", rolling: "把球推给你啦，抓住再扔吧！", returned: "抓起脚边的球，再扔一次吧！" };
 
 export default function PlayPanel() {
-  const [play,setPlay] = useState<PlayView>({phase:"off",catches:0,streak:0,style:"normal"});
+  const [play,setPlay] = useState<PlayView>({phase:"off",catches:0,streak:0,style:"normal",toy:"ball",last_catch:"none"});
   const [error,setError] = useState("");
-  const [game,setGame]=useState<"fetch"|"tricks"|"snack">("fetch");
+  const [game,setGame]=useState<"fetch"|"frisbee"|"tricks"|"snack">("fetch");
   useEffect(() => {
     let active = true;
     const off = listen<PlayView>("pet:play", e => { if(active) setPlay(e.payload); });
@@ -22,23 +22,24 @@ export default function PlayPanel() {
       .finally(()=>{if(active) void invoke("playground_ready").catch(e=>setError(String(e)));});
     return () => { active=false; void off.then(fn=>fn()).catch(console.error); };
   },[]);
+  const phase=game==="fetch"||game==="frisbee"?(play.toy===(game==="frisbee"?"frisbee":"ball")?play.phase:"off"):play.phase;
   const act = async (action:string) => {
     setError("");
     try { await invoke("play_action",{action}); } catch(e) { setError(String(e)); }
   };
   return <ActivityProvider><main className="play-panel">
     <svg className="panel-icon" aria-hidden="true" viewBox="0 0 32 32" width="32" height="32"><g fill="#567b42"><ellipse cx="16" cy="23" rx="9" ry="6"/><ellipse cx="5" cy="13" rx="3" ry="4"/><ellipse cx="12" cy="7" rx="3" ry="4"/><ellipse cx="21" cy="7" rx="3" ry="4"/><ellipse cx="28" cy="13" rx="3" ry="4"/></g></svg>
-    <h1>和大熊一起玩</h1><p className="subtitle">一颗球，就能快乐一下午</p>
-    <div className="game-picker" role="group" aria-label="选择游戏">{([{id:"fetch",label:"接球"},{id:"tricks",label:"小指令"},{id:"snack",label:"找零食"}] as const).map(choice=><button key={choice.id} aria-pressed={game===choice.id} onClick={()=>setGame(choice.id)}>{choice.label}</button>)}</div>
-    {game==="fetch" ? <section className="play-card">
-      <h2>接球时间</h2><p role="status" data-testid="play-phase" data-phase={play.phase}>{PHASES[play.phase] || play.phase}</p>
-      <div className="play-actions"><button onClick={()=>void act("show")}>拿出球</button><button className="primary" onClick={()=>void act("throw")}>抛一球</button></div>
-      {play.phase==="teasing" ? <button onClick={()=>void act("drop")}>放下球</button> : null}
-      {play.phase==="returned" ? <button onClick={()=>void act("roll")}>推回给我</button> : null}
+    <h1>和大熊一起玩</h1><p className="subtitle">挑个玩具，陪大熊玩一会儿</p>
+    <div className="game-picker" role="group" aria-label="选择游戏">{([{id:"fetch",label:"接球"},{id:"frisbee",label:"飞盘"},{id:"tricks",label:"小指令"},{id:"snack",label:"找零食"}] as const).map(choice=><button key={choice.id} aria-pressed={game===choice.id} onClick={()=>setGame(choice.id)}>{choice.label}</button>)}</div>
+    {game==="fetch" || game==="frisbee" ? <section className="play-card">
+      <h2>{game==="frisbee"?"飞盘时间":"接球时间"}</h2><p role="status" data-testid="play-phase" data-phase={phase}>{game==="frisbee"?({off:"拿出飞盘，或者直接扔一个",ready:"拖住桌面飞盘，甩动后松手",held:"松手，飞盘就会滑翔出去",chasing:"追着滑翔的飞盘跑…",catching:"跃起接住飞盘啦！",returning:"咬住飞盘跑回来啦",releasing:"松口，放到脚边",returned:"抓起脚边的飞盘，可以再扔一次"} as Record<string,string>)[phase]||phase:PHASES[phase]||phase}</p>
+      <div className="play-actions"><button onClick={()=>void act(game==="frisbee"?"show_frisbee":"show")}>{game==="frisbee"?"拿出飞盘":"拿出球"}</button><button className="primary" onClick={()=>void act(game==="frisbee"?"throw_frisbee":"throw")}>{game==="frisbee"?"扔飞盘":"抛一球"}</button></div>
+      {phase==="teasing" ? <button onClick={()=>void act("drop")}>放下球</button> : null}
+      {game==="fetch" && phase==="returned" && play.toy==="ball" ? <button onClick={()=>void act("roll")}>推回给我</button> : null}
       <p className="small" data-testid="fetch-style">{play.style==="near"?"近近的，慢悠悠捡回来":play.style==="far"?"扔得好远，兴奋追球！":"陪你一起接球"} · 连续 {play.streak} 次</p>
-      <PlayfulSwitch />
+      {game==="fetch"?<PlayfulSwitch />:<p className="small">{play.last_catch==="air"?"这次在空中接到了！":play.last_catch==="ground"?"落地也没关系，捡回来再扔吧":"飞盘会沿浅弧线滑翔，落地后也能捡回"}</p>}
       <button className="quiet" onClick={()=>void act("cancel")}>收起玩具</button>
-      <p className="small">本次接球 <strong data-testid="catches">{play.catches}</strong> 次</p>
+      <p className="small">本次接回 <strong data-testid="catches">{play.catches}</strong> 次</p>
     </section> : game==="tricks" ? <TrainingPanel /> : <SearchPanel />}
     <CompanionPanel />
     <EncountersPanel />
@@ -50,14 +51,20 @@ export default function PlayPanel() {
 export function Toy() {
   const [rolling,setRolling]=useState(false);
   const [snack,setSnack]=useState(false);
+  const [disc,setDisc]=useState(false);
+  const [flying,setFlying]=useState(false);
   useEffect(()=>{
     const off=listen<EncounterView>("pet:encounter",e=>setRolling(e.payload.kind==="ball"&&e.payload.phase==="pushing"));
-    let active=true;let received=false;
+    let active=true;let received=false;let receivedPlay=false;
+    const acceptPlay=(v:PlayView)=>{if(active){setDisc(v.toy==="frisbee");setFlying(v.phase==="chasing");}};
+    const play=listen<PlayView>("pet:play",e=>{receivedPlay=true;acceptPlay(e.payload);});
+    play.then(()=>invoke<PlayView>("play_status")).then(v=>{if(!receivedPlay)acceptPlay(v);}).catch(console.error);
     const activity=listen<{treat:unknown}>("pet:activity",e=>{received=true;if(active)setSnack(e.payload.treat!=null);});
     activity.then(()=>invoke<{treat:unknown}>("trick_status")).then(v=>{if(active&&!received)setSnack(v.treat!=null);}).catch(console.error);
-    return ()=>{active=false;void off.then(fn=>fn()).catch(console.error);void activity.then(fn=>fn()).catch(console.error);};
+    return ()=>{active=false;void off.then(fn=>fn()).catch(console.error);void activity.then(fn=>fn()).catch(console.error);void play.then(fn=>fn()).catch(console.error);};
   },[]);
   if(snack)return <HiddenTreat/>;
+  if(disc)return <div className="toy-stage"><div className={`toy-frisbee${flying?" flying":""}`} title="拖动飞盘，甩动后松手" data-testid="toy-frisbee"><svg width="36" height="20" viewBox="0 0 36 20" role="img" aria-label="飞盘"><ellipse cx="18" cy="11" rx="16" ry="7" fill="#126d9c"/><ellipse cx="18" cy="9" rx="16" ry="6" fill="#28c5ef" stroke="#1678a2" strokeWidth="2"/><ellipse cx="18" cy="8" rx="10" ry="3" fill="#70e5ff"/></svg></div></div>;
   return <div className="toy-stage"><div className={`toy-ball${rolling?" rolling":""}`} title="拖动后松手抛球" data-testid="toy-ball"/></div>;
 }
 

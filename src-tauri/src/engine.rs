@@ -91,6 +91,8 @@ pub enum Command {
     ThrowBall,
     CancelPlay,
     FeedTreat,
+    ShowFrisbee,
+    ThrowFrisbee,
     DropBall,
     RollBall,
     Trick(crate::activities::Cue,bool),
@@ -378,11 +380,12 @@ impl Engine {
                     }
                 }
                 Command::CancelPomodoro => self.pomodoro_ms = None,
-                Command::ShowBall | Command::ThrowBall => {
+                Command::ShowBall | Command::ThrowBall | Command::ShowFrisbee | Command::ThrowFrisbee => {
                     if input.interactive && self.pomodoro_ms.is_none() && !self.dragging {
                         self.encounters.interrupt();
                         self.activities.cancel();
-                        self.play.start(input, matches!(cmd, Command::ThrowBall));
+                        if matches!(cmd, Command::ShowFrisbee | Command::ThrowFrisbee) {self.play.start_frisbee(input,matches!(cmd,Command::ThrowFrisbee));}
+                        else {self.play.start(input, matches!(cmd, Command::ThrowBall));}
                         self.wander = None; self.react = None; self.sleeping = false;
                         self.quiet_ms = 0; self.vx = 0.0; self.vy = 0.0;
                     }
@@ -927,7 +930,9 @@ impl Engine {
         } else if let Some(row)=activity.row {
             row
         } else if let Some(right) = play_step.direction {
-            if input.extra_animations && self.play.view().phase=="releasing" {
+            if input.extra_animations && self.play.view().toy=="frisbee" && matches!(self.play.view().phase,"catching" | "returning") {
+                if right {Row::DiscRight} else {Row::DiscLeft}
+            } else if input.extra_animations && self.play.view().phase=="releasing" {
                 if right { Row::DropRight } else { Row::DropLeft }
             } else if input.extra_animations && matches!(self.play.view().phase,"returning" | "teasing") {
                 if right { Row::CarryRight } else { Row::CarryLeft }
@@ -1016,6 +1021,15 @@ mod tests {
         }
     }
 
+    #[test]
+    fn frisbee_uses_its_biting_rows_and_focus_cancels() {
+        for builtin in [false,true] {
+            let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.cmd_rx=Some(rx);
+            let mut i=input(1.0);i.extra_animations=builtin;tx.send(Command::ThrowFrisbee).unwrap();let mut carried=false;
+            for _ in 0..3000 {let out=e.tick(&i);if let Some(p)=out.move_to {i.win_pos=p;}if matches!(e.play_view().phase,"catching"|"returning") {carried=true;assert!(if builtin {matches!(out.row,21|22)} else {out.row<11});}if e.play_view().phase=="returned" {break;}}
+            assert!(carried);assert_eq!(e.play_view().phase,"returned");tx.send(Command::ShowFrisbee).unwrap();e.tick(&i);tx.send(Command::StartPomodoro).unwrap();e.tick(&i);assert_eq!(e.play_view().phase,"off");
+        }
+    }
     #[test]
     fn feeding_plays_every_eating_frame_once_and_legacy_stays_in_bounds() {
         for builtin in [false,true] {

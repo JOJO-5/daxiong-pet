@@ -1,0 +1,23 @@
+{
+  "version": "1.0.17",
+  "passed": [
+    "native button shows independent blue disc",
+    "throw 1: real button or drag starts glide",
+    "throw 1: air catch, biting carry and release",
+    "throw 1: returned once",
+    "throw 1: airborne feedback",
+    "throw 1: actual disc biting row 22 rendered",
+    "throw 1: disc visible at feet for reuse",
+    "returned frisbee accepts real pointer grab",
+    "throw 2: real button or drag starts glide",
+    "throw 2: air catch, biting carry and release",
+    "throw 2: returned once",
+    "throw 2: airborne feedback",
+    "throw 2: actual disc biting row 21 rendered",
+    "throw 2: disc visible at feet for reuse",
+    "returned disc remains available and score stable",
+    "focus cleans up disc",
+    "hide cancels disc and toy window"
+  ],
+  "error": null
+}

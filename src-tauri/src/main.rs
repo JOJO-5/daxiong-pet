@@ -265,6 +265,7 @@ fn play_action(action: String, app: AppHandle) -> Result<(), String> {
     if !state.requested_visible.load(Ordering::Relaxed) && action != "cancel" { return Err("先显示大熊再一起玩吧".into()); }
     let cmd = match action.as_str() {
         "show" => EngineCommand::ShowBall, "throw" => EngineCommand::ThrowBall,
+        "show_frisbee"=>EngineCommand::ShowFrisbee,"throw_frisbee"=>EngineCommand::ThrowFrisbee,
         "cancel" => EngineCommand::CancelPlay, "drop" => EngineCommand::DropBall, "roll" => EngineCommand::RollBall, _ => return Err("未知互动".into()),
     };
     state.engine_tx.lock().unwrap().send(cmd).map_err(|e| e.to_string())?;
@@ -288,7 +289,7 @@ pub(crate) fn open_play_window(app: &AppHandle) -> tauri::Result<()> {
 
 fn create_toy(app: &AppHandle) -> tauri::Result<()> {
     tauri::WebviewWindowBuilder::new(app,"toy",tauri::WebviewUrl::App("index.html?view=toy".into()))
-        .title("大熊的球").inner_size(28.0,28.0).transparent(true).decorations(false)
+        .title("大熊的球").inner_size(44.0,44.0).transparent(true).decorations(false)
         .resizable(false).always_on_top(true).skip_taskbar(true).shadow(false).focused(false).focusable(false)
         // The toy needs no shared browser storage. A separate context also keeps its hidden webview out of WebKit automation.
         .data_directory(app.path().app_cache_dir()?.join("toy-webview"))
@@ -510,7 +511,7 @@ fn spawn_engine(
             *previous_activity=activity;drop(previous_activity);
             let play = engine.play_view();
             if let Some(toy) = app.get_webview_window("toy") {
-                let visible_ball = snack_position.or_else(||if input.extra_animations && matches!(play.phase,"returning" | "teasing") { None } else { play.ball });
+                let visible_ball = snack_position.or_else(||if input.extra_animations && matches!(play.phase,"returning" | "teasing" | "catching") { None } else { play.ball });
                 let toy_hot=visible_ball.is_some_and(|(x,y)| ((input.cursor.0-x) as f64).hypot((input.cursor.1-y) as f64)<=18.0*input.scale_factor);
                 // GTK must realize the native window before applying its input shape.
                 // Keep the transparent area click-through; only the actual toy accepts input.
@@ -524,7 +525,7 @@ fn spawn_engine(
             }
             let state = app.state::<AppState>();
             let mut previous = state.play.lock().unwrap();
-            if previous.phase != play.phase || previous.catches != play.catches || previous.style != play.style {
+            if previous.toy != play.toy || previous.last_catch != play.last_catch || previous.phase != play.phase || previous.catches != play.catches || previous.style != play.style {
                 let _ = app.emit("pet:play", &play);
             }
             *previous = play;
@@ -795,7 +796,7 @@ mod tests {
     fn builtin_payload_has_matching_dimensions_and_no_external_image() {
         let state = state(vec![petpack::builtin()]);
         let payload = payload_for(&state, "__builtin__").unwrap();
-        assert_eq!(payload.rows, 21);
+        assert_eq!(payload.rows, 23);
         assert!(payload.data_url.is_none());
         assert!(payload.speech.is_none());
     }

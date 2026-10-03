@@ -72,12 +72,21 @@ struct AppState {
     engine_tx: Mutex<mpsc::Sender<EngineCommand>>,
     pet_revision: Arc<AtomicU64>,
     requested_visible: AtomicBool,
+    focusing: AtomicBool,
     play: Mutex<play::PlayView>,
     memory: Mutex<MemoryState>,
     activity: Mutex<activities::ActivityView>,
     rewarded_trick: AtomicU64,
     encounter: Mutex<encounters::EncounterView>,
+    shortcut: Mutex<ShortcutPrefs>,
+    pet_menu:Mutex<Option<tauri::menu::Menu<tauri::Wry>>>,
 }
+
+#[derive(Clone,Default)]
+struct ShortcutPrefs {requested:bool,error:Option<String>}
+#[derive(serde::Serialize)]
+struct ShortcutView {requested:bool,enabled:bool,key:&'static str,error:Option<String>}
+const OPEN_SHORTCUT:&str="Ctrl+Alt+P";
 
 struct MemoryState { data: companion::Memory, error: Option<String> }
 
@@ -229,7 +238,7 @@ fn snack_action(action:String,difficulty:Option<String>,app:AppHandle)->Result<(
         "place"=>{let far=match difficulty.as_deref().unwrap_or("easy") {"easy"=>false,"far"=>true,_=>return Err("未知难度".into())};EngineCommand::PlaceSnack(far)},
         "find"=>EngineCommand::FindSnack,"cancel"=>EngineCommand::CancelPlay,_=>return Err("未知零食游戏操作".into())
     };
-    state.engine_tx.lock().unwrap().send(cmd).map_err(|e|e.to_string())?;Ok(())
+    state.engine_tx.lock().unwrap().send(cmd).map_err(|e|e.to_string())?;if action!="cancel" {let _=app.emit_to("playground","pet:game","snack");}Ok(())
 }
 #[tauri::command]
 fn trick_status(app:AppHandle)->activities::ActivityView {app.state::<AppState>().activity.lock().unwrap().clone()}
@@ -242,7 +251,7 @@ fn trick_action(cue:String,app:AppHandle)->Result<(),String> {
         let learned=state.memory.lock().unwrap().data.training[cue.index()]>=3;
         EngineCommand::Trick(cue,learned)
     };
-    state.engine_tx.lock().unwrap().send(cmd).map_err(|e|e.to_string())?;Ok(())
+    state.engine_tx.lock().unwrap().send(cmd).map_err(|e|e.to_string())?;if cue!="stop" {let _=app.emit_to("playground","pet:game","tricks");}Ok(())
 }
 #[tauri::command]
 fn reward_trick(app:AppHandle)->Result<companion::MemoryView,String> {
@@ -263,27 +272,87 @@ fn play_status(app: AppHandle) -> play::PlayView { app.state::<AppState>().play.
 fn play_action(action: String, app: AppHandle) -> Result<(), String> {
     let state = app.state::<AppState>();
     if !state.requested_visible.load(Ordering::Relaxed) && action != "cancel" { return Err("先显示大熊再一起玩吧".into()); }
+    if action!="cancel" && state.focusing.load(Ordering::Relaxed) {return Err("正在专注，结束专注后再玩吧".into());}
     let cmd = match action.as_str() {
         "show" => EngineCommand::ShowBall, "throw" => EngineCommand::ThrowBall,
         "show_frisbee"=>EngineCommand::ShowFrisbee,"throw_frisbee"=>EngineCommand::ThrowFrisbee,
         "cancel" => EngineCommand::CancelPlay, "drop" => EngineCommand::DropBall, "roll" => EngineCommand::RollBall, _ => return Err("未知互动".into()),
     };
     state.engine_tx.lock().unwrap().send(cmd).map_err(|e| e.to_string())?;
+    if matches!(action.as_str(),"show"|"throw"|"show_frisbee"|"throw_frisbee") {let _=app.emit_to("playground","pet:game",if action.contains("frisbee"){"frisbee"}else{"fetch"});}
     Ok(())
 }
 
 #[tauri::command]
+fn shortcut_status(app:AppHandle)->ShortcutView {
+    use tauri_plugin_global_shortcut::GlobalShortcutExt;
+    let state=app.state::<AppState>();let prefs=state.shortcut.lock().unwrap();
+    ShortcutView {requested:prefs.requested,enabled:app.global_shortcut().is_registered(OPEN_SHORTCUT),key:OPEN_SHORTCUT,error:prefs.error.clone()}
+}
+#[tauri::command]
+fn set_shortcut(enabled:bool,app:AppHandle)->Result<ShortcutView,String> {
+    use tauri_plugin_global_shortcut::GlobalShortcutExt;
+    let state=app.state::<AppState>();let mut prefs=state.shortcut.lock().unwrap();
+    let was_registered=app.global_shortcut().is_registered(OPEN_SHORTCUT);
+    let change=if enabled && !was_registered {app.global_shortcut().register(OPEN_SHORTCUT)}
+        else if !enabled && was_registered {app.global_shortcut().unregister(OPEN_SHORTCUT)} else {Ok(())};
+    if let Err(e)=change {let text=format!("快捷键未生效：{e}，可以继续用右键菜单或托盘打开");prefs.error=Some(text.clone());return Err(text);}
+    let saved=(||{let mut config=Config::load(&app)?;config.shortcut_enabled=enabled;config.save(&app)})();
+    if let Err(e)=saved {
+        let rollback=if was_registered && !enabled {app.global_shortcut().register(OPEN_SHORTCUT)}
+            else if !was_registered && enabled {app.global_shortcut().unregister(OPEN_SHORTCUT)} else {Ok(())};
+        let text=match rollback {Ok(())=>format!("快捷键设置未保存：{e}"),Err(r)=>format!("设置未保存：{e}；恢复快捷键失败：{r}")};
+        prefs.error=Some(text.clone());return Err(text);
+    }
+    prefs.requested=enabled;prefs.error=None;drop(prefs);Ok(shortcut_status(app))
+}
+#[tauri::command]
+fn close_playground(app:AppHandle)->Result<(),String> {
+    if let Some(window)=app.get_webview_window("playground") {window.hide().map_err(|e|e.to_string())?;}Ok(())
+}
+#[tauri::command]
+fn open_pet_menu(app:AppHandle)->Result<(),String> {
+    use tauri::menu::{ContextMenu,MenuBuilder,MenuItem,SubmenuBuilder};
+    let window=app.get_webview_window("main").ok_or("大熊窗口未打开")?;
+    let view=companion_status(app.clone());
+    let label=if view.treat_wait>0 {format!("喂饼干（{} 秒后）",view.treat_wait)} else {"喂一块饼干".into()};
+    let feed=MenuItem::with_id(&app,"pet_feed",label,view.treat_wait==0 && view.error.is_none(),None::<&str>).map_err(|e|e.to_string())?;
+    let more=SubmenuBuilder::new(&app,"更多").text("pet_preferences","记忆与偏好…").text("pomodoro","专注 / 结束专注").text("toggle","隐藏大熊").build().map_err(|e|e.to_string())?;
+    let menu=MenuBuilder::new(&app).text("play","打开互动面板…").separator().item(&feed)
+        .text("pet_ball","抛一球").text("pet_frisbee","扔飞盘").text("pet_come","过来")
+        .text("pet_stop","收起玩具 / 结束练习").separator().item(&more).build().map_err(|e|e.to_string())?;
+    *app.state::<AppState>().pet_menu.lock().unwrap()=Some(menu.clone());
+    menu.popup(window.as_ref().window()).map_err(|e|e.to_string())
+}
+fn position_panel(app:&AppHandle,panel:&WebviewWindow)->tauri::Result<()> {
+    if let Some(pet)=app.get_webview_window("main") {
+        let (sx,sy,sw,sh)=screen_rect(&pet);let pos=pet.outer_position()?;let size=pet.outer_size()?;
+        let panel_size=panel.outer_size()?;let gap=(12.0*pet.scale_factor()?).round() as i32;
+        let right=pos.x+size.width as i32+gap;
+        let x=if right+panel_size.width as i32<=sx+sw {right} else {pos.x-panel_size.width as i32-gap};
+        panel.set_position(PhysicalPosition::new(x.clamp(sx,sx+(sw-panel_size.width as i32).max(0)),(pos.y-24).clamp(sy,sy+(sh-panel_size.height as i32).max(0))))?;
+    }Ok(())
+}
+pub(crate) fn open_preferences(app:&AppHandle)->tauri::Result<()> {
+    if app.get_webview_window("playground").is_some() {open_play_window(app)?;app.emit_to("playground","pet:preferences",())?;return Ok(());}
+    tauri::WebviewWindowBuilder::new(app,"playground",tauri::WebviewUrl::App("index.html?view=playground&preferences=1".into()))
+        .title("和大熊一起玩").inner_size(360.0,600.0).resizable(false).visible(false).build()?;Ok(())
+}
+
+#[tauri::command]
 fn playground_ready(window:WebviewWindow)->Result<(),String> {
-    window.show().map_err(|e|e.to_string())
+    position_panel(window.app_handle(),&window).map_err(|e|e.to_string())?;
+    window.show().and_then(|_|window.set_focus()).map_err(|e|e.to_string())
 }
 
 #[tauri::command]
 fn open_playground(app: AppHandle) -> Result<(), String> { open_play_window(&app).map_err(|e|e.to_string()) }
 
 pub(crate) fn open_play_window(app: &AppHandle) -> tauri::Result<()> {
-    if let Some(window) = app.get_webview_window("playground") { window.show()?; window.set_focus()?; return Ok(()); }
+    if !app.state::<AppState>().requested_visible.load(Ordering::Relaxed) {apply_visibility(app,true)?;}
+    if let Some(window) = app.get_webview_window("playground") { position_panel(app,&window)?;window.show()?; window.set_focus()?; return Ok(()); }
     tauri::WebviewWindowBuilder::new(app,"playground",tauri::WebviewUrl::App("index.html?view=playground".into()))
-        .title("和大熊一起玩").inner_size(360.0,710.0).resizable(false).visible(false).build()?;
+        .title("和大熊一起玩").inner_size(360.0,600.0).resizable(false).visible(false).build()?;
     Ok(())
 }
 
@@ -305,6 +374,7 @@ pub(crate) fn apply_gravity(app: &AppHandle, enabled: bool) -> std::io::Result<b
     Config {
         pet_id: Some(pet_id),
         gravity: enabled,
+        shortcut_enabled:state.shortcut.lock().unwrap().requested,
     }
     .save(app)?;
     state.gravity.store(enabled, Ordering::Relaxed);
@@ -367,6 +437,7 @@ pub(crate) fn switch_to_pet(app: &AppHandle, id: &str) -> std::io::Result<()> {
     Config {
         pet_id: Some(pack.id.clone()),
         gravity: state.gravity.load(Ordering::Relaxed),
+        shortcut_enabled:state.shortcut.lock().unwrap().requested,
     }
     .save(app)?;
 
@@ -484,6 +555,7 @@ fn spawn_engine(
             }
             engine.set_playful_fetch(app.state::<AppState>().memory.lock().unwrap().data.playful_fetch);
             let out = engine.tick(&input);
+            app.state::<AppState>().focusing.store(engine.is_focusing(),Ordering::Relaxed);
 
             if let Some((x, y)) = out.move_to {
                 let _ = window.set_position(PhysicalPosition::new(x, y));
@@ -527,6 +599,7 @@ fn spawn_engine(
             let mut previous = state.play.lock().unwrap();
             if previous.toy != play.toy || previous.last_catch != play.last_catch || previous.phase != play.phase || previous.catches != play.catches || previous.style != play.style {
                 let _ = app.emit("pet:play", &play);
+                if play.phase!="off" && (previous.phase=="off" || previous.toy!=play.toy) {let _=app.emit_to("playground","pet:game",if play.toy=="frisbee" {"frisbee"} else {"fetch"});}
             }
             *previous = play;
             drop(previous);
@@ -578,7 +651,9 @@ fn spawn_engine(
                     },_=>None
                 };
                 let personal=if kind==engine::SayKind::PlayReturned && engine.play_view().streak>=3 {
-                    Some(format!("连续接住 {} 次啦！再来一球？",engine.play_view().streak))
+                    Some(format!("连续接住 {} 次啦！再扔一次？",engine.play_view().streak))
+                } else if kind==engine::SayKind::PlayReturned && engine.play_view().toy=="frisbee" && personal.is_none() {
+                    Some("飞盘叼回来啦！再扔一次？".into())
                 } else {personal};
                 if let Some(text)=personal { let _=app.emit("pet:message",text); }
                 else { let _=app.emit("pet:say",kind.as_str()); }
@@ -605,6 +680,15 @@ fn main() {
                 if let Err(e) = window.show() { report_error(app, "显示已有宠物失败", e); }
             }
         }))
+        .plugin(tauri_plugin_global_shortcut::Builder::new().with_handler(|app,_shortcut,event| {
+            if event.state==tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                if let Err(e)=open_play_window(app) {report_error(app,"快捷打开失败",e);}
+            }
+        }).build())
+        .on_menu_event(tray::on_menu_event)
+        .on_window_event(|window,event| {
+            if window.label()=="playground" {if let tauri::WindowEvent::CloseRequested {api,..}=event {api.prevent_close();let _=window.hide();}}
+        })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
@@ -627,6 +711,7 @@ fn main() {
             set_visible,
             open_playground,
             playground_ready,
+            open_pet_menu,close_playground,shortcut_status,set_shortcut,
             companion_status,
             set_nickname,
             feed_treat,
@@ -697,13 +782,19 @@ fn main() {
                 sleep_frame: sleep_frame.clone(),
                 engine_tx: Mutex::new(tx),
                 pet_revision: pet_revision.clone(),
-                requested_visible: AtomicBool::new(true),
+                requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false),
                 play: Mutex::new(play::Play::default().view()),
                 memory: Mutex::new(memory),
                 activity: Mutex::new(activities::Activities::default().view()),rewarded_trick:AtomicU64::new(0),
                 encounter: Mutex::new(encounters::Encounters::new(1).view()),
+                shortcut:Mutex::new(ShortcutPrefs {requested:saved.shortcut_enabled,error:None}),
+                pet_menu:Mutex::new(None),
             });
 
+            if saved.shortcut_enabled {
+                use tauri_plugin_global_shortcut::GlobalShortcutExt;
+                if let Err(e)=app.global_shortcut().register(OPEN_SHORTCUT) {app.state::<AppState>().shortcut.lock().unwrap().error=Some(format!("快捷键未生效：{e}，仍可用右键菜单打开"));}
+            }
             create_toy(app.handle())?;
             tray::build(app.handle(), &pets, &initial, saved.gravity)?;
 
@@ -742,7 +833,9 @@ mod tests {
             current: Mutex::new(pets[0].id.clone()), pets: Mutex::new(pets),
             look_enabled: Arc::new(AtomicBool::new(true)), gravity: Arc::new(AtomicBool::new(false)),
             sleep_frame: Arc::new(AtomicU16::new(pack_sleep(5, 2))), engine_tx: Mutex::new(tx),
-            pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true),
+            shortcut:Mutex::new(ShortcutPrefs::default()),
+            pet_menu:Mutex::new(None),
+            pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false),
                 play: Mutex::new(play::Play::default().view()),
                 activity: Mutex::new(activities::Activities::default().view()),rewarded_trick:AtomicU64::new(0),
                 memory: Mutex::new(MemoryState{data:companion::Memory::default(),error:None}),

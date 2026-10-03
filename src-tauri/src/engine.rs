@@ -417,6 +417,8 @@ impl Engine {
     }
 
     pub fn set_playful_fetch(&mut self,enabled:bool) {self.play.set_playful(enabled);}
+    pub fn is_focusing(&self)->bool {self.pomodoro_ms.is_some()}
+
     pub fn play_view(&self) -> crate::play::PlayView { self.play.view() }
     pub fn cancel_play(&mut self) { self.play.cancel();self.activities.cancel();self.encounters.interrupt(); }
     pub fn activity_view(&self)->crate::activities::ActivityView {self.activities.view()}

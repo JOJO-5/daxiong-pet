@@ -1,0 +1,250 @@
+{
+  "version": "1.0.18",
+  "passed": [
+    "easy: independent treat is visible",
+    "easy: native pointer grabs cookie",
+    "easy: cookie placed at real desktop position",
+    "easy: visible cookie centre matches hit point",
+    "easy: pet really moves and finds once",
+    "easy: cookie cleaned after finding",
+    "far: independent treat is visible",
+    "far: native pointer grabs cookie",
+    "far: cookie placed at real desktop position",
+    "far: visible cookie centre matches hit point",
+    "far: pet really moves and finds once",
+    "far: cookie cleaned after finding",
+    "far search pauses to observe along route",
+    "finding does not bypass feeding cooldown or counters",
+    "focus removes hidden treat",
+    "real pet dragging cancels snack game",
+    "starting another game clears snack",
+    "hiding final game leaves no toys"
+  ],
+  "frames": [
+    {
+      "row": 11,
+      "col": 1
+    },
+    {
+      "row": 11,
+      "col": 2
+    },
+    {
+      "row": 11,
+      "col": 3
+    },
+    {
+      "row": 8,
+      "col": 0
+    },
+    {
+      "row": 10,
+      "col": 4
+    },
+    {
+      "row": 2,
+      "col": 0
+    },
+    {
+      "row": 2,
+      "col": 1
+    },
+    {
+      "row": 2,
+      "col": 2
+    },
+    {
+      "row": 2,
+      "col": 3
+    },
+    {
+      "row": 2,
+      "col": 4
+    },
+    {
+      "row": 2,
+      "col": 5
+    },
+    {
+      "row": 2,
+      "col": 6
+    },
+    {
+      "row": 2,
+      "col": 7
+    },
+    {
+      "row": 2,
+      "col": 0
+    },
+    {
+      "row": 2,
+      "col": 1
+    },
+    {
+      "row": 2,
+      "col": 2
+    },
+    {
+      "row": 2,
+      "col": 3
+    },
+    {
+      "row": 20,
+      "col": 0
+    },
+    {
+      "row": 20,
+      "col": 1
+    },
+    {
+      "row": 20,
+      "col": 2
+    },
+    {
+      "row": 20,
+      "col": 3
+    },
+    {
+      "row": 20,
+      "col": 4
+    },
+    {
+      "row": 20,
+      "col": 5
+    },
+    {
+      "row": 8,
+      "col": 0
+    },
+    {
+      "row": 9,
+      "col": 4
+    },
+    {
+      "row": 1,
+      "col": 0
+    },
+    {
+      "row": 1,
+      "col": 1
+    },
+    {
+      "row": 1,
+      "col": 2
+    },
+    {
+      "row": 1,
+      "col": 3
+    },
+    {
+      "row": 1,
+      "col": 4
+    },
+    {
+      "row": 1,
+      "col": 5
+    },
+    {
+      "row": 1,
+      "col": 6
+    },
+    {
+      "row": 1,
+      "col": 7
+    },
+    {
+      "row": 8,
+      "col": 3
+    },
+    {
+      "row": 1,
+      "col": 0
+    },
+    {
+      "row": 1,
+      "col": 1
+    },
+    {
+      "row": 1,
+      "col": 2
+    },
+    {
+      "row": 1,
+      "col": 3
+    },
+    {
+      "row": 1,
+      "col": 4
+    },
+    {
+      "row": 1,
+      "col": 5
+    },
+    {
+      "row": 1,
+      "col": 6
+    },
+    {
+      "row": 1,
+      "col": 7
+    },
+    {
+      "row": 20,
+      "col": 0
+    },
+    {
+      "row": 20,
+      "col": 1
+    },
+    {
+      "row": 20,
+      "col": 2
+    },
+    {
+      "row": 20,
+      "col": 3
+    },
+    {
+      "row": 8,
+      "col": 0
+    },
+    {
+      "row": 9,
+      "col": 2
+    },
+    {
+      "row": 8,
+      "col": 0
+    },
+    {
+      "row": 0,
+      "col": 0
+    },
+    {
+      "row": 15,
+      "col": 0
+    },
+    {
+      "row": 15,
+      "col": 1
+    },
+    {
+      "row": 8,
+      "col": 0
+    },
+    {
+      "row": 0,
+      "col": 0
+    },
+    {
+      "row": 0,
+      "col": 1
+    },
+    {
+      "row": 9,
+      "col": 1
+    }
+  ],
+  "error": null
+}

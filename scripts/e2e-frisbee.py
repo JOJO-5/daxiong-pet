@@ -36,6 +36,8 @@ try:
   frames=js('return window.__frames');expected=22 if turn==1 else 21
   check(f'throw {turn}: actual disc biting row {expected} rendered',any(f['row']==expected for f in frames))
   check(f'throw {turn}: disc visible at feet for reuse',invoke('plugin:window|is_visible',{'label':'toy'}));shoot(f'returned-{turn}')
+  command('POST','/window',{'handle':main});wait(lambda:js("return document.querySelector('.bubble')?.textContent.includes('飞盘')"))
+  check(f'throw {turn}: spoken feedback matches frisbee');command('POST','/window',{'handle':panel})
  before=invoke('play_status');time.sleep(1);check('returned disc remains available and score stable',phase()=='returned' and invoke('play_status')['catches']==before['catches'])
  click('拿出飞盘');invoke('set_pomodoro',{'active':True});wait(lambda:phase()=='off');check('focus cleans up disc');invoke('set_pomodoro',{'active':False})
  click('拿出飞盘');invoke('set_visible',{'visible':False});wait(lambda:phase()=='off');check('hide cancels disc and toy window',not invoke('plugin:window|is_visible',{'label':'toy'}))

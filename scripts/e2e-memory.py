@@ -16,7 +16,7 @@ def restart_app():
     wait(lambda: js("return !!document.querySelector('.pet-sheet')?.naturalWidth"))
     wait(lambda: invoke("plugin:window|is_visible",{"label":"main"}))
     time.sleep(.65)
-    native = subprocess.check_output(["xdotool","search","--onlyvisible","--class","Daxiong-pet"],text=True).strip().splitlines()[-1]
+    native = pet_native()
     initial = set(command("GET","/window/handles"))
     invoke("open_playground")
     time.sleep(1.2)
@@ -25,8 +25,10 @@ def restart_app():
     wait(lambda: invoke("plugin:window|is_visible",{"label":"playground"}))
     time.sleep(.7)
     command("POST","/window",{"handle":panel})
+    open_more()
     wait(lambda: js("return !!document.querySelector('#nickname')"))
 
+open_more()
 wait(lambda: js("return !!document.querySelector('#nickname')"))
 memory = invoke("companion_status")
 check("completed fetches are recorded in local companion memory",memory["fetches"]==2 and memory["affection"]>=3)
@@ -40,6 +42,12 @@ try:
     raise AssertionError("oversized nickname accepted")
 except AssertionError as e:
     check("backend rejects oversized nickname", "16" in str(e))
+# A native menu can leave the pointer over the dog long enough to pet it.
+# Respect the real 60-second affection cooldown instead of changing saved dates.
+invoke("set_encounters",{"enabled":False});pointer("mousemove",30,30)
+pat_path=Path(os.environ["XDG_CONFIG_HOME"])/"com.jojo.daxiongpet"/"companion.json"
+print("WAIT: real petting reward cooldown before feeding/restart scenario",flush=True)
+wait(lambda: time.time()-float(json.loads(pat_path.read_text()).get("last_pat") or 0)>=60,65)
 before = invoke("companion_status")
 click("喂一块饼干")
 wait(lambda: invoke("companion_status")["treats"]==before["treats"]+1)
@@ -57,8 +65,8 @@ check("feeding cooldown disables button",js("return [...document.querySelectorAl
 time.sleep(.15)
 # A hover is the application's existing real petting gesture.
 before_pat = invoke("companion_status")["pats"]
-pointer("mousemove","--window",native,150,160)
-wait(lambda: invoke("companion_status")["pats"]>before_pat,8)
+pointer("mousemove","--window",native,140,145)
+wait(lambda: invoke("companion_status")["pats"]>before_pat,10)
 pointer("mousemove",30,30)
 check("real hover petting persists affection")
 saved = invoke("companion_status")
@@ -90,6 +98,9 @@ memory_path.write_text("broken-memory")
 restart_app()
 wait(lambda: js("return !!document.querySelector('[role=alert]')"))
 check("corrupt memory is reported without overwriting original", "读取失败" in invoke("companion_status")["error"] and memory_path.read_text()=="broken-memory")
+native_click("document.querySelector('details summary')")
+check("corrupt memory explanation stays visible with settings collapsed",js("const e=document.querySelector('.quick-feed [role=alert]');return !document.querySelector('details').open&&e?.getBoundingClientRect().height>0"))
+click("查看记忆与恢复");wait(lambda:js("return document.querySelector('details').open"))
 click("备份旧记忆并重新开始")
 wait(lambda: invoke("companion_status")["error"] is None)
 check("explicit recovery backs up broken data and creates valid memory",any(p.read_text()=="broken-memory" for p in memory_path.parent.glob("companion.backup-*.json")) and json.loads(memory_path.read_text())["affection"]==0)

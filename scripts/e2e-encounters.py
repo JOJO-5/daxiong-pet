@@ -1,8 +1,9 @@
 """Wait for the real scheduler; no forced state transitions or mock event payloads."""
 def toggle_encounters(enabled):
+    open_more()
     checkbox = command("POST","/element",{"using":"css selector","value":".encounter-heading input"})["element-6066-11e4-a52e-4f735466cecf"]
     if js("return document.querySelector('.encounter-heading input').checked") != enabled:
-        command("POST",f"/element/{checkbox}/click",{})
+        native_click("document.querySelector('.encounter-heading input')")
     wait(lambda: invoke("encounter_status")["enabled"]==enabled)
 
 def quiet():

@@ -1,0 +1,29 @@
+{
+  "version": "1.0.18",
+  "passed": [
+    "Escape dismisses native menu without starting a game",
+    "right-click first item opens real panel",
+    "common games and feed visible while settings collapsed",
+    "nearby panel remains inside screen",
+    "native frisbee item routes existing panel to frisbee",
+    "closing panel retains ongoing frisbee and reusable return",
+    "reopening retains selected game and completed phase",
+    "native feeding commits exactly once and shows cooldown",
+    "shortcut defaults off",
+    "real checkbox registers OS shortcut",
+    "actual OS hotkey restores hidden pet and panel",
+    "shortcut preference written to disk",
+    "left edge opening clamps panel inside work area",
+    "right edge opening clamps panel inside work area",
+    "real restart registers saved shortcut",
+    "real OS shortcut conflict is visible and does not claim activation",
+    "disk failure visibly reported and registration rolled back",
+    "shortcut can recover and unregister after error",
+    "natural ball invitation routes an existing frisbee panel to fetch",
+    "native stop removes invitation and independent toy",
+    "native come item selects and starts real command",
+    "native stop cancels command without a reward",
+    "focus rejects toy with explicit explanation"
+  ],
+  "error": null
+}

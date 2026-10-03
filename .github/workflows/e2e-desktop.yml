@@ -18,6 +18,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+          cache-on-failure: true
       - name: Install native desktop dependencies
         run: |
           sudo apt-get update

@@ -12,9 +12,12 @@ def screenshot(name):
 try:
     new_session()
     wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalWidth===1536"))
+    wait(lambda:invoke('plugin:window|is_visible',{'label':'main'}));time.sleep(.65)
     invoke('set_encounters', {'enabled': False})
     before=set(command('GET','/window/handles'))
     invoke('open_playground')
+    # Do not switch WebKitWebDriver into a webview while its native window is mapping.
+    wait(lambda:invoke('plugin:window|is_visible',{'label':'playground'}));time.sleep(1.2)
     panel=wait(lambda: next(iter(set(command('GET','/window/handles'))-before),None))
     command('POST','/window',{'handle':panel})
     wait(lambda: js("return !!document.querySelector('.play-panel')"))

@@ -42,7 +42,7 @@ try:
             pointer('mousemove',30,30)
         invoke('set_playful_fetch',{'enabled':False})
         check('invitation preference saves to local memory',not invoke('companion_status')['playful_fetch'])
-        invoke('play_action',{'action':'cancel'});click('抛一球')
+        invoke('play_action',{'action':'cancel'});wait(lambda:phase()=='off');click('抛一球')
         wait(lambda: phase()=='returned',25)
         check('disabled playful fetch still returns usable ball')
         invoke('set_visible',{'visible':False});wait(lambda: phase()=='off')

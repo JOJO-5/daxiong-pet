@@ -28,14 +28,14 @@ jobs:
       - run: npm run build
       - run: cargo test --locked --manifest-path src-tauri/Cargo.toml
       - run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol,e2e
+      - name: Install Tauri WebDriver
+        run: cargo install tauri-driver --version 2.1.0 --locked
       - name: Verify predictable controls, help, memory feedback and quiet companionship
         env:
           E2E_RECORD: "1"
           E2E_OUT: "test-results/ux"
           E2E_SCRIPT: scripts/e2e-ux.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
-      - name: Install Tauri WebDriver
-        run: cargo install tauri-driver --version 2.1.0 --locked
       - name: Verify and record native tug interaction
         env:
           E2E_RECORD: "1"

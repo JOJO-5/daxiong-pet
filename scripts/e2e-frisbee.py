@@ -53,7 +53,7 @@ try:
  wait(lambda:phase()=='returned',25)
  check('button rethrow completes a third round exactly once',invoke('play_status')['catches']==before['catches']+1)
  shoot('button-rethrow-returned')
- click('拿出飞盘');invoke('set_pomodoro',{'active':True});wait(lambda:phase()=='off');check('focus cleans up disc');invoke('set_pomodoro',{'active':False})
+ click('收起玩具');wait(lambda:phase()=='off');click('拿出飞盘');invoke('set_pomodoro',{'active':True});wait(lambda:phase()=='off');check('focus cleans up disc');invoke('set_pomodoro',{'active':False})
  click('拿出飞盘');invoke('set_visible',{'visible':False});wait(lambda:phase()=='off');check('hide cancels disc and toy window',not invoke('plugin:window|is_visible',{'label':'toy'}))
 except Exception:shoot('failure');raise
 finally:

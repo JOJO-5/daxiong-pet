@@ -179,7 +179,18 @@ body {
 
 .panel-heading { display:flex; align-items:center; gap:10px; }
 .panel-heading h1 { margin:0; flex:1; font-size:20px; }
-.play-panel .panel-close { border:0; background:transparent; font-size:24px; padding:0 4px; }
+.play-panel .panel-close { border:0; background:transparent; font-size:24px; padding:0; min-width:44px; min-height:44px; }
+.subtitle-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.subtitle-row .subtitle { margin:0; }
+.subtitle-row button { flex-shrink:0; font-size:12px; }
+.help-guide { margin-top:12px; }
+.help-guide ul { padding-left:20px; }
+.help-guide li { margin-bottom:8px; }
+.panel-error p { margin:6px 0; }
+.rope-handle:hover { stroke:#795126; fill:#fff; stroke-width:7px; }
+.tug-rope:hover .rope-handle { fill:#fff; stroke-width:7px; }
+.toy-stage:hover .toy-ball,.toy-stage:hover .toy-frisbee { filter:drop-shadow(0 0 2px #fff); }
+.play-panel button:focus-visible,.play-panel summary:focus-visible { outline:3px solid #567b42; outline-offset:3px; }
 .more-settings { margin:12px 0; }
 .more-settings summary { cursor:pointer; font-size:13px; color:#675a48; padding:10px 0; }
 .shortcut-switch { display:flex; align-items:center; gap:8px; }

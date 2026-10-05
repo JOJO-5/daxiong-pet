@@ -82,7 +82,7 @@ export default function App() {
           await invoke("pet_ready");
           if (alive) {
             readySent.current = true;
-            try {if(!localStorage.getItem("pet-menu-intro-v1")){displayMessage("右键我，可以喂饼干、扔飞盘，也能打开互动面板。",5000);localStorage.setItem("pet-menu-intro-v1","seen");}}catch { /* The menu still works when browser storage is unavailable. */ }
+            try {if(!localStorage.getItem("pet-menu-intro-v2")){displayMessage("右键我就能一起玩。Mac 可双指点按；没看清时，托盘里有玩法说明。",8000);}}catch { /* The menu still works when browser storage is unavailable. */ }
           }
         }
       } catch (error) {
@@ -118,6 +118,7 @@ export default function App() {
     });
 
     const offEncounter=listen<EncounterView>("pet:encounter",e=>{if(alive) setEncounter(e.payload);});
+    const offIntro=listen("pet:onboarding-complete",()=>{try{localStorage.setItem("pet-menu-intro-v2","seen");}catch{/* Opening menus still works without storage. */}});
     const offMessage = listen<string>("pet:message",event => {
       if(alive && Date.now()>=errorUntil) displayMessage(event.payload);
     });
@@ -133,7 +134,7 @@ export default function App() {
     });
 
     // 监听注册完成再取快照，避免启动时漏掉帧 / 切换事件。
-    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter]).then(async () => {
+    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter, offIntro]).then(async () => {
       const observed = revision;
       const pet = await invoke<PetSwitch>("current_pet");
       if (alive && revision === observed) await applyPet(pet);
@@ -155,6 +156,7 @@ export default function App() {
       offMessage.then(off=>off()).catch(console.error);
       offTreat.then(off=>off()).catch(console.error);
       offEncounter.then(off=>off()).catch(console.error);
+      offIntro.then(off=>off()).catch(console.error);
     };
   }, []);
 

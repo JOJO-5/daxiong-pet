@@ -59,6 +59,7 @@ fn build_menu(app: &AppHandle, pets: &[PetPack], current: &str) -> tauri::Result
         None::<&str>,
     )?;
     let play = MenuItem::with_id(app, "play", "和大熊一起玩…", true, None::<&str>)?;
+    let help = MenuItem::with_id(app, "pet_help", "如何和大熊互动…", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
 
     let gravity_item = CheckMenuItem::with_id(
@@ -95,6 +96,7 @@ fn build_menu(app: &AppHandle, pets: &[PetPack], current: &str) -> tauri::Result
         .item(&open_dir)
         .separator()
         .item(&play)
+        .item(&help)
         .item(&pomodoro)
         .item(&gravity_item)
         .separator()
@@ -156,6 +158,7 @@ pub(crate) fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
         "pet_ball" | "pet_frisbee" | "pet_tug" | "pet_stop"=>{let action=match id {"pet_ball"=>"throw","pet_frisbee"=>"throw_frisbee","pet_tug"=>"start_tug",_=>"cancel"};if let Err(e)=crate::play_action(action.into(),app.clone()) {crate::report_error(app,"互动失败",e);}},
         "pet_come"=>{if let Err(e)=crate::trick_action("come".into(),app.clone()) {crate::report_error(app,"指令失败",e);}},
         "pet_preferences"=>{if let Err(e)=crate::open_preferences(app) {crate::report_error(app,"打开偏好失败",e);}},
+        "pet_help"=>{if let Err(e)=crate::open_help(app) {crate::report_error(app,"打开玩法说明失败",e);}},
         "toggle" => toggle_window(app),
         "play" => { if let Err(e) = crate::open_play_window(app) { crate::report_error(app,"打开互动面板失败",e); } },
         "rescan" => {

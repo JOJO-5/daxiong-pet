@@ -157,6 +157,12 @@ fn set_playful_fetch(enabled:bool,app:AppHandle)->Result<companion::MemoryView,S
 }
 
 #[tauri::command]
+fn memory_recovery_info(app:AppHandle)->Result<serde_json::Value,String> {
+    let path=memory_path(&app)?;
+    Ok(serde_json::json!({"directory":path.parent().map(|p|p.to_string_lossy().into_owned()),"has_file":path.is_file()}))
+}
+
+#[tauri::command]
 fn restore_memory(app:AppHandle) -> Result<companion::MemoryView,String> {
     let state=app.state::<AppState>();let mut stored=state.memory.lock().unwrap();
     if stored.error.is_none() { return Err("记忆正常，无需恢复".into()); }
@@ -336,7 +342,8 @@ fn open_pet_menu(app:AppHandle)->Result<(),String> {
         .text("pet_ball","抛一球").text("pet_frisbee","扔飞盘").text("pet_tug","一起拔河").text("pet_come","过来")
         .text("pet_stop","收起玩具 / 结束练习").separator().item(&more).build().map_err(|e|e.to_string())?;
     *app.state::<AppState>().pet_menu.lock().unwrap()=Some(menu.clone());
-    menu.popup(window.as_ref().window()).map_err(|e|e.to_string())
+    menu.popup(window.as_ref().window()).map_err(|e|e.to_string())?;
+    let _=app.emit("pet:onboarding-complete",());Ok(())
 }
 fn position_panel(app:&AppHandle,panel:&WebviewWindow)->tauri::Result<()> {
     if let Some(pet)=app.get_webview_window("main") {
@@ -353,10 +360,17 @@ pub(crate) fn open_preferences(app:&AppHandle)->tauri::Result<()> {
         .title("和大熊一起玩").inner_size(360.0,600.0).resizable(false).visible(false).build()?;Ok(())
 }
 
+pub(crate) fn open_help(app:&AppHandle)->tauri::Result<()> {
+    if app.get_webview_window("playground").is_some() {open_play_window(app)?;app.emit_to("playground","pet:help",())?;return Ok(());}
+    tauri::WebviewWindowBuilder::new(app,"playground",tauri::WebviewUrl::App("index.html?view=playground&help=1".into()))
+        .title("和大熊一起玩").inner_size(360.0,600.0).resizable(false).visible(false).build()?;Ok(())
+}
+
 #[tauri::command]
 fn playground_ready(window:WebviewWindow)->Result<(),String> {
     position_panel(window.app_handle(),&window).map_err(|e|e.to_string())?;
-    window.show().and_then(|_|window.set_focus()).map_err(|e|e.to_string())
+    window.show().and_then(|_|window.set_focus()).map_err(|e|e.to_string())?;
+    let _=window.app_handle().emit("pet:onboarding-complete",());Ok(())
 }
 
 #[tauri::command]
@@ -608,7 +622,7 @@ fn spawn_engine(
             } else {None};
             if let Some(toy) = app.get_webview_window("toy") {
                 let visible_ball = snack_position.or_else(||if input.extra_animations && matches!(play.phase,"returning" | "teasing" | "catching" | "releasing") { None } else { play.ball });
-                let toy_hot=visible_ball.is_some_and(|(x,y)| ((input.cursor.0-x) as f64).hypot((input.cursor.1-y) as f64)<=18.0*input.scale_factor);
+                let toy_hot=visible_ball.is_some_and(|(x,y)| ((input.cursor.0-x) as f64).hypot((input.cursor.1-y) as f64)<=22.0*input.scale_factor);
                 // GTK must realize the native window before applying its input shape.
                 // Keep the transparent area click-through; only the actual toy accepts input.
                 if toy.is_visible().unwrap_or(false) && prev_toy_hot!=Some(toy_hot) {let _=toy.set_ignore_cursor_events(!toy_hot);prev_toy_hot=Some(toy_hot);}
@@ -750,6 +764,7 @@ fn main() {
             set_nickname,
             feed_treat,
             restore_memory,
+            memory_recovery_info,
             set_encounters,
             set_playful_fetch,
             encounter_status

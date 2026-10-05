@@ -2,6 +2,7 @@ import {useEffect,useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import {listen} from "@tauri-apps/api/event";
 import {useActivity} from "./ActivityContext";
+import ActionError from "./ActionError";
 type TrainingMemory={training:number[];treat_wait:number;error:string|null};
 const CUES=[{id:"come",label:"过来"},{id:"spin",label:"转圈"},{id:"down",label:"趴下"},{id:"stay",label:"等一下"}];
 const PHASES:Record<string,string>={off:"先看你，再听你的小指令",attention:"看着你，认真听呢…",performing:"正在做给你看",completed:"做到了！奖励饼干可以帮助记住",blocked:"先结束专注或放开大熊，再练习吧",cancelled:"这次先停下，换个近一点的位置吧"};
@@ -32,6 +33,6 @@ export default function TrainingPanel(){
     <button className="primary" disabled={busy||!activity.rewardable||wait>0||!!memory?.error} onClick={()=>void act("reward_trick")}>奖励这次指令</button>
     <button className="quiet" onClick={()=>void act("trick_action",{cue:"stop"})}>结束练习</button>
     {wait>0?<p className="small">饼干还需等 {wait} 秒，仍可以练习。</p>:null}
-    {error||loadError?<p role="alert" className="panel-error">{error||loadError}</p>:null}
+    {error||loadError?<ActionError error={error||loadError} message="这次练习没能完成，请稍后再试；专注期间先结束专注。"/>:null}
   </section>;
 }

@@ -52,7 +52,7 @@ impl Tug {
     pub fn pointer_hot(&self, cursor: (i32, i32), scale: f64) -> bool {
         // Holding the rope must never turn into dragging the pet while crossing it.
         self.phase == "tugging" || (self.phase == "tug_ready" &&
-            ((cursor.0 - self.handle.0) as f64).hypot((cursor.1 - self.handle.1) as f64) <= 18.0 * scale)
+            ((cursor.0 - self.handle.0) as f64).hypot((cursor.1 - self.handle.1) as f64) <= 22.0 * scale)
     }
 
     pub fn direction(&self) -> Option<bool> {

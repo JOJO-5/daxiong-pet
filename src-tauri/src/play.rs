@@ -66,7 +66,7 @@ impl Play {
     pub fn active(&self) -> bool { self.phase != "off" }
     pub fn pointer_hot(&self, cursor: (i32,i32), scale: f64) -> bool {
         if let Some(tug)=&self.tug {return tug.pointer_hot(cursor,scale);}
-        self.ball.is_some_and(|(x,y)| (cursor.0 as f32-x).hypot(cursor.1 as f32-y) <= (if self.toy=="frisbee" {22.0} else {18.0})*scale as f32)
+        self.ball.is_some_and(|(x,y)| (cursor.0 as f32-x).hypot(cursor.1 as f32-y) <= 22.0*scale as f32)
     }
     pub fn view(&self) -> PlayView {
         PlayView { tug:self.tug.as_ref().and_then(|t|t.view()), tug_rounds:self.tug_rounds, phase: self.phase, ball: self.ball.map(|(x,y)| (x.round() as i32,y.round() as i32)), catches: self.catches, streak:self.streak, style:self.style, toy:self.toy, last_catch:self.last_catch }

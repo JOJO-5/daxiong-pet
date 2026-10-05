@@ -15,7 +15,7 @@ export default function TugRope({ rope }: { rope: TugView }) {
     <path d={path} fill="none" stroke="#684827" strokeWidth="7" strokeLinecap="round" />
     <path d={path} fill="none" stroke="#e2bb78" strokeWidth="4" strokeLinecap="round" strokeDasharray="4 3" />
     <circle cx={g.x1} cy={g.y1} r="3" fill="#684827" />
-    <circle cx={g.x2} cy={g.y2} r="12" fill="#fff4d8" fillOpacity=".8" stroke="#a25b2b" strokeWidth="6" />
+    <circle className="rope-handle" cx={g.x2} cy={g.y2} r="12" fill="#fff4d8" fillOpacity=".8" stroke="#a25b2b" strokeWidth="6" />
     <circle cx={g.x2} cy={g.y2} r="12" fill="none" stroke="#f2a455" strokeWidth="3" />
   </svg>;
 }

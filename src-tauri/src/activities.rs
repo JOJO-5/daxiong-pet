@@ -28,7 +28,7 @@ impl Activities {
         (pos.0.clamp(sx,sx+(sw-input.win_size.0).max(0)),pos.1.clamp(sy,sy+(sh-input.win_size.1).max(0)))
     }
     pub fn pointer_hot(&self,cursor:(i32,i32),scale:f64)->bool {
-        self.view.treat.is_some_and(|p| ((cursor.0-p.0) as f64).hypot((cursor.1-p.1) as f64)<=18.0*scale)
+        self.view.treat.is_some_and(|p| ((cursor.0-p.0) as f64).hypot((cursor.1-p.1) as f64)<=22.0*scale)
     }
     fn bound_treat(input:&Input,p:(i32,i32))->(i32,i32) {
         let s=input.scale_factor as f32;let (sx,sy,sw,sh)=input.screen;

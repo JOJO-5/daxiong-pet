@@ -126,8 +126,7 @@ try:
     # Evidence includes the actual desktop and independent toy window.
     time.sleep(.3)
     subprocess.run(["import", "-window", "root", str(OUT / "fetch-desktop.png")], check=True)
-    click("拿出球")
-    wait(lambda: invoke("play_status")["phase"] == "ready")
+    wait(lambda: invoke("play_status")["phase"] == "returned")
     ball = invoke("play_status")["ball"]
     pointer("mousemove", ball[0], ball[1]); time.sleep(.15)
     pointer("mousedown", 1); time.sleep(.12)

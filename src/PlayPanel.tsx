@@ -13,6 +13,8 @@ import PreferencesPanel from "./PreferencesPanel";
 import CompanionPanel from "./CompanionPanel";
 import EncountersPanel, { type EncounterView } from "./EncountersPanel";
 import {fetchControls, interactionActive} from "./interaction-controls";
+import ActionError from "./ActionError";
+import HelpGuide from "./HelpGuide";
 
 type PlayView = { tug:TugView|null; tug_rounds:number; phase: string; catches: number; streak:number; style:string; toy:string; last_catch:string };
 const PHASES: Record<string,string> = { off: "准备好陪你玩", catching:"跃起接住飞盘啦！", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", teasing: "来追我呀！靠近大熊或点放下球", releasing: "把球放在你脚边", rolling: "把球推给你啦，抓住再扔吧！", returned: "抓起脚边的球，再扔一次吧！" };
@@ -27,6 +29,7 @@ function PlayContent() {
   const [busy,setBusy] = useState(false);
   const actionPending=useRef(false);
   const [notice,setNotice] = useState("");
+  const [helpOpen,setHelpOpen]=useState(()=>new URLSearchParams(location.search).has("help"));
   const [game,setGame]=useState<"fetch"|"frisbee"|"tug"|"tricks"|"snack">("fetch");
   useEffect(()=>{
     if(activity.game==="trick")setGame("tricks");else if(activity.game==="snack")setGame("snack");
@@ -34,8 +37,9 @@ function PlayContent() {
   useEffect(()=>{
     if(new URLSearchParams(location.search).has("preferences"))requestAnimationFrame(()=>details.current?.scrollIntoView({block:"start"}));
     const off=listen("pet:preferences",()=>{setMoreOpen(true);requestAnimationFrame(()=>details.current?.scrollIntoView({block:"start"}));});
+    const offHelp=listen("pet:help",()=>{setHelpOpen(true);window.scrollTo(0,0);document.querySelector('.play-panel')?.scrollTo(0,0);});
     const key=(event:KeyboardEvent)=>{if(event.key==="Escape"&&!event.defaultPrevented&&!(event.target instanceof HTMLSelectElement)){event.preventDefault();void invoke("close_playground").catch(e=>setError(String(e)));}};
-    window.addEventListener("keydown",key);return()=>{window.removeEventListener("keydown",key);void off.then(f=>f()).catch(console.error);};
+    window.addEventListener("keydown",key);return()=>{window.removeEventListener("keydown",key);void off.then(f=>f()).catch(console.error);void offHelp.then(f=>f()).catch(console.error);};
   },[]);
   useEffect(() => {
     let active = true;let received=false;
@@ -56,9 +60,11 @@ function PlayContent() {
   return <main className="play-panel">
     <div className="panel-heading">
     <svg className="panel-icon" aria-hidden="true" viewBox="0 0 32 32" width="32" height="32"><g fill="#567b42"><ellipse cx="16" cy="23" rx="9" ry="6"/><ellipse cx="5" cy="13" rx="3" ry="4"/><ellipse cx="12" cy="7" rx="3" ry="4"/><ellipse cx="21" cy="7" rx="3" ry="4"/><ellipse cx="28" cy="13" rx="3" ry="4"/></g></svg>
-    <h1>和大熊一起玩</h1><button className="panel-close" aria-label="关闭面板" title="关闭面板（Esc）" onClick={()=>void invoke("close_playground").catch(e=>setError(String(e)))}>×</button></div><p className="subtitle">挑个玩具，陪大熊玩一会儿</p>
+    <h1>和大熊一起玩</h1><button className="panel-close" aria-label="收起面板" title="收起面板（Esc），游戏会继续" onClick={()=>void invoke("close_playground").catch(e=>setError(String(e)))}>×</button></div><div className="subtitle-row"><p className="subtitle">挑个玩具，陪大熊玩一会儿</p><button className="quiet" aria-expanded={helpOpen} aria-controls="play-help" onClick={()=>setHelpOpen(v=>!v)}>怎么玩？</button></div>
+    {helpOpen?<HelpGuide onClose={()=>setHelpOpen(false)}/>:null}
     <div className="game-picker" role="group" aria-label="选择游戏">{([{id:"fetch",label:"接球"},{id:"frisbee",label:"飞盘"},{id:"tug",label:"拔河"},{id:"tricks",label:"小指令"},{id:"snack",label:"找零食"}] as const).map(choice=><button key={choice.id} disabled={busy} aria-pressed={game===choice.id} onClick={async()=>{if(game!==choice.id&&await act("cancel")){setGame(choice.id);setNotice(`已结束上一个互动，准备${choice.label}。`);}}}>{choice.label}</button>)}</div>
     {notice?<p className="small" role="status">{notice}</p>:null}
+    {error?<ActionError key={error} error={error} message="这次操作没完成，请稍后再试；也可以从右键菜单重新打开互动。"/>:null}
     {game==="fetch" || game==="frisbee" ? <section className="play-card">
       <h2>{game==="frisbee"?"飞盘时间":"接球时间"}</h2><p role="status" data-testid="play-phase" data-phase={phase}>{game==="frisbee"?({off:"拿出飞盘，或者直接扔一个",ready:"拖住桌面飞盘，甩动后松手",held:"松手，飞盘就会滑翔出去",chasing:"追着滑翔的飞盘跑…",catching:"跃起接住飞盘啦！",returning:"咬住飞盘跑回来啦",releasing:"松口，放到脚边",returned:"抓起脚边的飞盘，可以再扔一次"} as Record<string,string>)[phase]||phase:PHASES[phase]||phase}</p>
       <div className="play-actions">{controls.canShow?<button data-testid="play-show" disabled={busy} onClick={()=>void act(game==="frisbee"?"show_frisbee":"show")}>{game==="frisbee"?"拿出飞盘":"拿出球"}</button>:null}<button className="primary" data-testid="play-throw" disabled={busy||!controls.canThrow} onClick={()=>void act(game==="frisbee"?"throw_frisbee":"throw")}>{controls.throwLabel}</button></div>
@@ -80,7 +86,6 @@ function PlayContent() {
     <QuickFeed interrupting={interactionActive(play.phase,activity.phase)} onReviewMemory={()=>{setMoreOpen(true);requestAnimationFrame(()=>details.current?.scrollIntoView({block:"start"}));}}/>
     <details className="more-settings" ref={details} open={moreOpen} onToggle={e=>{if(e.currentTarget.open!==moreOpen)setMoreOpen(e.currentTarget.open);}}><summary>更多：记忆与偏好</summary><CompanionPanel hideFeed/><EncountersPanel/><PreferencesPanel/></details>
     <p className="hint">右键大熊可快捷喂食和扔玩具。<br/>拖动大熊或开始专注会收起玩具，Esc 收起面板。</p>
-    {error && <p className="panel-error" role="alert">{error}</p>}
   </main>;
 }
 

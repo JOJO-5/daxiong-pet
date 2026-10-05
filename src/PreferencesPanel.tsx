@@ -1,5 +1,6 @@
 import {useEffect,useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
+import ActionError from "./ActionError";
 type Shortcut={requested:boolean;enabled:boolean;key:string;error:string|null};
 export default function PreferencesPanel(){
  const [status,setStatus]=useState<Shortcut|null>(null);
@@ -10,5 +11,5 @@ export default function PreferencesPanel(){
  <label className="small shortcut-switch"><input type="checkbox" data-testid="shortcut-switch" checked={status?.requested||false} disabled={busy||!status} onChange={e=>void change(e.target.checked)}/>启用 {status?.key||"Ctrl+Alt+P"}</label>
  <p className="small" role="status" data-testid="shortcut-status">{status?.enabled?"快捷键已生效：显示大熊并打开互动面板":"快捷键未启用，仍可用右键和托盘打开"}</p>
  <p className="small">Mac 上 Alt 对应 Option；Esc 可收起面板。</p>
- {error||status?.error?<p className="panel-error" role="alert">{error||status?.error}</p>:null}</section>;
+ {error||status?.error?<ActionError error={error||status?.error||""} message="快捷键未生效或保存失败，仍可用右键和托盘打开。请关闭占用此快捷键的程序后重试。"/>:null}</section>;
 }

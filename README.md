@@ -6,6 +6,19 @@
 基于 **Tauri 2 + React 18 + TypeScript**。Rust 侧负责全部行为逻辑与窗口物理，
 前端只做精灵图渲染。绿色版单文件约 6.5 MB，内存占用低。
 
+## 下载
+
+打开 [最新 Release](https://github.com/JOJO-5/daxiong-pet/releases/latest)，在 Assets 中选择：
+
+| 系统 | 文件 |
+| --- | --- |
+| Windows x64 | `windows-x64-setup.exe` 安装包，或 `windows-x64-portable.exe` 便携版 |
+| Mac Apple Silicon（M 系列） | `macos-arm64.dmg` |
+| Mac Intel | `macos-x64.dmg` |
+| Linux x64（X11） | `linux-x64.AppImage`，或 `linux-x64.deb` |
+
+文件名前缀包含版本号。下载后按下文的平台说明运行；Release 同时提供 `SHA256SUMS` 校验文件。
+
 ## 功能
 
 ### 互动玩法
@@ -95,7 +108,7 @@ pets/
 - macOS：生成 Intel / Apple Silicon 的 DMG；全局鼠标按键查询需要在系统设置中授予辅助功能权限。未签名、未公证，首次打开需按 macOS 提示允许运行。
 - Linux：支持 X11 会话，生成 AppImage / Debian 包；需要 WebKitGTK 4.1、AppIndicator 和 X11。原生 Wayland 的全局鼠标查询、窗口移动和点击穿透尚未支持，请选择 X11 会话。
 
-GitHub Actions 的 `Build desktop packages` 自动构建以上平台，成功产物可在运行页面的 Artifacts 下载。不同平台不能在当前环境里完成桌面实测。
+GitHub Actions 的 `Build desktop packages` 自动构建以上平台，并进行原生启动、输入与拔河检查。正式版本的安装包放在 Release；开发分支产物仍可在 Actions 的 Artifacts 下载。
 
 Android / iOS 暂未适配：Tauri 的移动应用支持不等于桌面悬浮宠物支持。Android 悬浮桌宠需要额外原生服务和权限，iOS 不提供同等的跨应用常驻覆盖能力。
 
@@ -172,7 +185,7 @@ Linux 构建：`npm run tauri build -- --bundles appimage,deb`。
 
 内置大熊始终可选。重复启动会显示已有窗口；隐藏时暂停鼠标查询和窗口运动，轮询降为每秒 2 次，睡眠时每秒 10 次，醒来恢复约 60 次。提醒计时继续运行。配置原子写入，保存、自启等操作失败时显示原生错误提示。
 
-GitHub Actions 运行前端图片测试、Rust 回归测试，以及 Linux X11 环境下的启动 / 重复启动检查。Windows、macOS 的桌面交互与实际功耗仍需实机验证。
+GitHub Actions 运行前端图片测试、Rust 回归和四平台原生检查；Linux X11 回归使用真实 Tauri/WebKit、鼠标与键盘。日常桌面、多屏与实际功耗仍需对应设备验证。
 
 ## 趣味性升级（1.0.2 / 1.0.3）
 

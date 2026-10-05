@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import ToyDisc from "./ToyDisc";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { Butterfly, type EncounterView } from "./EncountersPanel";
@@ -20,7 +21,7 @@ const SCALE = 0.75;
 /** 气泡停留时长（毫秒） */
 const BUBBLE_MS = 2600;
 
-type Frame = { row: number; col: number };
+type Frame = { row: number; col: number; released_toy?: {toy: "ball" | "frisbee"; x: number; y: number} | null };
 
 /**
  * 渲染层：不做行为决策，只把主进程推来的帧画出来；
@@ -166,6 +167,10 @@ export default function App() {
       )}
       <Butterfly event={encounter}/>
       {treating && (src!==BUILTIN_SRC || rows<21) ? <div className="treat-cookie" data-testid="treat-cookie" aria-hidden="true"><i/><i/><i/></div> : null}
+      {frame.released_toy ? <div className="released-toy" data-testid="released-toy" data-toy={frame.released_toy.toy}
+        style={{left:frame.released_toy.x,top:frame.released_toy.y}} aria-hidden="true">
+        {frame.released_toy.toy==="frisbee" ? <ToyDisc/> : <div className="toy-ball"/>}
+      </div> : null}
       {/* 用一个裁剪窗口套住整张图集，靠 transform 平移来切帧 */}
       <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-clickable={clickable} data-sleeping={sleeping} data-row={frame.row} data-col={frame.col}>
         <img

@@ -185,3 +185,6 @@ body {
 .shortcut-switch { display:flex; align-items:center; gap:8px; }
 
 .tug-rope { display:block; cursor:grab; }
+
+.released-toy { position:absolute; transform:translate(-50%,-50%); pointer-events:none; }
+.released-toy svg { display:block; }

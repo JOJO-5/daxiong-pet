@@ -184,14 +184,16 @@ impl Play {
             self.elapsed = 0;
         }
         if self.phase == "held" {
-            x = input.cursor.0 as f32+self.held_offset.0;
-            y = input.cursor.1 as f32+self.held_offset.1;
             if input.button_down {
+                x = input.cursor.0 as f32+self.held_offset.0;
+                y = input.cursor.1 as f32+self.held_offset.1;
                 if dt > 0.0 {
                     self.velocity = (((input.cursor.0-self.last_cursor.0) as f32/dt).clamp(-900.0*s,900.0*s),
                         ((input.cursor.1-self.last_cursor.1) as f32/dt).clamp(-900.0*s,900.0*s));
                 }
             } else {
+                // The cursor may already have moved after mouse-up by this
+                // polling tick. Release the last actually held toy position.
                 self.phase = "chasing";
                 let distance=(x-(self.home.0 as f32+(PET_X+PET_W/2) as f32*s)).hypot(y-(self.home.1 as f32+(PET_Y+PET_H-14) as f32*s))/s;
                 self.style=if distance<140.0 {"near"} else if distance>300.0 {"far"} else {"normal"};
@@ -278,7 +280,12 @@ impl Play {
                 } else if input.extra_animations {
                     self.phase = "releasing";
                     self.release_ms = 0;
-                    self.release_from = self.ball.unwrap();
+                    // The standing release pose has a higher muzzle than the
+                    // running carry pose. Start at its open jaws, then move
+                    // outside the front paws before the toy starts falling.
+                    let mouth_x = if self.carry_right {180.0} else {14.0};
+                    self.release_from = (self.home.0 as f32+(PET_X as f32+mouth_x*0.75)*s,
+                        self.home.1 as f32+(PET_Y as f32+105.0*0.75)*s);
                     x = self.release_from.0; y = self.release_from.1;
                     out.direction = Some(self.carry_right);
                 } else {
@@ -295,9 +302,10 @@ impl Play {
             self.release_ms = self.release_ms.saturating_add(input.dt_ms);
             out.movement = Some(self.home);
             out.direction = Some(self.carry_right);
-            let t = (self.release_ms as f32/400.0).min(1.0);
+            let outward = (self.release_ms as f32/80.0).min(1.0);
+            let t = (self.release_ms.saturating_sub(80) as f32/320.0).min(1.0);
             let floor = self.home.1 as f32+(PET_Y+PET_H-14) as f32*s;
-            x = self.release_from.0;
+            x = self.release_from.0 + if self.carry_right {34.0*s*outward} else {-34.0*s*outward};
             y = self.release_from.1+(floor-self.release_from.1)*t*t;
             if self.release_ms >= 400 {
                 self.phase = "returned"; self.elapsed = 0;
@@ -338,6 +346,7 @@ mod tests {
             for distance in [60.0,400.0] {
                 let mut p=Play::default();p.start(&i,false);p.phase="held";p.held_offset=(0.0,0.0);
                 i.cursor=(i.win_pos.0+((PET_X+PET_W/2) as f64*scale+distance*scale) as i32,i.win_pos.1+((PET_Y+PET_H-14) as f64*scale) as i32);
+                i.button_down=true;p.tick(&i);i.button_down=false;
                 p.tick(&i);speeds.push(p.chase_speed());
                 assert_eq!(p.view().style,if distance<140.0 {"near"} else {"far"});
             }
@@ -367,6 +376,21 @@ mod tests {
                     if p.view().phase=="returned" {break;}
                 }
                 assert_eq!(p.view().phase,"returned");assert_eq!(completions,1);assert_eq!(p.catches,3);
+            }
+        }
+    }
+    #[test]
+    fn mouse_up_does_not_teleport_the_toy_to_a_later_cursor_position() {
+        for scale in [1.0,1.25,2.0] {
+            for toy in ["ball","frisbee"] {
+                let mut i=input(scale);let mut p=Play::default();p.start(&i,false);p.toy=toy;
+                i.cursor=p.view().ball.unwrap();i.button_down=true;p.tick(&i);
+                assert_eq!(p.phase,"held");
+                // A stationary hold has no horizontal release velocity.
+                p.tick(&i);let held=p.view().ball.unwrap();
+                i.button_down=false;i.cursor=(-1800,30);p.tick(&i);
+                let released=p.view().ball.unwrap();assert_eq!(p.phase,"chasing");
+                assert_eq!(released.0,held.0);assert!((released.1-held.1).abs()<=2);
             }
         }
     }
@@ -410,6 +434,38 @@ mod tests {
             assert_eq!(completed,1);assert_eq!(p.catches,1);assert_eq!(p.view().phase,"returned");
             assert_eq!(y,i.win_pos.1+((PET_Y+PET_H-14) as f64*scale).round() as i32);
             i.button_down=true;i.cursor=p.view().ball.unwrap();p.tick(&i);assert_eq!(p.view().phase,"held");
+        }
+    }
+    #[test]
+    fn release_clears_the_muzzle_and_paws_before_falling_for_both_toys() {
+        for scale in [1.0,1.25,2.0] {
+            for toy in ["ball","frisbee"] {
+                for right in [false,true] {
+                    let mut i=input(scale);
+                    let mut p=Play::default();p.start(&i,false);
+                    p.toy=toy;p.phase="returning";p.carry_right=right;
+                    // The old carry anchor is deliberately below the open jaws.
+                    p.ball=Some((i.win_pos.0 as f32+150.0*scale as f32,i.win_pos.1 as f32+190.0*scale as f32));
+                    let mut completed=0;let mut falling=false;
+                    for _ in 0..30 {
+                        let step=p.tick(&i);completed+=usize::from(step.completed);
+                        if let Some(position)=step.movement {i.win_pos=position;}
+                        let (x,y)=p.view().ball.unwrap();
+                        let logical=((x-i.win_pos.0) as f64/scale,(y-i.win_pos.1) as f64/scale);
+                        assert!((35.0..265.0).contains(&logical.0));
+                        if p.phase=="releasing" && p.release_ms<=80 {
+                            assert!((logical.1-(PET_Y as f64+105.0*0.75)).abs()<=0.6);
+                        }
+                        if logical.1>180.0 {
+                            falling=true;
+                            // Disc half-width 18 also bounds the smaller ball.
+                            assert!(if right {logical.0-18.0>222.0} else {logical.0+18.0<78.0},"toy crossed the pet's paws");
+                        }
+                    }
+                    assert!(falling);assert_eq!(completed,1);assert_eq!(p.catches,1);
+                    assert_eq!(p.phase,"returned");
+                }
+            }
         }
     }
     #[test]

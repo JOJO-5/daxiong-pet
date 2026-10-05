@@ -35,6 +35,10 @@ try:
     check('chasing disables restart and removes respawn action',js("return document.querySelector('[data-testid=play-throw]').disabled&&!document.querySelector('[data-testid=play-show]')"))
     check('feeding states interruption and is visually secondary',js("const b=document.querySelector('[data-testid=quick-feed]');return b.textContent==='结束互动，喂块饼干'&&!b.classList.contains('primary')"))
     wait(lambda:invoke('play_status')['phase']=='returned',25)
+    command('POST','/window',{'handle':main})
+    wait(lambda:js("return document.querySelector('.bubble')?.textContent.includes('飞盘')"),5)
+    check('first interaction feedback replaces introductory hint')
+    command('POST','/window',{'handle':panel})
     wait(lambda:js("return document.querySelector('[data-testid=play-throw]').textContent==='再扔一次'"))
     check('returned toy exposes clear repeat action',js("return !document.querySelector('[data-testid=play-throw]').disabled"));shoot('returned-controls')
     origin=invoke('play_status')['ball']

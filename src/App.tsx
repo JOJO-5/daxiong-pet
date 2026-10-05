@@ -55,9 +55,9 @@ export default function App() {
     let activeRows = DEFAULT_ROWS;
     let errorUntil = 0;
     let treatTimer: number | null = null;
-    const displayMessage = (text: string, duration = BUBBLE_MS) => {
+    const displayMessage = (text: string, duration = BUBBLE_MS, protect = duration > BUBBLE_MS) => {
       if (!alive) return;
-      if (duration > BUBBLE_MS) errorUntil = Date.now() + duration;
+      if (protect) errorUntil = Date.now() + duration;
       bubbleId.current += 1;
       setBubble({ text, id: bubbleId.current });
       if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
@@ -82,7 +82,7 @@ export default function App() {
           await invoke("pet_ready");
           if (alive) {
             readySent.current = true;
-            try {if(!localStorage.getItem("pet-menu-intro-v2")){displayMessage("右键我就能一起玩。Mac 可双指点按；没看清时，托盘里有玩法说明。",8000);}}catch { /* The menu still works when browser storage is unavailable. */ }
+            try {if(!localStorage.getItem("pet-menu-intro-v2")){displayMessage("右键我就能一起玩。Mac 可双指点按；没看清时，托盘里有玩法说明。",8000,false);}}catch { /* The menu still works when browser storage is unavailable. */ }
           }
         }
       } catch (error) {

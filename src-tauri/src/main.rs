@@ -33,10 +33,18 @@ fn unpack_sleep(v: u16) -> (u8, usize) {
     ((v >> 8) as u8, (v & 0xFF) as usize)
 }
 
-#[derive(Clone, serde::Serialize)]
+#[derive(Clone, PartialEq, serde::Serialize)]
+struct ReleasedToy {
+    toy: &'static str,
+    x: f64,
+    y: f64,
+}
+
+#[derive(Clone, PartialEq, serde::Serialize)]
 struct FramePayload {
     row: u8,
     col: usize,
+    released_toy: Option<ReleasedToy>,
 }
 
 /// 宠物状态变化（目前只有睡眠），前端据此加视觉效果
@@ -497,7 +505,7 @@ fn spawn_engine(
         engine.attach_commands(cmd_rx);
 
         let mut last = Instant::now();
-        let mut prev_frame: Option<(u8, usize)> = None;
+        let mut prev_frame: Option<FramePayload> = None;
         let mut prev_clickable: Option<bool> = None;
         let mut prev_sleeping: Option<bool> = None;
         let mut prev_toy_hot:Option<bool>=None;
@@ -585,8 +593,17 @@ fn spawn_engine(
             let snack_position=activity.treat;
             *previous_activity=activity;drop(previous_activity);
             let play = engine.play_view();
+            // The release pose and toy share one React update in the pet
+            // webview. A separate native window can otherwise show a new toy
+            // over the previous baked carry frame for a compositor frame.
+            let released_toy = if input.extra_animations && play.phase=="releasing" {
+                let position=out.move_to.unwrap_or(input.win_pos);
+                play.ball.map(|(x,y)|ReleasedToy {toy:play.toy,
+                    x:(x-position.0) as f64/input.scale_factor,
+                    y:(y-position.1) as f64/input.scale_factor})
+            } else {None};
             if let Some(toy) = app.get_webview_window("toy") {
-                let visible_ball = snack_position.or_else(||if input.extra_animations && matches!(play.phase,"returning" | "teasing" | "catching") { None } else { play.ball });
+                let visible_ball = snack_position.or_else(||if input.extra_animations && matches!(play.phase,"returning" | "teasing" | "catching" | "releasing") { None } else { play.ball });
                 let toy_hot=visible_ball.is_some_and(|(x,y)| ((input.cursor.0-x) as f64).hypot((input.cursor.1-y) as f64)<=18.0*input.scale_factor);
                 // GTK must realize the native window before applying its input shape.
                 // Keep the transparent area click-through; only the actual toy accepts input.
@@ -628,9 +645,9 @@ fn spawn_engine(
                 prev_clickable = Some(out.clickable);
             }
 
-            let frame = (out.row, out.col);
-            if visible && prev_frame != Some(frame) {
-                let _ = app.emit("pet:frame", FramePayload { row: frame.0, col: frame.1 });
+            let frame = FramePayload {row:out.row,col:out.col,released_toy};
+            if visible && prev_frame.as_ref()!=Some(&frame) {
+                let _ = app.emit("pet:frame", &frame);
                 prev_frame = Some(frame);
             }
 

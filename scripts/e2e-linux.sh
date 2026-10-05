@@ -26,7 +26,7 @@ fi
 recorder_pid=""
 if [[ "${E2E_RECORD:-0}" == 1 ]]; then
   mkdir -p "${E2E_OUT:-test-results}"
-  ffmpeg -y -loglevel error -f x11grab -framerate 25 -video_size 1280x800 -i "$DISPLAY" -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p "${E2E_OUT:-test-results}/desktop-validation.mp4" >"$test_dir/record.log" 2>&1 &
+  ffmpeg -y -loglevel error -f x11grab -framerate "${E2E_FPS:-25}" -video_size 1280x800 -i "$DISPLAY" -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p "${E2E_OUT:-test-results}/desktop-validation.mp4" >"$test_dir/record.log" 2>&1 &
   recorder_pid=$!
 fi
 tauri-driver --port "${E2E_PORT:-4444}" --native-port "${E2E_NATIVE_PORT:-4445}" >"$test_dir/driver.log" 2>&1 &

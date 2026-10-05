@@ -36,6 +36,13 @@ jobs:
           E2E_OUT: "test-results/tug"
           E2E_SCRIPT: scripts/e2e-tug.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Record atomic ball and frisbee release in both directions
+        env:
+          E2E_RECORD: "1"
+          E2E_FPS: "60"
+          E2E_OUT: "test-results/handoff"
+          E2E_SCRIPT: scripts/e2e-handoff.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Record frisbee glide, biting and reusable return
         env:
           E2E_RECORD: "1"
@@ -50,6 +57,7 @@ jobs:
           path: |
             test-results/tug/
             test-results/frisbee/
+            test-results/handoff/
       - name: Run native E2E
         env:
           E2E_MEMORY: "1"

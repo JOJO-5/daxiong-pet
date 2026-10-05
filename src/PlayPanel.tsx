@@ -7,6 +7,7 @@ import SearchPanel, {HiddenTreat} from "./SearchPanel";
 import TrainingPanel from "./TrainingPanel";
 import TugRope from "./TugRope";
 import { type TugView } from "./tug-view";
+import ToyDisc from "./ToyDisc";
 import QuickFeed from "./QuickFeed";
 import PreferencesPanel from "./PreferencesPanel";
 import CompanionPanel from "./CompanionPanel";
@@ -93,7 +94,7 @@ export function Toy() {
   },[]);
   if(snack)return <HiddenTreat/>;
   if(rope)return <TugRope rope={rope}/>;
-  if(disc)return <div className="toy-stage"><div className={`toy-frisbee${flying?" flying":""}`} title="拖动飞盘，甩动后松手" data-testid="toy-frisbee"><svg width="36" height="20" viewBox="0 0 36 20" role="img" aria-label="飞盘"><ellipse cx="18" cy="11" rx="16" ry="7" fill="#126d9c"/><ellipse cx="18" cy="9" rx="16" ry="6" fill="#28c5ef" stroke="#1678a2" strokeWidth="2"/><ellipse cx="18" cy="8" rx="10" ry="3" fill="#70e5ff"/></svg></div></div>;
+  if(disc)return <div className="toy-stage"><div className={`toy-frisbee${flying?" flying":""}`} title="拖动飞盘，甩动后松手" data-testid="toy-frisbee"><ToyDisc/></div></div>;
   return <div className="toy-stage"><div className={`toy-ball${rolling?" rolling":""}`} title="拖动后松手抛球" data-testid="toy-ball"/></div>;
 }
 

@@ -83,7 +83,9 @@ jobs:
           result=subprocess.run(['gh','api',f'repos/{repo}/git/ref/tags/{tag}'],capture_output=True,text=True)
           if result.returncode==0:
               obj=json.loads(result.stdout)['object']
-              assert obj['type']=='commit' and obj['sha']==sha,'existing tag points to different source'
+              assert obj['type']=='commit'
+              changed=subprocess.check_output(['git','diff','--name-only',obj['sha'],sha],text=True).splitlines()
+              assert set(changed)<={'.github/workflows/publish-release.yml'},'existing tag points to different application source'
           else:
               assert 'HTTP 404' in result.stderr,result.stderr
               subprocess.run(['gh','api','--method','POST',f'repos/{repo}/git/refs','-f',f'ref=refs/tags/{tag}','-f',f'sha={sha}'],check=True,stdout=subprocess.DEVNULL)
@@ -96,7 +98,8 @@ jobs:
             gh release create "$RELEASE_TAG" --verify-tag --title "大熊 $RELEASE_TAG" --notes-file release-notes.md --draft
           fi
           gh release upload "$RELEASE_TAG" release-assets/* --clobber
-          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > uploaded-release.json
+          # The tag endpoint excludes draft releases; authenticated listing includes them.
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[] | select(.tag_name == env.RELEASE_TAG)' > uploaded-release.json
           python3 - <<'PY'
           import hashlib, json
           from pathlib import Path

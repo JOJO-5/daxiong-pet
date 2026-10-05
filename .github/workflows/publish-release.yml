@@ -1,0 +1,114 @@
+name: Publish validated desktop release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version tag, for example v1.0.20
+        required: true
+      build_run_id:
+        description: Successful four-platform Build desktop packages run
+        required: true
+      e2e_run_id:
+        description: Successful Desktop E2E run of the same application source
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: desktop-release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      BUILD_RUN_ID: ${{ inputs.build_run_id }}
+      E2E_RUN_ID: ${{ inputs.e2e_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify successful runs and unchanged application source
+        run: |
+          python3 - <<'PY'
+          import json, os, re, subprocess
+          from pathlib import Path
+          repo=os.environ['GITHUB_REPOSITORY']
+          def api(path):
+              return json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/{path}'],text=True))
+          assert re.fullmatch(r'v\d+\.\d+\.\d+',os.environ['RELEASE_TAG'])
+          runs=[]
+          for variable,name in [('BUILD_RUN_ID','Build desktop packages'),('E2E_RUN_ID','Desktop E2E')]:
+              run_id=os.environ[variable];assert run_id.isdigit()
+              run=api(f'actions/runs/{run_id}')
+              assert run['name']==name and run['status']=='completed' and run['conclusion']=='success'
+              assert run['head_repository']['full_name']==repo
+              runs.append(run)
+          assert runs[0]['head_sha']==runs[1]['head_sha'],'build and E2E source commits differ'
+          current=os.environ['GITHUB_SHA']
+          assert api('git/ref/heads/main')['object']['sha']==current,'main moved after dispatch'
+          changed=subprocess.check_output(['git','diff','--name-only',runs[0]['head_sha'],current],text=True).splitlines()
+          assert set(changed)<={'.github/workflows/publish-release.yml'},f'untested source changes: {changed}'
+          version=json.loads(Path('package.json').read_text())['version']
+          assert os.environ['RELEASE_TAG']=='v'+version
+          notes=Path(f'docs/release-notes-v{version}.md').read_text()
+          notes+='\n验证：四平台构建、原生检查与完整桌面回归全部通过。\n\n'
+          notes+='\n'.join(f'- [{r["name"]}]({r["html_url"]})' for r in runs)
+          notes+=f'\n\n安装包源码提交：`{runs[0]["head_sha"]}`。发布 tag 指向合并后的主分支，应用源码与上述验证提交一致。\n'
+          Path('release-notes.md').write_text(notes)
+          PY
+      - name: Download the four validated platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.build_run_id }}
+          pattern: daxiong-*
+          path: release-artifacts
+      - name: Prepare six downloads and checksums
+        run: |
+          python3 scripts/prepare-release.py --artifacts release-artifacts --out release-assets
+          cd release-assets
+          sha256sum -c SHA256SUMS
+      - name: Create or verify the version tag
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          repo=os.environ['GITHUB_REPOSITORY'];tag=os.environ['RELEASE_TAG'];sha=os.environ['GITHUB_SHA']
+          result=subprocess.run(['gh','api',f'repos/{repo}/git/ref/tags/{tag}'],capture_output=True,text=True)
+          if result.returncode==0:
+              obj=json.loads(result.stdout)['object']
+              assert obj['type']=='commit' and obj['sha']==sha,'existing tag points to different source'
+          else:
+              assert 'HTTP 404' in result.stderr,result.stderr
+              subprocess.run(['gh','api','--method','POST',f'repos/{repo}/git/refs','-f',f'ref=refs/tags/{tag}','-f',f'sha={sha}'],check=True,stdout=subprocess.DEVNULL)
+          PY
+      - name: Upload complete draft, verify assets, and publish
+        run: |
+          if gh release view "$RELEASE_TAG" --json isDraft > current-release.json 2>/dev/null; then
+            python3 -c 'import json; assert json.load(open("current-release.json"))["isDraft"], "release already published"'
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --title "大熊 $RELEASE_TAG" --notes-file release-notes.md --draft
+          fi
+          gh release upload "$RELEASE_TAG" release-assets/* --clobber
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > uploaded-release.json
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          release=json.loads(Path('uploaded-release.json').read_text());assert release['draft']
+          local={p.name:p for p in Path('release-assets').iterdir() if p.is_file()}
+          uploaded={a['name']:a for a in release['assets']}
+          assert len(local)==7 and set(uploaded)==set(local),'incomplete release assets'
+          for name,path in local.items():
+              assert uploaded[name]['size']==path.stat().st_size
+              with path.open('rb') as file:
+                  digest='sha256:'+hashlib.file_digest(file,'sha256').hexdigest()
+              assert uploaded[name]['digest']==digest,f'uploaded checksum mismatch: {name}'
+          PY
+          gh release edit "$RELEASE_TAG" --draft=false --latest
+          gh release view "$RELEASE_TAG" --json url --jq '.url'

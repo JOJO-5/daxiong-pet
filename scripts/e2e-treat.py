@@ -53,7 +53,7 @@ try:
         command('POST','/window',{'handle':main});wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===2288"))
         command('POST','/window',{'handle':panel})
         wait(lambda: invoke('companion_status')['treat_wait']==0,25)
-        wait(lambda: js("return [...document.querySelectorAll('button')].some(b=>b.textContent==='喂一块饼干'&&!b.disabled)"),5)
+        wait(lambda: js("return !!document.querySelector('[data-testid=quick-feed]:not(:disabled)')"),5)
         park_panel();clear_frames();click('喂一块饼干');pointer('mousemove',30,30)
         command('POST','/window',{'handle':main});wait(lambda:js("return !!document.querySelector('[data-testid=treat-cookie]')"),3)
         check('legacy pet keeps supported reaction and cookie fallback',js("return Number(document.querySelector('[data-testid=pet]').dataset.row)<11"))

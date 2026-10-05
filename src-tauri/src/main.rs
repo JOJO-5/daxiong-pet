@@ -325,7 +325,11 @@ fn open_pet_menu(app:AppHandle)->Result<(),String> {
     use tauri::menu::{ContextMenu,MenuBuilder,MenuItem,SubmenuBuilder};
     let window=app.get_webview_window("main").ok_or("大熊窗口未打开")?;
     let view=companion_status(app.clone());
-    let label=if view.treat_wait>0 {format!("喂饼干（{} 秒后）",view.treat_wait)} else {"喂一块饼干".into()};
+    let state=app.state::<AppState>();
+    let play=state.play.lock().unwrap().clone();
+    let activity=state.activity.lock().unwrap().clone();
+    let interacting=play.phase!="off" || !matches!(activity.phase,"off"|"blocked"|"cancelled"|"found");
+    let label=if view.treat_wait>0 {format!("喂饼干（{} 秒后）",view.treat_wait)} else if interacting {"结束互动，喂块饼干".into()} else {"喂一块饼干".into()};
     let feed=MenuItem::with_id(&app,"pet_feed",label,view.treat_wait==0 && view.error.is_none(),None::<&str>).map_err(|e|e.to_string())?;
     let more=SubmenuBuilder::new(&app,"更多").text("pet_preferences","记忆与偏好…").text("pomodoro","专注 / 结束专注").text("toggle","隐藏大熊").build().map_err(|e|e.to_string())?;
     let menu=MenuBuilder::new(&app).text("play","打开互动面板…").separator().item(&feed)

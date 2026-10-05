@@ -83,7 +83,11 @@ impl Play {
         }
     }
     pub fn chase_speed(&self)->f32 {if self.toy=="frisbee" {return 560.0;}match self.style {"near"=>180.0,"far"=>390.0,_=>310.0}}
-    pub fn start(&mut self,input:&Input,throw:bool) {if self.toy!="ball" {self.streak=0;}self.toy="ball";self.launch(input,throw,None);}
+    pub fn start(&mut self,input:&Input,throw:bool) {
+        let origin=if throw && self.toy=="ball" && matches!(self.phase,"ready"|"returned") {self.ball} else {None};
+        if self.toy!="ball" {self.streak=0;}
+        self.toy="ball";self.launch(input,throw,origin);
+    }
     pub fn start_tug(&mut self,input:&Input) {
         self.cancel();self.toy="rope";
         self.tug=crate::tug::Tug::new(input);
@@ -519,6 +523,17 @@ mod tests {
             i.button_down=false;p.tick(&i);assert_eq!(p.phase,"chasing");
             i.interactive=false;p.tick(&i);assert_eq!(p.phase,"off");assert!(p.ball.is_none());
         }}
+    }
+    #[test]
+    fn ball_button_reuses_ready_and_returned_locations_without_reusing_other_toys() {
+        for scale in [1.0,1.25,2.0] {
+            let i=input(scale);let mut p=Play::default();p.start(&i,false);
+            let ready=p.ball;p.start(&i,true);assert_eq!(p.ball,ready);
+            p.phase="returned";p.ball=Some((-1500.0,800.0));p.catches=2;
+            p.start(&i,true);assert_eq!(p.ball,Some((-1500.0,800.0)));assert_eq!(p.catches,2);
+            p.toy="frisbee";p.phase="returned";p.ball=Some((-1800.0,800.0));
+            p.start(&i,true);assert_ne!(p.ball,Some((-1800.0,800.0)));
+        }
     }
     #[test]
     fn button_rethrows_disc_from_its_return_spot_and_counts_each_round_once() {

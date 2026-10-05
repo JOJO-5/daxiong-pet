@@ -63,6 +63,12 @@ def open_more():
         wait(lambda: js("return document.querySelector('details').open"))
 
 def click(text):
+    if text in ('抛一球','扔飞盘'):
+        native_click("document.querySelector('[data-testid=play-throw]')")
+        return
+    if text=='喂一块饼干':
+        native_click("document.querySelector('[data-testid=quick-feed]') || [...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='喂一块饼干')")
+        return
     native_click("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==="+json.dumps(text)+")")
 
 def window(title):

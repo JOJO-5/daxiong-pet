@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""Native checks for predictable actions and the design-psychology improvements."""
+from pathlib import Path
+exec((Path(__file__).resolve().parent/'e2e-desktop.py').read_text().split('\ntry:\n    new_session()')[0])
+
+def shoot(name):
+    subprocess.run(['import','-window','root',str(OUT/f'{name}.png')],check=True)
+
+try:
+    new_session();main=command('GET','/window')
+    wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
+    wait(lambda:invoke('plugin:window|is_visible',{'label':'main'}));time.sleep(.7)
+    invoke('set_encounters',{'enabled':False})
+    initial=set(command('GET','/window/handles'));invoke('open_playground')
+    wait(lambda:len(command('GET','/window/handles'))>len(initial))
+    panel=next(iter(set(command('GET','/window/handles'))-initial))
+    command('POST','/window',{'handle':panel})
+    wait(lambda:js("return !!document.querySelector('[data-testid=play-throw]')"))
+    native=pet_native()
+    candidates=subprocess.check_output(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],text=True).splitlines()
+    panel_native=next(w for w in candidates if 'WIDTH=360' in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True))
+    pointer('windowmove',panel_native,870,30);pointer('windowmove',native,70,320);time.sleep(.3)
+    invoke('plugin:event|listen',{'event':'pet:play','target':{'kind':'Any'},'handler':js('window.__uxPlays=[];return window.__TAURI_INTERNALS__.transformCallback(e=>window.__uxPlays.push(e.payload))')})
+    click('飞盘');click('拿出飞盘');wait(lambda:invoke('play_status')['phase']=='ready')
+    click('扔飞盘');pointer('mousemove',30,30)
+    wait(lambda:invoke('play_status')['phase']=='chasing')
+    check('chasing disables restart and removes respawn action',js("return document.querySelector('[data-testid=play-throw]').disabled&&!document.querySelector('[data-testid=play-show]')"))
+    check('feeding states interruption and is visually secondary',js("const b=document.querySelector('[data-testid=quick-feed]');return b.textContent==='结束互动，喂块饼干'&&!b.classList.contains('primary')"))
+    wait(lambda:invoke('play_status')['phase']=='returned',25)
+    wait(lambda:js("return document.querySelector('[data-testid=play-throw]').textContent==='再扔一次'"))
+    check('returned toy exposes clear repeat action',js("return !document.querySelector('[data-testid=play-throw]').disabled"));shoot('returned-controls')
+    origin=invoke('play_status')['ball']
+    js('window.__uxPlays=[];return true')
+    click('扔飞盘');pointer('mousemove',30,30)
+    launched=wait(lambda:js("return window.__uxPlays.find(v=>v.phase==='chasing')||null"))
+    check('repeat continues from returned location',abs(launched['ball'][0]-origin[0])<=30 and abs(launched['ball'][1]-origin[1])<=30 and launched['catches']==1)
+    click('拔河')
+    wait(lambda:invoke('play_status')['phase']=='off')
+    check('switch provides feedback after cancelling prior game',js("return document.querySelector('.play-panel').textContent.includes('准备拔河')"))
+    click('拿出绳子');wait(lambda:invoke('play_status')['phase']=='tug_ready')
+    check('active rope no longer offers restarting button',js("return ![...document.querySelectorAll('button')].some(b=>b.textContent==='拿出绳子')"))
+    native_click("document.querySelector('[data-testid=quick-feed]')");pointer('mousemove',30,30)
+    wait(lambda:invoke('play_status')['phase']=='off')
+    check('explicit feed ends interaction and commits once',invoke('companion_status')['treats']==1)
+    shoot('feeding-feedback')
+    print(json.dumps({'ok':True,'checks':checks},ensure_ascii=False))
+    (OUT/'result.json').write_text(json.dumps({'ok':True,'checks':checks},ensure_ascii=False,indent=2))
+finally:
+    if session:
+        command('DELETE','')

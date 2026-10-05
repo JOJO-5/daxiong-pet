@@ -272,6 +272,7 @@ pub struct Engine {
     play: crate::play::Play,
     activities: crate::activities::Activities,
     encounters: crate::encounters::Encounters,
+    quiet_companion: bool,
 }
 
 impl Engine {
@@ -321,6 +322,7 @@ impl Engine {
             play: crate::play::Play::default(),
             activities: crate::activities::Activities::default(),
             encounters: crate::encounters::Encounters::new(seed),
+            quiet_companion: false,
         }
     }
 
@@ -421,6 +423,13 @@ impl Engine {
     }
 
     pub fn set_playful_fetch(&mut self,enabled:bool) {self.play.set_playful(enabled);}
+    pub fn set_quiet_companion(&mut self,enabled:bool) {
+        self.quiet_companion=enabled;
+        if enabled {
+            self.wander=None;
+            if self.ambient_reaction {self.react=None;self.ambient_reaction=false;}
+        }
+    }
     pub fn is_focusing(&self)->bool {self.pomodoro_ms.is_some()}
 
     pub fn play_view(&self) -> crate::play::PlayView { self.play.view() }
@@ -785,7 +794,7 @@ impl Engine {
             self.wander = None;
         }
 
-        let interrupt = self.play.active() || self.encounters.active() || !input.interactive
+        let interrupt = self.quiet_companion || self.play.active() || self.encounters.active() || !input.interactive
             || within_aware
             || self.dragging
             || self.press.is_some()
@@ -826,6 +835,7 @@ impl Engine {
         self.since_water_ms += dt;
         // 专注或交互期间暂存到期提醒，空闲后唤醒宠物再提醒。
         if self.since_water_ms >= WATER_INTERVAL_MS
+            && !self.quiet_companion
             && self.pomodoro_ms.is_none()
             && self.react.is_none()
             && !self.dragging
@@ -842,7 +852,7 @@ impl Engine {
         match self.last_hour {
             Some(h) if h != input.local_hour => {
                 self.last_hour = Some(input.local_hour);
-                if !self.sleeping && self.pomodoro_ms.is_none() && self.react.is_none() {
+                if !self.quiet_companion && !self.sleeping && self.pomodoro_ms.is_none() && self.react.is_none() {
                     say = Some(SayKind::Chime);
                 }
             }
@@ -853,6 +863,7 @@ impl Engine {
         // ---- 12. 久无互动就自言自语 ----
         self.since_talk_ms = self.since_talk_ms.saturating_add(dt);
         if self.since_talk_ms >= IDLE_TALK_MS
+            && !self.quiet_companion
             && say.is_none()
             && self.react.is_none()
             && !self.dragging
@@ -867,7 +878,7 @@ impl Engine {
         }
 
         // 安静的小动作只在可见、静止且没有互动/提醒时出现，不发气泡。
-        if input.interactive && self.clock_ms >= self.next_ambient_ms
+        if !self.quiet_companion && input.interactive && self.clock_ms >= self.next_ambient_ms
             && !self.play.active() && !self.activities.active() && !self.encounters.active() && self.react.is_none() && !self.sleeping && !self.dragging
             && self.press.is_none() && !hot && !moving && self.wander.is_none()
             && self.clock_ms >= self.annoyed_until_ms && say.is_none()
@@ -900,7 +911,7 @@ impl Engine {
         }
 
         let play_phase=self.play.view().phase;
-        let hard_blocked=self.activities.active() || !input.interactive || self.sleeping || self.pomodoro_ms.is_some()
+        let hard_blocked=self.quiet_companion || self.activities.active() || !input.interactive || self.sleeping || self.pomodoro_ms.is_some()
             || self.dragging || self.press.is_some() || input.button_down || hot
             || self.clock_ms<self.annoyed_until_ms || (self.react.is_some() && !self.ambient_reaction)
             || (self.play.active() && !(self.encounters.offering_ball() && play_phase=="ready"));
@@ -995,6 +1006,7 @@ impl Engine {
         if let Some(col)=activity.col {self.col=col.min(atlas::track(self.row).cols-1);self.acc=0;}
         if matches!(self.row,Row::TugRight|Row::TugLeft) {self.col=self.play.tug_frame().unwrap_or(0);self.acc=0;}
         self.play.align_carried_ball(input, move_to.unwrap_or(input.win_pos), self.row, self.col);
+        if self.quiet_companion && say==Some(SayKind::Sleep) {say=None;}
         Output {
             move_to,
             // 外部拖拽经过宠物时保持穿透，避免挡住文件投放等操作。
@@ -1010,6 +1022,25 @@ impl Engine {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn quiet_companion_suppresses_autonomous_interruptions_but_keeps_requested_play() {
+        let mut engine=Engine::new();let mut i=input(1.0);i.encounters_enabled=true;i.extra_animations=true;
+        engine.set_quiet_companion(true);engine.since_water_ms=WATER_INTERVAL_MS;
+        for tick in 0..6000 {
+            i.local_hour=12+(tick/3000) as u32;
+            let out=engine.tick(&i);
+            assert!(out.say.is_none());assert!(engine.wander.is_none());assert!(!engine.encounters.active());
+        }
+        let (tx,rx)=std::sync::mpsc::channel();engine.attach_commands(rx);
+        tx.send(Command::ThrowFrisbee).unwrap();engine.tick(&i);assert_eq!(engine.play_view().phase,"chasing");
+        let mut returned=false;
+        for _ in 0..3000 {
+            let out=engine.tick(&i);if let Some(pos)=out.move_to {i.win_pos=pos;}
+            if out.say==Some(SayKind::PlayReturned) {returned=true;break;}
+        }
+        assert!(returned);assert_eq!(engine.play_view().catches,1);
+        tx.send(Command::FeedTreat).unwrap();let out=engine.tick(&i);assert_eq!(out.row,Row::EatTreat as u8);
+    }
 
     fn input(scale: f64) -> Input {
         Input {

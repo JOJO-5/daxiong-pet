@@ -148,12 +148,17 @@ fn set_encounters(enabled:bool,app:AppHandle)->Result<companion::MemoryView,Stri
 #[tauri::command]
 fn encounter_status(app:AppHandle)->serde_json::Value {
     let state=app.state::<AppState>();let memory=state.memory.lock().unwrap();let event=state.encounter.lock().unwrap();
-    serde_json::json!({"enabled":memory.data.encounters_enabled,"kind":event.kind,"phase":event.phase,"right":event.right})
+    serde_json::json!({"enabled":memory.data.encounters_enabled,"quiet_companion":memory.data.quiet_companion,"kind":event.kind,"phase":event.phase,"right":event.right})
 }
 
 #[tauri::command]
 fn set_playful_fetch(enabled:bool,app:AppHandle)->Result<companion::MemoryView,String> {
     update_memory(&app,|m|{m.playful_fetch=enabled;Ok(true)})
+}
+
+#[tauri::command]
+fn set_quiet_companion(enabled:bool,app:AppHandle)->Result<companion::MemoryView,String> {
+    update_memory(&app,|m|{m.quiet_companion=enabled;Ok(true)})
 }
 
 #[tauri::command]
@@ -568,7 +573,11 @@ fn spawn_engine(
             } else {
                 input.button_down = false;
             }
-            input.encounters_enabled=app.state::<AppState>().memory.lock().unwrap().data.encounters_enabled;
+            {
+                let state=app.state::<AppState>();let memory=state.memory.lock().unwrap();
+                input.encounters_enabled=memory.data.encounters_enabled && !memory.data.quiet_companion;
+                engine.set_quiet_companion(memory.data.quiet_companion);
+            }
             input.look_enabled = look_enabled.load(Ordering::Relaxed);
             input.gravity = gravity.load(Ordering::Relaxed);
             input.extra_animations = app.state::<AppState>().current.lock().unwrap().as_str() == "__builtin__";
@@ -767,6 +776,7 @@ fn main() {
             memory_recovery_info,
             set_encounters,
             set_playful_fetch,
+            set_quiet_companion,
             encounter_status
         ])
         .setup(|app| {

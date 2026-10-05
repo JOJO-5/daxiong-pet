@@ -59,7 +59,7 @@ try:
     pet_menu();choose(0);wait(visible)
     check('reopening retains selected game and completed phase',js("return document.querySelector('[data-testid=play-phase]').dataset.phase==='returned'"))
     pet_menu();choose(1);wait(lambda:invoke('companion_status')['treats']==1)
-    check('native feeding commits exactly once and shows cooldown',js("return [...document.querySelectorAll('button')].some(b=>b.disabled&&b.textContent.includes('下块饼干'))"))
+    check('native feeding commits exactly once and shows cooldown',js("return [...document.querySelectorAll('button')].some(b=>b.disabled&&b.textContent.includes('还在嚼'))"))
     pet_menu();shoot('cooldown-menu');finish_menu('Escape')
     open_more();check('shortcut defaults off',not invoke('shortcut_status')['enabled'])
     native_click("document.querySelector('[data-testid=shortcut-switch]')")
@@ -95,7 +95,7 @@ d=x.XOpenDisplay(None);key=x.XKeysymToKeycode(d,ord('p'));x.XGrabKey(d,key,12,x.
         saved=config.read_bytes();config.unlink();config.mkdir()
         try:
             native_click("document.querySelector('[data-testid=shortcut-switch]')")
-            wait(lambda:js("return document.querySelector('[data-testid=preferences-panel] [role=alert]')?.textContent.includes('未保存')"))
+            wait(lambda:js("return document.querySelector('[data-testid=preferences-panel] [role=alert]')?.textContent.includes('保存失败')"))
             check('disk failure visibly reported and registration rolled back',not invoke('shortcut_status')['enabled'] and not invoke('shortcut_status')['requested'])
         finally:config.rmdir();config.write_bytes(saved)
         native_click("document.querySelector('[data-testid=shortcut-switch]')");wait(lambda:invoke('shortcut_status')['enabled'])

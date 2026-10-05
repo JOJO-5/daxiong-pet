@@ -51,9 +51,13 @@ export default function CompanionPanel({hideFeed=false}:{hideFeed?:boolean}) {
   return <section className="play-card companion-card">
     <h2>我们的陪伴记忆</h2>
     {memory ? <>
-      <p className="small"><strong data-testid="bond-stage">{memory.stage}</strong> · 熟悉程度 <span data-testid="affection">{memory.affection}</span>/{milestone}</p>
-      <progress aria-label="熟悉程度" value={memory.affection} max={milestone}/>
-      <p className="small memory-stats">摸头 <span data-testid="memory-pats">{memory.pats}</span> · 饼干 <span data-testid="memory-treats">{memory.treats}</span> · 接球 <span data-testid="memory-fetches">{memory.fetches}</span></p>
+      <p><strong data-testid="bond-stage">{memory.stage}</strong></p>
+      <p className="small" data-testid="memory-story">{memory.fetches>0?"一起追过玩具，也一起等它被叼回来。":memory.treats>0?"一起分享过饼干，大熊记得这些陪伴。":memory.pats>0?"你摸过大熊的头，陪伴从这些小事开始。":"摸摸头、玩一次，慢慢留下我们的陪伴记忆。"}</p>
+      <details className="memory-records"><summary>查看陪伴记录</summary>
+        <p className="small">熟悉程度 <span data-testid="affection">{memory.affection}</span>/{milestone}</p>
+        <progress aria-label="熟悉程度" value={memory.affection} max={milestone}/>
+        <p className="small memory-stats">摸头 <span data-testid="memory-pats">{memory.pats}</span> · 饼干 <span data-testid="memory-treats">{memory.treats}</span> · 接回玩具 <span data-testid="memory-fetches">{memory.fetches}</span></p>
+      </details>
       <label className="nickname-label" htmlFor="nickname">大熊怎么称呼你？</label>
       <div className="nickname-row"><input id="nickname" value={nickname} maxLength={16} placeholder="你的昵称" onChange={e=>setNickname(e.target.value)}/><button disabled={busy||!!memory.error} onClick={()=>void act("set_nickname",{nickname})}>记住昵称</button></div>
       {success?<p className="small" role="status" data-testid="memory-success">{success}</p>:null}

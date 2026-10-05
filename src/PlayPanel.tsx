@@ -15,6 +15,7 @@ import EncountersPanel, { type EncounterView } from "./EncountersPanel";
 import {fetchControls, interactionActive} from "./interaction-controls";
 import ActionError from "./ActionError";
 import HelpGuide from "./HelpGuide";
+import CompanionPreferences from "./CompanionPreferences";
 
 type PlayView = { tug:TugView|null; tug_rounds:number; phase: string; catches: number; streak:number; style:string; toy:string; last_catch:string };
 const PHASES: Record<string,string> = { off: "准备好陪你玩", catching:"跃起接住飞盘啦！", ready: "拖动桌面上的球，松手抛出", held: "松手，大熊就来追", chasing: "追球中…", returning: "叼回来啦！", teasing: "来追我呀！靠近大熊或点放下球", releasing: "把球放在你脚边", rolling: "把球推给你啦，抓住再扔吧！", returned: "抓起脚边的球，再扔一次吧！" };
@@ -70,10 +71,9 @@ function PlayContent() {
       <div className="play-actions">{controls.canShow?<button data-testid="play-show" disabled={busy} onClick={()=>void act(game==="frisbee"?"show_frisbee":"show")}>{game==="frisbee"?"拿出飞盘":"拿出球"}</button>:null}<button className="primary" data-testid="play-throw" disabled={busy||!controls.canThrow} onClick={()=>void act(game==="frisbee"?"throw_frisbee":"throw")}>{controls.throwLabel}</button></div>
       {phase==="teasing" ? <button onClick={()=>void act("drop")}>放下球</button> : null}
       {game==="fetch" && phase==="returned" && play.toy==="ball" ? <button onClick={()=>void act("roll")}>推回给我</button> : null}
-      <p className="small" data-testid="fetch-style">{game==="frisbee"?"陪你一起扔飞盘":play.style==="near"?"近近的，慢悠悠捡回来":play.style==="far"?"扔得好远，兴奋追球！":"陪你一起接球"} · 连续 {play.streak} 次</p>
-      {game==="fetch"?<PlayfulSwitch />:<p className="small">{play.last_catch==="air"?"这次在空中接到了！":play.last_catch==="ground"?"落地也没关系，捡回来再扔吧":"飞盘会沿浅弧线滑翔，落地后也能捡回"}</p>}
+      <p className="small" data-testid="fetch-style">{game==="frisbee"?(play.last_catch==="air"?"这次在空中接到了！":play.last_catch==="ground"?"落地也没关系，捡回来再扔吧":"飞盘沿浅弧线滑翔，落地后也能捡回"):play.style==="near"?"近近的，慢悠悠捡回来":play.style==="far"?"扔得好远，兴奋追球！":"陪你一起接球"}</p>
       <button className="quiet" onClick={()=>void act("cancel")}>收起玩具</button>
-      <p className="small">本次接回 <strong data-testid="catches">{play.catches}</strong> 次</p>
+      <p className="small">本次接回 <strong data-testid="catches">{play.catches}</strong> 次 · 连续 {play.streak} 次</p>
     </section> : game==="tug" ? <section className="play-card" data-testid="tug-panel">
       <h2>一起拔河</h2>
       <p role="status" data-testid="tug-phase" data-phase={play.toy==="rope"?play.phase:"off"}>
@@ -84,7 +84,7 @@ function PlayContent() {
       <p className="hint">不用拼手速，也没有输赢。大熊会松劲再拉，松开鼠标就能休息。</p>
     </section> : game==="tricks" ? <TrainingPanel /> : <SearchPanel />}
     <QuickFeed interrupting={interactionActive(play.phase,activity.phase)} onReviewMemory={()=>{setMoreOpen(true);requestAnimationFrame(()=>details.current?.scrollIntoView({block:"start"}));}}/>
-    <details className="more-settings" ref={details} open={moreOpen} onToggle={e=>{if(e.currentTarget.open!==moreOpen)setMoreOpen(e.currentTarget.open);}}><summary>更多：记忆与偏好</summary><CompanionPanel hideFeed/><EncountersPanel/><PreferencesPanel/></details>
+    <details className="more-settings" ref={details} open={moreOpen} onToggle={e=>{if(e.currentTarget.open!==moreOpen)setMoreOpen(e.currentTarget.open);}}><summary>更多：记忆与偏好</summary><CompanionPanel hideFeed/><CompanionPreferences/><EncountersPanel/><PreferencesPanel/></details>
     <p className="hint">右键大熊可快捷喂食和扔玩具。<br/>拖动大熊或开始专注会收起玩具，Esc 收起面板。</p>
   </main>;
 }
@@ -109,18 +109,4 @@ export function Toy() {
   if(rope)return <TugRope rope={rope}/>;
   if(disc)return <div className="toy-stage"><div className={`toy-frisbee${flying?" flying":""}`} title="拖动飞盘，甩动后松手" data-testid="toy-frisbee"><ToyDisc/></div></div>;
   return <div className="toy-stage"><div className={`toy-ball${rolling?" rolling":""}`} title="拖动后松手抛球" data-testid="toy-ball"/></div>;
-}
-
-function PlayfulSwitch() {
-  const [enabled,setEnabled]=useState(true);
-  const [error,setError]=useState("");
-  useEffect(()=>{
-    let active=true;
-    invoke<{playful_fetch:boolean}>("companion_status").then(v=>{if(active)setEnabled(v.playful_fetch);}).catch(e=>{if(active)setError(String(e));});
-    return ()=>{active=false;};
-  },[]);
-  return <><label className="small playful-switch"><input type="checkbox" checked={enabled} onChange={async e=>{
-    try {const v=await invoke<{playful_fetch:boolean}>("set_playful_fetch",{enabled:e.target.checked});setEnabled(v.playful_fetch);setError("");}
-    catch(err){setError(String(err));}
-  }}/> 偶尔叼球逗你追</label>{error ? <p role="alert">{error}</p> : null}</>;
 }

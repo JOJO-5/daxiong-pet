@@ -162,7 +162,9 @@ body {
 @keyframes wing-flutter { from { transform:scaleX(1); } to { transform:scaleX(.45); } }
 @keyframes butterfly-leave { to { transform:translateY(-70px);opacity:0; } }
 @keyframes ball-roll { to { transform:rotate(180deg); } }
-@media (prefers-reduced-motion:reduce) { .butterfly,.butterfly .wing,.toy-ball.rolling { animation:none; } }
+@media (prefers-reduced-motion:reduce) {
+  .butterfly,.butterfly .wing,.toy-ball.rolling,.toy-frisbee.flying,.pet-clip.sleeping .pet-sheet,.bubble,.treat-cookie { animation:none; }
+}
 
 .playful-switch { display:flex; align-items:center; gap:7px; margin:10px 0; }
 
@@ -193,6 +195,8 @@ body {
 .play-panel button:focus-visible,.play-panel summary:focus-visible { outline:3px solid #567b42; outline-offset:3px; }
 .more-settings { margin:12px 0; }
 .more-settings summary { cursor:pointer; font-size:13px; color:#675a48; padding:10px 0; }
+.memory-records { margin:4px 0 12px; }
+.play-panel { user-select:text; -webkit-user-select:text; }
 .shortcut-switch { display:flex; align-items:center; gap:8px; }
 
 .tug-rope { display:block; cursor:grab; }

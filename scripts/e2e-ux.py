@@ -6,6 +6,14 @@ exec((Path(__file__).resolve().parent/'e2e-desktop.py').read_text().split('\ntry
 def shoot(name):
     subprocess.run(['import','-window','root',str(OUT/f'{name}.png')],check=True)
 
+def park_panel():
+    def find_panel():
+        candidates=subprocess.check_output(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],text=True).splitlines()
+        return next((w for w in candidates if 'WIDTH=360' in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True)),None)
+    wait(lambda:invoke('plugin:window|is_visible',{'label':'playground'}))
+    panel_native=wait(find_panel)
+    pointer('windowmove',panel_native,870,30)
+
 try:
     new_session();main=command('GET','/window')
     wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
@@ -18,9 +26,7 @@ try:
     command('POST','/window',{'handle':panel})
     wait(lambda:js("return !!document.querySelector('[data-testid=play-throw]')"))
     native=pet_native()
-    candidates=subprocess.check_output(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],text=True).splitlines()
-    panel_native=next(w for w in candidates if 'WIDTH=360' in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True))
-    pointer('windowmove',panel_native,870,30);pointer('windowmove',native,70,320);time.sleep(.3)
+    park_panel();pointer('windowmove',native,70,320);time.sleep(.3)
     check('opening panel completes first-use discovery',js("return localStorage.getItem('pet-menu-intro-v2')==='seen'"))
     invoke('plugin:event|listen',{'event':'pet:play','target':{'kind':'Any'},'handler':js('window.__uxPlays=[];return window.__TAURI_INTERNALS__.transformCallback(e=>window.__uxPlays.push(e.payload))')})
     click('飞盘');click('拿出飞盘');wait(lambda:invoke('play_status')['phase']=='ready')
@@ -52,6 +58,32 @@ try:
     click('记住昵称');wait(lambda:invoke('companion_status')['nickname']=='乔乔')
     check('nickname save gives local success feedback',js("return document.querySelector('[data-testid=memory-success]').textContent.includes('以后叫你乔乔')"))
     shoot('nickname-confirmed')
+    check('relationship comes first and numerical records are optional',js("return !!document.querySelector('[data-testid=memory-story]')&&!document.querySelector('.memory-records').open"))
+    invoke('set_encounters',{'enabled':True})
+    native_click("document.querySelector('[data-testid=quiet-companion]')")
+    wait(lambda:invoke('companion_status')['quiet_companion'])
+    check('quiet preference preserves the encounter preference',invoke('companion_status')['encounters_enabled'])
+    wait(lambda:js("return document.querySelector('[data-testid=encounter-phase]').textContent.includes('暂时暂停')"))
+    check('quiet mode visibly explains paused encounters')
+    invoke('plugin:event|listen',{'event':'pet:say','target':{'kind':'Any'},'handler':js('window.__quietSays=[];return window.__TAURI_INTERNALS__.transformCallback(e=>window.__quietSays.push(e.payload))')})
+    pointer('mousemove',30,30);time.sleep(7)
+    check('quiet native runtime has no idle speech or encounters',not any(k in ['idle','wander','water','chime','ball_invite'] for k in js('return window.__quietSays')) and invoke('encounter_status')['kind'] is None)
+    before_quiet_play=invoke('play_status')['catches']
+    click('飞盘');click('扔飞盘');pointer('mousemove',30,30)
+    wait(lambda:invoke('play_status')['phase']=='returned',25)
+    check('requested frisbee works while quiet',invoke('play_status')['catches']==before_quiet_play+1)
+    command('POST','/window',{'handle':main});wait(lambda:js("return document.querySelector('.bubble')?.textContent.includes('飞盘')"))
+    check('quiet mode retains direct interaction feedback')
+    command('POST','/window',{'handle':panel});open_more();shoot('quiet-companionship')
+    saved_memory=invoke('companion_status')
+    exec(ROOT.joinpath('scripts/e2e-memory.py').read_text().split('\nopen_more()\nwait(lambda: js(')[0])
+    restart_app();park_panel()
+    wait(lambda:js("return document.querySelector('[data-testid=quiet-companion]')?.checked"))
+    restored_memory=invoke('companion_status')
+    check('real restart retains quiet setting and relationship records',restored_memory['quiet_companion'] and all(restored_memory[k]==saved_memory[k] for k in ['nickname','fetches','affection','treats']))
+    native_click("document.querySelector('[data-testid=quiet-companion]')")
+    wait(lambda:not invoke('companion_status')['quiet_companion'])
+    check('leaving quiet restores original encounter preference',invoke('companion_status')['encounters_enabled'])
     print(json.dumps({'ok':True,'checks':checks},ensure_ascii=False))
     (OUT/'result.json').write_text(json.dumps({'ok':True,'checks':checks},ensure_ascii=False,indent=2))
 finally:

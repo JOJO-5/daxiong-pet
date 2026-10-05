@@ -10,6 +10,7 @@ pub struct Memory {
     pub affection: u32,
     pub encounters_enabled: bool,
     pub playful_fetch: bool,
+    pub quiet_companion: bool,
     pub training: [u8;4],
     pub treats: u32,
     pub fetches: u32,
@@ -22,7 +23,7 @@ pub struct Memory {
 impl Default for Memory {
     fn default() -> Self {
         Self { version:1, nickname:String::new(), affection:0, treats:0, fetches:0, pats:0,
-            last_treat:None,last_pat:None,last_fetch_reward:None,encounters_enabled:true,playful_fetch:true,training:[0;4] }
+            last_treat:None,last_pat:None,last_fetch_reward:None,encounters_enabled:true,playful_fetch:true,quiet_companion:false,training:[0;4] }
     }
 }
 
@@ -32,6 +33,7 @@ pub struct MemoryView {
     pub affection: u32,
     pub encounters_enabled: bool,
     pub playful_fetch: bool,
+    pub quiet_companion: bool,
     pub training: [u8;4],
     pub stage: &'static str,
     pub treats: u32,
@@ -80,7 +82,7 @@ impl Memory {
         Ok(value.into())
     }
     pub fn view(&self,clock:u64,error:Option<String>) -> MemoryView {
-        MemoryView { nickname:self.nickname.clone(), affection:self.affection, encounters_enabled:self.encounters_enabled,playful_fetch:self.playful_fetch,training:self.training,stage:match self.affection {
+        MemoryView { nickname:self.nickname.clone(), affection:self.affection, encounters_enabled:self.encounters_enabled,playful_fetch:self.playful_fetch,quiet_companion:self.quiet_companion,training:self.training,stage:match self.affection {
             0..=19=>"初次相识",20..=99=>"越来越熟",100..=299=>"默契伙伴",_=>"最好的朋友"
         },treats:self.treats,fetches:self.fetches,pats:self.pats,treat_wait:wait(self.last_treat,clock,20),error }
     }
@@ -114,6 +116,15 @@ impl Memory {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn quiet_preference_round_trips_and_old_memories_keep_existing_encounter_preference() {
+        let dir=tempfile::tempdir().unwrap();let path=dir.path().join("memory.json");
+        std::fs::write(&path,b"{\"version\":1,\"encounters_enabled\":true,\"nickname\":\"Jo\",\"affection\":20}").unwrap();
+        let mut memory=Memory::load(&path).unwrap();assert!(!memory.quiet_companion);
+        memory.quiet_companion=true;memory.save(&path).unwrap();
+        let restored=Memory::load(&path).unwrap();assert!(restored.view(1_000_000,None).quiet_companion);
+        assert!(restored.encounters_enabled);assert_eq!(restored.nickname,"Jo");assert_eq!(restored.affection,20);
+    }
     #[test]
     fn training_reward_requires_real_treat_and_survives_restart_without_decay() {
         let dir=tempfile::tempdir().unwrap();let path=dir.path().join("memory.json");let mut m=Memory::default();

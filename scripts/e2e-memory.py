@@ -61,7 +61,7 @@ try:
     raise AssertionError("cooldown was bypassed")
 except AssertionError as e:
     check("feeding cooldown is enforced in Rust", "饼干" in str(e))
-check("feeding cooldown disables button",js("return [...document.querySelectorAll('button')].some(b=>b.disabled && b.textContent.includes('下块饼干'))"))
+check("feeding cooldown disables button",js("return [...document.querySelectorAll('button')].some(b=>b.disabled && b.textContent.includes('还在嚼'))"))
 time.sleep(.15)
 # A hover is the application's existing real petting gesture.
 before_pat = invoke("companion_status")["pats"]

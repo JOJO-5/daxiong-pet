@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ToyDisc from "./ToyDisc";
+import SpeechBubble from "./SpeechBubble";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { Butterfly, type EncounterView } from "./EncountersPanel";
@@ -29,7 +30,7 @@ type Frame = { row: number; col: number; released_toy?: {toy: "ball" | "frisbee"
  */
 export default function App() {
   const [frame, setFrame] = useState<Frame>({ row: 0, col: 0 });
-  const [bubble, setBubble] = useState<{ text: string; id: number } | null>(null);
+  const [bubble, setBubble] = useState<{ text: string; id: number; duration: number; protect: boolean } | null>(null);
   const [src, setSrc] = useState<string>(BUILTIN_SRC);
   const [rows, setRows] = useState<number>(DEFAULT_ROWS);
   const [clickable,setClickable]=useState(false);
@@ -44,8 +45,13 @@ export default function App() {
   const bubbleId = useRef(0);
   const speechHistory = useRef<SpeechHistory>(new Map());
   const lastText = useRef<string | null>(null);
-  const hideTimer = useRef<number | null>(null);
   const readySent = useRef(false);
+  const errorUntil = useRef(0);
+
+  const dismissBubble = useCallback(() => setBubble(null), []);
+  const protectBubble = useCallback((duration: number) => {
+    if (bubble?.protect) errorUntil.current = Math.max(errorUntil.current, Date.now() + duration);
+  }, [bubble?.id, bubble?.protect]);
 
   useEffect(() => {
     let alive = true;
@@ -53,15 +59,12 @@ export default function App() {
     let loading = false;
     let latestFrame: Frame = { row: 0, col: 0 };
     let activeRows = DEFAULT_ROWS;
-    let errorUntil = 0;
     let treatTimer: number | null = null;
     const displayMessage = (text: string, duration = BUBBLE_MS, protect = duration > BUBBLE_MS) => {
       if (!alive) return;
-      if (protect) errorUntil = Date.now() + duration;
+      if (protect) errorUntil.current = Date.now() + duration;
       bubbleId.current += 1;
-      setBubble({ text, id: bubbleId.current });
-      if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
-      hideTimer.current = window.setTimeout(() => { if (alive) setBubble(null); }, duration);
+      setBubble({ text, id: bubbleId.current, duration, protect });
     };
 
     const applyPet = async (pet: PetSwitch) => {
@@ -101,7 +104,7 @@ export default function App() {
     });
 
     const offSay = listen<string>("pet:say", (event) => {
-      if (!alive || Date.now() < errorUntil) return;
+      if (!alive || Date.now() < errorUntil.current) return;
       const text = pickSpeech(speech.current, event.payload, lastText.current, speechHistory.current);
       if (!text) return;
       lastText.current = text;
@@ -120,7 +123,7 @@ export default function App() {
     const offEncounter=listen<EncounterView>("pet:encounter",e=>{if(alive) setEncounter(e.payload);});
     const offIntro=listen("pet:onboarding-complete",()=>{try{localStorage.setItem("pet-menu-intro-v2","seen");}catch{/* Opening menus still works without storage. */}});
     const offMessage = listen<string>("pet:message",event => {
-      if(alive && Date.now()>=errorUntil) displayMessage(event.payload);
+      if(alive && Date.now()>=errorUntil.current) displayMessage(event.payload);
     });
     const offTreat = listen("pet:treat",()=>{
       if(!alive) return;
@@ -129,7 +132,7 @@ export default function App() {
       treatTimer=window.setTimeout(()=>{if(alive) setTreating(false);},1800);
     });
     const offError = listen<string>("pet:error", (event) => {
-      errorUntil = Date.now() + 7000;
+      errorUntil.current = Date.now() + 7000;
       displayMessage(event.payload, 7000);
     });
 
@@ -147,7 +150,6 @@ export default function App() {
     return () => {
       alive = false;
       if(treatTimer!==null) window.clearTimeout(treatTimer);
-      if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
       offFrame.then((off) => off()).catch(console.error);
       offSay.then((off) => off()).catch(console.error);
       offSwitch.then((off) => off()).catch(console.error);
@@ -161,11 +163,9 @@ export default function App() {
   }, []);
 
   return (
-    <div className="stage" onContextMenu={e => { e.preventDefault(); void invoke("open_pet_menu").catch(error=>{if(hideTimer.current!==null)clearTimeout(hideTimer.current);setBubble({id:Date.now(),text:`菜单没打开：${String(error)}`});hideTimer.current=window.setTimeout(()=>setBubble(null),5000);}); }}>
+    <div className="stage" onContextMenu={e => { e.preventDefault(); void invoke("open_pet_menu").catch(error=>{setBubble({id:++bubbleId.current,text:`菜单没打开：${String(error)}`,duration:5000,protect:true});}); }}>
       {bubble && (
-        <div className="bubble" key={bubble.id}>
-          {bubble.text}
-        </div>
+        <SpeechBubble key={bubble.id} text={bubble.text} duration={bubble.duration} onDismiss={dismissBubble} onDuration={protectBubble}/>
       )}
       <Butterfly event={encounter}/>
       {treating && (src!==BUILTIN_SRC || rows<21) ? <div className="treat-cookie" data-testid="treat-cookie" aria-hidden="true"><i/><i/><i/></div> : null}

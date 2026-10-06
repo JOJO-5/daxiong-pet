@@ -271,3 +271,7 @@ E2E_RECORD=1 E2E_SCRIPT=scripts/e2e-video.py xvfb-run -a -s '-screen 0 1280x800x
 - [设计心理学评审](docs/DESIGN-PSYCHOLOGY-REVIEW.md)、[三阶段计划](docs/UX-RELEASE-PLAN.md)、[UX 验证记录](docs/validation/1.0.23-ux.md)
 
 原始与扩展角色图集均未修改，角色形象和咬住、松口检查继续遵守项目准则。多屏与真实功耗不在本次验收范围内。
+
+## 1.0.24 气泡裁切修复
+
+[v1.0.24 下载](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.0.24)：修复长提示的顶部与边缘裁切；超长文字按系统字体实际排版分页，保留完整内容。四平台构建与原生检查、323 项桌面回归通过，角色图集保持不变。详见[气泡验收记录](docs/validation/1.0.24-bubbles.md)。

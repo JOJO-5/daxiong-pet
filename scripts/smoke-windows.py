@@ -13,7 +13,7 @@ parser.add_argument('--application',required=True)
 parser.add_argument('--out',default='test-results/windows')
 args=parser.parse_args()
 out=Path(args.out);out.mkdir(parents=True,exist_ok=True)
-report={'platform':'Windows','passed':[],'error':None,'scope':'native launch, click-through, menu, panel and mouse-held tug; single display'}
+report={'platform':'Windows','passed':[],'error':None,'scope':'native launch, click-through, head/belly contact, menu, panel and mouse-held tug; single display'}
 user=c.WinDLL('user32',use_last_error=True)
 user.SetProcessDPIAware()
 user.EnumWindows.argtypes=[c.WINFUNCTYPE(w.BOOL,w.HWND,w.LPARAM),w.LPARAM]
@@ -115,6 +115,22 @@ try:
     check('pet is always on top',bool(extended&0x00000008))
     user.SetCursorPos(5,5);time.sleep(.4)
     check('transparent desktop area is click-through',bool(user.GetWindowLongW(main,-20)&0x00000020))
+    def hover_pet(x,y):
+        current=rect(main);scale=(current.right-current.left)/300
+        user.SetCursorPos(round(current.left+x*scale),round(current.top+y*scale))
+        return current.left,current.top
+    before_touch=hover_pet(145,125);time.sleep(2)
+    capture('head-rub.png')
+    current=rect(main)
+    check('head contact keeps the native window stationary',(current.left,current.top)==before_touch)
+    user.SetCursorPos(5,5);time.sleep(5)
+    before_touch=hover_pet(178,199);time.sleep(1.8)
+    hover_pet(172,145);time.sleep(1.5)
+    capture('belly-rub.png')
+    current=rect(main)
+    check('belly contact keeps the native window stationary',(current.left,current.top)==before_touch)
+    report['petting_visuals']='real pointer head/belly screenshots; pose inspection is separate from stationary checks'
+    user.SetCursorPos(5,5);time.sleep(1.5)
     choose(main,"打开互动面板")
     panel=wait(lambda:next(iter(windows('和大熊一起玩')),None))
     check('real right-click menu opens interaction panel')

@@ -12,3 +12,6 @@ mod encounters;
 mod play;
 #[path = "../../../src-tauri/src/tug.rs"]
 mod tug;
+
+#[path = "../../../src-tauri/src/petting.rs"]
+mod petting;

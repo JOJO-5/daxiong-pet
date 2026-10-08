@@ -11,7 +11,7 @@ def shoot(name):
 
 try:
     new_session()
-    wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
+    wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5616"))
     wait(lambda:invoke('plugin:window|is_visible',{'label':'main'}))
     native=pet_native();pointer('windowmove',native,380,260);pointer('mousemove',30,30)
     wait(bounds);wait(lambda:bounds()['bottom']<=78.01)

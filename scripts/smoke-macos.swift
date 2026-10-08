@@ -1,5 +1,6 @@
 // Native startup and mouse-held tug on macOS when Accessibility permission is available.
 import Foundation
+import AppKit
 import CoreGraphics
 import ApplicationServices
 
@@ -39,6 +40,24 @@ func waitWindow(_ name: String, visible: Bool = true, timeout: Double = 15) thro
         Thread.sleep(forTimeInterval:0.08)
     }
     throw NSError(domain:"NativeSmoke",code:3,userInfo:[NSLocalizedDescriptionKey:"Timed out waiting for native window: \(name), visible=\(visible)"])
+}
+func stableWindow(_ name: String) throws -> [String: Any] {
+    let end=Date().addingTimeInterval(10)
+    var previous: CGRect?=nil
+    var stableSince=Date()
+    while Date()<end {
+        let window=try waitWindow(name)!
+        let current=bounds(window)
+        if current != previous { previous=current;stableSince=Date() }
+        if Date().timeIntervalSince(stableSince)>0.4 { return window }
+        Thread.sleep(forTimeInterval:0.08)
+    }
+    throw NSError(domain:"NativeSmoke",code:5,userInfo:[NSLocalizedDescriptionKey:"Window geometry did not settle: \(name)"])
+}
+func hoverPet(_ x: Double,_ y: Double) throws -> CGRect {
+    let r=bounds(try waitWindow("大熊")!)
+    mouse(.mouseMoved,CGPoint(x:r.minX+x,y:r.minY+y))
+    return r
 }
 func mouse(_ kind: CGEventType, _ point: CGPoint, _ button: CGMouseButton = .left) {
     CGEvent(mouseEventSource:nil,mouseType:kind,mouseCursorPosition:point,mouseButton:button)?.post(tap:.cghidEventTap)
@@ -86,14 +105,25 @@ do {
     report["screen_recording_ready"] = CGPreflightScreenCaptureAccess()
     try screenshot("desktop.png")
     if AXIsProcessTrusted() {
-        report["scope"] = "native startup, menu, panel and mouse-held tug; single display"
+        report["scope"] = "native startup, head/belly contact, menu, panel and mouse-held tug; single display"
         Thread.sleep(forTimeInterval:1)
+        let headBefore=try hoverPet(145,125);Thread.sleep(forTimeInterval:2)
+        try screenshot("head-rub.png")
+        try require(bounds(try waitWindow("大熊")!).origin==headBefore.origin,"head contact keeps the native window stationary")
+        mouse(.mouseMoved,CGPoint(x:5,y:5));Thread.sleep(forTimeInterval:5)
+        let bellyBefore=try hoverPet(178,199);Thread.sleep(forTimeInterval:1.8)
+        _=try hoverPet(172,145);Thread.sleep(forTimeInterval:1.5)
+        try screenshot("belly-rub.png")
+        try require(bounds(try waitWindow("大熊")!).origin==bellyBefore.origin,"belly contact keeps the native window stationary")
+        report["petting_visuals"]="real pointer head/belly screenshots; pose inspection is separate from stationary checks"
+        mouse(.mouseMoved,CGPoint(x:5,y:5));Thread.sleep(forTimeInterval:1.5)
         try petMenu();key(115);key(36)
         let panel=try waitWindow("和大熊一起玩")!
         try require(!bounds(panel).isEmpty,"real right-click menu opens interaction panel")
         // Use the native titlebar close button; the application should hide the panel.
-        let pr=bounds(panel);let close=CGPoint(x:pr.minX+13,y:pr.minY+13)
-        mouse(.mouseMoved,close);mouse(.leftMouseDown,close);mouse(.leftMouseUp,close)
+        NSRunningApplication(processIdentifier:app.processIdentifier)?.activate(options:[.activateIgnoringOtherApps])
+        let pr=bounds(try stableWindow("和大熊一起玩"));let close=CGPoint(x:pr.minX+13,y:pr.minY+13)
+        mouse(.mouseMoved,close);Thread.sleep(forTimeInterval:0.15);mouse(.leftMouseDown,close);mouse(.leftMouseUp,close)
         _=try waitWindow("和大熊一起玩",visible:false)
         try require(app.isRunning,"closing panel keeps pet alive")
         try petMenu();key(115)

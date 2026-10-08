@@ -23,3 +23,8 @@ convert "$root/public/spritesheet-extended.webp" -crop 1536x4784+0+0 +repage "$f
 convert "$frames/original-23.png" "$root/assets/animation-source/tug-packed.webp" -append -background black -alpha background -define webp:lossless=true "$root/public/spritesheet-extended.webp"
 # Read the cut tip in each frame so the independent rope meets its baked bite.
 python3 "$root/scripts/tug-anchors.py" "$frames" "$root/assets/animation-source"
+
+# Append touch poses after rebuilding the original 25 rows.
+if [[ -f "$root/assets/animation-source/belly-rub-source.png" ]]; then
+ bash "$root/scripts/pack-petting.sh"
+fi

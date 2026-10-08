@@ -17,7 +17,7 @@ def eating(name):
     command('POST','/window',{'handle':panel})
 try:
     new_session();main=command('GET','/window')
-    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
+    wait(lambda: js("return document.querySelector('.pet-sheet')?.naturalHeight===5616"))
     invoke('set_encounters',{'enabled':False})
     initial=set(command('GET','/window/handles'));invoke('open_playground');time.sleep(1.2)
     panel=next(iter(set(command('GET','/window/handles'))-initial));command('POST','/window',{'handle':panel})

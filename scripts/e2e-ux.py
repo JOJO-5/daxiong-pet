@@ -16,7 +16,7 @@ def park_panel():
 
 try:
     new_session();main=command('GET','/window')
-    wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
+    wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5616"))
     wait(lambda:invoke('plugin:window|is_visible',{'label':'main'}));time.sleep(.7)
     check('showing intro alone does not mark it learned',js("return !localStorage.getItem('pet-menu-intro-v2')"))
     invoke('set_encounters',{'enabled':False})

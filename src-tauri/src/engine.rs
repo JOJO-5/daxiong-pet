@@ -40,14 +40,6 @@ const IDLE_TALK_MS: u64 = 45_000;
 /// 起身溜达时开口的概率（百分比）
 const WANDER_TALK_CHANCE: u32 = 35;
 
-// ---- 摸头 ----
-/// 光标在宠物身上静止多久算摸头
-const PAT_STILL_MS: u64 = 1_200;
-/// 摸头后的冷却，免得一直蹭
-const PAT_COOLDOWN_MS: u64 = 6_000;
-/// 判定「静止」的位移阈值（逻辑像素）
-const PAT_STILL_RADIUS: f32 = 4.0;
-
 // ---- 连点生气 ----
 /// 统计窗口：这段时间内点够次数就翻脸
 const ANNOY_WINDOW_MS: u64 = 2_000;
@@ -117,6 +109,7 @@ pub enum SayKind {
     Wander,
     /// 被摸头
     Pat,
+    BellyPat,
     /// 被连点烦到了
     Annoyed,
     /// 睡着了
@@ -147,6 +140,7 @@ impl SayKind {
             SayKind::Idle => "idle",
             SayKind::Wander => "wander",
             SayKind::Pat => "pat",
+            SayKind::BellyPat => "belly_pat",
             SayKind::Annoyed => "annoyed",
             SayKind::Sleep => "sleep",
             SayKind::Wake => "wake",
@@ -195,6 +189,7 @@ pub struct Output {
     pub say: Option<SayKind>,
     /// 是否处于睡眠状态，前端据此加变暗效果
     pub sleeping: bool,
+    pub petting: Option<crate::petting::Feedback>,
 }
 
 struct Press {
@@ -246,9 +241,7 @@ pub struct Engine {
     next_wander_ms: u64,
 
     // ---- 摸头 ----
-    pat_ms: u64,
-    pat_cd_ms: u64,
-    last_cursor: (i32, i32),
+    petting: crate::petting::Petting,
     was_hot: bool,
 
     // ---- 连点 ----
@@ -304,9 +297,7 @@ impl Engine {
             wander: None,
             calm_ms: 0,
             next_wander_ms: WANDER_COOLDOWN_MIN,
-            pat_ms: 0,
-            pat_cd_ms: 0,
-            last_cursor: (0, 0),
+            petting: crate::petting::Petting::default(),
             was_hot: false,
             clicks: VecDeque::new(),
             annoyed_until_ms: 0,
@@ -623,36 +614,24 @@ impl Engine {
             }
         }
 
-        // ---- 6. 摸头：光标停在宠物身上不动 ----
-        let cursor_dx = (cx - self.last_cursor.0) as f32;
-        let cursor_dy = (cy - self.last_cursor.1) as f32;
-        let cursor_still = (cursor_dx * cursor_dx + cursor_dy * cursor_dy).sqrt() < PAT_STILL_RADIUS * scale;
-        self.last_cursor = (cx, cy);
-
-        let petting = !self.play.active() && !self.activities.active() && hot && cursor_still && !input.button_down && !self.dragging;
-        if petting {
-            self.pat_ms += dt;
-        } else {
-            self.pat_ms = 0;
-        }
-        self.pat_cd_ms = self.pat_cd_ms.saturating_sub(dt);
-
-        if self.pat_ms >= PAT_STILL_MS
-            && self.pat_cd_ms == 0
-            && self.react.is_none()
-            && !self.sleeping
-            && self.pomodoro_ms.is_none()
-        {
-            self.pat_ms = 0;
-            self.pat_cd_ms = PAT_COOLDOWN_MS;
-            self.start_reaction(if input.extra_animations { Row::HappyPat } else { Row::Waving });
-            if self.clock_ms < self.annoyed_until_ms {
-                self.annoyed_until_ms = 0;
-                self.clicks.clear();
-                say = Some(SayKind::Comfort);
-            } else {
-                say = Some(SayKind::Pat);
-            }
+        // ---- 6. Light pointer contact; button-down belongs exclusively to dragging.
+        let touch = self.petting.tick(dt, (cx-px) as f32 / scale, (cy-py) as f32 / scale,
+            input.interactive && !self.play.active() && !self.activities.active()
+                && !input.button_down && !self.dragging && !self.sleeping
+                && self.pomodoro_ms.is_none() && (self.react.is_none() || self.ambient_reaction)
+                && self.vx.abs() <= 8.0 && self.vy.abs() <= 8.0, input.extra_animations);
+        let petting = touch.engaged;
+        if let Some(kind) = touch.started {
+            self.react = None;
+            self.ambient_reaction = false;
+            let was_annoyed = self.clock_ms < self.annoyed_until_ms;
+            self.annoyed_until_ms = 0;
+            self.clicks.clear();
+            say = Some(match kind {
+                crate::petting::Zone::Belly => SayKind::BellyPat,
+                crate::petting::Zone::Head if was_annoyed => SayKind::Comfort,
+                _ => SayKind::Pat,
+            });
         }
 
         // ---- 7. 睡眠：长时间无交互就睡，被碰到就醒 ----
@@ -956,6 +935,8 @@ impl Engine {
             } else if input.extra_animations && matches!(self.play.view().phase,"returning" | "teasing") {
                 if right { Row::CarryRight } else { Row::CarryLeft }
             } else if right { Row::RunRight } else { Row::RunLeft }
+        } else if let Some((row, _)) = touch.frame {
+            row
         } else if let Some((r, _)) = self.react {
             r
         } else if let Some(row)=encounter.row {
@@ -1005,6 +986,7 @@ impl Engine {
 
         if let Some(col)=activity.col {self.col=col.min(atlas::track(self.row).cols-1);self.acc=0;}
         if matches!(self.row,Row::TugRight|Row::TugLeft) {self.col=self.play.tug_frame().unwrap_or(0);self.acc=0;}
+        if let Some((row,col))=touch.frame {if self.row==row {self.col=col;self.acc=0;}}
         self.play.align_carried_ball(input, move_to.unwrap_or(input.win_pos), self.row, self.col);
         if self.quiet_companion && say==Some(SayKind::Sleep) {say=None;}
         Output {
@@ -1015,6 +997,7 @@ impl Engine {
             col: self.col,
             say,
             sleeping: self.sleeping,
+            petting: touch.feedback,
         }
     }
 }
@@ -1236,15 +1219,29 @@ mod tests {
     }
 
     #[test]
+    fn petting_zones_follow_dpi_and_pressed_contact_still_drags() {
+        for scale in [1.0, 1.25, 1.5, 2.0] {
+            let mut e=Engine::new();let mut i=input(scale);i.extra_animations=true;
+            i.cursor=(i.win_pos.0+((PET_X+67) as f64*scale).round() as i32,
+                i.win_pos.1+((PET_Y+41) as f64*scale).round() as i32);
+            let mut starts=0;
+            for _ in 0..180 {let out=e.tick(&i);starts+=usize::from(out.say==Some(SayKind::Pat));assert!(out.move_to.is_none());}
+            assert_eq!(starts,1);assert_eq!(e.row,Row::HappyPat);
+            i.button_down=true;assert!(e.tick(&i).petting.is_none());
+            i.cursor.0+=(30.0*scale) as i32;assert_eq!(e.tick(&i).row,Row::Waiting as u8);assert!(e.dragging);
+        }
+    }
+
+    #[test]
     fn builtin_petting_sleep_and_wake_use_dedicated_rows() {
         let mut engine = Engine::new();
         let mut i = input(1.0);
         i.extra_animations = true;
         i.cursor = (250, 262);
-        engine.last_cursor = i.cursor;
         engine.was_hot = true;
-        engine.pat_ms = PAT_STILL_MS;
+        for _ in 0..80 { engine.tick(&i); }
         assert_eq!(engine.tick(&i).row, Row::HappyPat as u8);
+        engine.petting.cancel();
         engine.react = None;
         engine.quiet_ms = SLEEP_AFTER_MS;
         i.cursor = (-1000, -1000);
@@ -1347,7 +1344,6 @@ mod tests {
         let mut engine = Engine::new();
         let mut i = input(1.0);
         i.cursor = (250, 262);
-        engine.last_cursor = i.cursor;
         engine.was_hot = true;
         engine.annoyed_until_ms = 6000;
         engine.quiet_ms = SLEEP_AFTER_MS - 1;

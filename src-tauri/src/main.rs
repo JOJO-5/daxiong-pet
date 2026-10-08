@@ -6,6 +6,7 @@ mod activities;
 mod config;
 mod companion;
 mod engine;
+mod petting;
 mod encounters;
 mod petpack;
 mod play;
@@ -45,6 +46,7 @@ struct FramePayload {
     row: u8,
     col: usize,
     released_toy: Option<ReleasedToy>,
+    petting: Option<petting::Feedback>,
 }
 
 /// 宠物状态变化（目前只有睡眠），前端据此加视觉效果
@@ -672,7 +674,7 @@ fn spawn_engine(
                 prev_clickable = Some(out.clickable);
             }
 
-            let frame = FramePayload {row:out.row,col:out.col,released_toy};
+            let frame = FramePayload {row:out.row,col:out.col,released_toy,petting:out.petting};
             if visible && prev_frame.as_ref()!=Some(&frame) {
                 let _ = app.emit("pet:frame", &frame);
                 prev_frame = Some(frame);
@@ -687,7 +689,7 @@ fn spawn_engine(
             if let Some(kind) = out.say {
                 let reward=match kind {
                     engine::SayKind::PlayReturned=>Some(companion::Reward::Fetch),
-                    engine::SayKind::Pat | engine::SayKind::Comfort=>Some(companion::Reward::Pat),_=>None
+                    engine::SayKind::Pat | engine::SayKind::BellyPat | engine::SayKind::Comfort=>Some(companion::Reward::Pat),_=>None
                 };
                 if let Some(reward)=reward {
                     if let Err(error)=update_memory(&app,|m|m.reward(reward,companion::now())) {
@@ -695,13 +697,14 @@ fn spawn_engine(
                     }
                 }
                 let personal=match kind {
-                    engine::SayKind::PlayReturned | engine::SayKind::Wake | engine::SayKind::Pat=>{
+                    engine::SayKind::PlayReturned | engine::SayKind::Wake | engine::SayKind::Pat | engine::SayKind::BellyPat=>{
                         let stored=app.state::<AppState>();let stored=stored.memory.lock().unwrap();
                         if stored.error.is_none() && stored.data.affection>=20 && !stored.data.nickname.is_empty() {
                             let name=stored.data.address();
                             Some(match kind {
                                 engine::SayKind::PlayReturned=>format!("{name}，叼回来啦！再玩一次？"),
                                 engine::SayKind::Wake=>format!("{name}，我醒啦，继续陪你。"),
+                                engine::SayKind::BellyPat=>format!("{name}，肚皮也交给你啦，好舒服。"),
                                 _=>format!("{name}，最喜欢你摸摸头啦。")
                             })
                         } else { None }
@@ -911,6 +914,13 @@ mod tests {
             assert_eq!(actual[3], pixel[3]);
             if pixel[3] > 0 { assert_eq!(actual, pixel); }
         }
+        // Roll starts and ends on the untouched canonical standing frame.
+        for col in [0,7] {
+            for y in 0..208 { for x in 0..192 {
+                let a=original.get_pixel(x,y);let b=extended.get_pixel(col*192+x,26*208+y);
+                assert_eq!(a[3],b[3]);if a[3]>0 { assert_eq!(a,b); }
+            }}
+        }
         for row in 11..petpack::builtin().rows {
             for col in 0..8 {
                 let mut visible = 0;
@@ -948,7 +958,7 @@ mod tests {
     fn builtin_payload_has_matching_dimensions_and_no_external_image() {
         let state = state(vec![petpack::builtin()]);
         let payload = payload_for(&state, "__builtin__").unwrap();
-        assert_eq!(payload.rows, 25);
+        assert_eq!(payload.rows, 27);
         assert!(payload.data_url.is_none());
         assert!(payload.speech.is_none());
     }

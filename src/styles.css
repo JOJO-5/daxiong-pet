@@ -206,3 +206,21 @@ body {
 
 .released-toy { position:absolute; transform:translate(-50%,-50%); pointer-events:none; }
 .released-toy svg { display:block; }
+
+/* Native body contact feedback never intercepts dragging or desktop clicks. */
+.petting-feedback { position:absolute; z-index:3; width:22px; height:22px; margin:-11px;
+  pointer-events:none; color:#db866f; }
+.petting-feedback[data-kind="belly"] { color:#d89950; }
+.touch-ring { display:block; overflow:visible; }
+.touch-track { fill:none; stroke:currentColor; stroke-width:1; opacity:.22; }
+.touch-progress { fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round;
+  transform:rotate(-90deg); transform-origin:11px 11px; }
+.petting-feedback.active .touch-progress { opacity:.5; }
+.petting-feedback.stroking .touch-progress { stroke-width:2.5; opacity:.85; }
+.touch-heart { position:absolute; left:0; top:-5px; font:13px/1 system-ui,sans-serif;
+  animation:touch-heart 1.6s ease-out infinite; }
+.touch-heart.second { left:17px; font-size:10px; animation-delay:.8s; opacity:0; }
+@keyframes touch-heart { 0% { opacity:0; transform:translateY(0) scale(.7); }
+  25% { opacity:.85; } 100% { opacity:0; transform:translateY(-25px) scale(1.05); } }
+@media (prefers-reduced-motion:reduce) { .touch-heart { animation:none; opacity:.65; }
+  .touch-heart.second { opacity:.4; } }

@@ -6,7 +6,7 @@ def phase():return js("return document.querySelector('[data-testid=play-phase]')
 def shoot(name):subprocess.run(['import','-window','root',str(OUT/f'{name}.png')],check=True)
 try:
  new_session();main=command('GET','/window')
- wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5200"))
+ wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5616"))
  wait(lambda:invoke('plugin:window|is_visible',{'label':'main'}));time.sleep(.65)
  invoke('set_encounters',{'enabled':False});initial=set(command('GET','/window/handles'));invoke('open_playground');time.sleep(1.2)
  panel=next(iter(set(command('GET','/window/handles'))-initial));command('POST','/window',{'handle':panel})

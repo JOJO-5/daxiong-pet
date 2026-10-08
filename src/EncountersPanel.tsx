@@ -24,7 +24,7 @@ export default function EncountersPanel() {
   return <section className="play-card encounter-card">
     <div className="encounter-heading"><h2>偶遇小惊喜</h2><label><input aria-label="开启偶遇小事件" type="checkbox" checked={status.enabled} disabled={busy} onChange={e=>void toggle(e.target.checked)}/>开启</label></div>
     <p className="small" data-testid="encounter-phase" data-kind={status.kind||"none"} data-phase={status.phase}>{status.quiet_companion?"安静陪伴中，偶遇暂时暂停；原来的偶遇开关会保留。":!status.enabled?"偶遇已关闭，随时可以重新开启":status.kind==="butterfly"?"小蝴蝶来串门啦":status.kind==="ball"?"大熊把球推过来了，想和你玩": "偶尔会来只蝴蝶，或收到大熊的接球邀请"}</p>
-    <p className="small">专注、睡觉和正在互动时不打扰你。</p>
+    <p className="small">普通办公时也会偶尔出现；专注、睡觉或与大熊互动时暂停。</p>
     {error?<ActionError error={error} message="偶遇设置保存失败，原设置仍保留。请稍后再试。"/>:null}
   </section>;
 }

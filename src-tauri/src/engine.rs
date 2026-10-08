@@ -891,10 +891,12 @@ impl Engine {
 
         let play_phase=self.play.view().phase;
         let hard_blocked=self.quiet_companion || self.activities.active() || !input.interactive || self.sleeping || self.pomodoro_ms.is_some()
-            || self.dragging || self.press.is_some() || input.button_down || hot
+            || self.dragging || self.press.is_some() || hot
             || self.clock_ms<self.annoyed_until_ms || (self.react.is_some() && !self.ambient_reaction)
             || (self.play.active() && !(self.encounters.offering_ball() && play_phase=="ready"));
-        let encounter=self.encounters.tick(input,hard_blocked,!moving && self.wander.is_none());
+        // A desktop click may defer a new event, but must not reset its wait or cancel an active one.
+        // Pet and toy interactions remain hard blockers through hot, press, dragging and play.
+        let encounter=self.encounters.tick(input,hard_blocked,!input.button_down && !moving && self.wander.is_none());
         if encounter.cancel_ball && self.play.view().phase=="ready"
             && !(input.button_down && self.play.pointer_hot(input.cursor,input.scale_factor)) { self.play.cancel();self.activities.cancel(); }
         if encounter.offer_ball {
@@ -1136,6 +1138,38 @@ mod tests {
             }
             assert!(seen);assert_eq!(released,builtin);assert_eq!(engine.play_view().catches,1);
         }
+    }
+
+    #[test]
+    fn normal_office_clicks_do_not_starve_or_cancel_encounters() {
+        let mut engine=Engine::new();engine.encounters=crate::encounters::Encounters::new(1);
+        let mut i=input(1.0);i.encounters_enabled=true;i.dt_ms=100;
+        let mut seen=false;
+        // Click outside the pet every three seconds throughout a production-length wait.
+        for tick in 0..1700 {
+            i.button_down=tick%30<2;
+            let out=engine.tick(&i);if let Some(pos)=out.move_to {i.win_pos=pos;}
+            if engine.encounter_view().kind.is_some() {seen=true;break;}
+        }
+        assert!(seen,"ordinary desktop clicks must not restart the encounter wait");
+        i.button_down=true;engine.tick(&i);
+        assert!(engine.encounter_view().kind.is_some(),"clicking elsewhere must not cancel an active encounter");
+    }
+
+    #[test]
+    fn held_office_button_defers_start_and_release_preserves_the_wait() {
+        let mut engine=Engine::new();engine.encounters=crate::encounters::Encounters::new(1);
+        let mut i=input(1.0);i.encounters_enabled=true;i.dt_ms=100;i.button_down=true;
+        for _ in 0..1600 {
+            let out=engine.tick(&i);if let Some(pos)=out.move_to {i.win_pos=pos;}
+            assert!(engine.encounter_view().kind.is_none());
+        }
+        i.button_down=false;
+        for _ in 0..100 {
+            let out=engine.tick(&i);if let Some(pos)=out.move_to {i.win_pos=pos;}
+            if engine.encounter_view().kind.is_some() {return;}
+        }
+        panic!("releasing a desktop selection must not start another 90-second wait");
     }
 
     #[test]

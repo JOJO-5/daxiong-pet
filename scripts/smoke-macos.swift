@@ -105,8 +105,18 @@ do {
     report["screen_recording_ready"] = CGPreflightScreenCaptureAccess()
     try screenshot("desktop.png")
     if AXIsProcessTrusted() {
-        report["scope"] = "native startup, head/belly contact, menu, panel and mouse-held tug; single display"
+        report["scope"] = "native startup, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display"
         Thread.sleep(forTimeInterval:1)
+        _=try hoverPet(35,52);Thread.sleep(forTimeInterval:0.5)
+        let dizzyBefore=bounds(try waitWindow("大熊")!)
+        for i in 0..<14 {
+            mouse(.mouseMoved,CGPoint(x:dizzyBefore.minX+(i%2==0 ? 35:265),y:dizzyBefore.minY+52))
+            Thread.sleep(forTimeInterval:0.085)
+        }
+        Thread.sleep(forTimeInterval:0.6);try screenshot("dizzy-stars.png")
+        try require(bounds(try waitWindow("大熊")!).origin==dizzyBefore.origin,"rapid gaze keeps the native window stationary")
+        report["dizzy_visuals"]="real rapid native gaze and screenshot; star and pose inspection is separate from the stationary check"
+        _=try hoverPet(35,52);Thread.sleep(forTimeInterval:4)
         let headBefore=try hoverPet(145,125);Thread.sleep(forTimeInterval:2)
         try screenshot("head-rub.png")
         try require(bounds(try waitWindow("大熊")!).origin==headBefore.origin,"head contact keeps the native window stationary")

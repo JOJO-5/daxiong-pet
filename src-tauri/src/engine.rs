@@ -110,6 +110,7 @@ pub enum SayKind {
     /// 被摸头
     Pat,
     BellyPat,
+    Dizzy,
     /// 被连点烦到了
     Annoyed,
     /// 睡着了
@@ -141,6 +142,7 @@ impl SayKind {
             SayKind::Wander => "wander",
             SayKind::Pat => "pat",
             SayKind::BellyPat => "belly_pat",
+            SayKind::Dizzy => "dizzy",
             SayKind::Annoyed => "annoyed",
             SayKind::Sleep => "sleep",
             SayKind::Wake => "wake",
@@ -190,6 +192,7 @@ pub struct Output {
     /// 是否处于睡眠状态，前端据此加变暗效果
     pub sleeping: bool,
     pub petting: Option<crate::petting::Feedback>,
+    pub dizzy: Option<crate::dizziness::Feedback>,
 }
 
 struct Press {
@@ -242,6 +245,7 @@ pub struct Engine {
 
     // ---- 摸头 ----
     petting: crate::petting::Petting,
+    dizziness: crate::dizziness::Dizziness,
     was_hot: bool,
 
     // ---- 连点 ----
@@ -298,6 +302,7 @@ impl Engine {
             calm_ms: 0,
             next_wander_ms: WANDER_COOLDOWN_MIN,
             petting: crate::petting::Petting::default(),
+            dizziness: crate::dizziness::Dizziness::default(),
             was_hot: false,
             clicks: VecDeque::new(),
             annoyed_until_ms: 0,
@@ -424,7 +429,7 @@ impl Engine {
     pub fn is_focusing(&self)->bool {self.pomodoro_ms.is_some()}
 
     pub fn play_view(&self) -> crate::play::PlayView { self.play.view() }
-    pub fn cancel_play(&mut self) { self.play.cancel();self.activities.cancel();self.encounters.interrupt(); }
+    pub fn cancel_play(&mut self) { self.play.cancel();self.activities.cancel();self.encounters.interrupt();self.dizziness.cancel(); }
     pub fn activity_view(&self)->crate::activities::ActivityView {self.activities.view()}
     pub fn encounter_view(&self) -> crate::encounters::EncounterView {self.encounters.view()}
 
@@ -617,7 +622,7 @@ impl Engine {
         // ---- 6. Light pointer contact; button-down belongs exclusively to dragging.
         let touch = self.petting.tick(dt, (cx-px) as f32 / scale, (cy-py) as f32 / scale,
             input.interactive && !self.play.active() && !self.activities.active()
-                && !input.button_down && !self.dragging && !self.sleeping
+                && !self.dizziness.active() && !input.button_down && !self.dragging && !self.sleeping
                 && self.pomodoro_ms.is_none() && (self.react.is_none() || self.ambient_reaction)
                 && self.vx.abs() <= 8.0 && self.vy.abs() <= 8.0, input.extra_animations);
         let petting = touch.engaged;
@@ -634,9 +639,20 @@ impl Engine {
             });
         }
 
+        let dizzy=self.dizziness.tick(dt,(dx/scale,dy/scale),
+            input.interactive && input.look_enabled && !input.button_down && !petting
+                && !self.dragging && !self.sleeping && self.pomodoro_ms.is_none()
+                && !self.play.active() && !self.activities.active() && !self.encounters.active()
+                && (self.react.is_none() || self.ambient_reaction) && self.clock_ms>=self.annoyed_until_ms
+                && self.vx.abs()<=8.0 && self.vy.abs()<=8.0,input.extra_animations);
+        if dizzy.started {
+            self.react=None;self.ambient_reaction=false;self.wander=None;
+            self.vx=0.0;self.vy=0.0;say=Some(SayKind::Dizzy);
+        }
+
         // ---- 7. 睡眠：长时间无交互就睡，被碰到就醒 ----
         let entered = hot && !self.was_hot;
-        let interacted = self.activities.active() || (self.play.active() && !self.encounters.offering_ball()) || commit_click || commit_drag || entered || self.dragging || petting;
+        let interacted = self.activities.active() || (self.play.active() && !self.encounters.offering_ball()) || commit_click || commit_drag || entered || self.dragging || petting || dizzy.frame.is_some();
         self.was_hot = hot;
 
         if interacted {
@@ -773,7 +789,7 @@ impl Engine {
             self.wander = None;
         }
 
-        let interrupt = self.quiet_companion || self.play.active() || self.encounters.active() || !input.interactive
+        let interrupt = self.quiet_companion || self.play.active() || self.encounters.active() || self.dizziness.active() || !input.interactive
             || within_aware
             || self.dragging
             || self.press.is_some()
@@ -858,7 +874,7 @@ impl Engine {
 
         // 安静的小动作只在可见、静止且没有互动/提醒时出现，不发气泡。
         if !self.quiet_companion && input.interactive && self.clock_ms >= self.next_ambient_ms
-            && !self.play.active() && !self.activities.active() && !self.encounters.active() && self.react.is_none() && !self.sleeping && !self.dragging
+            && !self.play.active() && !self.activities.active() && !self.encounters.active() && !self.dizziness.active() && self.react.is_none() && !self.sleeping && !self.dragging
             && self.press.is_none() && !hot && !moving && self.wander.is_none()
             && self.clock_ms >= self.annoyed_until_ms && say.is_none()
         {
@@ -890,7 +906,7 @@ impl Engine {
         }
 
         let play_phase=self.play.view().phase;
-        let hard_blocked=self.quiet_companion || self.activities.active() || !input.interactive || self.sleeping || self.pomodoro_ms.is_some()
+        let hard_blocked=self.quiet_companion || self.dizziness.active() || self.activities.active() || !input.interactive || self.sleeping || self.pomodoro_ms.is_some()
             || self.dragging || self.press.is_some() || hot
             || self.clock_ms<self.annoyed_until_ms || (self.react.is_some() && !self.ambient_reaction)
             || (self.play.active() && !(self.encounters.offering_ball() && play_phase=="ready"));
@@ -937,6 +953,8 @@ impl Engine {
             } else if input.extra_animations && matches!(self.play.view().phase,"returning" | "teasing") {
                 if right { Row::CarryRight } else { Row::CarryLeft }
             } else if right { Row::RunRight } else { Row::RunLeft }
+        } else if let Some((row, _)) = dizzy.frame {
+            row
         } else if let Some((row, _)) = touch.frame {
             row
         } else if let Some((r, _)) = self.react {
@@ -989,6 +1007,7 @@ impl Engine {
         if let Some(col)=activity.col {self.col=col.min(atlas::track(self.row).cols-1);self.acc=0;}
         if matches!(self.row,Row::TugRight|Row::TugLeft) {self.col=self.play.tug_frame().unwrap_or(0);self.acc=0;}
         if let Some((row,col))=touch.frame {if self.row==row {self.col=col;self.acc=0;}}
+        if let Some((row,col))=dizzy.frame {if self.row==row {self.col=col;self.acc=0;}}
         self.play.align_carried_ball(input, move_to.unwrap_or(input.win_pos), self.row, self.col);
         if self.quiet_companion && say==Some(SayKind::Sleep) {say=None;}
         Output {
@@ -1000,6 +1019,7 @@ impl Engine {
             say,
             sleeping: self.sleeping,
             petting: touch.feedback,
+            dizzy: dizzy.feedback,
         }
     }
 }
@@ -1138,6 +1158,60 @@ mod tests {
             }
             assert!(seen);assert_eq!(released,builtin);assert_eq!(engine.play_view().catches,1);
         }
+    }
+
+    fn dizzy_gesture(engine:&mut Engine,i:&mut Input)->bool {
+        let mut seen=false;i.dt_ms=20;
+        for step in 0..65 {
+            let x=if (step/4)%2==0 {-145} else {145};
+            i.cursor=(i.win_pos.0+((150+x) as f64*i.scale_factor) as i32,
+                i.win_pos.1+(52.0*i.scale_factor) as i32);
+            let out=engine.tick(i);seen|=out.dizzy.is_some();
+            assert!(!matches!(out.say,Some(SayKind::Pat|SayKind::BellyPat)));
+        }
+        seen
+    }
+
+    #[test]
+    fn dizzy_gaze_respects_dpi_and_press_focus_and_hide_interrupt_it() {
+        for scale in [1.0,1.5,2.0] {
+            let mut e=Engine::new();let mut i=input(scale);i.extra_animations=true;
+            i.win_pos=(-800,200);i.screen=(-1920,0,3840,1080);
+            assert!(dizzy_gesture(&mut e,&mut i));assert!(e.dizziness.active());
+            i.button_down=true;assert!(e.tick(&i).dizzy.is_none());
+        }
+        let mut e=Engine::new();let mut i=input(1.0);i.extra_animations=true;
+        let (tx,rx)=std::sync::mpsc::channel();e.attach_commands(rx);
+        assert!(dizzy_gesture(&mut e,&mut i));tx.send(Command::StartPomodoro).unwrap();
+        assert!(e.tick(&i).dizzy.is_none());assert!(!dizzy_gesture(&mut e,&mut i));
+        let mut e=Engine::new();assert!(dizzy_gesture(&mut e,&mut i));
+        i.interactive=false;assert!(e.tick(&i).dizzy.is_none());
+    }
+
+    #[test]
+    fn dizzy_does_not_override_toys_sleep_disabled_gaze_or_legacy_bounds() {
+        let mut e=Engine::new();let mut i=input(1.0);i.extra_animations=true;
+        let (tx,rx)=std::sync::mpsc::channel();e.attach_commands(rx);
+        tx.send(Command::ShowBall).unwrap();e.tick(&i);assert!(!dizzy_gesture(&mut e,&mut i));
+        let mut e=Engine::new();e.sleeping=true;assert!(!dizzy_gesture(&mut e,&mut i));
+        let mut e=Engine::new();i.look_enabled=false;assert!(!dizzy_gesture(&mut e,&mut i));
+        let mut e=Engine::new();i.look_enabled=true;i.extra_animations=false;
+        assert!(!dizzy_gesture(&mut e,&mut i));
+        for _ in 0..160 {let out=e.tick(&i);assert!(out.row<11);assert!(out.dizzy.is_none());}
+    }
+
+    #[test]
+    fn rapid_horizontal_gaze_can_cross_the_pet_without_becoming_a_pat() {
+        let mut e=Engine::new();let mut i=input(1.0);i.extra_animations=true;i.dt_ms=20;
+        let mut seen=false;
+        for step in 0..90 {
+            let part=step%10;
+            let x=if part<=5 {-145+part*58} else {145-(part-5)*58};
+            i.cursor=(i.win_pos.0+150+x,i.win_pos.1+162);
+            let out=e.tick(&i);seen|=out.dizzy.is_some();
+            assert!(!matches!(out.say,Some(SayKind::Pat|SayKind::BellyPat)));
+        }
+        assert!(seen);
     }
 
     #[test]

@@ -13,7 +13,7 @@ parser.add_argument('--application',required=True)
 parser.add_argument('--out',default='test-results/windows')
 args=parser.parse_args()
 out=Path(args.out);out.mkdir(parents=True,exist_ok=True)
-report={'platform':'Windows','passed':[],'error':None,'scope':'native launch, click-through, head/belly contact, menu, panel and mouse-held tug; single display'}
+report={'platform':'Windows','passed':[],'error':None,'scope':'native launch, click-through, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display'}
 user=c.WinDLL('user32',use_last_error=True)
 user.SetProcessDPIAware()
 user.EnumWindows.argtypes=[c.WINFUNCTYPE(w.BOOL,w.HWND,w.LPARAM),w.LPARAM]
@@ -96,10 +96,26 @@ def choose(hwnd,label):
     user.SetCursorPos((target.left+target.right)//2,(target.top+target.bottom)//2);time.sleep(.12)
     user.mouse_event(0x0002,0,0,0,0);user.mouse_event(0x0004,0,0,0,0)
 
+def prepare_dizzy_capture():
+    # Warm up screenshot libraries before the short pose, then signal the actual capture.
+    ready=out/'dizzy-capture-ready.txt';trigger=out/'dizzy-capture-trigger.txt'
+    ready.unlink(missing_ok=True);trigger.unlink(missing_ok=True)
+    quote=lambda p:"'"+str(p.resolve()).replace("'","''")+"'"
+    code="Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; "
+    code+="$shotRegion=[System.Windows.Forms.SystemInformation]::VirtualScreen; $shotBitmap=New-Object System.Drawing.Bitmap $shotRegion.Width,$shotRegion.Height; $shotGraphics=[System.Drawing.Graphics]::FromImage($shotBitmap); "
+    code+="try { Set-Content -Path "+quote(ready)+" -Value ready; $shotDeadline=(Get-Date).AddSeconds(20); while (!(Test-Path "+quote(trigger)+")) { if ((Get-Date) -gt $shotDeadline) { throw 'Capture signal timeout' }; Start-Sleep -Milliseconds 20 }; "
+    code+="$shotGraphics.CopyFromScreen($shotRegion.Left,$shotRegion.Top,0,0,$shotRegion.Size); $shotBitmap.Save("+quote(out/'dizzy-stars.png')+",[System.Drawing.Imaging.ImageFormat]::Png) } finally { $shotGraphics.Dispose(); $shotBitmap.Dispose() }"
+    shot=subprocess.Popen(['powershell','-NoProfile','-Command',code],stdout=subprocess.DEVNULL,stderr=(out/'dizzy-capture.log').open('w'))
+    wait(lambda:ready.exists() or shot.poll() is not None,15)
+    assert ready.exists() and shot.poll() is None,'screenshot preparation failed'
+    return shot,trigger,ready
+
 def capture(name):
     target=str((out/name).resolve()).replace("'","''")
     code="Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; $r=[System.Windows.Forms.SystemInformation]::VirtualScreen; $b=New-Object System.Drawing.Bitmap $r.Width,$r.Height; $g=[System.Drawing.Graphics]::FromImage($b); $g.CopyFromScreen($r.Left,$r.Top,0,0,$r.Size); $b.Save('"+target+"'); $g.Dispose(); $b.Dispose()"
     subprocess.run(['powershell','-NoProfile','-Command',code],check=True)
+
+dizzy_capture=None
 
 try:
     process=subprocess.Popen([str(Path(args.application).resolve())],stdout=(out/'stdout.log').open('w'),stderr=(out/'stderr.log').open('w'))
@@ -119,6 +135,17 @@ try:
         current=rect(main);scale=(current.right-current.left)/300
         user.SetCursorPos(round(current.left+x*scale),round(current.top+y*scale))
         return current.left,current.top
+    hover_pet(35,52);time.sleep(.5)
+    dizzy_before=rect(main)
+    dizzy_capture,dizzy_trigger,dizzy_ready=prepare_dizzy_capture()
+    for i in range(14):
+        hover_pet(35 if i%2==0 else 265,52);time.sleep(.085)
+    time.sleep(.6);dizzy_trigger.write_text('capture')
+    assert dizzy_capture.wait(timeout=10)==0,'dizzy screenshot failed'
+    current=rect(main)
+    check('rapid gaze keeps the native window stationary',(current.left,current.top)==(dizzy_before.left,dizzy_before.top))
+    report['dizzy_visuals']='real rapid native gaze and prewarmed screenshot; star and pose inspection is separate from the stationary check'
+    hover_pet(35,52);time.sleep(4)
     before_touch=hover_pet(145,125);time.sleep(2)
     capture('head-rub.png')
     current=rect(main)
@@ -167,6 +194,10 @@ except Exception as error:
     except Exception as capture_error:report['capture_error']=str(capture_error)
     raise
 finally:
+    if dizzy_capture and dizzy_capture.poll() is None:
+        dizzy_capture.kill();dizzy_capture.wait()
+    (out/'dizzy-capture-ready.txt').unlink(missing_ok=True)
+    (out/'dizzy-capture-trigger.txt').unlink(missing_ok=True)
     user.mouse_event(0x0004,0,0,0,0);user.SetCursorPos(cursor.x,cursor.y)
     if process:
         process.terminate()

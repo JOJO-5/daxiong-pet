@@ -37,6 +37,23 @@ body {
   overflow: hidden;
 }
 
+.dizzy-stars { position:absolute; z-index:3; width:72px; height:38px; margin:-19px 0 0 -36px;
+  pointer-events:none; filter:drop-shadow(0 1px 1px #54382155); }
+.dizzy-stars[data-phase="recover"] { opacity:.65; }
+.dizzy-star { position:absolute; left:36px; top:19px; width:16px; height:16px; margin:-8px;
+  animation:dizzy-orbit 1s linear infinite; }
+@keyframes dizzy-orbit {
+  0%,100% { transform:translate(26px,0); }
+  12.5% { transform:translate(18.4px,6.4px); }
+  25% { transform:translate(0,9px); }
+  37.5% { transform:translate(-18.4px,6.4px); }
+  50% { transform:translate(-26px,0); }
+  62.5% { transform:translate(-18.4px,-6.4px); }
+  75% { transform:translate(0,-9px); }
+  87.5% { transform:translate(18.4px,-6.4px); }
+}
+@media (prefers-reduced-motion: reduce) { .dizzy-star { animation:none; } }
+
 /* 整张图集，靠 transform 平移到目标格子；用 img 而非背景图，
    是因为宠物包是以 data URL 下发的，走 src 属性更稳。 */
 .pet-sheet {

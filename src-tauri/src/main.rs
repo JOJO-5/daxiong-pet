@@ -8,6 +8,7 @@ mod companion;
 mod engine;
 mod petting;
 mod encounters;
+mod dizziness;
 mod petpack;
 mod play;
 mod tug;
@@ -47,6 +48,7 @@ struct FramePayload {
     col: usize,
     released_toy: Option<ReleasedToy>,
     petting: Option<petting::Feedback>,
+    dizzy: Option<dizziness::Feedback>,
 }
 
 /// 宠物状态变化（目前只有睡眠），前端据此加视觉效果
@@ -674,7 +676,7 @@ fn spawn_engine(
                 prev_clickable = Some(out.clickable);
             }
 
-            let frame = FramePayload {row:out.row,col:out.col,released_toy,petting:out.petting};
+            let frame = FramePayload {row:out.row,col:out.col,released_toy,petting:out.petting,dizzy:out.dizzy};
             if visible && prev_frame.as_ref()!=Some(&frame) {
                 let _ = app.emit("pet:frame", &frame);
                 prev_frame = Some(frame);

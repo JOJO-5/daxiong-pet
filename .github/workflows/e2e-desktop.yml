@@ -37,6 +37,13 @@ jobs:
           E2E_OUT: "test-results/petting"
           E2E_SCRIPT: scripts/e2e-petting.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Verify and record rapid gaze dizziness and recovery
+        env:
+          E2E_RECORD: "1"
+          E2E_FPS: "60"
+          E2E_OUT: "test-results/dizzy"
+          E2E_SCRIPT: scripts/e2e-dizzy.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Verify speech bubble bounds and complete long messages in native WebKit
         env:
           E2E_RECORD: "1"

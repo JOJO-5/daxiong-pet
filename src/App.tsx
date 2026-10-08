@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ToyDisc from "./ToyDisc";
 import SpeechBubble from "./SpeechBubble";
 import PettingFeedback, { type TouchFeedback } from "./PettingFeedback";
+import DizzyStars, { type DizzyFeedback } from "./DizzyStars";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { Butterfly, type EncounterView } from "./EncountersPanel";
@@ -23,7 +24,7 @@ const SCALE = 0.75;
 /** 气泡停留时长（毫秒） */
 const BUBBLE_MS = 2600;
 
-type Frame = { row: number; col: number; petting?: TouchFeedback | null; released_toy?: {toy: "ball" | "frisbee"; x: number; y: number} | null };
+type Frame = { row: number; col: number; petting?: TouchFeedback | null; dizzy?: DizzyFeedback | null; released_toy?: {toy: "ball" | "frisbee"; x: number; y: number} | null };
 
 /**
  * 渲染层：不做行为决策，只把主进程推来的帧画出来；
@@ -169,6 +170,7 @@ export default function App() {
         <SpeechBubble key={bubble.id} text={bubble.text} duration={bubble.duration} onDismiss={dismissBubble} onDuration={protectBubble}/>
       )}
       <PettingFeedback touch={frame.petting}/>
+      <DizzyStars dizzy={frame.dizzy}/>
       <Butterfly event={encounter}/>
       {treating && (src!==BUILTIN_SRC || rows<21) ? <div className="treat-cookie" data-testid="treat-cookie" aria-hidden="true"><i/><i/><i/></div> : null}
       {frame.released_toy ? <div className="released-toy" data-testid="released-toy" data-toy={frame.released_toy.toy}

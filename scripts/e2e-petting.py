@@ -59,7 +59,11 @@ try:
     check('pressing cancels belly feedback before a drag',touch() is None)
     pointer('mousemove_relative','--',50,0);time.sleep(.5)
     check('press and movement still drag the pet',js("return document.querySelector('[data-testid=pet]').dataset.row==='6'"))
-    pointer('mouseup',1);pointer('mousemove',30,30);time.sleep(3)
+    pointer('mouseup',1)
+    # Native input is sampled per frame: don't warp away until release is acknowledged.
+    wait(lambda:js("return document.querySelector('[data-testid=pet]').dataset.row==='3'"),5)
+    check('stationary release completes gently before pointer leaves')
+    pointer('mousemove',30,30);time.sleep(3)
     pet_point(178,199);wait(lambda:touch() and touch()['phase']=='down',10)
     invoke('set_pomodoro',{'active':True});wait(lambda:touch() is None)
     check('focus interrupts an active belly rub')

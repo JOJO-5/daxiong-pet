@@ -112,7 +112,7 @@ do {
         try require(bounds(try waitWindow("大熊")!).origin==headBefore.origin,"head contact keeps the native window stationary")
         mouse(.mouseMoved,CGPoint(x:5,y:5));Thread.sleep(forTimeInterval:5)
         let bellyBefore=try hoverPet(178,199);Thread.sleep(forTimeInterval:1.8)
-        _=try hoverPet(172,145);Thread.sleep(forTimeInterval:1.5)
+        _=try hoverPet(172,210);Thread.sleep(forTimeInterval:1.5)
         try screenshot("belly-rub.png")
         try require(bounds(try waitWindow("大熊")!).origin==bellyBefore.origin,"belly contact keeps the native window stationary")
         report["petting_visuals"]="real pointer head/belly screenshots; pose inspection is separate from stationary checks"

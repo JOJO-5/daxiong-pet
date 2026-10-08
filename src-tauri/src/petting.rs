@@ -77,9 +77,9 @@ impl Petting {
         let gentle = distance <= 550.0 * dt.max(1) as f32 / 1000.0;
         self.last = Some((x,y));
         let standing = Self::standing_zone(x,y);
-        // The exposed belly shifts upward during the roll. Follow its changing anatomy.
-        let lying_belly = (65.0..=130.0).contains(&x) && (35.0..=91.0).contains(&y);
-        let lying_head = (12.0..=71.0).contains(&x) && (97.0..=148.0).contains(&y);
+        // Side lying keeps the cheek, shoulder and hip low; contact follows the underside.
+        let lying_belly = (65.0..=130.0).contains(&x) && (107.0..=144.0).contains(&y);
+        let lying_head = (8.0..=64.0).contains(&x) && (108.0..=149.0).contains(&y);
         let belly_contact = lying_belly || lying_head
             || (self.mode == Mode::Down && standing == Some(Zone::Belly));
         let contact = gentle && match self.mode {
@@ -137,7 +137,7 @@ impl Petting {
                 Mode::Belly if lying_head => "head", Mode::Belly | Mode::LegacyBelly => "belly", Mode::Up => "up" },
             progress: if self.mode == Mode::Idle { ((self.dwell.min(DWELL_MS) * 100) / DWELL_MS) as u8 } else { 100 },
             x: if self.mode == Mode::Down { 170 } else { (x + 78.0).round() as i32 },
-            y: if self.mode == Mode::Down { [194,194,166,145][(self.elapsed/180).min(3) as usize] } else { (y + 84.0).round() as i32 },
+            y: if self.mode == Mode::Down { [194,194,206,210][(self.elapsed/180).min(3) as usize] } else { (y + 84.0).round() as i32 },
             stroking: contact && distance >= 0.5,
         });
         Step { engaged: contact || frame.is_some(), started, frame, feedback }
@@ -168,8 +168,8 @@ mod tests {
     fn belly_rubs_loop_then_roll_back_up_without_repeating_reward() {
         let mut p=Petting::default();let mut rewards=0;
         for _ in 0..130 {let s=p.tick(16,100.0,115.0,true,true);rewards+=usize::from(s.started.is_some());}
-        p.tick(120,95.0,60.0,true,true);
-        for _ in 0..650 {let s=p.tick(16,95.0,60.0,true,true);rewards+=usize::from(s.started.is_some());}
+        p.tick(120,95.0,127.0,true,true);
+        for _ in 0..650 {let s=p.tick(16,95.0,127.0,true,true);rewards+=usize::from(s.started.is_some());}
         assert_eq!(rewards,1);assert_eq!(p.mode,Mode::Belly);
         let mut saw_up=false;for _ in 0..100 {let s=p.tick(16,-500.0,-500.0,true,true);saw_up|=s.frame.is_some_and(|(r,c)|r==Row::BellyRoll&&c>=4);}
         assert!(saw_up);assert_eq!(p.mode,Mode::Idle);
@@ -185,12 +185,14 @@ mod tests {
     fn touch_follows_the_rolled_anatomy_and_head_can_be_petted_while_lying() {
         let mut p=Petting::default();dwell(&mut p,100.0,115.0,true);
         for _ in 0..60 {p.tick(16,100.0,115.0,true,true);}
-        let belly=p.tick(120,95.0,60.0,true,true);
+        let belly=p.tick(120,95.0,127.0,true,true);
         assert_eq!(belly.feedback.unwrap().kind,Zone::Belly);
         let head=p.tick(180,35.0,125.0,true,true);
         assert_eq!(head.feedback.unwrap().kind,Zone::Head);
         assert_eq!(head.frame.unwrap().0,Row::BellyRub);
         assert!(head.started.is_none());
+        // The old inverted pose's belly position is now empty space above the dog.
+        assert!(p.tick(180,95.0,60.0,true,true).feedback.is_none());
     }
     #[test]
     fn old_pets_never_get_new_rows_and_switch_cancels_the_roll() {

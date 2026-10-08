@@ -125,7 +125,7 @@ try:
     check('head contact keeps the native window stationary',(current.left,current.top)==before_touch)
     user.SetCursorPos(5,5);time.sleep(5)
     before_touch=hover_pet(178,199);time.sleep(1.8)
-    hover_pet(172,145);time.sleep(1.5)
+    hover_pet(172,210);time.sleep(1.5)
     capture('belly-rub.png')
     current=rect(main)
     check('belly contact keeps the native window stationary',(current.left,current.top)==before_touch)

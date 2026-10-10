@@ -155,3 +155,7 @@ python3 scripts/ai-prototype/companion-trial.py \
 输出目录必须不存在；固定完整请求、实际生成历史、原始SSE、首正文/整段耗时、模型校验和源码哈希、退出状态。模型依次运行，二线程、4096上下文，关闭提示缓存。共享Linux机器热文件缓存测量不能代表Windows/macOS或实际游戏并行性能。
 
 [第五轮报告](../../docs/research/companion-trial-2026-10-10.md)与完整54轮对话已保存；52次stop、2次输出上限截断，三服务退出码0。2B温柔回应值得继续调短句，最终型号尚未锁定。
+
+## 用户确认的当前实施路线
+
+后续用户已认可Qwen3.5 2B多模态+独立OCR，主要目标8GB/11代i5；`default-model.json`已切换2B及匹配视觉组件。第五轮比较结论保留为历史；2B图片未执行、OCR未运行，不把架构支持标成已验证。OCR优先明确指定RapidOCR v3.10.0的PP-OCRv5 mobile（上游默认v6 small），见[路线和固定来源](../../docs/research/qwen35-2b-ocr-route-2026-10-10.md)。下一步执行OCR下载/识字实测和2B视觉补测。

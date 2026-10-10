@@ -174,13 +174,13 @@ src-tauri/src/
 
 MIT
 
-## 本地 AI 开发预览
+## 本地 AI 文字聊天测试版
 
 开发分支已接入 Qwen3.5 2B CPU 文字聊天：右键菜单、托盘和互动面板可打开聊天；性格、称呼、语气和回复长短通过界面修改。聊天与性格保存在独立 SQLite 数据库中，聊天默认保留 30 天，支持流式回复、停止和失败重试。AI 默认关闭，启用后首次回复会校验并加载模型。
 
-这一轮交付文字聊天开发代码。OCR、图片理解、屏幕观察、长期偏好自动记忆、外接大模型与完整内置模型安装包继续按[目标文件](docs/LOCAL-AI-GOALS.md)实施；现有正式版下载仍为原版本。
+[v1.1.0-alpha.1 测试版下载](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.1)已内置 Qwen3.5 2B 权重、各平台静态 CPU 运行器和许可证，安装后启用聊天即可离线使用；Windows 安装包约1.27GB，提供 Windows、Apple Silicon/Intel Mac 和 Linux 包。x64 CPU 需要 AVX2/FMA/F16C。OCR、图片理解、屏幕观察、长期偏好自动记忆和外接大模型继续按[目标文件](docs/LOCAL-AI-GOALS.md)实施；现有正式版保持不变。
 
-开发者准备固定模型和目标平台 CPU 运行器后，用 `scripts/stage-ai-resources.py` 暂存资源，调试启动设置 `DAXIONG_AI_RESOURCE_DIR`。固定来源、编译/运行命令、实际原生测试和平台限制见[文字聊天开发验收](docs/validation/local-ai-chat-2026-10-11.md)。最终用户安装包的资源内置由后续打包阶段处理。
+开发者准备固定模型和目标平台 CPU 运行器后，用 `scripts/stage-ai-resources.py` 暂存资源，调试启动设置 `DAXIONG_AI_RESOURCE_DIR`。固定来源、编译/运行命令、实际原生测试和平台限制见[文字聊天开发验收](docs/validation/local-ai-chat-2026-10-11.md)。内置安装包与 Linux 实际安装聊天验证见[内置测试版验收](docs/validation/bundled-ai-preview-2026-10-11.md)。
 
 
 macOS 构建：`npm run tauri build -- --bundles dmg`。

@@ -1,0 +1,129 @@
+{
+  "idle_sample": {
+    "wall_seconds": 3.000139412999488,
+    "process_cpu_seconds": 0.06999999999999995,
+    "definition": "single-process CPU seconds / wall seconds; 1.0 = one busy core"
+  },
+  "first_chunk_before_cancel": "在",
+  "cancel": {
+    "seconds_until_slot_idle": 0.06478647100084345,
+    "all_slots_idle": true,
+    "slots": [
+      {
+        "id": 0,
+        "n_ctx": 2048,
+        "speculative": false,
+        "is_processing": false,
+        "id_task": 0,
+        "n_prompt_tokens": 32,
+        "n_prompt_tokens_processed": 0,
+        "n_prompt_tokens_cache": 0,
+        "params": {
+          "seed": 4294967295,
+          "temperature": 0.10000000149011612,
+          "dynatemp_range": 0.0,
+          "dynatemp_exponent": 1.0,
+          "top_k": 40,
+          "top_p": 0.949999988079071,
+          "min_p": 0.05000000074505806,
+          "top_n_sigma": -1.0,
+          "xtc_probability": 0.0,
+          "xtc_threshold": 0.10000000149011612,
+          "typical_p": 1.0,
+          "repeat_last_n": 64,
+          "repeat_penalty": 1.0,
+          "presence_penalty": 0.0,
+          "frequency_penalty": 0.0,
+          "dry_multiplier": 0.0,
+          "dry_base": 1.75,
+          "dry_allowed_length": 2,
+          "dry_penalty_last_n": 64,
+          "mirostat": 0,
+          "mirostat_tau": 5.0,
+          "mirostat_eta": 0.10000000149011612,
+          "adaptive_target": -1.0,
+          "adaptive_decay": 0.8999999761581421,
+          "max_tokens": 512,
+          "n_predict": 512,
+          "n_keep": 0,
+          "n_discard": 0,
+          "ignore_eos": false,
+          "stream": true,
+          "n_probs": 0,
+          "min_keep": 0,
+          "chat_format": "peg-native",
+          "reasoning_format": "deepseek",
+          "reasoning_in_content": false,
+          "generation_prompt": "<|im_start|>assistant\n",
+          "samplers": [
+            "penalties",
+            "dry",
+            "top_n_sigma",
+            "top_k",
+            "typ_p",
+            "top_p",
+            "min_p",
+            "xtc",
+            "temperature"
+          ],
+          "speculative.types": "none",
+          "timings_per_token": false,
+          "post_sampling_probs": false,
+          "backend_sampling": false,
+          "lora": []
+        },
+        "next_token": [
+          {
+            "has_next_token": true,
+            "has_new_line": false,
+            "n_remain": -1,
+            "n_decoded": 0
+          }
+        ]
+      }
+    ]
+  },
+  "recovery": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "你好！"
+        }
+      }
+    ],
+    "created": 1791625694,
+    "model": "/workspace/daxiong-ai-prototype/models/LFM2.5-350M-Q4_K_M.gguf",
+    "system_fingerprint": "b1-d812350",
+    "object": "chat.completion",
+    "usage": {
+      "completion_tokens": 4,
+      "prompt_tokens": 18,
+      "total_tokens": 22,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "id": "chatcmpl-KQRrPHL4oTsPUJZ7aiedOj1SBKuQ4sbq",
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 18,
+      "prompt_ms": 176.251,
+      "prompt_per_token_ms": 9.791722222222223,
+      "prompt_per_second": 102.1270801300418,
+      "predicted_n": 4,
+      "predicted_ms": 80.663,
+      "predicted_per_token_ms": 26.887666666666664,
+      "predicted_per_second": 37.19177317977263
+    }
+  },
+  "recovery_seconds": 0.2599524070010375,
+  "unload": {
+    "process_exited": true,
+    "seconds": 0.06356407000021136,
+    "exit_code": 0,
+    "proc_entry_present": false
+  }
+}

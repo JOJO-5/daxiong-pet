@@ -1,0 +1,664 @@
+{
+  "model_alias": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+  "template": "{# LM Studio chat template override #}\n{%- if tools %}\n    {{- '<|im_start|>system\\n' }}\n    {%- if messages[0].role == 'system' %}\n        {{- messages[0].content + '\\n\\n' }}\n    {%- endif %}\n    {{- \"# Tools\\n\\nYou may call one or more functions to assist with the user query.\\n\\nYou are provided with function signatures within <tools></tools> XML tags:\\n<tools>\" }}\n    {%- for tool in tools %}\n        {{- \"\\n\" }}\n        {{- tool | tojson }}\n    {%- endfor %}\n    {{- \"\\n</tools>\\n\\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\\n<tool_call>\\n{\\\"name\\\": <function-name>, \\\"arguments\\\": <args-json-object>}\\n</tool_call><|im_end|>\\n\" }}\n{%- else %}\n    {%- if messages[0].role == 'system' %}\n        {{- '<|im_start|>system\\n' + messages[0].content + '<|im_end|>\\n' }}\n    {%- endif %}\n{%- endif %}\n\n{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}\n\n{%- for message in messages[::-1] %}\n    {%- set index = (messages|length - 1) - loop.index0 %}\n    {%- if ns.multi_step_tool and message.role == \"user\" and message.content is string and not(message.content.startswith('<tool_response>') and message.content.endswith('</tool_response>')) %}\n        {%- set ns.multi_step_tool = false %}\n        {%- set ns.last_query_index = index %}\n    {%- endif %}\n{%- endfor %}\n\n{%- for message in messages %}\n    {%- if message.content is string %}\n        {%- set content = message.content %}\n    {%- else %}\n        {%- set content = '' %}\n    {%- endif %}\n    \n    {%- if (message.role == \"user\") or (message.role == \"system\" and not loop.first) %}\n        {{- '<|im_start|>' + message.role + '\\n' + content + '<|im_end|>' + '\\n' }}\n    \n    {%- elif message.role == \"assistant\" %}\n        {%- set reasoning_content = '' %}\n        {%- if message.reasoning_content is string %}\n            {%- set reasoning_content = message.reasoning_content %}\n        {%- else %}\n            {%- if '</think>' in content %}\n                {%- set reasoning_content = content.split('</think>')[0].rstrip('\\n').split('<think>')[-1].lstrip('\\n') %}\n                {%- set content = content.split('</think>')[-1].lstrip('\\n') %}\n            {%- endif %}\n        {%- endif %}\n        \n        {%- if loop.index0 > ns.last_query_index %}\n            {%- if loop.last or (not loop.last and reasoning_content) %}\n                {{- '<|im_start|>' + message.role + '\\n<think>\\n' + reasoning_content.strip('\\n') + '\\n</think>\\n\\n' + content.lstrip('\\n') }}\n            {%- else %}\n                {{- '<|im_start|>' + message.role + '\\n' + content }}\n            {%- endif %}\n        {%- else %}\n            {{- '<|im_start|>' + message.role + '\\n' + content }}\n        {%- endif %}\n        \n        {%- if message.tool_calls %}\n            {%- for tool_call in message.tool_calls %}\n                {%- if (loop.first and content) or (not loop.first) %}\n                    {{- '\\n' }}\n                {%- endif %}\n                {%- if tool_call.function %}\n                    {%- set tool_call = tool_call.function %}\n                {%- endif %}\n                {{- '<tool_call>\\n{\"name\": \"' }}\n                {{- tool_call.name }}\n                {{- '\", \"arguments\": ' }}\n                {%- if tool_call.arguments is string %}\n                    {{- tool_call.arguments }}\n                {%- else %}\n                    {{- tool_call.arguments | tojson }}\n                {%- endif %}\n                {{- '}\\n</tool_call>' }}\n            {%- endfor %}\n        {%- endif %}\n        {{- '<|im_end|>\\n' }}\n    \n    {%- elif message.role == \"tool\" %}\n        {%- if loop.first or (messages[loop.index0 - 1].role != \"tool\") %}\n            {{- '<|im_start|>user' }}\n        {%- endif %}\n        {{- '\\n<tool_response>\\n' }}\n        {{- content }}\n        {{- '\\n</tool_response>' }}\n        {%- if loop.last or (messages[loop.index0 + 1].role != \"tool\") %}\n            {{- '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\\n' }}\n    {%- if enable_thinking is defined and enable_thinking is false %}\n        {{- '<think>\\n\\n</think>\\n\\n' }}\n    {%- endif %}\n{%- endif %}",
+  "bos_token": "<|endoftext|>",
+  "applied_template": {
+    "prompt": "<|im_start|>system\n你是大熊，一只桌面狗狗。用一句中文陪主人聊天。<|im_end|>\n<|im_start|>user\n今天工作好累。<|im_end|>\n<|im_start|>assistant\n"
+  },
+  "cases": [
+    {
+      "id": "short_zh",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "你是大熊，一只桌面狗狗。用一句中文陪主人聊天。"
+          },
+          {
+            "role": "user",
+            "content": "今天工作好累。"
+          }
+        ],
+        "temperature": 0.1,
+        "top_k": 50,
+        "top_p": 1.0,
+        "min_p": 0.0,
+        "repeat_penalty": 1.05,
+        "max_tokens": 96,
+        "cache_prompt": false,
+        "seed": 20261010,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "嗨呀！今天工作确实不容易啊，不过你已经做得很好啦！要不要我陪你聊聊？有什么烦恼都可以告诉我哦～ 😊"
+            }
+          }
+        ],
+        "created": 1791625721,
+        "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+        "system_fingerprint": "b1-d812350",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 30,
+          "prompt_tokens": 37,
+          "total_tokens": 67,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-WRqcaGxTiQSllVjzFpOJYoV6uCNpG20W",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 37,
+          "prompt_ms": 446.003,
+          "prompt_per_token_ms": 12.054135135135136,
+          "prompt_per_second": 82.95908323486614,
+          "predicted_n": 30,
+          "predicted_ms": 1344.934,
+          "predicted_per_token_ms": 46.37703448275862,
+          "predicted_per_second": 21.562396370379513
+        }
+      },
+      "seconds": 1.8009112750005443
+    },
+    {
+      "id": "short_en",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are Daxiong, a friendly desktop dog. Reply briefly."
+          },
+          {
+            "role": "user",
+            "content": "I am tired after work."
+          }
+        ],
+        "temperature": 0.1,
+        "top_k": 50,
+        "top_p": 1.0,
+        "min_p": 0.0,
+        "repeat_penalty": 1.05,
+        "max_tokens": 96,
+        "cache_prompt": false,
+        "seed": 20261010,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hey there! I'm so glad you're up to date! 😊 If you need anything else, just let me know. Have a great day! 🌟"
+            }
+          }
+        ],
+        "created": 1791625723,
+        "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+        "system_fingerprint": "b1-d812350",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 35,
+          "prompt_tokens": 38,
+          "total_tokens": 73,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-S8kJus9thlJaHOBBtDDjLGAh4CxQmgM2",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 38,
+          "prompt_ms": 458.152,
+          "prompt_per_token_ms": 12.056631578947368,
+          "prompt_per_second": 82.94190574307217,
+          "predicted_n": 35,
+          "predicted_ms": 1569.78,
+          "predicted_per_token_ms": 46.17,
+          "predicted_per_second": 21.65908598657137
+        }
+      },
+      "seconds": 2.0455932969998685
+    },
+    {
+      "id": "action_en",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Return only a JSON object with key action. Allowed values: ball, frisbee, tug, come, stop, none."
+          },
+          {
+            "role": "user",
+            "content": "Let us play frisbee."
+          }
+        ],
+        "temperature": 0.1,
+        "top_k": 50,
+        "top_p": 1.0,
+        "min_p": 0.0,
+        "repeat_penalty": 1.05,
+        "max_tokens": 96,
+        "cache_prompt": false,
+        "seed": 20261010,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"action\": \"frisbee\"}"
+            }
+          }
+        ],
+        "created": 1791625724,
+        "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+        "system_fingerprint": "b1-d812350",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 9,
+          "prompt_tokens": 50,
+          "total_tokens": 59,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-xIJjh5pdoaC1ZdRtBvGBO7gEHE7qX18r",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 50,
+          "prompt_ms": 588.665,
+          "prompt_per_token_ms": 11.773299999999999,
+          "prompt_per_second": 84.93795282546101,
+          "predicted_n": 9,
+          "predicted_ms": 375.873,
+          "predicted_per_token_ms": 46.984125,
+          "predicted_per_second": 21.28378468259226
+        }
+      },
+      "seconds": 0.9852587149998726
+    },
+    {
+      "id": "memory_en",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Extract only an explicit preferred user name. Return only a JSON array. Each object has exactly two fields: key (always user_name) and value (the preferred name)."
+          },
+          {
+            "role": "user",
+            "content": "Please call me Xiao Wang from now on."
+          }
+        ],
+        "temperature": 0.1,
+        "top_k": 50,
+        "top_p": 1.0,
+        "min_p": 0.0,
+        "repeat_penalty": 1.05,
+        "max_tokens": 96,
+        "cache_prompt": false,
+        "seed": 20261010,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[\n  {\n    \"key\": \"Xiao Wang\",\n    \"value\": \"Xiao Wang\"\n  }\n]"
+            }
+          }
+        ],
+        "created": 1791625726,
+        "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+        "system_fingerprint": "b1-d812350",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 25,
+          "prompt_tokens": 60,
+          "total_tokens": 85,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-AK8P0iGO4I1DySa5ntQQhTgSifSJ1Haw",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 60,
+          "prompt_ms": 682.677,
+          "prompt_per_token_ms": 11.37795,
+          "prompt_per_second": 87.88929464446582,
+          "predicted_n": 25,
+          "predicted_ms": 1214.766,
+          "predicted_per_token_ms": 50.61525,
+          "predicted_per_second": 19.756891450699143
+        }
+      },
+      "seconds": 1.910646934999022
+    },
+    {
+      "id": "action_zh_fewshot",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "识别玩具，输出JSON。例：玩球 -> {\"action\":\"ball\"}；玩飞盘 -> {\"action\":\"frisbee\"}；拔河 -> {\"action\":\"tug\"}。"
+          },
+          {
+            "role": "user",
+            "content": "一起玩飞盘"
+          }
+        ],
+        "temperature": 0.1,
+        "top_k": 50,
+        "top_p": 1.0,
+        "min_p": 0.0,
+        "repeat_penalty": 1.05,
+        "max_tokens": 96,
+        "cache_prompt": false,
+        "seed": 20261010,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "```json\n{\"action\": \"frisbee\"}\n```"
+            }
+          }
+        ],
+        "created": 1791625727,
+        "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+        "system_fingerprint": "b1-d812350",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 13,
+          "prompt_tokens": 60,
+          "total_tokens": 73,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-jlclMMw96MZbTXZdyfdhPzXoN69wT6cX",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 60,
+          "prompt_ms": 683.852,
+          "prompt_per_token_ms": 11.397533333333334,
+          "prompt_per_second": 87.73828255236513,
+          "predicted_n": 13,
+          "predicted_ms": 635.906,
+          "predicted_per_token_ms": 52.99216666666666,
+          "predicted_per_second": 18.870713596034637
+        }
+      },
+      "seconds": 1.3363537870009168
+    },
+    {
+      "id": "action_zh_schema",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "识别主人想玩的游戏，只输出action，ball代表球，frisbee代表飞盘，tug代表拔河，come代表过来，stop代表停止，none代表无。"
+          },
+          {
+            "role": "user",
+            "content": "一起玩飞盘"
+          }
+        ],
+        "temperature": 0.1,
+        "top_k": 50,
+        "top_p": 1.0,
+        "min_p": 0.0,
+        "repeat_penalty": 1.05,
+        "max_tokens": 96,
+        "cache_prompt": false,
+        "seed": 20261010,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "action",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "ball",
+                    "frisbee",
+                    "tug",
+                    "come",
+                    "stop",
+                    "none"
+                  ]
+                }
+              },
+              "required": [
+                "action"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"action\": \"come\"}"
+            }
+          }
+        ],
+        "created": 1791625728,
+        "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+        "system_fingerprint": "b1-d812350",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 7,
+          "prompt_tokens": 60,
+          "total_tokens": 67,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-GjtKrxJtivhL0kxKIuMVCCcHhOX48DwG",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 60,
+          "prompt_ms": 745.334,
+          "prompt_per_token_ms": 12.422233333333333,
+          "prompt_per_second": 80.50082245006938,
+          "predicted_n": 7,
+          "predicted_ms": 318.621,
+          "predicted_per_token_ms": 53.1035,
+          "predicted_per_second": 18.831150489139134
+        }
+      },
+      "seconds": 1.079281747001005
+    },
+    {
+      "id": "memory_zh_fewshot",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "只提取用户本人明确表达的长期称呼或说话偏好。别人的偏好、引用、临时状态不记。称呼key为user_name，说话偏好key为speech_preference。没有明确个人偏好输出[]。示例：以后叫我小王 -> [{\"key\":\"user_name\",\"value\":\"小王\"}]；朋友喜欢叫小王 -> []。"
+          },
+          {
+            "role": "user",
+            "content": "以后请叫我小王。"
+          }
+        ],
+        "temperature": 0.1,
+        "top_k": 50,
+        "top_p": 1.0,
+        "min_p": 0.0,
+        "repeat_penalty": 1.05,
+        "max_tokens": 96,
+        "cache_prompt": false,
+        "seed": 20261010,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            }
+          }
+        ],
+        "created": 1791625729,
+        "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+        "system_fingerprint": "b1-d812350",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 2,
+          "prompt_tokens": 95,
+          "total_tokens": 97,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-VrVdX32rUtwin7LraRY5e1i5IsS2o5Hp",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 95,
+          "prompt_ms": 1082.193,
+          "prompt_per_token_ms": 11.391505263157894,
+          "prompt_per_second": 87.78471122988229,
+          "predicted_n": 2,
+          "predicted_ms": 49.95,
+          "predicted_per_token_ms": 49.95,
+          "predicted_per_second": 20.02002002002002
+        }
+      },
+      "seconds": 1.1471572049995302
+    },
+    {
+      "id": "memory_zh_schema",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "只提取用户本人明确表达的长期称呼或说话偏好。别人的偏好、引用、临时状态不记。称呼key为user_name，说话偏好key为speech_preference。没有明确个人偏好输出[]。示例：以后叫我小王 -> [{\"key\":\"user_name\",\"value\":\"小王\"}]；朋友喜欢叫小王 -> []。"
+          },
+          {
+            "role": "user",
+            "content": "以后请叫我小王。"
+          }
+        ],
+        "temperature": 0.1,
+        "top_k": 50,
+        "top_p": 1.0,
+        "min_p": 0.0,
+        "repeat_penalty": 1.05,
+        "max_tokens": 96,
+        "cache_prompt": false,
+        "seed": 20261010,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "memory",
+            "strict": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "enum": [
+                      "user_name",
+                      "speech_preference"
+                    ]
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            }
+          }
+        ],
+        "created": 1791625730,
+        "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+        "system_fingerprint": "b1-d812350",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 2,
+          "prompt_tokens": 95,
+          "total_tokens": 97,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-tEIzBIkGL6pyNRRiL9drASGbpSxWaBTO",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 95,
+          "prompt_ms": 1056.269,
+          "prompt_per_token_ms": 11.118621052631578,
+          "prompt_per_second": 89.93921056094612,
+          "predicted_n": 2,
+          "predicted_ms": 46.442,
+          "predicted_per_token_ms": 46.442,
+          "predicted_per_second": 21.53223375392963
+        }
+      },
+      "seconds": 1.1161441240001295
+    },
+    {
+      "id": "memory_thirdparty_schema",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "只提取用户本人明确表达的长期称呼或说话偏好。别人的偏好、引用、临时状态不记。称呼key为user_name，说话偏好key为speech_preference。没有明确个人偏好输出[]。示例：以后叫我小王 -> [{\"key\":\"user_name\",\"value\":\"小王\"}]；朋友喜欢叫小王 -> []。"
+          },
+          {
+            "role": "user",
+            "content": "我的朋友喜欢别人叫他小王。"
+          }
+        ],
+        "temperature": 0.1,
+        "top_k": 50,
+        "top_p": 1.0,
+        "min_p": 0.0,
+        "repeat_penalty": 1.05,
+        "max_tokens": 96,
+        "cache_prompt": false,
+        "seed": 20261010,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "memory",
+            "strict": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "enum": [
+                      "user_name",
+                      "speech_preference"
+                    ]
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            }
+          }
+        ],
+        "created": 1791625731,
+        "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+        "system_fingerprint": "b1-d812350",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 2,
+          "prompt_tokens": 98,
+          "total_tokens": 100,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-I81elzQMH1BF9IXK9m33GyKc60KYNq7z",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 98,
+          "prompt_ms": 1089.928,
+          "prompt_per_token_ms": 11.121714285714287,
+          "prompt_per_second": 89.91419616708625,
+          "predicted_n": 2,
+          "predicted_ms": 50.471,
+          "predicted_per_token_ms": 50.471,
+          "predicted_per_second": 19.81335816607557
+        }
+      },
+      "seconds": 1.1519515280015185
+    }
+  ]
+}

@@ -992,16 +992,9 @@ impl Engine {
                 self.col = (idx % 8) as usize;
             }
         } else {
-            self.acc += if self.play.view().style=="near" && matches!(self.play.view().phase,"chasing" | "returning") {dt/2} else {dt};
-            let dur = track.durations[self.col.min(track.cols - 1)] as u64;
-            if self.acc >= dur {
-                self.acc = 0;
-                if self.col + 1 < track.cols {
-                    self.col += 1;
-                } else if track.looping {
-                    self.col = 0;
-                }
-            }
+            let slow = self.play.view().style == "near"
+                && matches!(self.play.view().phase, "chasing" | "returning");
+            atlas::advance(self.row, &mut self.col, &mut self.acc, dt, slow);
         }
 
         if let Some(col)=activity.col {self.col=col.min(atlas::track(self.row).cols-1);self.acc=0;}

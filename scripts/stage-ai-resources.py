@@ -57,6 +57,26 @@ def main():
             shutil.copy2(source, target)
     shutil.copy2(license_file, stage / 'licenses/llama.cpp-LICENSE.txt')
     shutil.copy2(ROOT / 'scripts/ai-prototype/QWEN35-LICENSE.txt', stage / 'licenses/QWEN35-LICENSE.txt')
+    # The static server includes vendored code with independent copyright notices.
+    source_root = license_file.parent
+    notices = ['vendor/cpp-httplib/LICENSE', 'licenses/LICENSE-jsonhpp',
+               'vendor/hash/sha256/LICENSE', 'vendor/hash/rotate-bits/LICENSE.md',
+               'vendor/hash/xxhash/LICENSE', 'vendor/hash/sha1/sha1.c',
+               'vendor/sheredom/subprocess.h', 'vendor/stb/stb_image.h',
+               'vendor/miniaudio/miniaudio.h']
+    for relative in notices:
+        source = source_root / relative
+        if not source.is_file():
+            parser.error('pinned runtime source is required for third-party notices: ' + relative)
+        target = stage / 'licenses/llama.cpp-third-party' / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+    (stage / 'licenses/ATTRIBUTION.txt').write_text(
+        'CPU runtime: ggml-org/llama.cpp, pinned commit '
+        + json.loads((ROOT / 'scripts/ai-prototype/default-model.json').read_text())['runtime']['commit']
+        + '\nThird-party headers are included unmodified to retain complete license/copyright text.\n'
+        + 'Model: ' + spec['repository'] + ', revision ' + spec['revision'] + '\n', encoding='utf-8')
+
     manifest = {'model': spec, 'development_symlinks': args.symlink, 'runtime_commit_expected': json.loads((ROOT / 'scripts/ai-prototype/default-model.json').read_text())['runtime']['commit'], 'files': {str(p.relative_to(stage)): {'bytes': p.stat().st_size, 'sha256': sha(p)} for p in stage.rglob('*') if p.is_file()}}
     (stage / 'resource-manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
     if args.bundle_config:

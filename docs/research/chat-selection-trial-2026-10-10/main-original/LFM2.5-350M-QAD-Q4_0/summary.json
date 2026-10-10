@@ -1,0 +1,39 @@
+{
+  "model": {
+    "repository": "LiquidAI/LFM2.5-350M-GGUF",
+    "revision": "657e078c94084481950a2d555a941481f715536b",
+    "license_metadata": "other",
+    "name": "LFM2.5-350M-QAD-Q4_0.gguf",
+    "bytes": 219312832,
+    "sha256": "3d10b6ab8fc91a919534b9558e266255aca0bbc7f6d015963599aa9e74e05b1d",
+    "source_api": "https://huggingface.co/api/models/LiquidAI/LFM2.5-350M-GGUF?blobs=true"
+  },
+  "requests": 36,
+  "errors": 0,
+  "truncated": 0,
+  "reasoning_nonempty": 0,
+  "startup_health_seconds": 0.5253603489982197,
+  "peak_single_process_kib": {
+    "VmRSS": 507680,
+    "VmHWM": 507680
+  },
+  "final_rss_kib": {
+    "VmRSS": 507680,
+    "VmHWM": 507680
+  },
+  "latency": {
+    "first_content_seconds": {
+      "p50": 2.9275121909995505,
+      "p95": 3.808471748001466
+    },
+    "first_sentence_seconds": {
+      "p50": 3.3566286440000113,
+      "p95": 4.344300521999685
+    },
+    "total_seconds": {
+      "p50": 3.1289008999992802,
+      "p95": 4.584933982998336
+    }
+  },
+  "semantic_score": null
+}

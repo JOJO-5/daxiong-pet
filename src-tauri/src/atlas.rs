@@ -117,6 +117,7 @@ const D_IDLE: &[u16] = &[280, 110, 110, 140, 140, 320];
 const D_EAT: &[u16] = &[450, 350, 350, 300, 300, 300, 350, 400];
 const D_DROP: &[u16] = &[100, 100, 100, 100];
 const D_RUN8: &[u16] = &[120, 120, 120, 120, 120, 120, 120, 220];
+const D_LOCOMOTION: &[u16] = &[120; 8];
 const D_WAVE: &[u16] = &[140, 140, 140, 280];
 const D_JUMP: &[u16] = &[140, 140, 140, 140, 280];
 const D_FAIL: &[u16] = &[140, 140, 140, 140, 140, 140, 140, 240];
@@ -138,7 +139,7 @@ pub fn track(row: Row) -> Track {
         Row::Sleep => Track { cols: 8, durations: D_SLEEP, looping: true },
         Row::WakeStretch => Track { cols: 8, durations: D_WAKE, looping: false },
         Row::Idle => Track { cols: 6, durations: D_IDLE, looping: true },
-        Row::RunRight | Row::RunLeft | Row::CarryRight | Row::CarryLeft | Row::DiscRight | Row::DiscLeft => Track { cols: 8, durations: D_RUN8, looping: true },
+        Row::RunRight | Row::RunLeft | Row::CarryRight | Row::CarryLeft | Row::DiscRight | Row::DiscLeft => Track { cols: 8, durations: D_LOCOMOTION, looping: true },
         Row::Waving => Track { cols: 4, durations: D_WAVE, looping: false },
         Row::Jumping => Track { cols: 5, durations: D_JUMP, looping: false },
         Row::Failed => Track { cols: 8, durations: D_FAIL, looping: false },
@@ -146,5 +147,61 @@ pub fn track(row: Row) -> Track {
         Row::Running => Track { cols: 6, durations: D_RUN6, looping: true },
         Row::Review => Track { cols: 6, durations: D_REVIEW, looping: true },
         Row::LookA | Row::LookB => Track { cols: 8, durations: D_LOOK, looping: false },
+    }
+}
+
+/// Preserve elapsed time across frame boundaries, including delayed native ticks.
+/// Static look rows are controlled by gaze and never enter this clock.
+pub fn advance(row: Row, col: &mut usize, acc: &mut u64, elapsed: u64, slow: bool) {
+    let track = track(row);
+    let multiplier = if slow { 2 } else { 1 };
+    let cycle: u64 = track.durations.iter().map(|&d| u64::from(d) * multiplier).sum();
+    if cycle == 0 { return; }
+    *col = (*col).min(track.cols - 1);
+    *acc = acc.saturating_add(elapsed);
+    if track.looping { *acc %= cycle; }
+    loop {
+        let duration = u64::from(track.durations[*col]) * multiplier;
+        if *acc < duration { break; }
+        *acc -= duration;
+        if *col + 1 < track.cols { *col += 1; }
+        else if track.looping { *col = 0; }
+        else { *acc = 0; break; }
+    }
+}
+
+#[cfg(test)]
+mod clock_tests {
+    use super::*;
+    #[test]
+    fn locomotion_has_no_pause_at_cycle_boundary() {
+        for row in [Row::RunRight, Row::RunLeft, Row::CarryRight, Row::CarryLeft, Row::DiscRight, Row::DiscLeft] {
+            assert!(track(row).durations.iter().all(|&d| d == 120));
+            let (mut col, mut acc) = (7, 0);
+            advance(row, &mut col, &mut acc, 137, false);
+            assert_eq!((col, acc), (0, 17));
+        }
+    }
+    #[test]
+    fn variable_ticks_keep_the_same_animation_time() {
+        for row in [Row::Idle, Row::RunRight, Row::DiscLeft, Row::WakeStretch] {
+            for slow in [false, true] {
+                let (mut a, mut ar) = (0, 0);
+                let (mut b, mut br) = (0, 0);
+                advance(row, &mut a, &mut ar, 1593, slow);
+                for dt in [17, 31, 201, 7, 333, 1004] {
+                    advance(row, &mut b, &mut br, dt, slow);
+                }
+                assert_eq!((a, ar), (b, br));
+            }
+        }
+    }
+    #[test]
+    fn slow_clock_preserves_odd_milliseconds_and_terminal_frames() {
+        let (mut col, mut acc) = (0, 0);
+        for _ in 0..240 { advance(Row::RunRight, &mut col, &mut acc, 1, true); }
+        assert_eq!((col, acc), (1, 0));
+        advance(Row::WakeStretch, &mut col, &mut acc, u64::MAX, false);
+        assert_eq!((col, acc), (7, 0));
     }
 }

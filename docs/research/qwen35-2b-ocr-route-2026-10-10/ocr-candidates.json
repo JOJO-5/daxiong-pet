@@ -1,0 +1,43 @@
+{
+  "engine": "RapidOCR v3.10.0 + ONNX Runtime CPU",
+  "models": [
+    {
+      "key": "ch_PP-OCRv5_det_mobile",
+      "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/det/ch_PP-OCRv5_det_mobile.onnx",
+      "upstream_declared_sha256": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+      "artifact_status": "metadata_only_not_downloaded_or_executed",
+      "role": "primary_trial"
+    },
+    {
+      "key": "ch_PP-OCRv5_rec_mobile",
+      "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/rec/ch_PP-OCRv5_rec_mobile.onnx",
+      "upstream_declared_sha256": "5825fc7ebf84ae7a412be049820b4d86d77620f204a041697b0494669b1742c5",
+      "artifact_status": "metadata_only_not_downloaded_or_executed",
+      "role": "primary_trial"
+    },
+    {
+      "key": "multi_PP-OCRv6_det_tiny",
+      "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/det/PP-OCRv6_det_tiny.onnx",
+      "upstream_declared_sha256": "f42c0fbd294d95eac1a550e131b277dac97462c8025fa4b6c3cec1b7894bd3d5",
+      "artifact_status": "metadata_only_not_downloaded_or_executed",
+      "role": "smaller_comparison"
+    },
+    {
+      "key": "multi_PP-OCRv6_rec_tiny",
+      "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/rec/PP-OCRv6_rec_tiny.onnx",
+      "upstream_declared_sha256": "e16e242de5937ad92609223f19bc2aff3727ee40b095f996907c24749bad251b",
+      "artifact_status": "metadata_only_not_downloaded_or_executed",
+      "role": "smaller_comparison"
+    }
+  ],
+  "explicit_primary_parameters": {
+    "Det.ocr_version": "PP-OCRv5",
+    "Det.model_type": "mobile",
+    "Det.lang_type": "ch",
+    "Rec.ocr_version": "PP-OCRv5",
+    "Rec.model_type": "mobile",
+    "Rec.lang_type": "ch",
+    "Global.use_cls": false
+  },
+  "note": "v3.10.0 upstream defaults to v6 small, NOT this chosen trial. Fix explicit models and paired dictionaries/preprocessing; ONNX metadata and dictionaries must be inspected before execution. Runtime distribution and licenses of model conversions pending."
+}

@@ -1,0 +1,16 @@
+{
+  "reviewer": "本次助手评审，2张原图补测，非独立人工视觉基准。",
+  "responses_sha256": "f5c9e91bdaf8ad67f9beed93e6b7b647fcd0020e505a3c9d52efb34a4d10c2f7",
+  "cases": [
+    {
+      "id": "v03",
+      "visual_fields": "complete_for_requested_fields",
+      "response_issue": "提高min到1024后交通/餐费/合计/状态均正确；回复冗长，46.40秒，只有一张合成小字图。"
+    },
+    {
+      "id": "v04",
+      "visual_fields": "not_a_text_accuracy_test",
+      "response_issue": "保持宠物大熊但仍把网页咖啡当主人偏好，未概述教程；45.22秒，未实际持久保存。"
+    }
+  ]
+}

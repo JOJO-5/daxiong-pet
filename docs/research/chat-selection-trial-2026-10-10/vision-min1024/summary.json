@@ -1,0 +1,20 @@
+{
+  "requests": 2,
+  "errors": 0,
+  "startup_health_seconds": 1.8902345019996574,
+  "single_process_final_status_kib": {
+    "VmRSS": 1453716,
+    "VmHWM": 1453716
+  },
+  "latency": {
+    "first_content_seconds": {
+      "p50": 38.83498980299919,
+      "p95": 38.83498980299919
+    },
+    "total_seconds": {
+      "p50": 45.21695889200055,
+      "p95": 45.21695889200055
+    }
+  },
+  "semantic_score": null
+}

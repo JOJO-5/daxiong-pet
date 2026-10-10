@@ -1,0 +1,57 @@
+[
+  {
+    "model": {
+      "repository": "LiquidAI/LFM2.5-350M-GGUF",
+      "revision": "657e078c94084481950a2d555a941481f715536b",
+      "license_metadata": "other",
+      "name": "LFM2.5-350M-QAD-Q4_0.gguf",
+      "bytes": 219312832,
+      "sha256": "3d10b6ab8fc91a919534b9558e266255aca0bbc7f6d015963599aa9e74e05b1d",
+      "source_api": "https://huggingface.co/api/models/LiquidAI/LFM2.5-350M-GGUF?blobs=true"
+    },
+    "profile": "few_shot",
+    "cases": 32,
+    "passed": 13,
+    "positive_passed": 0,
+    "positive_total": 16,
+    "negative_passed": 13,
+    "negative_total": 16,
+    "false_calls": 3,
+    "errors": 0,
+    "schema_invalid": 0,
+    "seconds_p50": 4.556244041499667,
+    "seconds_p95": 5.697292814998946,
+    "command": [
+      "/workspace/daxiong-ai-prototype/runtime/build/bin/llama-server",
+      "-m",
+      "/workspace/daxiong-ai-prototype/models/LFM2.5-350M-QAD-Q4_0.gguf",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18891",
+      "-t",
+      "2",
+      "-tb",
+      "2",
+      "-c",
+      "4096",
+      "-np",
+      "1",
+      "-ngl",
+      "0",
+      "--jinja",
+      "--no-warmup"
+    ],
+    "template_caps": {
+      "supports_object_arguments": true,
+      "supports_parallel_tool_calls": true,
+      "supports_preserve_reasoning": true,
+      "supports_reasoning_effort": false,
+      "supports_string_content": true,
+      "supports_system_role": true,
+      "supports_tool_calls": true,
+      "supports_tools": true,
+      "supports_typed_content": false
+    }
+  }
+]

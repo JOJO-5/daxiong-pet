@@ -1,0 +1,22 @@
+{
+  "candidates": [
+    {
+      "repository": "lmstudio-community/Qwen3.5-0.8B-GGUF",
+      "revision": "26bab2c9369648924251c0ebb3dae012f5147707",
+      "name": "Qwen3.5-0.8B-Q4_K_M.gguf",
+      "bytes": 527502816,
+      "sha256": "f5b14da98939b60bbe1019a964eba656407e1e0b64f1fe3003ff6d650e93bfec",
+      "license_metadata": "apache-2.0",
+      "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-0.8B-GGUF?blobs=true"
+    },
+    {
+      "repository": "lmstudio-community/Qwen3.5-0.8B-GGUF",
+      "revision": "26bab2c9369648924251c0ebb3dae012f5147707",
+      "name": "mmproj-Qwen3.5-0.8B-BF16.gguf",
+      "bytes": 207345952,
+      "sha256": "6fdd1b4bdc3d2ae8bd15d783e23260dd07dcf83f45604a21dabfd6efad8f8bc5",
+      "license_metadata": "apache-2.0",
+      "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-0.8B-GGUF?blobs=true"
+    }
+  ]
+}

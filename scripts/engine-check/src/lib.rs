@@ -15,3 +15,6 @@ mod tug;
 
 #[path = "../../../src-tauri/src/petting.rs"]
 mod petting;
+
+#[path = "../../../src-tauri/src/dizziness.rs"]
+mod dizziness;

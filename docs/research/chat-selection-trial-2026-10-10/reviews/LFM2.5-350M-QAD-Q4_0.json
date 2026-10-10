@@ -1,0 +1,223 @@
+{
+  "model": "LFM2.5-350M-QAD-Q4_0",
+  "reviewer": "本次助手逐条语义评审；单评审、知道模型身份，非独立人工盲评。",
+  "responses_sha256": "475028bfee9f95c9859dfac550eb6073971f85d4ec359396b43e672986ca2766",
+  "cases": [
+    {
+      "id": "c01",
+      "acceptable_for_this_case": false,
+      "issue": "relevance",
+      "note": "只有宠物名字，没有承接疲惫。"
+    },
+    {
+      "id": "c02",
+      "acceptable_for_this_case": false,
+      "issue": "naturalness",
+      "note": "模拟宿主台词而不是自然回复。"
+    },
+    {
+      "id": "c03",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "声称宠物刚上班，未陪伴主人。"
+    },
+    {
+      "id": "c04",
+      "acceptable_for_this_case": false,
+      "issue": "style",
+      "note": "主人要求不问问题，仍反问。"
+    },
+    {
+      "id": "c05",
+      "acceptable_for_this_case": false,
+      "issue": "naturalness",
+      "note": "身份基本对，但复述系统指令。"
+    },
+    {
+      "id": "c06",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "鸡蛋为无依据内容，未自然回答飞盘喜好。"
+    },
+    {
+      "id": "c07",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "按顺序给出团团、小满，较简陋但对应当前双方名称。"
+    },
+    {
+      "id": "c08",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "正确称呼小柚。"
+    },
+    {
+      "id": "c09",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "没有观察数据却声称看了屏幕。"
+    },
+    {
+      "id": "c10",
+      "acceptable_for_this_case": false,
+      "issue": "relevance",
+      "note": "复述语气标签，没说明图片缺失。"
+    },
+    {
+      "id": "c11",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "编造上周喜爱的沙拉。"
+    },
+    {
+      "id": "c12",
+      "acceptable_for_this_case": false,
+      "issue": "relevance",
+      "note": "空角色台词，没有说明操作未执行。"
+    },
+    {
+      "id": "c13",
+      "acceptable_for_this_case": false,
+      "issue": "capability",
+      "note": "无保存结果却声称已保存。"
+    },
+    {
+      "id": "c14",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "生成多角色台词并称主人叫大熊，未安慰。"
+    },
+    {
+      "id": "c15",
+      "acceptable_for_this_case": false,
+      "issue": "relevance",
+      "note": "未庆祝修好bug，还编造看屏幕。"
+    },
+    {
+      "id": "c16",
+      "acceptable_for_this_case": false,
+      "issue": "relevance",
+      "note": "只有名字，没有回应忙完。"
+    },
+    {
+      "id": "c17",
+      "acceptable_for_this_case": false,
+      "issue": "relevance",
+      "note": "没有利用预算摘要。"
+    },
+    {
+      "id": "c18",
+      "acceptable_for_this_case": false,
+      "issue": "context",
+      "note": "忽略已有错误提示。"
+    },
+    {
+      "id": "c19",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "没有像素却声称是狗狗视觉作品。"
+    },
+    {
+      "id": "c20",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "网页摘要却编造黑白狗狗视觉。"
+    },
+    {
+      "id": "c21",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "正确回答拔河。"
+    },
+    {
+      "id": "c22",
+      "acceptable_for_this_case": false,
+      "issue": "context",
+      "note": "未回答称呼/话风。"
+    },
+    {
+      "id": "c23",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "编造小说身份/父亲，误解台词。"
+    },
+    {
+      "id": "c24",
+      "acceptable_for_this_case": false,
+      "issue": "context",
+      "note": "回答已完成的昨天事项而非今天。"
+    },
+    {
+      "id": "m_name_1",
+      "acceptable_for_this_case": false,
+      "issue": "context",
+      "note": "只拼接两个名字，无法体现本人和朋友。"
+    },
+    {
+      "id": "m_name_2",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "未回答大熊/小橙。"
+    },
+    {
+      "id": "m_name_3",
+      "acceptable_for_this_case": false,
+      "issue": "context",
+      "note": "未给出双方名称。"
+    },
+    {
+      "id": "m_plan_1",
+      "acceptable_for_this_case": false,
+      "issue": "naturalness",
+      "note": "事实对，但生成角色标签及宿主台词。"
+    },
+    {
+      "id": "m_plan_2",
+      "acceptable_for_this_case": false,
+      "issue": "context",
+      "note": "仍回答旧安排。"
+    },
+    {
+      "id": "m_plan_3",
+      "acceptable_for_this_case": false,
+      "issue": "context",
+      "note": "预算/报告混在今天，未按当前安排。"
+    },
+    {
+      "id": "m_style_1",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "编造刚吃饭且不自然。"
+    },
+    {
+      "id": "m_style_2",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "把忙说成宠物，编造看桌面。"
+    },
+    {
+      "id": "m_style_3",
+      "acceptable_for_this_case": false,
+      "issue": "relevance",
+      "note": "未庆祝，语句生硬。"
+    },
+    {
+      "id": "m_boundary_1",
+      "acceptable_for_this_case": false,
+      "issue": "relevance",
+      "note": "没问题未回答是否看过。"
+    },
+    {
+      "id": "m_boundary_2",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "声称刚看过屏幕。"
+    },
+    {
+      "id": "m_boundary_3",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "没有明确区分猜测与观察。"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "model": {
+    "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+    "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+    "name": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "bytes": 1117320736,
+    "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "license_metadata": "apache-2.0",
+    "source_api": "https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct-GGUF?blobs=true"
+  },
+  "command": [
+    "/workspace/daxiong-ai-prototype/runtime/build/bin/llama-server",
+    "-m",
+    "/workspace/daxiong-ai-prototype/models/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "18891",
+    "-t",
+    "2",
+    "-tb",
+    "2",
+    "-c",
+    "4096",
+    "-np",
+    "1",
+    "-ngl",
+    "0",
+    "--jinja",
+    "--no-warmup",
+    "--no-mmproj"
+  ],
+  "parameters": {
+    "temperature": 0.6,
+    "top_p": 0.9,
+    "top_k": 40,
+    "min_p": 0.0,
+    "repeat_penalty": 1.05,
+    "seed": 20261010,
+    "max_tokens": 192,
+    "cache_prompt": false,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "stream": true
+  }
+}

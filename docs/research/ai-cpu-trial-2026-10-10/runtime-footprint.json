@@ -1,0 +1,39 @@
+{
+  "scope": "Linux server + non-system shared-library dependency closure, unstripped; excludes model, OCR, assets, licenses and system libraries; not a packaged app",
+  "files": [
+    {
+      "name": "libggml-base.so.0.26.0",
+      "bytes": 901696
+    },
+    {
+      "name": "libggml-cpu.so.0.26.0",
+      "bytes": 1422504
+    },
+    {
+      "name": "libggml.so.0.26.0",
+      "bytes": 55920
+    },
+    {
+      "name": "libllama-common.so.0.6.0",
+      "bytes": 5946632
+    },
+    {
+      "name": "libllama-server-impl.so",
+      "bytes": 7126608
+    },
+    {
+      "name": "libllama.so.0.6.0",
+      "bytes": 4793608
+    },
+    {
+      "name": "libmtmd.so.0.6.0",
+      "bytes": 1914456
+    },
+    {
+      "name": "llama-server",
+      "bytes": 17920
+    }
+  ],
+  "total_bytes": 22179344,
+  "dependencies": "\tlinux-vdso.so.1 (0x00007f9fadd44000)\n\tlibllama-server-impl.so => /workspace/daxiong-ai-prototype/runtime/build/bin/libllama-server-impl.so (0x00007f9fad728000)\n\tlibstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f9fad49f000)\n\tlibgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f9fad472000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f9fad27e000)\n\tlibllama-common.so.0 => /workspace/daxiong-ai-prototype/runtime/build/bin/libllama-common.so.0 (0x00007f9facdf1000)\n\tlibmtmd.so.0 => /workspace/daxiong-ai-prototype/runtime/build/bin/libmtmd.so.0 (0x00007f9facc45000)\n\tlibllama.so.0 => /workspace/daxiong-ai-prototype/runtime/build/bin/libllama.so.0 (0x00007f9fac85b000)\n\tlibggml.so.0 => /workspace/daxiong-ai-prototype/runtime/build/bin/libggml.so.0 (0x00007f9fac84e000)\n\tlibggml-base.so.0 => /workspace/daxiong-ai-prototype/runtime/build/bin/libggml-base.so.0 (0x00007f9fac783000)\n\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f9fac691000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007f9fadd46000)\n\tlibggml-cpu.so.0 => /workspace/daxiong-ai-prototype/runtime/build/bin/libggml-cpu.so.0 (0x00007f9fac4c6000)\n"
+}

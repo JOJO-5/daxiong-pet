@@ -1,0 +1,103 @@
+{
+  "date_beijing": "2026-10-10",
+  "scope": "User-confirmed development route: Qwen3.5 2B text and image-capable architecture plus separate CPU OCR. Not app-bundled or release-qualified; 2B image execution still pending.",
+  "default_text_model": {
+    "repository": "lmstudio-community/Qwen3.5-2B-GGUF",
+    "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+    "name": "Qwen3.5-2B-Q4_K_M.gguf",
+    "bytes": 1270808032,
+    "sha256": "0bfe35afc9f05b7fac3fa04925e051ac7939a42a8a17ea11afc99701bea826cc",
+    "license_metadata": "apache-2.0",
+    "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-2B-GGUF?blobs=true"
+  },
+  "runtime": {
+    "family": "llama.cpp",
+    "tag": "v0.6.0",
+    "commit": "d81235049384534c167caea52b85a694f6103d14",
+    "device": "CPU",
+    "threads": 2,
+    "parallel_requests": 1,
+    "context_tokens": 4096,
+    "tested_platform": "Linux x86_64 AVX2/FMA/F16C, shared two-core quota; Windows/macOS/ARM not yet validated"
+  },
+  "generation": {
+    "max_tokens": 192,
+    "temperature": 0.6,
+    "top_p": 0.9,
+    "top_k": 40,
+    "min_p": 0.0,
+    "repeat_penalty": 1.05,
+    "seed_for_trial": 20261010,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "cache_prompt": false
+  },
+  "prompt_baseline": {
+    "source": "companion-trial.py:PERSONAS + COMMON",
+    "description": "Tune short gentle/playful companion prompts for chosen 2B. GUI personality still pending; historical Qwen2.5 prompt no longer selected.",
+    "release_validation": "Pending: renaming/identity, multi-turn unknown observations and GUI personality variations.",
+    "latency_note": "2B fifth-round uncached shared two-core Linux: first content p50/p95 5.13/13.65s; total 20.22/35.71s. Not 8GB 11th-gen i5 benchmark; no 2B image latency measurement."
+  },
+  "capabilities": {
+    "text_input": true,
+    "direct_image_input": true,
+    "audio_input": false,
+    "actual_tool_execution": false,
+    "actual_sqlite_memory": false,
+    "actual_screen_capture": false,
+    "image_capability_note": "Model architecture supports images only with matching projector and runtime; 2B projector not downloaded/executed yet. This flag describes capability, not tested app support.",
+    "actual_2b_image_execution_tested": false
+  },
+  "observation_plan": {
+    "ocr_trial": "RapidOCR v3.10.0 + ONNX Runtime CPU, explicit PP-OCRv5 mobile detection/Chinese recognition. v6 tiny smaller comparison; not yet executed or final OCR selection.",
+    "vision": "Selected 2B matching 671372416-byte BF16 projector; 2B image test pending. Include matching visual component in planned AI package; do not load it for ordinary text requests.",
+    "routing": "OCR first for screen text; 2B images only for user requests or image-dominant observations, no concurrent heavy inference by default.",
+    "short_term_only": true
+  },
+  "release_blockers": [
+    "Host-owned preference source/write and real execution states; companion naming continuity assessed as experience, not a zero-error chatbot gate",
+    "Companion response length/tone and multi-turn experience; observation scope/source enforced by host",
+    "Native Windows/macOS/ARM and game-concurrent CPU/RAM tests",
+    "Actual per-platform installation size, licenses, runtime distribution and cancellation/idle unload",
+    "SQLite, chat UI, GUI personality and 30-day retention integration"
+  ],
+  "selection_status": "user_confirmed_qwen35_2b_development_route",
+  "selection_policy": {
+    "primary": [
+      "natural Chinese conversation",
+      "multi-turn companionship",
+      "GUI personality adherence",
+      "CPU responsiveness and animation interference"
+    ],
+    "tolerated": "Low-risk factual slips and playful imagined dog actions; not automatic rejection.",
+    "host_owned_boundaries": [
+      "long-term preference source and actual writes",
+      "real tool execution status",
+      "screen capture scope and source"
+    ]
+  },
+  "companion_evidence": "docs/research/companion-trial-2026-10-10.md",
+  "comparison_candidates": [
+    "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "Qwen3.5-0.8B-Q4_K_M.gguf",
+    "Qwen3.5-2B-Q4_K_M.gguf"
+  ],
+  "vision_component": {
+    "repository": "lmstudio-community/Qwen3.5-2B-GGUF",
+    "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+    "name": "mmproj-Qwen3.5-2B-BF16.gguf",
+    "bytes": 671372416,
+    "sha256": "31a8b681d34e70eaef158f7bacf1bc726a7a29babd185119ab3ebf402890dfbc",
+    "license_metadata": "apache-2.0",
+    "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-2B-GGUF?blobs=true"
+  },
+  "target_hardware": {
+    "memory_gb": 8,
+    "cpu": "Intel Core i5 11th generation; exact SKU pending native benchmark",
+    "status": "user selected target, not tested device",
+    "threads": "benchmark 2 and 4 workers; leave responsiveness headroom, do not assume double speed"
+  },
+  "planned_model_artifact_bytes": 1942180448,
+  "ocr_evidence": "docs/research/qwen35-2b-ocr-route-2026-10-10.md"
+}

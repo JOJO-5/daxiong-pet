@@ -1,0 +1,78 @@
+{
+  "reviewer": "本次助手语义评审，非独立人工/盲评。",
+  "responses_sha256": "52b3c8169660460320bace428f286c5199ee5b2c97695e268434f40da9a23c08",
+  "cases": [
+    {
+      "profile": "new_short_uncached",
+      "id": "d01",
+      "acceptable_for_this_case": true,
+      "note": "自然庆祝，做饭/泡茶为过度拟人愿望，不是已执行工具。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d02",
+      "acceptable_for_this_case": true,
+      "note": "温柔回应主人被误会；澄清/保证工作流畅的承诺超出能力。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d03",
+      "acceptable_for_this_case": false,
+      "note": "把木木改成木头，编造石头说过/搭档。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d04",
+      "acceptable_for_this_case": true,
+      "note": "大熊/木木对应正确。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d05",
+      "acceptable_for_this_case": false,
+      "note": "把木子当自己且未称呼主人，回复过长、凭空威胁生气/打人，性格明显偏离。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d06",
+      "acceptable_for_this_case": true,
+      "note": "索要网址，未声称已看见；马上帮查的说法不够明确能力限制。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d07",
+      "acceptable_for_this_case": true,
+      "note": "无图无法数人，说明需要图像或内容。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d08",
+      "acceptable_for_this_case": false,
+      "note": "声称帮删除、虚构开始删除UI。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d09",
+      "acceptable_for_this_case": false,
+      "note": "编造刚讲笑话的历史，没有说明不知歌名。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d10",
+      "acceptable_for_this_case": false,
+      "note": "接纳安静却声称关闭屏幕。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d11",
+      "acceptable_for_this_case": false,
+      "note": "编造刚收/处理完邮件，未答当前任务。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d12",
+      "acceptable_for_this_case": false,
+      "note": "把OCR爱吃辣当主人偏好并承诺保存。"
+    }
+  ]
+}

@@ -21,4 +21,11 @@ assert size == m['bytes'] and digest.hexdigest() == m['sha256'], 'model checksum
 partial.rename(model)
 runtime = work/'build/bin'
 if (runtime/'Release/llama-server.exe').exists(): runtime = runtime/'Release'
+# Static CPU runner must work after its build tree disappears.
+isolated = work/'portable-runtime'; isolated.mkdir()
+import shutil
+executable = runtime/('llama-server.exe' if __import__('os').name=='nt' else 'llama-server')
+shutil.copy2(executable, isolated/executable.name)
+subprocess.run([str(isolated/executable.name),'--version'],check=True)
+runtime = isolated
 subprocess.run(['python',str(root/'scripts/stage-ai-resources.py'),'--runtime-dir',str(runtime),'--model',str(model),'--runtime-license',str(source/'LICENSE'),'--out',str(work/'ai'),'--bundle-config',str(work/'tauri-ai.json')],check=True)

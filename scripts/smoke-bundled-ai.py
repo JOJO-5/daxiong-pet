@@ -22,7 +22,7 @@ try:
             time.sleep(1)
     reply=request('/v1/chat/completions',{'messages':[{'role':'user','content':'用中文说你好。'}],'max_tokens':32,'chat_template_kwargs':{'enable_thinking':False}})
     assert reply['choices'][0]['message']['content'].strip(),'empty model reply'
-    print(json.dumps({'native_cpu_inference':True,'scope':'pinned runtime + staged resources; installed GUI is separate','reply':reply['choices'][0]['message']['content']},ensure_ascii=False))
+    print(json.dumps({'native_cpu_inference':True,'scope':'pinned runtime + staged resources; installed GUI is separate','reply':reply['choices'][0]['message']['content']},ensure_ascii=True))
 finally:
     process.terminate()
     try:process.wait(timeout=15)

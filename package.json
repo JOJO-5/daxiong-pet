@@ -1,7 +1,7 @@
 {
   "name": "daxiong-pet",
   "private": true,
-  "version": "1.0.27",
+  "version": "1.1.0-alpha.1",
   "type": "module",
   "scripts": {
     "dev": "vite",

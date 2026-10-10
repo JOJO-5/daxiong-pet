@@ -1,7 +1,7 @@
 name: Build desktop packages
 on:
   push:
-    branches: [main]
+    branches: [main, feat/local-ai-chat]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -57,8 +57,12 @@ jobs:
         run: npm test
       - name: Test engine
         run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+      - name: Build and stage bundled CPU AI
+        run: python scripts/prepare-bundled-ai.py --work ai-build
+      - name: Run native bundled model
+        run: python scripts/smoke-bundled-ai.py --ai ai-build/ai
       - name: Build packages
-        run: npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+        run: npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }} --config ai-build/tauri-ai.json
         env:
           NO_STRIP: true
       - name: Smoke test Linux single instance
@@ -97,4 +101,38 @@ jobs:
             src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
             src-tauri/target/${{ matrix.target }}/release/bundle/appimage/*.AppImage
             src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
-            src-tauri/target/${{ matrix.target }}/release/daxiong-pet.exe
+
+  prerelease:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/local-ai-chat'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: daxiong-*
+          path: release-artifacts
+      - name: Require same-source desktop regression
+        run: |
+          python3 - <<'PYGATE'
+          import json, os, subprocess, time
+          for attempt in range(120):
+              runs=json.loads(subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/workflows/e2e-desktop.yml/runs?per_page=50']))['workflow_runs']
+              matches=[r for r in runs if r['head_sha']==os.environ['GITHUB_SHA']]
+              if matches and matches[0]['status']=='completed':
+                  assert matches[0]['conclusion']=='success','same-source desktop regression failed'
+                  break
+              time.sleep(20)
+          else: raise RuntimeError('same-source regression not completed')
+          PYGATE
+      - name: Prepare bundled downloads
+        run: python3 scripts/prepare-release.py --artifacts release-artifacts --out release-assets --bundled-ai
+      - name: Publish complete AI preview
+        run: |
+          TAG="v$(node -p "require('./package.json').version")"
+          gh release create "$TAG" release-assets/* --target "$GITHUB_SHA" --prerelease --title "大熊 $TAG · 内置 CPU AI 测试版" --notes-file docs/release-notes-ai-preview.md

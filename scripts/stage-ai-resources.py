@@ -52,7 +52,7 @@ def main():
             linked = source.resolve()
             if linked.parent != runtime:
                 parser.error('runtime symlink points outside supplied directory')
-            target.symlink_to(linked.name)
+            shutil.copy2(linked, target)
         else:
             shutil.copy2(source, target)
     shutil.copy2(license_file, stage / 'licenses/llama.cpp-LICENSE.txt')

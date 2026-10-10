@@ -45,3 +45,36 @@ python3 scripts/ai-prototype/lifecycle.py \
 文件刚下载/校验，操作系统文件缓存是热的；新进程就绪时间不能宣称真正磁盘冷启动。内存为 Linux `/proc` 单个服务进程 RSS/VmHWM，不是私有内存或安装体积。主测不涵盖空闲 CPU/取消，可运行上述 lifecycle 补测；宠物游戏并行、完整包和真实 Windows/macOS 需单独验证。
 
 [本次实测报告](../../docs/research/ai-cpu-trial-2026-10-10.md)。
+
+## 第二轮：原生 tools/function calling
+
+`function-calling.py` 通过 `/v1/chat/completions` 的 `tools` 与 `tool_choice=auto` 测原生调用，读取标准 `message.tool_calls`，不把正文里写出的 JSON/XML 当作已经调用。包含 remember_preference、play_game、stop_game；没有实际执行器或数据库写入。
+
+```bash
+python3 scripts/ai-prototype/function-calling.py \
+  --server /absolute/path/pet-ai-trial/runtime/build/bin/llama-server \
+  --models /absolute/path/pet-ai-trial/models \
+  --out /absolute/path/pet-ai-trial/tools-results
+```
+
+24 个新合成实例，每个模型测 zero_shot 和 few_shot 两组，共144个主请求。每组12个应调用、12个不应调用；涵盖新称呼、说话方式、旧偏好替换、游戏、第三方、引用、假设、否定、临时状态和屏幕文字。固定示例不是开发集调参结果；示例工具响应明确为模拟、不执行，可能影响小模型的判断，不能视为最佳 few-shot 提示。
+
+主测上下文4096、输出最多160 token、temperature=0.1、top_k=50、top_p=1、min_p=0、repeat_penalty=1.05、关闭 thinking。允许相同提示前缀缓存（不是继承未提供的旧对话）；各请求完整消息固定，缓存命中在原始 usage 中记录。这些设置、用例和工具说明与第一轮不同，不能仅归因于 function calling 或直接对比延迟/通过率。
+
+`configuration.json` 和 `fixtures.json` 固定环境、参数、工具、示例及期望；`*/props.json` 保留模型模板，`responses.jsonl` 保存完整响应、解析调用、结构校验、严格语义检查和误调用；`summary.json` 分开报告正例/反例与错误。结构检查通过不代表语义正确。无调用也可能在正文声称已保存，需另作对话真实性评审。
+
+成功的 few_shot 称呼/飞盘样本可继续做 tool-role 模拟回传，记录 `roundtrip-*.json`，回传明确 executed=false；不代表数据库或游戏接入成功。
+
+
+普通 LFM Q4_K_M 的当前 GGUF 模板会丢掉历史 assistant.tool_calls；原始 few_shot 组需作为模板诊断，不能当正常示例能力评分。用同仓库 QAD 提供的历史兼容模板补测单一模型：
+
+```bash
+python3 scripts/ai-prototype/function-calling.py \
+  --server /absolute/path/pet-ai-trial/runtime/build/bin/llama-server \
+  --models /absolute/path/pet-ai-trial/models \
+  --out /absolute/path/pet-ai-trial/tools-template-repair \
+  --only LFM2.5-350M-Q4_K_M --profiles few_shot \
+  --template-file scripts/ai-prototype/lfm-history-template.jinja
+```
+
+覆盖模板必须只选择一个模型；不能把 LFM 模板套给 Qwen。当前脚本会保留每组 `/apply-template` 的展开结果，先核对示例调用确实存在。模板来源及许可见 [NOTICE.md](NOTICE.md)，不是项目自有模板。[第二轮原生调用报告](../../docs/research/function-calling-trial-2026-10-10.md)保留原始144条、修复24条和5次模拟续答。

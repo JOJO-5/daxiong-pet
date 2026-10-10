@@ -3,6 +3,9 @@
 from pathlib import Path
 exec((Path(__file__).resolve().parent/'smoke-windows.py').read_text(encoding="utf-8").split('\ntry:\n    process=')[0])
 import shutil
+import sys
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
 samples={}
 recording=None
 try:

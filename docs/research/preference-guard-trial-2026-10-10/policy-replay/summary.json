@@ -1,0 +1,38 @@
+[
+  {
+    "model": "LFM2.5-350M-Q4_K_M",
+    "cases": 32,
+    "guarded_positive_passed": 1,
+    "positive_total": 16,
+    "guarded_false_calls": 0,
+    "negative_total": 16,
+    "guarded_passed": 17,
+    "guard_decisions_changed": 0,
+    "rules_only_passed": 28,
+    "rules_only_positive_passed": 12
+  },
+  {
+    "model": "LFM2.5-350M-QAD-Q4_0",
+    "cases": 32,
+    "guarded_positive_passed": 0,
+    "positive_total": 16,
+    "guarded_false_calls": 0,
+    "negative_total": 16,
+    "guarded_passed": 16,
+    "guard_decisions_changed": 0,
+    "rules_only_passed": 28,
+    "rules_only_positive_passed": 12
+  },
+  {
+    "model": "Qwen3-0.6B-Q4_K_M",
+    "cases": 32,
+    "guarded_positive_passed": 12,
+    "positive_total": 16,
+    "guarded_false_calls": 0,
+    "negative_total": 16,
+    "guarded_passed": 28,
+    "guard_decisions_changed": 0,
+    "rules_only_passed": 28,
+    "rules_only_positive_passed": 12
+  }
+]

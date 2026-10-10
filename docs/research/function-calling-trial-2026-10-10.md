@@ -74,3 +74,5 @@
 4. 有限游戏命令优先确定性解析；原生工具作为更多自然表达的候选。聊天与工具任务分别选配置，暂不因为本轮函数调用成绩选定默认中文聊天模型。
 
 [原始组证据](function-calling-trial-2026-10-10/original/summary.json)与[模板修复证据](function-calling-trial-2026-10-10/template-repair/summary.json)含完整响应、props模板、展开模板、模拟回传与退出日志。Windows/macOS、真实办公、游戏并行、SQLite自动记忆与四平台包均未验证；本轮仍属于G1独立原型，未发布新应用版本。
+
+上述下一轮已执行：[第三轮专用偏好工具、来源校验与新样本](preference-guard-trial-2026-10-10.md)。保留本轮结论和数据，后续结果另报。

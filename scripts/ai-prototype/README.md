@@ -78,3 +78,29 @@ python3 scripts/ai-prototype/function-calling.py \
 ```
 
 覆盖模板必须只选择一个模型；不能把 LFM 模板套给 Qwen。当前脚本会保留每组 `/apply-template` 的展开结果，先核对示例调用确实存在。模板来源及许可见 [NOTICE.md](NOTICE.md)，不是项目自有模板。[第二轮原生调用报告](../../docs/research/function-calling-trial-2026-10-10.md)保留原始144条、修复24条和5次模拟续答。
+
+
+## 第三轮：专用偏好工具与来源校验
+
+`preference-trial.py` 复用原生调用运行器，只提供 set_preferred_name(name) 和 set_speaking_style(style) 两个工具。32个新合成实例（16明确偏好、16反例），自然正反例；普通LFM自动使用历史兼容模板。来源是测试宿主提供的 user_chat/screen/clipboard/document，模型没有权力更改来源标签。工具依然只返回提案，不接入SQLite。
+
+```bash
+python3 scripts/ai-prototype/preference-trial.py \
+  --server /absolute/path/pet-ai-trial/runtime/build/bin/llama-server \
+  --models /absolute/path/pet-ai-trial/models \
+  --out /absolute/path/pet-ai-trial/preferences
+python3 scripts/ai-prototype/preference-trial.py \
+  --server /absolute/path/pet-ai-trial/runtime/build/bin/llama-server \
+  --models /absolute/path/pet-ai-trial/models \
+  --out /absolute/path/pet-ai-trial/preferences-qad-zero \
+  --only LFM2.5-350M-QAD-Q4_0 --profile zero_shot
+python3 -m unittest discover -s scripts/ai-prototype -p test_preference_guard.py
+```
+
+`preference_guard.py` 是保守的完整句式规则，不是完整自然语言理解：只接受本人当前明确、已支持的声明和完全匹配的提案；拒绝非聊天来源、没有证据、多调用、旧值和额外字段。未知改写、混合表达、带空格昵称等会漏记。不会用规则补齐模型漏掉的调用；独立 rules_only 基线另外计分，不算模型成绩。guard-summary.json 分开列模型原始、校验后及纯规则的正例/误调用/漏记。
+
+主轮运行期间的额外测试发现问句识别和昵称空格问题，规则已修正。保留初版源码/哈希及结果，并用 `replay-preference-policy.py --results <完整试验目录> --out <新重放目录>` 单独重放修正版，未修改原始响应或golden；现有32条上的决定相同。该重放不重新生成模型输出。
+
+模型/提示/规则和新样本在同次探索中设计，没有独立盲测，不把本次反例全挡住宣传为通用安全保证。实际屏幕捕获来源、SQLite写入/撤销、UI及游戏并行仍需后续验证。
+
+[第三轮报告与完整证据](../../docs/research/preference-guard-trial-2026-10-10.md)记录128次真实推理、96条策略重放与原始/校验后/规则基线。

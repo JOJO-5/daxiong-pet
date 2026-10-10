@@ -1,0 +1,36 @@
+name: Diagnose native AI build
+on:
+  push:
+    branches: [feat/local-ai-chat]
+    paths: [.github/workflows/diagnose-ai-build.yml]
+  workflow_dispatch:
+permissions:
+  actions: read
+  checks: write
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Publish the latest failed Windows build tail as a check
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          repo=os.environ['GITHUB_REPOSITORY']
+          def api(path):return json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/{path}']))
+          runs=api('actions/workflows/build-desktop.yml/runs?branch=feat/local-ai-chat&per_page=15')['workflow_runs']
+          job=None
+          for run in runs:
+              jobs=api(f'actions/runs/{run["id"]}/jobs')['jobs']
+              job=next((j for j in jobs if j['name']=='Windows x64' and j['conclusion']=='failure'),None)
+              if job:break
+          assert job,'no failed Windows build found'
+          log=subprocess.check_output(['gh','api',f'repos/{repo}/actions/jobs/{job["id"]}/logs'],text=True)
+          # Native compiler logs contain build paths, not model API credentials.
+          tail=log[-18000:]
+          payload={'name':'Windows bundled AI build diagnostic','head_sha':os.environ['GITHUB_SHA'],'status':'completed','conclusion':'neutral','output':{'title':f'Failed Windows job {job["id"]}','summary':'```text\n'+tail+'\n```'}}
+          open('check.json','w').write(json.dumps(payload))
+          subprocess.run(['gh','api','--method','POST',f'repos/{repo}/check-runs','--input','check.json'],check=True,stdout=subprocess.DEVNULL)
+          PY

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Record real Win32 ball/disc movement. Timings are evidence, not a FPS assertion."""
 from pathlib import Path
-exec((Path(__file__).resolve().parent/'smoke-windows.py').read_text().split('\ntry:\n    process=')[0])
+exec((Path(__file__).resolve().parent/'smoke-windows.py').read_text(encoding="utf-8").split('\ntry:\n    process=')[0])
 import shutil
 samples={}
 recording=None

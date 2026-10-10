@@ -20,6 +20,10 @@ tauri-plugin-dialog = "2"
 tempfile = "3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+rusqlite = { version = "0.32", features = ["bundled"] }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+sha2 = "0.10"
+uuid = { version = "1", features = ["v4"] }
 # 只用来读图集头部拿尺寸（校验契约），不需要完整解码
 image = { version = "0.25", default-features = false, features = ["webp", "png"] }
 base64 = "0.22"
@@ -39,6 +43,7 @@ chrono = { version = "0.4", default-features = false, features = ["clock"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 gtk = "0.18"
+libc = "0.2"
 
 # 修复上游 bug：tauri-build 2.7 启用 schemars 的 preserve_order，
 # 而 schemars 0.8.22 的该 feature 指向 indexmap 1.x，但其代码用的是 2.x 的泛型写法

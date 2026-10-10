@@ -174,6 +174,14 @@ src-tauri/src/
 
 MIT
 
+## 本地 AI 开发预览
+
+开发分支已接入 Qwen3.5 2B CPU 文字聊天：右键菜单、托盘和互动面板可打开聊天；性格、称呼、语气和回复长短通过界面修改。聊天与性格保存在独立 SQLite 数据库中，聊天默认保留 30 天，支持流式回复、停止和失败重试。AI 默认关闭，启用后首次回复会校验并加载模型。
+
+这一轮交付文字聊天开发代码。OCR、图片理解、屏幕观察、长期偏好自动记忆、外接大模型与完整内置模型安装包继续按[目标文件](docs/LOCAL-AI-GOALS.md)实施；现有正式版下载仍为原版本。
+
+开发者准备固定模型和目标平台 CPU 运行器后，用 `scripts/stage-ai-resources.py` 暂存资源，调试启动设置 `DAXIONG_AI_RESOURCE_DIR`。固定来源、编译/运行命令、实际原生测试和平台限制见[文字聊天开发验收](docs/validation/local-ai-chat-2026-10-11.md)。最终用户安装包的资源内置由后续打包阶段处理。
+
 
 macOS 构建：`npm run tauri build -- --bundles dmg`。
 Linux 构建：`npm run tauri build -- --bundles appimage,deb`。

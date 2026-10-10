@@ -102,8 +102,11 @@ try:
     time.sleep(.65)
     native = pet_native()
     initial_handles = set(command("GET", "/window/handles"))
-    pointer("mousemove", "--window", native, 150, 160)
-    wait(lambda: js("return document.querySelector('[data-testid=pet]')?.dataset.clickable==='true'"))
+    # The pet can move while Openbox places it; follow its current native position.
+    def hover_pet():
+        pointer("mousemove", "--window", native, 150, 160)
+        return js("return document.querySelector('[data-testid=pet]')?.dataset.clickable==='true'")
+    wait(hover_pet)
     pointer("click", 3)
     time.sleep(.35);pointer("key","Home","Return")
     wait(lambda: len(command("GET", "/window/handles")) > len(initial_handles))

@@ -1,6 +1,6 @@
 {
   "date_beijing": "2026-10-10",
-  "scope": "Locked development default for standalone prototype and next implementation. Not yet bundled in app; release acceptance NOT passed.",
+  "scope": "Historical Qwen2.5 development baseline retained as comparison only. Final companion model selection reopened after user clarified tolerance for low-risk errors; NOT app-bundled or release-qualified.",
   "default_text_model": {
     "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
     "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
@@ -35,7 +35,7 @@
   },
   "prompt_baseline": {
     "source": "chat-prompt-trial.py:SHORT_SYSTEM",
-    "description": "Short explicit current capabilities. G2 must generate personality from GUI; this developer manifest is not a personality settings UI.",
+    "description": "Historical fourth-round short prompt only; companion comparison uses companion-trial.py personas. Final prompt/model pending actual companion experience. G2 personality settings remain GUI-owned.",
     "release_validation": "Pending: renaming/identity, multi-turn unknown observations and GUI personality variations.",
     "latency_note": "Chosen short prompt measured in nonstream uncached new12: total p50 4.28s/p95 7.29s. Main cached longer prompt first-content p50 0.68s is NOT a measurement of this chosen short prompt."
   },
@@ -53,10 +53,31 @@
     "short_term_only": true
   },
   "release_blockers": [
-    "Correct nickname updates and owner/pet identity without model-generated false persistence",
-    "Unknown screen/history and source injection response quality",
+    "Host-owned preference source/write and real execution states; companion naming continuity assessed as experience, not a zero-error chatbot gate",
+    "Companion response length/tone and multi-turn experience; observation scope/source enforced by host",
     "Native Windows/macOS/ARM and game-concurrent CPU/RAM tests",
     "Actual per-platform installation size, licenses, runtime distribution and cancellation/idle unload",
     "SQLite, chat UI, GUI personality and 30-day retention integration"
+  ],
+  "selection_status": "companion_comparison_completed_final_model_pending",
+  "selection_policy": {
+    "primary": [
+      "natural Chinese conversation",
+      "multi-turn companionship",
+      "GUI personality adherence",
+      "CPU responsiveness and animation interference"
+    ],
+    "tolerated": "Low-risk factual slips and playful imagined dog actions; not automatic rejection.",
+    "host_owned_boundaries": [
+      "long-term preference source and actual writes",
+      "real tool execution status",
+      "screen capture scope and source"
+    ]
+  },
+  "companion_evidence": "docs/research/companion-trial-2026-10-10.md",
+  "comparison_candidates": [
+    "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "Qwen3.5-0.8B-Q4_K_M.gguf",
+    "Qwen3.5-2B-Q4_K_M.gguf"
   ]
 }

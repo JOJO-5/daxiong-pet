@@ -138,4 +138,20 @@ python3 scripts/ai-prototype/vision-trial.py \
 
 `chat-prompt-trial.py` 做长提示关闭缓存、短提示关闭缓存对照，以及12条新增样本。manifest也须只放目标模型（及可选同型号mmproj，脚本忽略mmproj）。`--profiles new_short_uncached` 只跑12条新样本；默认再跑6+6条旧问题作诊断。它使用非流式接口，没有首字/首句指标。采样参数与主轮相同，仅诊断所述提示/缓存变化；数据和提示在运行前固定。新样本由同一助手设计/评审，不是独立生产验收。
 
-[第四轮报告和全部证据](../../docs/research/chat-selection-trial-2026-10-10.md)已完成276次文字+6次图片请求。[default-model.json](default-model.json)锁定Qwen2.5 1.5B为后续开发基线，明确未通过正式质量/平台验收。权重约1.12GB，只有文字；并非现有应用的用户性格配置文件，后续性格编辑仍走GUI。前五个主测运行器原始源码和视觉v1源码保留在报告证据目录；当前chat-trial仅增加清单重名去重/冲突检查，原始组参数/样本不变。
+[第四轮报告和全部证据](../../docs/research/chat-selection-trial-2026-10-10.md)已完成276次文字+6次图片请求。[default-model.json](default-model.json)保留第四轮Qwen2.5 1.5B基线；用户后续调整体验标准后，最终选型已重新开放，明确未通过正式质量/平台验收。权重约1.12GB，只有文字；并非现有应用的用户性格配置文件，后续性格编辑仍走GUI。前五个主测运行器原始源码和视觉v1源码保留在报告证据目录；当前chat-trial仅增加清单重名去重/冲突检查，原始组参数/样本不变。
+
+## 第五轮：以宠物陪伴体验重新比较
+
+用户允许狗狗偶尔说错，第四轮默认型号已重新开放；`default-model.json` 保留Qwen2.5历史对照，不代表最终选型。新脚本固定两种性格、三组真实生成历史的三轮聊天，三款模型共54次CPU流式请求。分别评审自然度、接话、性格、陪伴感；低风险想象动作允许，不用知识正确率替代宠物体验。单助手主观评审，非盲测；没有GUI或真实桌面集成。
+
+```bash
+python3 scripts/ai-prototype/companion-trial.py \
+  --server /absolute/path/runtime/build/bin/llama-server \
+  --models /absolute/path/models \
+  --manifest docs/research/chat-model-candidates-2026-10-10.json \
+  --out /absolute/path/new-companion-run
+```
+
+输出目录必须不存在；固定完整请求、实际生成历史、原始SSE、首正文/整段耗时、模型校验和源码哈希、退出状态。模型依次运行，二线程、4096上下文，关闭提示缓存。共享Linux机器热文件缓存测量不能代表Windows/macOS或实际游戏并行性能。
+
+[第五轮报告](../../docs/research/companion-trial-2026-10-10.md)与完整54轮对话已保存；52次stop、2次输出上限截断，三服务退出码0。2B温柔回应值得继续调短句，最终型号尚未锁定。

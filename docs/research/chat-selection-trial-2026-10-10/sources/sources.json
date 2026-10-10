@@ -1,0 +1,26 @@
+[
+  {
+    "id": "qwen35-license",
+    "url": "https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/2fc06364715b967f1860aea9cf38778875588b17/LICENSE",
+    "sha256": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a",
+    "bytes": 11544
+  },
+  {
+    "id": "rapidocr-latest",
+    "url": "https://api.github.com/repos/RapidAI/RapidOCR/releases/latest",
+    "sha256": "f274e4a13c7466bb93641ee1e9a17bc542d51bf47488981e9ff0db7294a9393f",
+    "bytes": 6180
+  },
+  {
+    "id": "paddle-detection",
+    "url": "https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/main/docs/version3.x/module_usage/text_detection.en.md",
+    "sha256": "4210a3a97caeae5967b10ba2cf189b0057bc863ab6e36e7a66fa0a2f4591891c",
+    "bytes": 31818
+  },
+  {
+    "id": "paddle-recognition",
+    "url": "https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/main/docs/version3.x/module_usage/text_recognition.en.md",
+    "sha256": "97789065147c5882443594b6dbdf73b1e93482925896d05341ce4f4c6b515777",
+    "bytes": 55788
+  }
+]

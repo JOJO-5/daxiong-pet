@@ -104,3 +104,38 @@ python3 -m unittest discover -s scripts/ai-prototype -p test_preference_guard.py
 模型/提示/规则和新样本在同次探索中设计，没有独立盲测，不把本次反例全挡住宣传为通用安全保证。实际屏幕捕获来源、SQLite写入/撤销、UI及游戏并行仍需后续验证。
 
 [第三轮报告与完整证据](../../docs/research/preference-guard-trial-2026-10-10.md)记录128次真实推理、96条策略重放与原始/校验后/规则基线。
+
+
+## 第四轮：聊天选型与图像输入探针
+
+`chat-cases.py` 固定24条单轮和4组三轮（使用真实生成的前文）样本及语义评审标准；`chat-trial.py` 对三个原候选和新增Qwen3.5逐个做CPU流式试验。不要并行启动这些运行器：共享18891端口和两核配额，串行才可对照。`--extra-manifest` 可用仓库的 `docs/research/chat-model-candidates-2026-10-10.json`，但该清单也列出元数据候选；必须先按固定revision下载对应文字权重并验SHA。只选新增0.8B时：
+
+```bash
+python3 scripts/ai-prototype/chat-trial.py \
+  --server /absolute/path/runtime/build/bin/llama-server \
+  --models /absolute/path/models --out /absolute/path/new-chat-run \
+  --extra-manifest docs/research/chat-model-candidates-2026-10-10.json \
+  --only Qwen3.5-0.8B
+```
+
+每模型36次请求。记录正文首片段、首句标点、整段时延、原始SSE、实际输入、缓存token、单进程RSS/HWM及退出码。不是消费级Windows/macOS测试；启动用热文件缓存，不是磁盘冷启动；没有长时空闲/游戏并行测试。语义由本次助手逐条评审，非独立人工盲测，不用子串检查宣称聊天正确率。
+
+图像探针需要另准备只包含一个文字模型与其对应mmproj的manifest（从候选清单选取，不能给另一型号配错视觉组件）；安装Pillow和Noto Sans CJK字体后生成4张合成图片，没有读取真实桌面、没有修改宠物素材：
+
+```bash
+python3 scripts/ai-prototype/make-vision-cases.py --out /absolute/path/vision-fixtures
+python3 scripts/ai-prototype/vision-trial.py \
+  --server /absolute/path/runtime/build/bin/llama-server \
+  --models /absolute/path/models --manifest /absolute/path/one-vision-model.json \
+  --fixtures /absolute/path/vision-fixtures --out /absolute/path/vision-run
+# 原始组无min设置；运行器建议grounding至少1024，单独补测，不覆盖旧组：
+python3 scripts/ai-prototype/vision-trial.py \
+  --server /absolute/path/runtime/build/bin/llama-server \
+  --models /absolute/path/models --manifest /absolute/path/one-vision-model.json \
+  --fixtures /absolute/path/vision-fixtures --out /absolute/path/vision-min1024 \
+  --min-image-tokens 1024 --case-ids v03,v04
+```
+
+`chat-prompt-trial.py` 做长提示关闭缓存、短提示关闭缓存对照，以及12条新增样本。manifest也须只放目标模型（及可选同型号mmproj，脚本忽略mmproj）。`--profiles new_short_uncached` 只跑12条新样本；默认再跑6+6条旧问题作诊断。它使用非流式接口，没有首字/首句指标。采样参数与主轮相同，仅诊断所述提示/缓存变化；数据和提示在运行前固定。新样本由同一助手设计/评审，不是独立生产验收。
+
+[第四轮报告和全部证据](../../docs/research/chat-selection-trial-2026-10-10.md)已完成276次文字+6次图片请求。[default-model.json](default-model.json)锁定Qwen2.5 1.5B为后续开发基线，明确未通过正式质量/平台验收。权重约1.12GB，只有文字；并非现有应用的用户性格配置文件，后续性格编辑仍走GUI。前五个主测运行器原始源码和视觉v1源码保留在报告证据目录；当前chat-trial仅增加清单重名去重/冲突检查，原始组参数/样本不变。

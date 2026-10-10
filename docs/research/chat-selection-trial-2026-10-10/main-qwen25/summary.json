@@ -1,0 +1,41 @@
+[
+  {
+    "model": {
+      "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+      "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+      "name": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "bytes": 1117320736,
+      "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "license_metadata": "apache-2.0",
+      "source_api": "https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct-GGUF?blobs=true"
+    },
+    "requests": 36,
+    "errors": 0,
+    "truncated": 0,
+    "reasoning_nonempty": 0,
+    "startup_health_seconds": 1.564779088999785,
+    "peak_single_process_kib": {
+      "VmRSS": 1946304,
+      "VmHWM": 1946304
+    },
+    "final_rss_kib": {
+      "VmRSS": 1946304,
+      "VmHWM": 1946304
+    },
+    "latency": {
+      "first_content_seconds": {
+        "p50": 0.6846519300015643,
+        "p95": 1.921896600000764
+      },
+      "first_sentence_seconds": {
+        "p50": 1.5457871510006953,
+        "p95": 3.064155235999351
+      },
+      "total_seconds": {
+        "p50": 2.0347734860006312,
+        "p95": 5.000711664000846
+      }
+    },
+    "semantic_score": null
+  }
+]

@@ -71,3 +71,5 @@ QAD无示例识别10/16条正例，比它的示例配置更有希望；但同样
 - 继续聊天质量与G1实际设备/并行性能评测；默认模型仍未定型，不能因本轮偏好结果跳过聊天/角色验收。待G2/G3接入SQLite和GUI后再验证重启、旧值更新、30天保留与真实取消。
 
 [自然示例完整证据](preference-guard-trial-2026-10-10/natural-examples/summary.json)、[QAD无示例证据](preference-guard-trial-2026-10-10/qad-zero/summary.json)及[复现命令](../../scripts/ai-prototype/README.md)。当前仍是G1/G3相关机制的独立原型，没有AI正式应用包、数据库写入或新增系统观察权限。
+
+后续已完成：[第四轮聊天选型和图像探针](chat-selection-trial-2026-10-10.md)。默认文字开发型号已锁定，保留本轮规则基线与误记/漏记结论，不等于偏好已接入SQLite。

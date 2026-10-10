@@ -1,0 +1,62 @@
+{
+  "date_beijing": "2026-10-10",
+  "scope": "Locked development default for standalone prototype and next implementation. Not yet bundled in app; release acceptance NOT passed.",
+  "default_text_model": {
+    "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+    "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+    "name": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "bytes": 1117320736,
+    "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "license_metadata": "apache-2.0",
+    "source_api": "https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct-GGUF?blobs=true"
+  },
+  "runtime": {
+    "family": "llama.cpp",
+    "tag": "v0.6.0",
+    "commit": "d81235049384534c167caea52b85a694f6103d14",
+    "device": "CPU",
+    "threads": 2,
+    "parallel_requests": 1,
+    "context_tokens": 4096,
+    "tested_platform": "Linux x86_64 AVX2/FMA/F16C, shared two-core quota; Windows/macOS/ARM not yet validated"
+  },
+  "generation": {
+    "max_tokens": 192,
+    "temperature": 0.6,
+    "top_p": 0.9,
+    "top_k": 40,
+    "min_p": 0.0,
+    "repeat_penalty": 1.05,
+    "seed_for_trial": 20261010,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "cache_prompt": false
+  },
+  "prompt_baseline": {
+    "source": "chat-prompt-trial.py:SHORT_SYSTEM",
+    "description": "Short explicit current capabilities. G2 must generate personality from GUI; this developer manifest is not a personality settings UI.",
+    "release_validation": "Pending: renaming/identity, multi-turn unknown observations and GUI personality variations.",
+    "latency_note": "Chosen short prompt measured in nonstream uncached new12: total p50 4.28s/p95 7.29s. Main cached longer prompt first-content p50 0.68s is NOT a measurement of this chosen short prompt."
+  },
+  "capabilities": {
+    "text_input": true,
+    "direct_image_input": false,
+    "audio_input": false,
+    "actual_tool_execution": false,
+    "actual_sqlite_memory": false,
+    "actual_screen_capture": false
+  },
+  "observation_plan": {
+    "default_candidate": "Separate CPU OCR: RapidOCR + ONNX Runtime; evaluate PP-OCRv5 mobile and PP-OCRv6 tiny with matching ONNX/dictionary. NOT yet implemented/selected.",
+    "optional_vision": "Qwen3.5-0.8B + matching 207345952-byte BF16 projector tested separately; NOT default and NOT release-qualified. External vision models remain optional.",
+    "short_term_only": true
+  },
+  "release_blockers": [
+    "Correct nickname updates and owner/pet identity without model-generated false persistence",
+    "Unknown screen/history and source injection response quality",
+    "Native Windows/macOS/ARM and game-concurrent CPU/RAM tests",
+    "Actual per-platform installation size, licenses, runtime distribution and cancellation/idle unload",
+    "SQLite, chat UI, GUI personality and 30-day retention integration"
+  ]
+}

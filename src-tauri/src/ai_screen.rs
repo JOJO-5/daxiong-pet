@@ -218,8 +218,7 @@ pub fn capture(settings: &Settings, request: bool) -> Result<Capture> {
         }
     }
     // Scale in memory; never write captured pixels to temporary files.
-    let image =
-        DynamicImage::ImageRgba8(image).resize(1920, 1920, image::imageops::FilterType::Triangle);
+    let image = DynamicImage::ImageRgba8(image).thumbnail(1920, 1920);
     let fingerprint = image
         .resize_exact(32, 18, image::imageops::FilterType::Triangle)
         .to_luma8()

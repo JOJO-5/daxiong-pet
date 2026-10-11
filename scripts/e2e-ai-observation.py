@@ -23,7 +23,7 @@ def observe(vision=False):
     pointer('windowactivate','--sync',target)
     def completed():
         data=snap();return data if not data['observation']['busy'] else None
-    return wait(completed,120)
+    return wait(completed,150)
 
 def configure(**updates):
     value=snap()['settings'];value.update(updates);invoke('ai_configure',{'settings':value})

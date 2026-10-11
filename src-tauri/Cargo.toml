@@ -69,3 +69,15 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+# Keep integrity checks realistic in native development tests as well as releases.
+[profile.dev.package.sha2]
+opt-level = 3
+[profile.dev.package.digest]
+opt-level = 3
+[profile.dev.package.block-buffer]
+opt-level = 3
+[profile.dev.package.crypto-common]
+opt-level = 3
+[profile.dev.package.generic-array]
+opt-level = 3

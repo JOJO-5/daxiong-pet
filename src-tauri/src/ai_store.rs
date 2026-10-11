@@ -213,8 +213,10 @@ impl Store {
         let mut conn = Connection::open(path).map_err(db_error)?;
         conn.busy_timeout(Duration::from_secs(3))
             .map_err(db_error)?;
-        conn.execute_batch("PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL;")
-            .map_err(db_error)?;
+        conn.execute_batch(
+            "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA secure_delete=ON;",
+        )
+        .map_err(db_error)?;
         let version: i64 = conn
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .map_err(db_error)?;

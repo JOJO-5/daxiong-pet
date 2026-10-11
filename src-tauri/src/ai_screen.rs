@@ -195,7 +195,7 @@ pub fn capture(settings: &Settings, request: bool) -> Result<Capture> {
     {
         return Err("画面尺寸超出允许范围。".into());
     }
-    if settings.screen_scope != "window" {
+    {
         for own in xcap::Window::all().map_err(|_| "无法核对需要排除的窗口。")? {
             let app = own.app_name().unwrap_or_default().to_lowercase();
             let excluded = own.pid().ok() == Some(std::process::id())

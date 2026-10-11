@@ -188,6 +188,7 @@ pub struct Output {
     pub clickable: bool,
     pub row: u8,
     pub col: usize,
+    pub pose_scale: f32,
     pub say: Option<SayKind>,
     /// 是否处于睡眠状态，前端据此加变暗效果
     pub sleeping: bool,
@@ -463,12 +464,21 @@ impl Engine {
         // ---- 1. 命中热区 ----
         let inset_x = (PET_W as f32 * scale * HOT_INSET_X).round() as i32;
         let inset_y = (PET_H as f32 * scale * HOT_INSET_Y).round() as i32;
-        let px = wx + physical(PET_X);
-        let py = wy + physical(PET_Y);
-        let hot = input.interactive && !self.activities.pointer_hot(input.cursor,input.scale_factor) && !self.play.pointer_hot(input.cursor,input.scale_factor) && cx >= px + inset_x
-            && cx < px + physical(PET_W) - inset_x
-            && cy >= py + inset_y
-            && cy < py + physical(PET_H) - inset_y;
+        let pose_scale = crate::pose::scale(self.row,self.col,input.extra_animations);
+        let (top_left,bottom_right) = if crate::pose::lying(self.row,self.col,input.extra_animations) {
+            // Alpha silhouette envelope: do not make the enlarged empty sky clickable.
+            ((PET_X as f32+3.0*0.75,PET_Y as f32+124.0*0.75),
+             (PET_X as f32+189.0*0.75,PET_Y as f32+204.0*0.75))
+        } else {
+            ((PET_X as f32+inset_x as f32/scale,PET_Y as f32+inset_y as f32/scale),
+             ((PET_X+PET_W) as f32-inset_x as f32/scale,(PET_Y+PET_H) as f32-inset_y as f32/scale))
+        };
+        let top_left=crate::pose::display(top_left,pose_scale);
+        let bottom_right=crate::pose::display(bottom_right,pose_scale);
+        let hot = input.interactive && !self.activities.pointer_hot(input.cursor,input.scale_factor)
+            && !self.play.pointer_hot(input.cursor,input.scale_factor)
+            && cx >= wx+(top_left.0*scale).round() as i32 && cx < wx+(bottom_right.0*scale).round() as i32
+            && cy >= wy+(top_left.1*scale).round() as i32 && cy < wy+(bottom_right.1*scale).round() as i32;
 
         // ---- 2. 注视（睡着 / 番茄钟专注时不看）----
         let busy = self.sleeping || self.pomodoro_ms.is_some();
@@ -620,7 +630,8 @@ impl Engine {
         }
 
         // ---- 6. Light pointer contact; button-down belongs exclusively to dragging.
-        let touch = self.petting.tick(dt, (cx-px) as f32 / scale, (cy-py) as f32 / scale,
+        let touch_point=crate::pose::touch(((cx-wx) as f32/scale,(cy-wy) as f32/scale),pose_scale);
+        let touch = self.petting.tick(dt, touch_point.0, touch_point.1,
             input.interactive && !self.play.active() && !self.activities.active()
                 && !self.dizziness.active() && !input.button_down && !self.dragging && !self.sleeping
                 && self.pomodoro_ms.is_none() && (self.react.is_none() || self.ambient_reaction)
@@ -1011,8 +1022,15 @@ impl Engine {
             col: self.col,
             say,
             sleeping: self.sleeping,
-            petting: touch.feedback,
-            dizzy: dizzy.feedback,
+            pose_scale: crate::pose::scale(self.row,self.col,input.extra_animations),
+            petting: touch.feedback.map(|mut f| {
+                let p=crate::pose::display((f.x as f32,f.y as f32),crate::pose::scale(self.row,self.col,input.extra_animations));
+                f.x=p.0.round() as i32;f.y=p.1.round() as i32;f
+            }),
+            dizzy: dizzy.feedback.map(|mut f| {
+                let p=crate::pose::display((f.x as f32,f.y as f32),crate::pose::scale(self.row,self.col,input.extra_animations));
+                f.x=p.0.round() as i32;f.y=p.1.round() as i32;f
+            }),
         }
     }
 }
@@ -1316,6 +1334,33 @@ mod tests {
             engine.react = None;
             engine.next_ambient_ms = 0;
             assert_ne!(engine.tick(&i).row, Row::Affection as u8);
+        }
+    }
+
+    #[test]
+    fn enlarged_lying_head_accepts_contact_and_drag_outside_the_original_box() {
+        for dpi in [1.0,1.25,2.0] {
+            let mut e=Engine::new();let mut i=input(dpi);i.extra_animations=true;
+            e.set_quiet_companion(true);
+            i.cursor=(i.win_pos.0+(178.0*dpi).round() as i32,i.win_pos.1+(199.0*dpi).round() as i32);
+            for _ in 0..140 {e.tick(&i);}
+            assert_eq!(e.row,Row::BellyRub);
+            // Cheek at source local (13,125): now left of the old PET_X=78 box.
+            let point=crate::pose::display((91.0,209.0),1.5);
+            assert!(point.0<PET_X as f32);
+            i.cursor=(i.win_pos.0+(point.0 as f64*dpi).round() as i32,
+                i.win_pos.1+(point.1 as f64*dpi).round() as i32);
+            let mut out=e.tick(&i);
+            for _ in 0..12 {out=e.tick(&i);}
+            assert!(out.clickable);
+            let feedback=out.petting.unwrap();assert_eq!(feedback.kind,crate::petting::Zone::Head);
+            assert!((feedback.x as f32-point.0).abs()<1.0 && (feedback.y as f32-point.1).abs()<1.0);
+            i.button_down=true;assert!(e.tick(&i).petting.is_none());
+            i.cursor.0+=(30.0*dpi) as i32;assert_eq!(e.tick(&i).row,Row::Waiting as u8);assert!(e.dragging);
+            // The sky above the horizontal body must remain click-through.
+            let mut e=Engine::new();e.row=Row::BellyRub;
+            i.button_down=false;i.cursor=(i.win_pos.0+(150.0*dpi) as i32,i.win_pos.1+(110.0*dpi) as i32);
+            assert!(!e.tick(&i).clickable);
         }
     }
 

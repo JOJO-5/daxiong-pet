@@ -24,7 +24,7 @@ const SCALE = 0.75;
 /** 气泡停留时长（毫秒） */
 const BUBBLE_MS = 2600;
 
-type Frame = { row: number; col: number; petting?: TouchFeedback | null; dizzy?: DizzyFeedback | null; released_toy?: {toy: "ball" | "frisbee"; x: number; y: number} | null };
+type Frame = { row: number; col: number; pose_scale?: number; petting?: TouchFeedback | null; dizzy?: DizzyFeedback | null; released_toy?: {toy: "ball" | "frisbee"; x: number; y: number} | null };
 
 /**
  * 渲染层：不做行为决策，只把主进程推来的帧画出来；
@@ -201,7 +201,8 @@ export default function App() {
         {frame.released_toy.toy==="frisbee" ? <ToyDisc/> : <div className="toy-ball"/>}
       </div> : null}
       {/* 用一个裁剪窗口套住整张图集，靠 transform 平移来切帧 */}
-      <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-clickable={clickable} data-sleeping={sleeping} data-row={frame.row} data-col={frame.col}
+      <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-clickable={clickable} data-sleeping={sleeping} data-row={frame.row} data-col={frame.col} data-pose-scale={src===BUILTIN_SRC ? (frame.pose_scale ?? 1) : 1}
+        style={{transform:`scale(${src===BUILTIN_SRC ? (frame.pose_scale ?? 1) : 1})`,transformOrigin:"72px 152.25px"}}
         onPointerDown={e=>{if(e.button===0) press.current={x:e.screenX,y:e.screenY,at:Date.now(),moved:false};}}
         onPointerMove={e=>{const p=press.current;if(p&&Math.hypot(e.screenX-p.x,e.screenY-p.y)>6)p.moved=true;}}
         onPointerCancel={()=>{press.current=null;}}

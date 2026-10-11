@@ -41,6 +41,8 @@ try:
     time.sleep(.55);pet_point(172,210)
     wait(lambda:(view:=touch()) and view['phase']=='belly')
     check('contact follows exposed belly after rolling',js("return document.querySelector('[data-testid=pet]').dataset.row==='25'"))
+    check('lying canvas uses calibrated width without stretching the source cell',js("const p=document.querySelector('[data-testid=pet]');const r=p.getBoundingClientRect();return p.dataset.poseScale==='1.5'&&Math.abs(r.width-216)<0.1"))
+    check('horizontal body stays inside native stage and shares the original ground line',js("const p=document.querySelector('[data-testid=pet]'),r=p.getBoundingClientRect(),s=document.querySelector('.stage').getBoundingClientRect();const origin=getComputedStyle(p).transformOrigin.split(' ').map(parseFloat);return r.left>=s.left&&r.right<=s.right&&Math.abs(origin[1]-152.25)<0.1"))
     js('window.__touchFrames=[];return true')
     for x in [169,173,177,173,169,165,169,173]:
         pet_point(x,210);time.sleep(.16)
@@ -49,6 +51,9 @@ try:
     pet_point(110,207);time.sleep(.25)
     wait(lambda:(view:=touch()) and view['kind']=='head')
     check('head can be stroked while lying without snapping upright',js("return document.querySelector('[data-testid=pet]').dataset.row==='25'"));shoot('lying-head')
+    pet_point(65,210);time.sleep(.25)
+    wait(lambda:(view:=touch()) and view['kind']=='head')
+    check('enlarged cheek outside the old box accepts real native contact',js("const p=document.querySelector('[data-testid=pet]');return p.dataset.row==='25'&&p.dataset.clickable==='true'"));shoot('enlarged-cheek')
     pointer('mousemove',30,30)
     wait(lambda:js("const p=document.querySelector('[data-testid=pet]');return p.dataset.row==='26'&&Number(p.dataset.col)>=4"),4)
     check('moving away plays the roll-up sequence')

@@ -18,3 +18,6 @@ mod petting;
 
 #[path = "../../../src-tauri/src/dizziness.rs"]
 mod dizziness;
+
+#[path = "../../../src-tauri/src/pose.rs"]
+mod pose;

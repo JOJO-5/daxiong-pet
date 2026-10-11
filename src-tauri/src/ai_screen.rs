@@ -29,6 +29,31 @@ pub fn displays() -> Result<Vec<Display>> {
         .collect()
 }
 pub fn permission(request: bool) -> Result<()> {
+    #[cfg(windows)]
+    unsafe {
+        use windows_sys::Win32::System::StationsAndDesktops::{
+            CloseDesktop, GetUserObjectInformationW, OpenInputDesktop, DESKTOP_READOBJECTS,
+            UOI_NAME,
+        };
+        let desktop = OpenInputDesktop(0, 0, DESKTOP_READOBJECTS);
+        if desktop.is_null() {
+            return Err("当前桌面处于锁屏、权限提示或不可捕获状态。".into());
+        }
+        let mut buffer = [0_u16; 256];
+        let mut needed = 0_u32;
+        let okay = GetUserObjectInformationW(
+            desktop,
+            UOI_NAME,
+            buffer.as_mut_ptr() as *mut _,
+            std::mem::size_of_val(&buffer) as u32,
+            &mut needed,
+        );
+        CloseDesktop(desktop);
+        let end = buffer.iter().position(|c| *c == 0).unwrap_or(buffer.len());
+        if okay == 0 || !String::from_utf16_lossy(&buffer[..end]).eq_ignore_ascii_case("default") {
+            return Err("安全桌面或锁屏期间不会观察。".into());
+        }
+    }
     #[cfg(target_os = "macos")]
     {
         #[link(name = "CoreGraphics", kind = "framework")]

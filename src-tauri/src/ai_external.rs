@@ -290,3 +290,25 @@ mod protocol_tests {
         worker.join().unwrap();
     }
 }
+
+#[cfg(test)]
+mod secure_store_tests {
+    use super::*;
+    #[test]
+    fn optional_native_credential_store_roundtrip() {
+        if std::env::var("DAXIONG_TEST_NATIVE_CREDENTIALS").as_deref() != Ok("1") {
+            return;
+        }
+        let url = format!("https://qualification.invalid/{}", uuid::Uuid::new_v4());
+        let value = format!("synthetic-{}", uuid::Uuid::new_v4());
+        save_key(&url, Some(value.clone())).unwrap();
+        let read = key(&url);
+        let removed = save_key(&url, None);
+        assert!(
+            read.is_ok_and(|actual| actual == value),
+            "native secure storage roundtrip failed"
+        );
+        assert!(removed.is_ok(), "native credential cleanup failed");
+        assert!(key(&url).unwrap().is_empty());
+    }
+}

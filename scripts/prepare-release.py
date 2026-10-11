@@ -13,6 +13,7 @@ parser.add_argument('--artifacts', type=Path, required=True)
 parser.add_argument('--out', type=Path, required=True)
 parser.add_argument('--bundled-ai', action='store_true', help='Installers carry resources; do not publish a resource-less portable exe')
 parser.add_argument('--with-light', action='store_true', help='Include five runtime/OCR-only installers')
+parser.add_argument('--move', action='store_true', help='Consume staged artifacts without duplicating large installer files')
 args = parser.parse_args()
 version = json.loads((root/'package.json').read_text())['version']
 assert json.loads((root/'package-lock.json').read_text())['version'] == version
@@ -45,7 +46,8 @@ args.out.mkdir(parents=True,exist_ok=True)
 checksums=[]
 for source, name in resolved:
     target=args.out/name
-    shutil.copyfile(source,target)
+    if args.move: shutil.move(source,target)
+    else: shutil.copyfile(source,target)
     with target.open("rb") as file:
         digest=hashlib.file_digest(file,"sha256").hexdigest()
     checksums.append(f'{digest}  {name}')

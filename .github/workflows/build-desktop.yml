@@ -166,10 +166,27 @@ jobs:
           else: raise RuntimeError('regression for unchanged application source not completed')
           PYGATE
       - name: Prepare full and light downloads
-        run: python3 scripts/prepare-release.py --artifacts release-artifacts --out release-assets --bundled-ai --with-light
+        run: python3 scripts/prepare-release.py --artifacts release-artifacts --out release-assets --bundled-ai --with-light --move
       - name: Publish complete AI preview
         run: |
           TAG="v$(node -p "require('./package.json').version")"
           printf "\n桌面回归：%s\n四平台内置构建：https://github.com/%s/actions/runs/%s\n" "$(cat validated-e2e-url.txt)" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> docs/release-notes-ai-preview.md
           if gh release view "$TAG" >/dev/null 2>&1; then echo "Version already published; existing assets are preserved."; exit 0; fi
-          gh release create "$TAG" release-assets/* --target "$GITHUB_SHA" --prerelease --title "大熊 $TAG · CPU AI 完整版与轻量版" --notes-file docs/release-notes-ai-preview.md
+          export RELEASE_TAG="$TAG"
+          gh release create "$TAG" release-assets/* --target "$GITHUB_SHA" --draft --prerelease --title "大熊 $TAG · CPU AI 完整版与轻量版" --notes-file docs/release-notes-ai-preview.md
+          python3 - <<'PYVERIFY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          releases=json.loads(subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/releases?per_page=100']))
+          release=next(r for r in releases if r['tag_name']==os.environ['RELEASE_TAG'])
+          assert release['draft']
+          local={p.name:p for p in Path('release-assets').iterdir() if p.is_file()}
+          uploaded={a['name']:a for a in release['assets']}
+          assert len(local)==11 and set(uploaded)==set(local),'incomplete full/light release'
+          for name,path in local.items():
+              assert uploaded[name]['size']==path.stat().st_size
+              with path.open('rb') as f: digest='sha256:'+hashlib.file_digest(f,'sha256').hexdigest()
+              assert uploaded[name]['digest']==digest,name
+          print('Verified ten full/light installers and checksums on GitHub')
+          PYVERIFY
+          gh release edit "$TAG" --draft=false --prerelease --latest=false

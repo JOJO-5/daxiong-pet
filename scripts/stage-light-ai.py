@@ -17,7 +17,11 @@ assert not out.exists() and not a.config.exists(), 'outputs must be new'
 manifest = json.loads((source / 'resource-manifest.json').read_text())
 assert not manifest['development_symlinks'], 'distribution cannot contain dev links'
 files = {}
-for name, expected in manifest['files'].items():
+for recorded_name, expected in manifest['files'].items():
+    # Full stages created on Windows historically use backslash manifest keys.
+    # Normalize before excluding weights and writing the portable light manifest.
+    name = recorded_name.replace('\\', '/')
+    assert name not in files, 'duplicate normalized resource: ' + name
     if name.startswith('models/'):
         continue
     src = (source / name).resolve()

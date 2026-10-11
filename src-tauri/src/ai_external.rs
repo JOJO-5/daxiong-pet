@@ -286,6 +286,8 @@ mod protocol_tests {
                     Err(e) => panic!("fixture accept failed: {e}"),
                 }
             };
+            // Accepted sockets inherit nonblocking mode on Windows/macOS.
+            stream.set_nonblocking(false).unwrap();
             stream
                 .set_read_timeout(Some(Duration::from_secs(3)))
                 .unwrap();

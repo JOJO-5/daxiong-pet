@@ -1,0 +1,3808 @@
+{
+  "scope": "27 rows, all nonempty cells, alpha threshold 38/255; props included in area",
+  "original_11_rows_pixels_preserved": true,
+  "source_sha256": {
+    "spritesheet.webp": "8e0a209f697f354b50ceb7717420bc6b0169657624ff25202c3ee615bc287294",
+    "spritesheet-extended.webp": "f4122f2b6ca1dfa3aeeeabfa34e1608ac4fa9a21c304765240a32b78c8c4cd38"
+  },
+  "calibration": [
+    {
+      "row": 21,
+      "first_col": 0,
+      "last_col": 7,
+      "scale": 1.1
+    },
+    {
+      "row": 22,
+      "first_col": 0,
+      "last_col": 7,
+      "scale": 1.1
+    },
+    {
+      "row": 25,
+      "first_col": 0,
+      "last_col": 7,
+      "scale": 1.5
+    },
+    {
+      "row": 26,
+      "first_col": 2,
+      "last_col": 5,
+      "scale": 1.5
+    }
+  ],
+  "rows": [
+    {
+      "row": 0,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            10,
+            5,
+            181,
+            203
+          ],
+          "alpha_area": 21171,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            87.75,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11908.6875
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            12,
+            5,
+            180,
+            203
+          ],
+          "alpha_area": 21069,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            87.75,
+            213.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11851.3125
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            11,
+            5,
+            181,
+            203
+          ],
+          "alpha_area": 21085,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            87.75,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11860.3125
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            13,
+            5,
+            179,
+            203
+          ],
+          "alpha_area": 21078,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            87.75,
+            212.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11856.375
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            13,
+            5,
+            178,
+            203
+          ],
+          "alpha_area": 20529,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            87.75,
+            211.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11547.5625
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            13,
+            5,
+            179,
+            203
+          ],
+          "alpha_area": 20863,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            87.75,
+            212.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11735.4375
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            10,
+            5,
+            181,
+            203
+          ],
+          "alpha_area": 21135,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            87.75,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11888.4375
+        }
+      ]
+    },
+    {
+      "row": 1,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            5,
+            25,
+            187,
+            182
+          ],
+          "alpha_area": 17318,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            102.75,
+            218.25,
+            220.5
+          ],
+          "projected_alpha_area_logical": 9741.375
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            5,
+            29,
+            187,
+            179
+          ],
+          "alpha_area": 15142,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            105.75,
+            218.25,
+            218.25
+          ],
+          "projected_alpha_area_logical": 8517.375
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            5,
+            25,
+            187,
+            182
+          ],
+          "alpha_area": 14931,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            102.75,
+            218.25,
+            220.5
+          ],
+          "projected_alpha_area_logical": 8398.6875
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            5,
+            25,
+            187,
+            183
+          ],
+          "alpha_area": 15336,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            102.75,
+            218.25,
+            221.25
+          ],
+          "projected_alpha_area_logical": 8626.5
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            5,
+            28,
+            187,
+            179
+          ],
+          "alpha_area": 15744,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            105.0,
+            218.25,
+            218.25
+          ],
+          "projected_alpha_area_logical": 8856.0
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            5,
+            13,
+            187,
+            194
+          ],
+          "alpha_area": 20640,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            93.75,
+            218.25,
+            229.5
+          ],
+          "projected_alpha_area_logical": 11610.0
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            5,
+            24,
+            187,
+            184
+          ],
+          "alpha_area": 16224,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            102.0,
+            218.25,
+            222.0
+          ],
+          "projected_alpha_area_logical": 9126.0
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            5,
+            19,
+            187,
+            188
+          ],
+          "alpha_area": 19049,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            98.25,
+            218.25,
+            225.0
+          ],
+          "projected_alpha_area_logical": 10715.0625
+        }
+      ]
+    },
+    {
+      "row": 2,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            5,
+            33,
+            187,
+            175
+          ],
+          "alpha_area": 15910,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            108.75,
+            218.25,
+            215.25
+          ],
+          "projected_alpha_area_logical": 8949.375
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            5,
+            37,
+            187,
+            171
+          ],
+          "alpha_area": 13427,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            111.75,
+            218.25,
+            212.25
+          ],
+          "projected_alpha_area_logical": 7552.6875
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            5,
+            36,
+            187,
+            171
+          ],
+          "alpha_area": 14389,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            111.0,
+            218.25,
+            212.25
+          ],
+          "projected_alpha_area_logical": 8093.8125
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            5,
+            40,
+            187,
+            168
+          ],
+          "alpha_area": 13211,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            114.0,
+            218.25,
+            210.0
+          ],
+          "projected_alpha_area_logical": 7431.1875
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            5,
+            34,
+            187,
+            174
+          ],
+          "alpha_area": 14351,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            109.5,
+            218.25,
+            214.5
+          ],
+          "projected_alpha_area_logical": 8072.4375
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            5,
+            27,
+            187,
+            181
+          ],
+          "alpha_area": 15960,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            104.25,
+            218.25,
+            219.75
+          ],
+          "projected_alpha_area_logical": 8977.5
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            5,
+            38,
+            187,
+            170
+          ],
+          "alpha_area": 14319,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            112.5,
+            218.25,
+            211.5
+          ],
+          "projected_alpha_area_logical": 8054.4375
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            5,
+            28,
+            187,
+            179
+          ],
+          "alpha_area": 17100,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            105.0,
+            218.25,
+            218.25
+          ],
+          "projected_alpha_area_logical": 9618.75
+        }
+      ]
+    },
+    {
+      "row": 3,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            7,
+            5,
+            184,
+            203
+          ],
+          "alpha_area": 21074,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            87.75,
+            216.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11854.125
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            5,
+            9,
+            187,
+            198
+          ],
+          "alpha_area": 19280,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            90.75,
+            218.25,
+            232.5
+          ],
+          "projected_alpha_area_logical": 10845.0
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            5,
+            16,
+            187,
+            191
+          ],
+          "alpha_area": 17095,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            96.0,
+            218.25,
+            227.25
+          ],
+          "projected_alpha_area_logical": 9615.9375
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            7,
+            5,
+            184,
+            203
+          ],
+          "alpha_area": 21006,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            87.75,
+            216.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11815.875
+        }
+      ]
+    },
+    {
+      "row": 4,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            5,
+            37,
+            187,
+            170
+          ],
+          "alpha_area": 16686,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            111.75,
+            218.25,
+            211.5
+          ],
+          "projected_alpha_area_logical": 9385.875
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            5,
+            17,
+            187,
+            190
+          ],
+          "alpha_area": 19431,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            96.75,
+            218.25,
+            226.5
+          ],
+          "projected_alpha_area_logical": 10929.9375
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            6,
+            5,
+            186,
+            203
+          ],
+          "alpha_area": 23938,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            82.5,
+            87.75,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 13465.125
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            5,
+            21,
+            187,
+            186
+          ],
+          "alpha_area": 18906,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            99.75,
+            218.25,
+            223.5
+          ],
+          "projected_alpha_area_logical": 10634.625
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            5,
+            21,
+            187,
+            187
+          ],
+          "alpha_area": 19605,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            99.75,
+            218.25,
+            224.25
+          ],
+          "projected_alpha_area_logical": 11027.8125
+        }
+      ]
+    },
+    {
+      "row": 5,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            7,
+            5,
+            185,
+            203
+          ],
+          "alpha_area": 23391,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            87.75,
+            216.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 13157.4375
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            5,
+            15,
+            187,
+            193
+          ],
+          "alpha_area": 21058,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            95.25,
+            218.25,
+            228.75
+          ],
+          "projected_alpha_area_logical": 11845.125
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            5,
+            42,
+            187,
+            166
+          ],
+          "alpha_area": 18138,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            115.5,
+            218.25,
+            208.5
+          ],
+          "projected_alpha_area_logical": 10202.625
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            12,
+            5,
+            180,
+            203
+          ],
+          "alpha_area": 23451,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            87.75,
+            213.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 13191.1875
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            16,
+            5,
+            175,
+            203
+          ],
+          "alpha_area": 22513,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            90.0,
+            87.75,
+            209.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 12663.5625
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            5,
+            32,
+            187,
+            175
+          ],
+          "alpha_area": 20569,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            108.0,
+            218.25,
+            215.25
+          ],
+          "projected_alpha_area_logical": 11570.0625
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            21,
+            5,
+            171,
+            203
+          ],
+          "alpha_area": 20940,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            93.75,
+            87.75,
+            206.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11778.75
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            5,
+            9,
+            187,
+            198
+          ],
+          "alpha_area": 24049,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            90.75,
+            218.25,
+            232.5
+          ],
+          "projected_alpha_area_logical": 13527.5625
+        }
+      ]
+    },
+    {
+      "row": 6,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            7,
+            5,
+            184,
+            203
+          ],
+          "alpha_area": 21047,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            87.75,
+            216.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11838.9375
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            21,
+            5,
+            171,
+            203
+          ],
+          "alpha_area": 18633,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            93.75,
+            87.75,
+            206.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10481.0625
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            8,
+            5,
+            184,
+            203
+          ],
+          "alpha_area": 19589,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.0,
+            87.75,
+            216.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11018.8125
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            18,
+            5,
+            174,
+            203
+          ],
+          "alpha_area": 20259,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            91.5,
+            87.75,
+            208.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11395.6875
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            12,
+            5,
+            179,
+            203
+          ],
+          "alpha_area": 19410,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            87.75,
+            212.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10918.125
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            15,
+            5,
+            177,
+            203
+          ],
+          "alpha_area": 20807,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            89.25,
+            87.75,
+            210.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11703.9375
+        }
+      ]
+    },
+    {
+      "row": 7,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            23,
+            5,
+            169,
+            203
+          ],
+          "alpha_area": 18501,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            95.25,
+            87.75,
+            204.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10406.8125
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            19,
+            5,
+            172,
+            203
+          ],
+          "alpha_area": 19438,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            92.25,
+            87.75,
+            207.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10933.875
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            22,
+            5,
+            170,
+            203
+          ],
+          "alpha_area": 20019,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            94.5,
+            87.75,
+            205.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11260.6875
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            7,
+            5,
+            185,
+            203
+          ],
+          "alpha_area": 20878,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            87.75,
+            216.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11743.875
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            22,
+            5,
+            169,
+            203
+          ],
+          "alpha_area": 18891,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            94.5,
+            87.75,
+            204.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10626.1875
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            20,
+            5,
+            172,
+            203
+          ],
+          "alpha_area": 18701,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            93.0,
+            87.75,
+            207.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10519.3125
+        }
+      ]
+    },
+    {
+      "row": 8,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            5,
+            14,
+            187,
+            193
+          ],
+          "alpha_area": 22930,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            94.5,
+            218.25,
+            228.75
+          ],
+          "projected_alpha_area_logical": 12898.125
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            27,
+            5,
+            165,
+            203
+          ],
+          "alpha_area": 18681,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            98.25,
+            87.75,
+            201.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10508.0625
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            35,
+            5,
+            157,
+            203
+          ],
+          "alpha_area": 16193,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            104.25,
+            87.75,
+            195.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9108.5625
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            5,
+            6,
+            187,
+            201
+          ],
+          "alpha_area": 22116,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            88.5,
+            218.25,
+            234.75
+          ],
+          "projected_alpha_area_logical": 12440.25
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            33,
+            5,
+            158,
+            203
+          ],
+          "alpha_area": 16832,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            102.75,
+            87.75,
+            196.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9468.0
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            19,
+            5,
+            172,
+            203
+          ],
+          "alpha_area": 19263,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            92.25,
+            87.75,
+            207.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10835.4375
+        }
+      ]
+    },
+    {
+      "row": 9,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            29,
+            6,
+            152,
+            203
+          ],
+          "alpha_area": 18719,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            99.75,
+            88.5,
+            192.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10529.4375
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            29,
+            5,
+            153,
+            203
+          ],
+          "alpha_area": 18241,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            99.75,
+            87.75,
+            192.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10260.5625
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            33,
+            8,
+            149,
+            203
+          ],
+          "alpha_area": 17016,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            102.75,
+            90.0,
+            189.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9571.5
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            20,
+            10,
+            166,
+            203
+          ],
+          "alpha_area": 17828,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            93.0,
+            91.5,
+            202.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10028.25
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            12,
+            10,
+            177,
+            203
+          ],
+          "alpha_area": 18787,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            91.5,
+            210.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10567.6875
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            14,
+            26,
+            185,
+            203
+          ],
+          "alpha_area": 17961,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            88.5,
+            103.5,
+            216.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10103.0625
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            11,
+            48,
+            180,
+            203
+          ],
+          "alpha_area": 16165,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            120.0,
+            213.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9092.8125
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            13,
+            66,
+            171,
+            203
+          ],
+          "alpha_area": 14500,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            133.5,
+            206.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8156.25
+        }
+      ]
+    },
+    {
+      "row": 10,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            26,
+            34,
+            159,
+            203
+          ],
+          "alpha_area": 16317,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            97.5,
+            109.5,
+            197.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9178.3125
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            17,
+            25,
+            166,
+            203
+          ],
+          "alpha_area": 17033,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            90.75,
+            102.75,
+            202.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9581.0625
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            18,
+            20,
+            164,
+            203
+          ],
+          "alpha_area": 17374,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            91.5,
+            99.0,
+            201.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9772.875
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            12,
+            30,
+            168,
+            203
+          ],
+          "alpha_area": 16918,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            106.5,
+            204.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9516.375
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            7,
+            14,
+            166,
+            203
+          ],
+          "alpha_area": 17772,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            94.5,
+            202.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9996.75
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            12,
+            12,
+            166,
+            203
+          ],
+          "alpha_area": 18162,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            93.0,
+            202.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10216.125
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            21,
+            12,
+            166,
+            203
+          ],
+          "alpha_area": 17848,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            93.75,
+            93.0,
+            202.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10039.5
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            22,
+            14,
+            166,
+            203
+          ],
+          "alpha_area": 17697,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            94.5,
+            94.5,
+            202.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9954.5625
+        }
+      ]
+    },
+    {
+      "row": 11,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            10,
+            6,
+            181,
+            203
+          ],
+          "alpha_area": 21951,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            88.5,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 12347.4375
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            9,
+            5,
+            183,
+            203
+          ],
+          "alpha_area": 21917,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            87.75,
+            215.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 12328.3125
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            4,
+            5,
+            187,
+            203
+          ],
+          "alpha_area": 22472,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            87.75,
+            218.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 12640.5
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            9,
+            6,
+            183,
+            203
+          ],
+          "alpha_area": 22217,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            88.5,
+            215.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 12497.0625
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            9,
+            6,
+            182,
+            203
+          ],
+          "alpha_area": 22076,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            88.5,
+            214.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 12417.75
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            11,
+            6,
+            180,
+            203
+          ],
+          "alpha_area": 22182,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            88.5,
+            213.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 12477.375
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            10,
+            5,
+            182,
+            203
+          ],
+          "alpha_area": 22062,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            87.75,
+            214.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 12409.875
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            9,
+            5,
+            182,
+            203
+          ],
+          "alpha_area": 22050,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            87.75,
+            214.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 12403.125
+        }
+      ]
+    },
+    {
+      "row": 12,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            5,
+            80,
+            186,
+            203
+          ],
+          "alpha_area": 17756,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            144.0,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9987.75
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            5,
+            81,
+            186,
+            203
+          ],
+          "alpha_area": 17610,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            144.75,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9905.625
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            5,
+            81,
+            186,
+            203
+          ],
+          "alpha_area": 17607,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            144.75,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9903.9375
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            6,
+            80,
+            186,
+            203
+          ],
+          "alpha_area": 17624,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            82.5,
+            144.0,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9913.5
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            5,
+            81,
+            186,
+            203
+          ],
+          "alpha_area": 17698,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            144.75,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9955.125
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            6,
+            81,
+            186,
+            203
+          ],
+          "alpha_area": 17644,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            82.5,
+            144.75,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9924.75
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            5,
+            80,
+            186,
+            203
+          ],
+          "alpha_area": 17691,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            144.0,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9951.1875
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            6,
+            80,
+            186,
+            203
+          ],
+          "alpha_area": 17552,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            82.5,
+            144.0,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9873.0
+        }
+      ]
+    },
+    {
+      "row": 13,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            8,
+            82,
+            183,
+            203
+          ],
+          "alpha_area": 16743,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.0,
+            145.5,
+            215.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9417.9375
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            7,
+            60,
+            184,
+            203
+          ],
+          "alpha_area": 18780,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            129.0,
+            216.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10563.75
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            4,
+            54,
+            188,
+            203
+          ],
+          "alpha_area": 17157,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            124.5,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9650.8125
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            5,
+            27,
+            186,
+            203
+          ],
+          "alpha_area": 19237,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            104.25,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10820.8125
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            12,
+            10,
+            180,
+            203
+          ],
+          "alpha_area": 20917,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            91.5,
+            213.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11765.8125
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            14,
+            9,
+            177,
+            203
+          ],
+          "alpha_area": 20757,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            88.5,
+            90.75,
+            210.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11675.8125
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            13,
+            9,
+            179,
+            203
+          ],
+          "alpha_area": 20877,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            90.75,
+            212.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11743.3125
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            13,
+            10,
+            179,
+            203
+          ],
+          "alpha_area": 20746,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            91.5,
+            212.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11669.625
+        }
+      ]
+    },
+    {
+      "row": 14,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            16,
+            8,
+            176,
+            203
+          ],
+          "alpha_area": 20288,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            90.0,
+            90.0,
+            210.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11412.0
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            9,
+            15,
+            182,
+            203
+          ],
+          "alpha_area": 20470,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            95.25,
+            214.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11514.375
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            6,
+            11,
+            185,
+            203
+          ],
+          "alpha_area": 20743,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            82.5,
+            92.25,
+            216.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11667.9375
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            11,
+            7,
+            181,
+            203
+          ],
+          "alpha_area": 20722,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            89.25,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11656.125
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            12,
+            13,
+            180,
+            203
+          ],
+          "alpha_area": 20458,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            93.75,
+            213.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11507.625
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            7,
+            15,
+            184,
+            203
+          ],
+          "alpha_area": 20468,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            95.25,
+            216.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11513.25
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            15,
+            13,
+            176,
+            203
+          ],
+          "alpha_area": 19968,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            89.25,
+            93.75,
+            210.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11232.0
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            14,
+            15,
+            177,
+            203
+          ],
+          "alpha_area": 19724,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            88.5,
+            95.25,
+            210.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11094.75
+        }
+      ]
+    },
+    {
+      "row": 15,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            11,
+            5,
+            180,
+            203
+          ],
+          "alpha_area": 21045,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            87.75,
+            213.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11837.8125
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            21,
+            11,
+            170,
+            203
+          ],
+          "alpha_area": 18145,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            93.75,
+            92.25,
+            205.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10206.5625
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            9,
+            10,
+            183,
+            203
+          ],
+          "alpha_area": 19437,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            91.5,
+            215.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10933.3125
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            16,
+            11,
+            175,
+            203
+          ],
+          "alpha_area": 18449,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            90.0,
+            92.25,
+            209.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10377.5625
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            14,
+            12,
+            177,
+            203
+          ],
+          "alpha_area": 18335,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            88.5,
+            93.0,
+            210.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10313.4375
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            15,
+            10,
+            177,
+            203
+          ],
+          "alpha_area": 20971,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            89.25,
+            91.5,
+            210.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11796.1875
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            18,
+            10,
+            173,
+            203
+          ],
+          "alpha_area": 19330,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            91.5,
+            91.5,
+            207.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10873.125
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            11,
+            10,
+            180,
+            203
+          ],
+          "alpha_area": 20839,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            91.5,
+            213.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11721.9375
+        }
+      ]
+    },
+    {
+      "row": 16,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            12,
+            49,
+            182,
+            202
+          ],
+          "alpha_area": 15730,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            120.75,
+            214.5,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8848.125
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            12,
+            49,
+            181,
+            202
+          ],
+          "alpha_area": 15446,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            120.75,
+            213.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8688.375
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            13,
+            45,
+            178,
+            202
+          ],
+          "alpha_area": 14579,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            117.75,
+            211.5,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8200.6875
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            10,
+            44,
+            182,
+            202
+          ],
+          "alpha_area": 15422,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            117.0,
+            214.5,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8674.875
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            10,
+            50,
+            181,
+            202
+          ],
+          "alpha_area": 16288,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            121.5,
+            213.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9162.0
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            14,
+            37,
+            178,
+            202
+          ],
+          "alpha_area": 16608,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            88.5,
+            111.75,
+            211.5,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9342.0
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            14,
+            46,
+            178,
+            202
+          ],
+          "alpha_area": 14981,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            88.5,
+            118.5,
+            211.5,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8426.8125
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            13,
+            44,
+            179,
+            202
+          ],
+          "alpha_area": 17235,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            117.0,
+            212.25,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9694.6875
+        }
+      ]
+    },
+    {
+      "row": 17,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            13,
+            53,
+            180,
+            202
+          ],
+          "alpha_area": 15828,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            123.75,
+            213.0,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8903.25
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            13,
+            57,
+            179,
+            202
+          ],
+          "alpha_area": 14584,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            126.75,
+            212.25,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8203.5
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            12,
+            56,
+            179,
+            202
+          ],
+          "alpha_area": 14764,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.0,
+            126.0,
+            212.25,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8304.75
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            13,
+            56,
+            178,
+            202
+          ],
+          "alpha_area": 15250,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            126.0,
+            211.5,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8578.125
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            14,
+            50,
+            177,
+            202
+          ],
+          "alpha_area": 15292,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            88.5,
+            121.5,
+            210.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8601.75
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            13,
+            51,
+            179,
+            202
+          ],
+          "alpha_area": 15564,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            122.25,
+            212.25,
+            235.5
+          ],
+          "projected_alpha_area_logical": 8754.75
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            7,
+            54,
+            186,
+            202
+          ],
+          "alpha_area": 16235,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            124.5,
+            217.5,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9132.1875
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            11,
+            53,
+            181,
+            202
+          ],
+          "alpha_area": 16167,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            123.75,
+            213.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9093.9375
+        }
+      ]
+    },
+    {
+      "row": 18,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            10,
+            46,
+            182,
+            202
+          ],
+          "alpha_area": 17376,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            118.5,
+            214.5,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9774.0
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            9,
+            46,
+            184,
+            202
+          ],
+          "alpha_area": 17371,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            118.5,
+            216.0,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9771.1875
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            9,
+            46,
+            185,
+            202
+          ],
+          "alpha_area": 17444,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            118.5,
+            216.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9812.25
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            9,
+            46,
+            183,
+            202
+          ],
+          "alpha_area": 17260,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            118.5,
+            215.25,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9708.75
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            9,
+            46,
+            183,
+            202
+          ],
+          "alpha_area": 17260,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            118.5,
+            215.25,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9708.75
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            9,
+            46,
+            183,
+            202
+          ],
+          "alpha_area": 17260,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            118.5,
+            215.25,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9708.75
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            9,
+            46,
+            183,
+            202
+          ],
+          "alpha_area": 17260,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            118.5,
+            215.25,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9708.75
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            9,
+            46,
+            183,
+            202
+          ],
+          "alpha_area": 17260,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            118.5,
+            215.25,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9708.75
+        }
+      ]
+    },
+    {
+      "row": 19,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            7,
+            46,
+            185,
+            202
+          ],
+          "alpha_area": 17717,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            118.5,
+            216.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9965.8125
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            6,
+            46,
+            185,
+            202
+          ],
+          "alpha_area": 17646,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            82.5,
+            118.5,
+            216.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9925.875
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            7,
+            47,
+            185,
+            202
+          ],
+          "alpha_area": 17449,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            119.25,
+            216.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9815.0625
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            8,
+            46,
+            185,
+            202
+          ],
+          "alpha_area": 17532,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.0,
+            118.5,
+            216.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9861.75
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            8,
+            46,
+            185,
+            202
+          ],
+          "alpha_area": 17532,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.0,
+            118.5,
+            216.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9861.75
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            8,
+            46,
+            185,
+            202
+          ],
+          "alpha_area": 17532,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.0,
+            118.5,
+            216.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9861.75
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            8,
+            46,
+            185,
+            202
+          ],
+          "alpha_area": 17532,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.0,
+            118.5,
+            216.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9861.75
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            8,
+            46,
+            185,
+            202
+          ],
+          "alpha_area": 17532,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.0,
+            118.5,
+            216.75,
+            235.5
+          ],
+          "projected_alpha_area_logical": 9861.75
+        }
+      ]
+    },
+    {
+      "row": 20,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            9,
+            6,
+            184,
+            203
+          ],
+          "alpha_area": 21077,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            84.75,
+            88.5,
+            216.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11855.8125
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            11,
+            6,
+            181,
+            203
+          ],
+          "alpha_area": 20916,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            88.5,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11765.25
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            10,
+            6,
+            182,
+            203
+          ],
+          "alpha_area": 21133,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            88.5,
+            214.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11887.3125
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            11,
+            6,
+            182,
+            203
+          ],
+          "alpha_area": 20939,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            88.5,
+            214.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11778.1875
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            13,
+            6,
+            179,
+            203
+          ],
+          "alpha_area": 20511,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            87.75,
+            88.5,
+            212.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11537.4375
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            11,
+            6,
+            182,
+            203
+          ],
+          "alpha_area": 21054,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            88.5,
+            214.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11842.875
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            11,
+            6,
+            181,
+            203
+          ],
+          "alpha_area": 21037,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            88.5,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11833.3125
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            11,
+            6,
+            181,
+            203
+          ],
+          "alpha_area": 20937,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            86.25,
+            88.5,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11777.0625
+        }
+      ]
+    },
+    {
+      "row": 21,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            15,
+            71,
+            178,
+            203
+          ],
+          "alpha_area": 12240,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            83.175,
+            127.35,
+            217.65,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8330.850000000002
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            11,
+            68,
+            182,
+            203
+          ],
+          "alpha_area": 12668,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            79.875,
+            124.87499999999999,
+            220.95,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8622.157500000001
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            12,
+            69,
+            182,
+            202
+          ],
+          "alpha_area": 12612,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            80.69999999999999,
+            125.69999999999999,
+            220.95,
+            235.425
+          ],
+          "projected_alpha_area_logical": 8584.042500000001
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            11,
+            70,
+            181,
+            203
+          ],
+          "alpha_area": 12218,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            79.875,
+            126.52499999999999,
+            220.125,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8315.876250000001
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            12,
+            65,
+            182,
+            202
+          ],
+          "alpha_area": 12742,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            80.69999999999999,
+            122.39999999999999,
+            220.95,
+            235.425
+          ],
+          "projected_alpha_area_logical": 8672.523750000002
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            9,
+            61,
+            185,
+            202
+          ],
+          "alpha_area": 13510,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            78.225,
+            119.1,
+            223.425,
+            235.425
+          ],
+          "projected_alpha_area_logical": 9195.243750000001
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            11,
+            59,
+            183,
+            202
+          ],
+          "alpha_area": 13945,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            79.875,
+            117.44999999999999,
+            221.775,
+            235.425
+          ],
+          "projected_alpha_area_logical": 9491.315625000003
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            8,
+            65,
+            185,
+            202
+          ],
+          "alpha_area": 13893,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            77.39999999999999,
+            122.39999999999999,
+            223.425,
+            235.425
+          ],
+          "projected_alpha_area_logical": 9455.923125000001
+        }
+      ]
+    },
+    {
+      "row": 22,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            9,
+            65,
+            182,
+            202
+          ],
+          "alpha_area": 13758,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            78.225,
+            122.39999999999999,
+            220.95,
+            235.425
+          ],
+          "projected_alpha_area_logical": 9364.038750000002
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            9,
+            66,
+            184,
+            202
+          ],
+          "alpha_area": 13171,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            78.225,
+            123.225,
+            222.60000000000002,
+            235.425
+          ],
+          "projected_alpha_area_logical": 8964.511875000002
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            7,
+            69,
+            185,
+            202
+          ],
+          "alpha_area": 13264,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            76.57499999999999,
+            125.69999999999999,
+            223.425,
+            235.425
+          ],
+          "projected_alpha_area_logical": 9027.810000000001
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            9,
+            66,
+            184,
+            203
+          ],
+          "alpha_area": 13228,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            78.225,
+            123.225,
+            222.60000000000002,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9003.307500000003
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            9,
+            68,
+            183,
+            203
+          ],
+          "alpha_area": 13261,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            78.225,
+            124.87499999999999,
+            221.775,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9025.768125000002
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            7,
+            66,
+            186,
+            203
+          ],
+          "alpha_area": 14029,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            76.57499999999999,
+            123.225,
+            224.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9548.488125000002
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            8,
+            72,
+            184,
+            202
+          ],
+          "alpha_area": 13985,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            77.39999999999999,
+            128.175,
+            222.60000000000002,
+            235.425
+          ],
+          "projected_alpha_area_logical": 9518.540625000001
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            10,
+            66,
+            182,
+            202
+          ],
+          "alpha_area": 14650,
+          "display_scale": 1.1,
+          "display_bounds_logical": [
+            79.05,
+            123.225,
+            220.95,
+            235.425
+          ],
+          "projected_alpha_area_logical": 9971.156250000002
+        }
+      ]
+    },
+    {
+      "row": 23,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            4,
+            57,
+            187,
+            203
+          ],
+          "alpha_area": 14995,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            126.75,
+            218.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8434.6875
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            7,
+            67,
+            184,
+            203
+          ],
+          "alpha_area": 13676,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            134.25,
+            216.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 7692.75
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            4,
+            69,
+            188,
+            203
+          ],
+          "alpha_area": 13590,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            135.75,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 7644.375
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            4,
+            58,
+            188,
+            203
+          ],
+          "alpha_area": 14884,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            127.5,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8372.25
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            4,
+            57,
+            187,
+            203
+          ],
+          "alpha_area": 14995,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            126.75,
+            218.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8434.6875
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            7,
+            67,
+            184,
+            203
+          ],
+          "alpha_area": 13676,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            83.25,
+            134.25,
+            216.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 7692.75
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            4,
+            69,
+            188,
+            203
+          ],
+          "alpha_area": 13590,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            135.75,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 7644.375
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            4,
+            58,
+            188,
+            203
+          ],
+          "alpha_area": 14884,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            127.5,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8372.25
+        }
+      ]
+    },
+    {
+      "row": 24,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            4,
+            63,
+            188,
+            203
+          ],
+          "alpha_area": 14261,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            131.25,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8021.8125
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            5,
+            74,
+            186,
+            203
+          ],
+          "alpha_area": 13490,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            139.5,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 7588.125
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            3,
+            76,
+            188,
+            203
+          ],
+          "alpha_area": 13515,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            80.25,
+            141.0,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 7602.1875
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            5,
+            63,
+            187,
+            203
+          ],
+          "alpha_area": 14293,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            131.25,
+            218.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8039.8125
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            4,
+            63,
+            188,
+            203
+          ],
+          "alpha_area": 14261,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            131.25,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8021.8125
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            5,
+            74,
+            186,
+            203
+          ],
+          "alpha_area": 13490,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            139.5,
+            217.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 7588.125
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            3,
+            76,
+            188,
+            203
+          ],
+          "alpha_area": 13515,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            80.25,
+            141.0,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 7602.1875
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            5,
+            63,
+            187,
+            203
+          ],
+          "alpha_area": 14293,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.75,
+            131.25,
+            218.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 8039.8125
+        }
+      ]
+    },
+    {
+      "row": 25,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            5,
+            134,
+            186,
+            203
+          ],
+          "alpha_area": 8390,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            47.625,
+            158.625,
+            251.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10618.59375
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            7,
+            127,
+            184,
+            203
+          ],
+          "alpha_area": 8586,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            49.875,
+            150.75,
+            249.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10866.65625
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            5,
+            133,
+            186,
+            203
+          ],
+          "alpha_area": 8342,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            47.625,
+            157.5,
+            251.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10557.84375
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            4,
+            133,
+            188,
+            203
+          ],
+          "alpha_area": 8482,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            46.5,
+            157.5,
+            253.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10735.03125
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            5,
+            134,
+            186,
+            203
+          ],
+          "alpha_area": 8390,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            47.625,
+            158.625,
+            251.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10618.59375
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            5,
+            133,
+            186,
+            203
+          ],
+          "alpha_area": 8342,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            47.625,
+            157.5,
+            251.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10557.84375
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            7,
+            127,
+            184,
+            203
+          ],
+          "alpha_area": 8586,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            49.875,
+            150.75,
+            249.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10866.65625
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            4,
+            133,
+            188,
+            203
+          ],
+          "alpha_area": 8482,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            46.5,
+            157.5,
+            253.5,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10735.03125
+        }
+      ]
+    },
+    {
+      "row": 26,
+      "frames": [
+        {
+          "col": 0,
+          "alpha_bounds": [
+            10,
+            5,
+            181,
+            203
+          ],
+          "alpha_area": 21171,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            87.75,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11908.6875
+        },
+        {
+          "col": 1,
+          "alpha_bounds": [
+            4,
+            54,
+            188,
+            203
+          ],
+          "alpha_area": 17157,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            124.5,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9650.8125
+        },
+        {
+          "col": 2,
+          "alpha_bounds": [
+            7,
+            134,
+            184,
+            203
+          ],
+          "alpha_area": 7836,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            49.875,
+            158.625,
+            249.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9917.4375
+        },
+        {
+          "col": 3,
+          "alpha_bounds": [
+            5,
+            134,
+            186,
+            203
+          ],
+          "alpha_area": 8390,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            47.625,
+            158.625,
+            251.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10618.59375
+        },
+        {
+          "col": 4,
+          "alpha_bounds": [
+            5,
+            134,
+            186,
+            203
+          ],
+          "alpha_area": 8390,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            47.625,
+            158.625,
+            251.25,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10618.59375
+        },
+        {
+          "col": 5,
+          "alpha_bounds": [
+            7,
+            132,
+            184,
+            203
+          ],
+          "alpha_area": 8144,
+          "display_scale": 1.5,
+          "display_bounds_logical": [
+            49.875,
+            156.375,
+            249.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 10307.25
+        },
+        {
+          "col": 6,
+          "alpha_bounds": [
+            4,
+            54,
+            188,
+            203
+          ],
+          "alpha_area": 17157,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            81.0,
+            124.5,
+            219.0,
+            236.25
+          ],
+          "projected_alpha_area_logical": 9650.8125
+        },
+        {
+          "col": 7,
+          "alpha_bounds": [
+            10,
+            5,
+            181,
+            203
+          ],
+          "alpha_area": 21171,
+          "display_scale": 1.0,
+          "display_bounds_logical": [
+            85.5,
+            87.75,
+            213.75,
+            236.25
+          ],
+          "projected_alpha_area_logical": 11908.6875
+        }
+      ]
+    }
+  ],
+  "note": "Projected area is geometry, not a rendered-pixel count or an anatomy/identity score."
+}

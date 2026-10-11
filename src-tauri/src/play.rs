@@ -154,8 +154,9 @@ impl Play {
             _ => return,
         };
         let scale=input.scale_factor as f32;
-        self.ball=Some((position.0 as f32+(PET_X as f32+anchor.0*0.75)*scale,
-            position.1 as f32+(PET_Y as f32+anchor.1*0.75)*scale));
+        let anchor=crate::pose::display((PET_X as f32+anchor.0*0.75,PET_Y as f32+anchor.1*0.75),
+            crate::pose::scale(row,col,input.extra_animations));
+        self.ball=Some((position.0 as f32+anchor.0*scale,position.1 as f32+anchor.1*scale));
     }
     pub fn tick(&mut self, input: &Input) -> PlayStep {
         let mut out = PlayStep { movement: None, direction: None, completed: false };
@@ -472,6 +473,23 @@ mod tests {
             }
         }
     }
+    #[test]
+    fn enlarged_disc_anchor_matches_the_displayed_bite_in_both_directions() {
+        for dpi in [1.0,1.25,2.0] {
+            let i=input(dpi);let mut p=Play::default();p.phase="catching";
+            for (row,anchors) in [(crate::atlas::Row::DiscRight,DISC_RIGHT),(crate::atlas::Row::DiscLeft,DISC_LEFT)] {
+                for (col,a) in anchors.iter().enumerate() {
+                    p.align_carried_ball(&i,i.win_pos,row,col);
+                    let actual=p.ball.unwrap();
+                    let base=(PET_X as f32+a.0*0.75,PET_Y as f32+a.1*0.75);
+                    let expected=(150.0+(base.0-150.0)*1.1,236.25+(base.1-236.25)*1.1);
+                    assert!((actual.0-i.win_pos.0 as f32-expected.0*dpi as f32).abs()<0.001);
+                    assert!((actual.1-i.win_pos.1 as f32-expected.1*dpi as f32).abs()<0.001);
+                }
+            }
+        }
+    }
+
     #[test]
     fn carry_alignment_tracks_each_frame_at_multiple_scales() {
         for scale in [1.0,1.25,2.0] {

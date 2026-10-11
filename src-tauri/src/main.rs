@@ -15,6 +15,7 @@ mod activities;
 mod config;
 mod companion;
 mod engine;
+mod pose;
 mod petting;
 mod encounters;
 mod dizziness;
@@ -55,6 +56,7 @@ struct ReleasedToy {
 struct FramePayload {
     row: u8,
     col: usize,
+    pose_scale: f32,
     released_toy: Option<ReleasedToy>,
     petting: Option<petting::Feedback>,
     dizzy: Option<dizziness::Feedback>,
@@ -690,7 +692,7 @@ fn spawn_engine(
             }
 
             state.ai_available.store(!out.sleeping && !input.button_down && !out.clickable && state.play.lock().unwrap().phase=="off" && state.activity.lock().unwrap().phase=="off",Ordering::Relaxed);
-            let frame = FramePayload {row:out.row,col:out.col,released_toy,petting:out.petting,dizzy:out.dizzy};
+            let frame = FramePayload {row:out.row,col:out.col,pose_scale:out.pose_scale,released_toy,petting:out.petting,dizzy:out.dizzy};
             if visible && prev_frame.as_ref()!=Some(&frame) {
                 let _ = app.emit("pet:frame", &frame);
                 prev_frame = Some(frame);

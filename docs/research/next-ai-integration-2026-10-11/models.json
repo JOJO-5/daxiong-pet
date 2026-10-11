@@ -1,0 +1,34 @@
+[
+  {
+    "key": "ch_PP-OCRv5_det_mobile",
+    "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/det/ch_PP-OCRv5_det_mobile.onnx",
+    "bytes": 4819576,
+    "sha256": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+    "matches_declared": true,
+    "status": "download_verified_not_inference_tested"
+  },
+  {
+    "key": "ch_PP-OCRv5_rec_mobile",
+    "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/rec/ch_PP-OCRv5_rec_mobile.onnx",
+    "bytes": 16631306,
+    "sha256": "5825fc7ebf84ae7a412be049820b4d86d77620f204a041697b0494669b1742c5",
+    "matches_declared": true,
+    "status": "download_verified_not_inference_tested"
+  },
+  {
+    "key": "multi_PP-OCRv6_det_tiny",
+    "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/det/PP-OCRv6_det_tiny.onnx",
+    "bytes": 1829618,
+    "sha256": "f42c0fbd294d95eac1a550e131b277dac97462c8025fa4b6c3cec1b7894bd3d5",
+    "matches_declared": true,
+    "status": "download_verified_not_inference_tested"
+  },
+  {
+    "key": "multi_PP-OCRv6_rec_tiny",
+    "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/rec/PP-OCRv6_rec_tiny.onnx",
+    "bytes": 4489813,
+    "sha256": "e16e242de5937ad92609223f19bc2aff3727ee40b095f996907c24749bad251b",
+    "matches_declared": true,
+    "status": "download_verified_not_inference_tested"
+  }
+]

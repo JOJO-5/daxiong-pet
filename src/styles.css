@@ -241,3 +241,5 @@ body {
   25% { opacity:.85; } 100% { opacity:0; transform:translateY(-25px) scale(1.05); } }
 @media (prefers-reduced-motion:reduce) { .touch-heart { animation:none; opacity:.65; }
   .touch-heart.second { opacity:.4; } }
+
+.chat-entry { margin:0 0 14px; width:100%; padding:9px 12px; border:1px solid #cdd5c4; border-radius:9px; background:#f5f8ee; color:#42633c; font:inherit; cursor:pointer; }

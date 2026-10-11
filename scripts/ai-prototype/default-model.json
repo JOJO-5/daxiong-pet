@@ -1,6 +1,6 @@
 {
-  "date_beijing": "2026-10-10",
-  "scope": "User-confirmed development route: Qwen3.5 2B text and image-capable architecture plus separate CPU OCR. Not app-bundled or release-qualified; 2B image execution still pending.",
+  "date_beijing": "2026-10-11",
+  "scope": "Built-in 2B CPU chat, matching vision, native PP-OCRv5, host-owned preferences and optional external services; current source qualification tracked separately.",
   "default_text_model": {
     "repository": "lmstudio-community/Qwen3.5-2B-GGUF",
     "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
@@ -18,7 +18,7 @@
     "threads": 2,
     "parallel_requests": 1,
     "context_tokens": 4096,
-    "tested_platform": "Linux x86_64 AVX2/FMA/F16C, shared two-core quota; Windows/macOS/ARM not yet validated"
+    "tested_platform": "Four native CPU text paths in alpha.1 and four native OCR paths in run38104493062; application screen/TCC/hardware qualification tracked in validation docs."
   },
   "generation": {
     "max_tokens": 192,
@@ -35,32 +35,34 @@
   },
   "prompt_baseline": {
     "source": "companion-trial.py:PERSONAS + COMMON",
-    "description": "Tune short gentle/playful companion prompts for chosen 2B. GUI personality still pending; historical Qwen2.5 prompt no longer selected.",
-    "release_validation": "Pending: renaming/identity, multi-turn unknown observations and GUI personality variations.",
-    "latency_note": "2B fifth-round uncached shared two-core Linux: first content p50/p95 5.13/13.65s; total 20.22/35.71s. Not 8GB 11th-gen i5 benchmark; no 2B image latency measurement."
+    "description": "App text slice uses editable gentle/playful GUI personality, short=96 or normal=192 output tokens; historical research prompts remain reproducible.",
+    "release_validation": "Native chat and observation qualification tracked in docs/validation/local-ai-observation-2026-10-11.md; target hardware and full visual quality still pending.",
+    "latency_note": "Historical text timing unchanged; six actual 2B image calls are in docs/research/vision-2b-2026-10-11.md. Shared/contended CPU, not target i5 benchmark."
   },
   "capabilities": {
     "text_input": true,
     "direct_image_input": true,
     "audio_input": false,
     "actual_tool_execution": false,
-    "actual_sqlite_memory": false,
-    "actual_screen_capture": false,
-    "image_capability_note": "Model architecture supports images only with matching projector and runtime; 2B projector not downloaded/executed yet. This flag describes capability, not tested app support.",
-    "actual_2b_image_execution_tested": false
+    "actual_sqlite_memory": true,
+    "actual_screen_capture": true,
+    "image_capability_note": "Matching 2B projector downloaded, checksum verified and six Linux CPU image requests executed; injection-quality failures retained. App scopes are enforced separately.",
+    "actual_2b_image_execution_tested": true,
+    "actual_sqlite_chat": true,
+    "actual_preference_auto_memory": true,
+    "sqlite_capability_note": "Durable preferences are extracted from explicit user-chat statements by host rules. Model replies and screen text cannot write preferences."
   },
   "observation_plan": {
-    "ocr_trial": "RapidOCR v3.10.0 + ONNX Runtime CPU, explicit PP-OCRv5 mobile detection/Chinese recognition. v6 tiny smaller comparison; not yet executed or final OCR selection.",
-    "vision": "Selected 2B matching 671372416-byte BF16 projector; 2B image test pending. Include matching visual component in planned AI package; do not load it for ordinary text requests.",
+    "ocr_trial": "Pinned PP-OCRv5 mobile CPU ONNX Runtime1.23.2 native worker; Python is build/test tooling only.",
+    "vision": "Matching 671372416-byte BF16 projector bundled; 256 image tokens /80 output tokens on user request; ordinary background observation OCR-only.",
     "routing": "OCR first for screen text; 2B images only for user requests or image-dominant observations, no concurrent heavy inference by default.",
     "short_term_only": true
   },
   "release_blockers": [
-    "Host-owned preference source/write and real execution states; companion naming continuity assessed as experience, not a zero-error chatbot gate",
-    "Companion response length/tone and multi-turn experience; observation scope/source enforced by host",
-    "Native Windows/macOS/ARM and game-concurrent CPU/RAM tests",
-    "Actual per-platform installation size, licenses, runtime distribution and cancellation/idle unload",
-    "SQLite, chat UI, GUI personality and 30-day retention integration"
+    "Exact-source application build/regression and downloadable assets",
+    "Native macOS authorized capture, Windows mixed-DPI/multi-screen and lock-screen checks",
+    "8GB 11th-gen i5 native CPU/RAM and long office-use evaluation",
+    "50 independent image/screen quality cases and per-device GPU qualification"
   ],
   "selection_status": "user_confirmed_qwen35_2b_development_route",
   "selection_policy": {
@@ -99,5 +101,20 @@
     "threads": "benchmark 2 and 4 workers; leave responsiveness headroom, do not assume double speed"
   },
   "planned_model_artifact_bytes": 1942180448,
-  "ocr_evidence": "docs/research/qwen35-2b-ocr-route-2026-10-10.md"
+  "ocr_evidence": "docs/research/qwen35-2b-ocr-route-2026-10-10.md",
+  "application_text_slice": {
+    "status": "integrated_with_observation_and_memory_qualification_pending_release",
+    "history_pairs_max": 12,
+    "context_tokens": 4096,
+    "chat_retention_days": 30,
+    "default_enabled": false,
+    "default_threads": 2,
+    "idle_unload_seconds": 300,
+    "cache_prompt": true,
+    "output_tokens": {
+      "short": 96,
+      "normal": 192
+    },
+    "evidence": "docs/validation/local-ai-chat-2026-10-11.md"
+  }
 }

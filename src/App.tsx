@@ -49,9 +49,12 @@ export default function App() {
   const lastText = useRef<string | null>(null);
   const readySent = useRef(false);
   const errorUntil = useRef(0);
+  const bubbleUntil = useRef(0);
 
   const dismissBubble = useCallback(() => setBubble(null), []);
   const protectBubble = useCallback((duration: number) => {
+    bubbleUntil.current = Math.max(bubbleUntil.current, Date.now() + duration);
+    void invoke("ai_protect_bubble", {durationMs: duration}).catch(console.error);
     if (bubble?.protect) errorUntil.current = Math.max(errorUntil.current, Date.now() + duration);
   }, [bubble?.id, bubble?.protect]);
 
@@ -65,6 +68,8 @@ export default function App() {
     const displayMessage = (text: string, duration = BUBBLE_MS, protect = duration > BUBBLE_MS) => {
       if (!alive) return;
       if (protect) errorUntil.current = Date.now() + duration;
+      bubbleUntil.current = Date.now() + duration;
+      void invoke("ai_protect_bubble", {durationMs: duration}).catch(console.error);
       bubbleId.current += 1;
       setBubble({ text, id: bubbleId.current, duration, protect });
     };
@@ -127,6 +132,12 @@ export default function App() {
     const offMessage = listen<string>("pet:message",event => {
       if(alive && Date.now()>=errorUntil.current) displayMessage(event.payload);
     });
+    const offAi = listen<{ text: string; revision: number }>("ai:ambient", event => {
+      if (!alive || Date.now() < errorUntil.current || Date.now() < bubbleUntil.current || !event.payload.text.trim()) return;
+      void invoke<boolean>("ai_claim_ambient", { revision: event.payload.revision }).then(valid => {
+        if (valid && alive && Date.now() >= errorUntil.current && Date.now() >= bubbleUntil.current) displayMessage(event.payload.text.slice(0, 160));
+      }).catch(() => {});
+    });
     const offTreat = listen("pet:treat",()=>{
       if(!alive) return;
       setTreating(true);
@@ -139,7 +150,7 @@ export default function App() {
     });
 
     // 监听注册完成再取快照，避免启动时漏掉帧 / 切换事件。
-    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter, offIntro]).then(async () => {
+    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter, offIntro, offAi]).then(async () => {
       const observed = revision;
       const pet = await invoke<PetSwitch>("current_pet");
       if (alive && revision === observed) await applyPet(pet);

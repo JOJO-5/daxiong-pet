@@ -96,6 +96,7 @@ fn build_menu(app: &AppHandle, pets: &[PetPack], current: &str) -> tauri::Result
         .item(&open_dir)
         .separator()
         .item(&play)
+        .text("ai_chat","和大熊聊聊…")
         .item(&help)
         .item(&pomodoro)
         .item(&gravity_item)
@@ -203,6 +204,7 @@ pub(crate) fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
             refresh(app, &pets, &current, gravity);
         }
 
+        "ai_chat" => {if let Err(e)=crate::ai::open_chat_window(app) {crate::report_error(app,"打开聊天失败",e);}}
         "quit" => app.exit(0),
         _ => {}
     }

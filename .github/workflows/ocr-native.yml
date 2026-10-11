@@ -1,0 +1,31 @@
+name: Native OCR validation
+on:
+  push:
+    branches: [feat/local-ai-chat]
+    paths: ["native/**", "scripts/build-ocr-runtime.py", "scripts/smoke-ocr-runtime.py", ".github/workflows/ocr-native.yml"]
+  workflow_dispatch:
+jobs:
+  ocr:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-14, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: ocr-build
+          key: ocr-${{ matrix.os }}-${{ hashFiles('native/ocr/runtime-sources.json', 'scripts/build-ocr-runtime.py', 'native/ocr/CMakeLists.txt') }}
+      - name: Build isolated CPU worker
+        run: python scripts/build-ocr-runtime.py --work ocr-build --out ocr-resources
+      - name: Run actual CPU models
+        run: python scripts/smoke-ocr-runtime.py --ocr ocr-resources --out test-results/ocr
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ocr-${{ matrix.os }}
+          path: test-results/ocr

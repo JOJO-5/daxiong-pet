@@ -62,6 +62,7 @@ function PlayContent() {
     <div className="panel-heading">
     <svg className="panel-icon" aria-hidden="true" viewBox="0 0 32 32" width="32" height="32"><g fill="#567b42"><ellipse cx="16" cy="23" rx="9" ry="6"/><ellipse cx="5" cy="13" rx="3" ry="4"/><ellipse cx="12" cy="7" rx="3" ry="4"/><ellipse cx="21" cy="7" rx="3" ry="4"/><ellipse cx="28" cy="13" rx="3" ry="4"/></g></svg>
     <h1>和大熊一起玩</h1><button className="panel-close" aria-label="收起面板" title="收起面板（Esc），游戏会继续" onClick={()=>void invoke("close_playground").catch(e=>setError(String(e)))}>×</button></div><div className="subtitle-row"><p className="subtitle">挑个玩具，陪大熊玩一会儿</p><button className="quiet" aria-expanded={helpOpen} aria-controls="play-help" onClick={()=>setHelpOpen(v=>!v)}>怎么玩？</button></div>
+    <button className="chat-entry" onClick={()=>void invoke("open_chat").catch(e=>setError(String(e)))}>和大熊聊聊</button>
     {helpOpen?<HelpGuide onClose={()=>setHelpOpen(false)}/>:null}
     <div className="game-picker" role="group" aria-label="选择游戏">{([{id:"fetch",label:"接球"},{id:"frisbee",label:"飞盘"},{id:"tug",label:"拔河"},{id:"tricks",label:"小指令"},{id:"snack",label:"找零食"}] as const).map(choice=><button key={choice.id} disabled={busy} aria-pressed={game===choice.id} onClick={async()=>{if(game!==choice.id&&await act("cancel")){setGame(choice.id);setNotice(`已结束上一个互动，准备${choice.label}。`);}}}>{choice.label}</button>)}</div>
     {notice?<p className="small" role="status">{notice}</p>:null}

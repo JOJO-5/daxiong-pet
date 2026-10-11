@@ -37,6 +37,7 @@ try:
     wait(lambda:len(command('GET','/window/handles'))>len(initial))
     panel=next(iter(set(command('GET','/window/handles'))-initial));command('POST','/window',{'handle':panel})
     wait(lambda:js("return !!document.querySelector('.play-panel')"))
+    wait(visible)  # The WebView exists before its ready callback shows the native window.
     check('right-click first item opens real panel',visible())
     # Cache the persistent panel before moving/disappearing toy and tooltip windows.
     def find_native_panel():
@@ -50,7 +51,8 @@ try:
     time.sleep(.8);shoot('compact-panel')
     pos=invoke('plugin:window|outer_position',{'label':'playground'});size=invoke('plugin:window|outer_size',{'label':'playground'})
     check('nearby panel remains inside screen',pos['x']>=0 and pos['y']>=0 and pos['x']+size['width']<=1280 and pos['y']+size['height']<=800)
-    pet_menu();choose(3)
+    # Chat is the second selectable entry; frisbee follows feed and ball.
+    pet_menu();choose(4)
     wait(lambda:js("return document.querySelector('[data-testid=play-phase]')?.dataset.phase==='chasing'"))
     check('native frisbee item routes existing panel to frisbee',js("return [...document.querySelectorAll('.game-picker button')].find(b=>b.textContent==='飞盘').getAttribute('aria-pressed')==='true'") and invoke('play_status')['toy']=='frisbee')
     pointer('windowactivate','--sync',panel_native);pointer('key','Escape');wait(lambda:not visible())
@@ -58,7 +60,7 @@ try:
     check('closing panel retains ongoing frisbee and reusable return',invoke('play_status')['catches']==1)
     pet_menu();choose(0);wait(visible)
     check('reopening retains selected game and completed phase',js("return document.querySelector('[data-testid=play-phase]').dataset.phase==='returned'"))
-    pet_menu();choose(1);wait(lambda:invoke('companion_status')['treats']==1)
+    pet_menu();choose(2);wait(lambda:invoke('companion_status')['treats']==1)
     check('native feeding commits exactly once and shows cooldown',js("return [...document.querySelectorAll('button')].some(b=>b.disabled&&b.textContent.includes('还在嚼'))"))
     pet_menu();shoot('cooldown-menu');finish_menu('Escape')
     open_more();check('shortcut defaults off',not invoke('shortcut_status')['enabled'])

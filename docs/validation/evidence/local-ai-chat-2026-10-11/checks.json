@@ -1,0 +1,156 @@
+{
+  "date_beijing": "2026-10-11",
+  "generated_at_utc": "2026-10-10T16:17:52.792498+00:00",
+  "base_commit": "2da472c0e30b4aa4926fd2b4380f1e183c227fc7",
+  "branch": "feat/local-ai-chat",
+  "configuration": {
+    "system": "Ubuntu 22.04 Linux x86_64 container; GTK/WebKit/X11",
+    "runtime_compiler": "GCC 11.4",
+    "features": [
+      "tauri/custom-protocol",
+      "e2e"
+    ],
+    "development_resources": "verified symlink stage; not a distributed bundle",
+    "model_threads": 2,
+    "recorded_model_scenario": true,
+    "cpu_quota": "container not additionally limited; shared cloud host",
+    "windows_macos_native": "not tested",
+    "ocr_and_images": "not integrated",
+    "art_changed": false
+  },
+  "tests": {
+    "rust": {
+      "passed": 100,
+      "failed": 0,
+      "log": "/workspace/daxiong-ai-prototype/ai-dev-final-focus-mask.log",
+      "sha256": "cf2ce4d77e0cba1369c214512adbe364a254c97ff7fa2641a664d6530eb7eadc"
+    },
+    "frontend": {
+      "passed": 15,
+      "failed": 0,
+      "log": "/workspace/daxiong-ai-prototype/ai-dev-frontend-tests.log"
+    },
+    "native": {
+      "model": {
+        "passed": [
+          "AI database is lazy; ordinary pet startup does not create it",
+          "real chat defaults to disabled with verified resources available",
+          "GUI personality saved to SQLite",
+          "focused chat lowers pet overlay so form controls cannot be intercepted",
+          "real model request and native fetch run together",
+          "request ends as complete",
+          "real CPU model produced Chinese text persisted and rendered",
+          "request ends as cancelled",
+          "cancel preserves partial reply without later deltas",
+          "stale Stop cannot cancel the new request",
+          "closing chat keeps the pet alive",
+          "closing chat restores the pet always-on-top layer",
+          "request ends as cancelled",
+          "real draft preview produces text without saving profile or chat",
+          "request ends as failed",
+          "model crash reports failure while pet commands still work",
+          "request ends as complete",
+          "model restarts successfully after crash",
+          "exiting native application leaves no model child",
+          "restart preserves chat/personality/settings and prunes expired messages",
+          "small chat window has no horizontal overflow and usable composer",
+          "clear chat retains saved personality",
+          "clicking chat over an occluded pet does not pet the dog through the window"
+        ],
+        "timings": {
+          "first_reply_seconds_in_shared_container": 51.67
+        },
+        "scope": "Native Linux text-only developer slice; not a Windows/macOS or consumer hardware benchmark"
+      },
+      "unavailable": {
+        "passed": [
+          "real native context-menu chat entry opens the chat window",
+          "missing resources show a clear explanation without activating AI",
+          "restore defaults stays a draft until saved",
+          "discard restores the saved profile",
+          "private chat commands reject the pet window",
+          "corrupt database reports an error and is never silently replaced"
+        ]
+      },
+      "desktop": {
+        "passed": [
+          "native WebKit loads decoded built-in pet",
+          "pet native context menu opens real interaction window",
+          "throw, chase, carry, return and score in native runtime",
+          "real pointer grabs toy window",
+          "real drag/release throws toy and completes a second fetch",
+          "cancel removes toy",
+          "hiding the pet removes independent toy window",
+          "focus cancels toys",
+          "native pet drag interrupts play",
+          "interaction panel has no error banner",
+          "legacy atlas loads and pet switching cancels toys",
+          "switching back restores all 27 built-in animation rows"
+        ],
+        "version": "1.0.27"
+      },
+      "menu": {
+        "version": "1.0.27",
+        "passed": [
+          "Escape dismisses native menu without starting a game",
+          "right-click first item opens real panel",
+          "common games and feed visible while settings collapsed",
+          "nearby panel remains inside screen",
+          "native frisbee item routes existing panel to frisbee",
+          "closing panel retains ongoing frisbee and reusable return",
+          "reopening retains selected game and completed phase",
+          "native feeding commits exactly once and shows cooldown",
+          "shortcut defaults off",
+          "real checkbox registers OS shortcut",
+          "actual OS hotkey restores hidden pet and panel",
+          "shortcut preference written to disk",
+          "left edge opening clamps panel inside work area",
+          "right edge opening clamps panel inside work area",
+          "real restart registers saved shortcut",
+          "real OS shortcut conflict is visible and does not claim activation",
+          "disk failure visibly reported and registration rolled back",
+          "shortcut can recover and unregister after error",
+          "natural ball invitation routes an existing frisbee panel to fetch",
+          "native stop removes invitation and independent toy",
+          "native come item selects and starts real command",
+          "native stop cancels command without a reward",
+          "focus rejects toy with explicit explanation"
+        ],
+        "error": null
+      }
+    }
+  },
+  "source_sha256": {
+    "src-tauri/src/ai.rs": "863b9ee7af90e49e9c3fce7eccbbf45be3cb81b89f7fbfbaf18cb5afb2ab6b54",
+    "src-tauri/src/ai_runtime.rs": "a28c4693dd39808ec7b4dea1f6943d9c9fe87f4b7bb936a45aa9edd73a598946",
+    "src-tauri/src/ai_store.rs": "5135f865de438ef2b8588f9d513ecd123289089e0d3df4116f7b2b878ac2edf4",
+    "src-tauri/src/main.rs": "fd23c7dd21cb6c8e69742c93ba876027d764b048761a2e40da22619c23584f12",
+    "src-tauri/src/tray.rs": "1893e9ed8d1df1b309ba734d86e887bfeb24c4373c98a7a9412b2afba7efdb62",
+    "src-tauri/Cargo.toml": "6c3a43dbe47dd2b9391d22e6deb73a7ef465dc45f5ac8f95463c6f4b0449ad42",
+    "src-tauri/Cargo.lock": "72135291610fb2ae8bee46fb8d8a1fa39e40628ffcae021dab1c4881e710394f",
+    "src-tauri/capabilities/default.json": "21e3bfb2fd7d0ad743b5838bdc3f9cb2484e021cf06752f3e699abc7962c08b3",
+    "src/ChatWindow.tsx": "65c13ba79bc7d3529275586f8df9a52997531efbe46f94859b3072879a8e3843",
+    "src/chat.css": "cdebe9e0b2ad2b873e6e638e65afd3fedb5115f185fff77ee9ac97916d129494",
+    "src/PlayPanel.tsx": "da2d61205d1129f30b5e7e1ee81236e59a68a210841d3407e4be6177bec8733d",
+    "src/main.tsx": "b67f5942fc340ae91ecfc6758ff8e72fda4e236c3d6c9715dcdf18ba677d0801",
+    "src/styles.css": "729cff39ab02c3595470a31c865bf76349c20915a20ffdb8784dafead69a46c7",
+    "scripts/ai-prototype/default-model.json": "f2e85b085885ff045b8dc29b1a49178485e1f8e715d056420b32d18bf09fa1b2"
+  },
+  "native_binary_sha256": "01451e5322fbabfb0cb98ff668c50da0ee427a0c035116d1683a05966a4170de",
+  "screenshots_sha256": {
+    "personality.png": "2495ea0f1efed938db0917a32b6fa934559a383e606c41814a4fb1deb5760e54",
+    "chat-small.png": "156fbc82fe8f8f443bce73d6572b768e5d006deb66c1bc5cf69c3d09622c7599",
+    "chat-reply.png": "65eaf1eb296592cdece196db96c3fb7590382a63b760739dd1bf95c3bc615c6d"
+  },
+  "video": {
+    "path": "/workspace/daxiong-evidence/local-linux/ai-chat-model-r5/desktop-validation.mp4",
+    "sha256": "59214c71efcbae86a38213a731014df7b211a08c9c79f9e2dc36dffc44178d6a"
+  },
+  "limits": [
+    "Functional concurrent fetch, not frame-time/FPS validation",
+    "Shared Linux debug app includes SHA-256 verification in first reply timing, not consumer-hardware performance",
+    "Full 2B 5-minute idle memory run pending; real lightweight child idle/reap unit test passed",
+    "Full installation resources, licenses inventory and offline new installation pending",
+    "G2 external backend/credentials and G3 automatic memory pending"
+  ]
+}

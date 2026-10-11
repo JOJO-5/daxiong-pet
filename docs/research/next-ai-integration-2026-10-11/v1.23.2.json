@@ -1,0 +1,22 @@
+[
+  {
+    "name": "onnxruntime-linux-x64-1.23.2.tgz",
+    "bytes": 8309231
+  },
+  {
+    "name": "onnxruntime-osx-arm64-1.23.2.tgz",
+    "bytes": 9999931
+  },
+  {
+    "name": "onnxruntime-osx-universal2-1.23.2.tgz",
+    "bytes": 42818339
+  },
+  {
+    "name": "onnxruntime-osx-x86_64-1.23.2.tgz",
+    "bytes": 11676322
+  },
+  {
+    "name": "onnxruntime-win-x64-1.23.2.zip",
+    "bytes": 78127794
+  }
+]

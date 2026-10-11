@@ -1,0 +1,73 @@
+[
+  {
+    "key": "ort-release",
+    "url": "https://api.github.com/repos/microsoft/onnxruntime/releases/latest",
+    "bytes": 44750,
+    "sha256": "496b13e5836e1fd62741b495b15bc31098910d5ccb3c59c21e5479b0cac29814",
+    "tag": "v1.31.0",
+    "assets": [
+      {
+        "name": "onnxruntime-linux-x64-1.31.0.tgz",
+        "bytes": 11408003
+      },
+      {
+        "name": "onnxruntime-linux-x64-gpu_cuda12-1.31.0.tgz",
+        "bytes": 450228883
+      },
+      {
+        "name": "onnxruntime-linux-x64-gpu_cuda13-1.31.0.tgz",
+        "bytes": 244574938
+      },
+      {
+        "name": "onnxruntime-osx-arm64-1.31.0.tgz",
+        "bytes": 36549009
+      },
+      {
+        "name": "onnxruntime-win-x64-1.31.0.zip",
+        "bytes": 82887349
+      },
+      {
+        "name": "onnxruntime-win-x64-gpu_cuda12-1.31.0.zip",
+        "bytes": 392994831
+      },
+      {
+        "name": "onnxruntime-win-x64-gpu_cuda13-1.31.0.zip",
+        "bytes": 309484217
+      }
+    ]
+  },
+  {
+    "key": "ort-license",
+    "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/main/LICENSE",
+    "bytes": 1073,
+    "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+  },
+  {
+    "key": "paddle-license",
+    "url": "https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/main/LICENSE",
+    "bytes": 11376,
+    "sha256": "3840c5c0c61c294264d2dd77b8777be6ddd90121ef4e0e64abcd22edea581d6e"
+  },
+  {
+    "key": "rapid-readme",
+    "url": "https://raw.githubusercontent.com/RapidAI/RapidOCR/v3.10.0/README.md",
+    "bytes": 11938,
+    "sha256": "7bc89a454369b04f055731f1a66266de1ba1c6627af372884f37e4bccb84e90b"
+  },
+  {
+    "key": "ort-rust",
+    "url": "https://crates.io/api/v1/crates/ort",
+    "bytes": 108775,
+    "sha256": "ce78359150d30ff026ffc7c4ed1154ad88e0862845dabb8987ebcf6989abf5db",
+    "version": null,
+    "repository": "https://github.com/pykeio/ort"
+  },
+  {
+    "key": "xcap",
+    "url": "https://crates.io/api/v1/crates/xcap",
+    "bytes": 85687,
+    "sha256": "f700158bd2ef87bdfa6d414b45dc33fe5f291cb969467ebf4f71e143b4795bc3",
+    "version": "0.9.8",
+    "repository": "https://github.com/nashaofu/xcap.git"
+  }
+]

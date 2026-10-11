@@ -1,0 +1,41 @@
+{
+  "version": "0.18.0",
+  "linux-x64": {
+    "kind": "wheel",
+    "url": "https://files.pythonhosted.org/packages/c9/8f/eb7a5203be1d48440c6b8d6e6382c3f744dd6d338fe400555718b4d695a1/litert_lm_api-0.18.0-py3-none-manylinux_2_27_x86_64.whl",
+    "bytes": 47051760,
+    "sha256": "b64e2cf6d7dcb90ff094b74af595cc5d53faa07e0889f967d15df8d3e696b53c",
+    "files": ["liblitert-lm.so"]
+  },
+  "windows-x64": {
+    "kind": "wheel",
+    "url": "https://files.pythonhosted.org/packages/2e/a4/842c858a90aac25a2ae6e4744197b22764a38fb35e45b15cf9c3b7570656/litert_lm_api-0.18.0-py3-none-win_amd64.whl",
+    "bytes": 26403380,
+    "sha256": "eb02dc5d0fc6a894a664cfcc63e3aaf3100973ba2c9a6a7eebf4df8749a01038",
+    "files": ["litert-lm.dll", "dxcompiler.dll", "dxil.dll"]
+  },
+  "macos-arm64": {
+    "kind": "xcframework",
+    "url": "https://github.com/google-ai-edge/LiteRT-LM/releases/download/v0.18.0/CLiteRTLM_mac.xcframework.zip",
+    "bytes": 45143303,
+    "sha256": "5f6ee68d95eeccb084c6e66d5ee47255e3020fa0fb29696dd0301ae26d6cfb4f",
+    "files": ["libCLiteRTLM_mac.dylib"],
+    "thin": "arm64"
+  },
+  "macos-x64": {
+    "kind": "xcframework",
+    "url": "https://github.com/google-ai-edge/LiteRT-LM/releases/download/v0.18.0/CLiteRTLM_mac.xcframework.zip",
+    "bytes": 45143303,
+    "sha256": "5f6ee68d95eeccb084c6e66d5ee47255e3020fa0fb29696dd0301ae26d6cfb4f",
+    "files": ["libCLiteRTLM_mac.dylib"],
+    "thin": "x86_64"
+  },
+  "test_model": {
+    "id": "qwen3.5-0.8b-int8-research",
+    "url": "https://huggingface.co/litert-community/Qwen3.5-0.8B/resolve/10243c0a01d24e6b122a0e814f8c4d984c9c92d6/Qwen3.5-0.8B_int8.litertlm?download=true",
+    "bytes": 963184864,
+    "sha256": "64ed396fcdae75e5158945c77a08142b1322ce1bbf1be4d2198783119a1169e8",
+    "license": "Apache-2.0",
+    "default_package": false
+  }
+}

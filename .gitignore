@@ -21,3 +21,4 @@ Thumbs.db
 
 __pycache__/
 scripts/engine-check/target/
+native/litert/target/

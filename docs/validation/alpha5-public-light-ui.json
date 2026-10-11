@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "installed light package has no chat or vision weights",
+    "all installed light resources match manifest hashes",
+    "ordinary installed light app opens compact input without models",
+    "public installed belly pose has enlarged horizontal body",
+    "public installed enlarged pose persists after native cheek contact",
+    "installed light compact input uses verified cache and completes CPU reply",
+    "installed full chat opens shared conversation",
+    "installed app exit leaves no model child"
+  ],
+  "measurements": {
+    "belly_width_logical": 201,
+    "cheek_width_logical": 208
+  },
+  "uid": 1000,
+  "scope": "downloaded public alpha.5 light installer; non-root X11; real OS belly/cheek pointer and silhouette width; explicit native composer click; verified pre-existing model cache; no physical i5 claim"
+}

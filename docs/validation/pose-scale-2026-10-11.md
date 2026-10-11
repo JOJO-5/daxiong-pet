@@ -1,6 +1,6 @@
 # 全动作体型检查与alpha.5校正（2026-10-11）
 
-状态：本地校正与真实Linux录屏验收完成，准备同源四平台构建和完整回归后发布alpha.5。alpha.4的安装器未被覆盖。
+状态：[v1.1.0-alpha.5](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.5)已公开；本轮同源四平台完整/轻量构建、完整桌面回归与实际公开安装器复核通过。alpha.4的安装器未被覆盖。
 
 ## 检查范围与结论
 
@@ -48,7 +48,7 @@
 
 前端15项、TypeScript/Vite构建通过，原生Rust119项通过；含1×/1.25×/2×逻辑坐标、旧包不变、地面固定、旧框外脸颊触摸/拖动与双向飞盘嘴部锚点。审计脚本只读原始图像，全部202个非空帧的变换后轮廓仍在300×240舞台内。
 
-真实Linux X11/WebKit回归与录屏：摸宠物21项、晕倒17项、飞盘21项、球/盘双向交接36项、拔河回归全部通过，JSON见[原生证据](pose-scale-native-2026-10-11.json)。摸宠物新增检查实际216px横躺画布和旧触摸框外脸颊；星星与触摸截图实际查看，没有将单元测试当作视觉验收。后续四平台/完整回归的最终结果待补。
+真实Linux X11/WebKit回归与录屏：摸宠物21项、晕倒17项、飞盘21项、球/盘双向交接36项、拔河18项通过，JSON见[原生证据](pose-scale-native-2026-10-11.json)。摸宠物新增检查实际216px横躺画布和旧触摸框外脸颊；星星与触摸截图实际查看，没有将单元测试当作视觉验收。最终四平台/完整回归与公开安装记录见下文。
 
 ![真实原生摸肚皮校正](pose-scale-belly-2026-10-11.png)
 
@@ -58,4 +58,44 @@
 
 ![原版与侧躺同尺寸基准预览](pose-scale-preview-2026-10-11.png)
 
-复现：`python scripts/audit-pose-scale.py --out audit.json`（开发环境需Pillow），`node scripts/animation-preview.mjs preview.html`。完整逐帧测量见[审计JSON](pose-scale-audit-2026-10-11.json)，本地录屏与失败日志在`/workspace/daxiong-ai-prototype/sprite-scale-audit`。未声称新的Windows/Mac原生构建已通过，也未覆盖混合DPI多屏与消费级设备性能。
+复现：`python scripts/audit-pose-scale.py --out audit.json`（开发环境需Pillow），`node scripts/animation-preview.mjs preview.html`。完整逐帧测量见[审计JSON](pose-scale-audit-2026-10-11.json)，本地录屏与失败日志在`/workspace/daxiong-ai-prototype/sprite-scale-audit`。混合DPI多屏与消费级设备性能仍未覆盖。
+
+
+## alpha.5最终发布与安装复核
+
+候选tag指向06489d21902b8dea4334534d92fb16dfd295a7b7。四平台完整/轻量构建[38155138178](https://github.com/JOJO-5/daxiong-pet/actions/runs/38155138178)与完整Linux桌面回归[38155140600](https://github.com/JOJO-5/daxiong-pet/actions/runs/38155140600)成功。平台与AI具体检查数、录屏核对范围见下文。
+
+公开资产为十个完整/轻量安装器和SHA256SUMS，保留latest正式版v1.0.27。所有服务器摘要与校验文件一致，发布CI逐一比较上传文件与本地产物摘要。本机实际下载轻量Linux deb及校验文件并独立哈希，没有宣称逐一下载十个安装器；范围见[公开资产](alpha5-public-assets.json)。
+
+| 平台/格式 | 完整包（MB） | 轻量包（MB） |
+| --- | ---: | ---: |
+| Windows x64 NSIS | 1762.06 | 39.45 |
+| Mac Apple Silicon DMG | 1850.74 | 61.08 |
+| Mac Intel DMG | 1855.36 | 65.70 |
+| Linux x64 deb | 1836.56 | 68.35 |
+| Linux x64 AppImage | 1896.58 | 127.87 |
+
+MB为十进制。公开轻量安装包UID1000普通用户8项通过：无GGUF、资源哈希、无模型小框、横躺实际宽度、旧框外脸颊触摸、缓存CPU回复、共享完整聊天与退出无子进程。横躺用真实操作后的截图测量可见横宽201逻辑像素，脸颊触摸1.3秒后横宽208，仍保持放大的躺姿（不同帧/边缘阈值与辅助装饰可使宽度略不同，验收范围190–216）。模型复用已有验证缓存，首次真实GUI网络下载另有同源CI证据。52.160秒完整录屏和结果位于`/workspace/daxiong-ai-prototype/public-alpha5-light-ui`，[公开安装结果](alpha5-public-light-ui.json)。
+
+![公开安装器的放大横躺](alpha5-public-belly.png)
+
+![原框外脸颊触摸仍保持横躺](alpha5-public-cheek.png)
+
+
+## 同源平台和完整回归证据
+
+Windows原生交互21项、两种Mac各15项均通过，实际查看三平台的摸肚皮截图，均显示校正后的横躺尺寸。四平台前端各15项通过；Rust Windows/Linux各119项，两种Mac各117项（平台条件不同），原生CPU模型探针及完整/轻量安装器内容核验全部通过。Windows运动录屏也通过：球位移间隔中位16.563ms、p95 21.862ms；飞盘中位16.493ms、p95 21.993ms、最大70.277ms（统计含捕获/释放暂停，不能视为纯移动帧率或消费级硬件性能）。
+
+![Windows原生摸肚皮](alpha5-windows-belly.png)
+
+![Apple Silicon原生摸肚皮](alpha5-macos-arm64-belly.png)
+
+![Intel Mac原生摸肚皮](alpha5-macos-x64-belly.png)
+
+最终Linux整套桌面回归第二轮成功。包括摸宠物21项、晕倒17项、气泡25项、UX20项、拔河18项、双向球/盘交接36项、飞盘21项，原玩法、记忆、偶遇、旧包兼容与菜单/快捷键/回滚全部通过；菜单非录屏23项、录屏19项。AI部分外接无权重5项、内置CPU聊天24项、小框CPU29项、屏幕观察/偏好23项、轻量真实GUI模型下载8项通过。小框CPU回复8.780秒、下载后CPU回复8.724秒，是此次CI主机测量；正常生产计时下45次真实办公点击期间100.19秒触发蝴蝶偶遇。
+
+真实查看最终CI放大后脸颊触摸、小框CPU和轻量下载后聊天截图；原始全部JSON/录屏可以下载Actions产物`desktop-e2e-results`（11709578505）。摘要及平台JSON见[本轮CI证据](alpha5-ci-evidence.json)。本地最终alpha.5/共享校正表的小框非模型夹具24项、菜单录屏19项也通过；与CI真实CPU29项区分。
+
+第一轮完整回归停在菜单录屏初始鼠标命中等待：狗狗正常播放，前端visible但clickable=false，X11输入区域持续1×1，真实鼠标已在站姿身体内；此前同轮非录屏菜单23项通过。保留失败日志、截图、录屏与JSON，未声称该次通过或已明确根因。同源本地菜单录屏19项通过后，进行一次不改源码/门槛的受控完整重跑；第二轮菜单录屏与所有后续AI、生产时序全部成功。失败产物11708725871与本地目录`/workspace/daxiong-ai-prototype/sprite-scale-audit/ci-e2e-failed`保留。
+
+发布后的文档提交只补验收与下载说明，安装器/tag仍指向06489d2，应用和原图完全一致。混合DPI多屏、8GB/11代i5实际性能与长期观察质量仍待实机验收，不把CI主机测量替代这些项目。

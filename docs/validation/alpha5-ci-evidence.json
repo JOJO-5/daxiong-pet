@@ -1,0 +1,2653 @@
+{
+  "candidate": "06489d21902b8dea4334534d92fb16dfd295a7b7",
+  "build_run": 38155138178,
+  "e2e_run": 38155140600,
+  "ci_interactions": {
+    "tug": {
+      "passed": [
+        "rope button opens independent native toy",
+        "round 1: intended rope direction",
+        "round 1: OS mouse grabs rope",
+        "round 1: tension and pet resistance are real",
+        "round 1: planted bite poses rendered",
+        "round 1: release completes exactly once",
+        "round 1: rope hides for happy response",
+        "round 1: ready for reuse",
+        "round 2: intended rope direction",
+        "round 2: OS mouse grabs rope",
+        "round 2: tension and pet resistance are real",
+        "round 2: planted bite poses rendered",
+        "round 2: release completes exactly once",
+        "round 2: rope hides for happy response",
+        "round 2: ready for reuse",
+        "switching games removes rope",
+        "focus removes native rope",
+        "hide clears rope"
+      ],
+      "error": null
+    },
+    "frisbee": {
+      "version": "1.1.0-alpha.5",
+      "passed": [
+        "native button shows independent blue disc",
+        "throw 1: real button or drag starts glide",
+        "throw 1: air catch, biting carry and release",
+        "throw 1: returned once",
+        "throw 1: airborne feedback",
+        "throw 1: actual disc biting row 22 rendered",
+        "throw 1: disc visible at feet for reuse",
+        "throw 1: spoken feedback matches frisbee",
+        "returned frisbee accepts real pointer grab",
+        "throw 2: real button or drag starts glide",
+        "throw 2: air catch, biting carry and release",
+        "throw 2: returned once",
+        "throw 2: airborne feedback",
+        "throw 2: actual disc biting row 21 rendered",
+        "throw 2: disc visible at feet for reuse",
+        "throw 2: spoken feedback matches frisbee",
+        "returned disc remains available and score stable",
+        "button rethrows returned disc from its release spot",
+        "button rethrow completes a third round exactly once",
+        "focus cleans up disc",
+        "hide cancels disc and toy window"
+      ],
+      "error": null
+    },
+    "handoff": {
+      "version": "1.1.0-alpha.5",
+      "passed": [
+        "ball-right: real pointer grabs independent toy",
+        "ball-right: independent toy hidden during atomic release",
+        "ball-right: return counted once",
+        "ball-right: returned toy visible and reusable",
+        "ball-right: release and pose share every painted frame",
+        "ball-right: starts at open jaws",
+        "ball-right: falling toy clears chest and front paws",
+        "ball-right: biting sprite has no second in-window toy",
+        "ball-right: no release overlay survives completion",
+        "ball-left: real pointer grabs independent toy",
+        "ball-left: independent toy hidden during atomic release",
+        "ball-left: return counted once",
+        "ball-left: returned toy visible and reusable",
+        "ball-left: release and pose share every painted frame",
+        "ball-left: starts at open jaws",
+        "ball-left: falling toy clears chest and front paws",
+        "ball-left: biting sprite has no second in-window toy",
+        "ball-left: no release overlay survives completion",
+        "frisbee-right: real pointer grabs independent toy",
+        "frisbee-right: independent toy hidden during atomic release",
+        "frisbee-right: return counted once",
+        "frisbee-right: returned toy visible and reusable",
+        "frisbee-right: release and pose share every painted frame",
+        "frisbee-right: starts at open jaws",
+        "frisbee-right: falling toy clears chest and front paws",
+        "frisbee-right: biting sprite has no second in-window toy",
+        "frisbee-right: no release overlay survives completion",
+        "frisbee-left: real pointer grabs independent toy",
+        "frisbee-left: independent toy hidden during atomic release",
+        "frisbee-left: return counted once",
+        "frisbee-left: returned toy visible and reusable",
+        "frisbee-left: release and pose share every painted frame",
+        "frisbee-left: starts at open jaws",
+        "frisbee-left: falling toy clears chest and front paws",
+        "frisbee-left: biting sprite has no second in-window toy",
+        "frisbee-left: no release overlay survives completion"
+      ],
+      "rounds": [
+        {
+          "name": "ball-right",
+          "states": {
+            "samples": 131,
+            "raw_evidence": "Actions native-interaction-recordings/handoff/handoff-e2e.json"
+          },
+          "samples": {
+            "samples": 309,
+            "raw_evidence": "Actions native-interaction-recordings/handoff/handoff-e2e.json"
+          }
+        },
+        {
+          "name": "ball-left",
+          "states": {
+            "samples": 220,
+            "raw_evidence": "Actions native-interaction-recordings/handoff/handoff-e2e.json"
+          },
+          "samples": {
+            "samples": 445,
+            "raw_evidence": "Actions native-interaction-recordings/handoff/handoff-e2e.json"
+          }
+        },
+        {
+          "name": "frisbee-right",
+          "states": {
+            "samples": 130,
+            "raw_evidence": "Actions native-interaction-recordings/handoff/handoff-e2e.json"
+          },
+          "samples": {
+            "samples": 316,
+            "raw_evidence": "Actions native-interaction-recordings/handoff/handoff-e2e.json"
+          }
+        },
+        {
+          "name": "frisbee-left",
+          "states": {
+            "samples": 164,
+            "raw_evidence": "Actions native-interaction-recordings/handoff/handoff-e2e.json"
+          },
+          "samples": {
+            "samples": 403,
+            "raw_evidence": "Actions native-interaction-recordings/handoff/handoff-e2e.json"
+          }
+        }
+      ],
+      "error": null
+    }
+  },
+  "local_final_quick": {
+    "timings": {},
+    "passed": [
+      "short native pet tap opens compact input",
+      "pet tap immediately focuses message input",
+      "compact window respects requested height",
+      "compact input fits centered below pet when space is available",
+      "compact user message immediately reaches full chat",
+      "full chat synchronizes generating state",
+      "request ends as complete",
+      "same completed reply reaches full chat",
+      "pet speaks same complete reply through paginated bubble",
+      "full chat synchronizes busy state to compact input",
+      "request ends as complete",
+      "full chat response also reaches pet bubble",
+      "request ends as cancelled",
+      "stop from full chat releases compact input too",
+      "request ends as complete",
+      "closing full chat preserves visible compact conversation",
+      "request ends as complete",
+      "closing compact input preserves its reply and shared record",
+      "clear full chat clears shared messages and pet reply",
+      "native pet drag does not reopen compact input",
+      "bottom right edge keeps whole compact window inside screen",
+      "visible compact input follows pet to opposite edge",
+      "hiding pet also hides compact input",
+      "one durable pair per shared request and no duplicated service calls"
+    ],
+    "error": null,
+    "scope": "Native Linux X11/WebKit with real OS input and synthetic loopback protocol; GPU/mixed-DPI untested"
+  },
+  "macos_arm64": {
+    "accessibility_ready": true,
+    "dizzy_visuals": "real rapid native gaze and screenshot; star and pose inspection is separate from the stationary check",
+    "error": null,
+    "interaction": "passed native menu and tug smoke",
+    "multi_display": "not run",
+    "passed": [
+      "pet sprites and event listeners finish loading before input",
+      "built application starts and creates a visible native pet window",
+      "first pet tap starts from another active application",
+      "short pet tap opens correctly sized compact window",
+      "Escape hides compact input and keeps pet alive",
+      "compact records button creates full native chat",
+      "Escape hides full chat and keeps compact input alive",
+      "rapid gaze keeps the native window stationary",
+      "head contact keeps the native window stationary",
+      "belly contact keeps the native window stationary",
+      "real right-click menu opens interaction panel",
+      "closing panel keeps pet alive",
+      "real held rope makes pet resist",
+      "release hides rope for celebration",
+      "rope returns for another round"
+    ],
+    "pet_motion": {
+      "afterX": 820,
+      "beforeX": 825
+    },
+    "petting_visuals": "real pointer head/belly screenshots; pose inspection is separate from stationary checks",
+    "platform": "macOS",
+    "rope_input": {
+      "grabX": 811,
+      "grabY": 555,
+      "pullX": 741,
+      "pullY": 555
+    },
+    "scope": "native startup, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display",
+    "screen_recording_ready": true,
+    "window": {
+      "kCGWindowAlpha": 1,
+      "kCGWindowBounds": {
+        "Height": 240,
+        "Width": 300,
+        "X": 810,
+        "Y": 390
+      },
+      "kCGWindowIsOnscreen": true,
+      "kCGWindowLayer": 5,
+      "kCGWindowMemoryUsage": 2176,
+      "kCGWindowName": "大熊",
+      "kCGWindowNumber": 24,
+      "kCGWindowOwnerName": "daxiong-pet",
+      "kCGWindowOwnerPID": 44878,
+      "kCGWindowSharingState": 1,
+      "kCGWindowStoreType": 1
+    }
+  },
+  "local_final_menu": {
+    "version": "1.1.0-alpha.5",
+    "passed": [
+      "Escape dismisses native menu without starting a game",
+      "right-click first item opens real panel",
+      "common games and feed visible while settings collapsed",
+      "nearby panel remains inside screen",
+      "native frisbee item routes existing panel to frisbee",
+      "closing panel retains ongoing frisbee and reusable return",
+      "reopening retains selected game and completed phase",
+      "native feeding commits exactly once and shows cooldown",
+      "shortcut defaults off",
+      "real checkbox registers OS shortcut",
+      "actual OS hotkey restores hidden pet and panel",
+      "shortcut preference written to disk",
+      "left edge opening clamps panel inside work area",
+      "right edge opening clamps panel inside work area",
+      "natural ball invitation routes an existing frisbee panel to fetch",
+      "native stop removes invitation and independent toy",
+      "native come item selects and starts real command",
+      "native stop cancels command without a reward",
+      "focus rejects toy with explicit explanation"
+    ],
+    "hover_trace": [
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "490",
+          "Y": "280",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "640",
+          "Y": "440",
+          "SCREEN": "0",
+          "WINDOW": "4194405"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "490",
+          "Y": "280",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "640",
+          "Y": "440",
+          "SCREEN": "0",
+          "WINDOW": "1293"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "9",
+          "Y": "0",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "158",
+          "Y": "160",
+          "SCREEN": "0",
+          "WINDOW": "4194405"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            300,
+            240
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "62",
+          "Y": "0",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "212",
+          "Y": "160",
+          "SCREEN": "0",
+          "WINDOW": "1293"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "71",
+          "Y": "0",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "218",
+          "Y": "160",
+          "SCREEN": "0",
+          "WINDOW": "4194405"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "true",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            300,
+            240
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "88",
+          "Y": "0",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "238",
+          "Y": "160",
+          "SCREEN": "0",
+          "WINDOW": "4194405"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "true",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            300,
+            240
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "88",
+          "Y": "0",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "238",
+          "Y": "160",
+          "SCREEN": "0",
+          "WINDOW": "4194405"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            300,
+            240
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "0",
+          "Y": "0",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "150",
+          "Y": "160",
+          "SCREEN": "0",
+          "WINDOW": "4194901"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            300,
+            240
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "980",
+          "Y": "500",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "1130",
+          "Y": "660",
+          "SCREEN": "0",
+          "WINDOW": "4194901"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "true",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            300,
+            240
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "931",
+          "Y": "500",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "1081",
+          "Y": "660",
+          "SCREEN": "0",
+          "WINDOW": "4194901"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            300,
+            240
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "931",
+          "Y": "500",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "1081",
+          "Y": "660",
+          "SCREEN": "0",
+          "WINDOW": "1293"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "931",
+          "Y": "500",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "1081",
+          "Y": "660",
+          "SCREEN": "0",
+          "WINDOW": "4194901"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "true",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            300,
+            240
+          ]
+        ]
+      },
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "931",
+          "Y": "498",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "1081",
+          "Y": "658",
+          "SCREEN": "0",
+          "WINDOW": "4194901"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            300,
+            240
+          ]
+        ]
+      }
+    ],
+    "error": null
+  },
+  "ci_attempt1_menu": {
+    "version": "1.1.0-alpha.5",
+    "passed": [],
+    "hover_trace": [
+      {
+        "native": "10485775",
+        "geometry": {
+          "WINDOW": "10485775",
+          "X": "490",
+          "Y": "280",
+          "WIDTH": "300",
+          "HEIGHT": "240",
+          "SCREEN": "0"
+        },
+        "cursor": {
+          "X": "640",
+          "Y": "440",
+          "SCREEN": "0",
+          "WINDOW": "4194405"
+        },
+        "webview": {
+          "visible": "visible",
+          "clickable": "false",
+          "viewport": [
+            300,
+            240
+          ]
+        },
+        "input_regions": [
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      }
+    ],
+    "error": "Timed out waiting for <function pet_menu.<locals>.hover_current_position at 0x7f4aa239aca0>"
+  },
+  "windows": {
+    "platform": "Windows",
+    "passed": [
+      "pet sprites and event listeners finish loading before input",
+      "built-in pet creates a visible native window",
+      "pet has no non-client border",
+      "pet is always on top",
+      "transparent desktop area is click-through",
+      "first pet tap starts from another active window",
+      "short pet tap opens correctly sized compact window",
+      "compact window receives native keyboard focus",
+      "Escape hides compact input and keeps pet alive",
+      "compact records button creates and focuses full native chat",
+      "Escape hides full chat and keeps compact input alive",
+      "rapid gaze keeps the native window stationary",
+      "head contact keeps the native window stationary",
+      "belly contact keeps the native window stationary",
+      "hovered pet accepts native input",
+      "real right-click menu opens interaction panel",
+      "closing panel keeps pet alive",
+      "hovered pet accepts native input",
+      "real held rope makes pet resist",
+      "release hides rope for celebration",
+      "rope returns for another round"
+    ],
+    "error": null,
+    "scope": "native launch, click-through, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display",
+    "native_style": {
+      "style": "0x14c80000",
+      "extended": "0xc0138",
+      "outer": [
+        362,
+        240,
+        662,
+        480
+      ],
+      "client": [
+        0,
+        0,
+        300,
+        240
+      ]
+    },
+    "quick_geometry": {
+      "outer": [
+        344,
+        488,
+        680,
+        643
+      ],
+      "client": [
+        0,
+        0,
+        320,
+        146
+      ],
+      "scale": 1.0
+    },
+    "dizzy_visuals": "real rapid native gaze and prewarmed screenshot; star and pose inspection is separate from the stationary check",
+    "petting_visuals": "real pointer head/belly screenshots; pose inspection is separate from stationary checks",
+    "menu_pointer": {
+      "requested": [
+        512,
+        400
+      ],
+      "actual": [
+        512,
+        400
+      ],
+      "extended_at_pet": "0x40118"
+    },
+    "native_menu_items": [
+      "打开互动面板…",
+      "和大熊聊聊…",
+      "",
+      "喂一块饼干",
+      "抛一球",
+      "扔飞盘",
+      "一起拔河",
+      "过来",
+      "收起玩具 / 结束练习",
+      "",
+      "更多"
+    ]
+  },
+  "windows_motion": {
+    "report": {
+      "platform": "Windows",
+      "passed": [
+        "hovered pet accepts native input",
+        "抛一球 moves the native pet window",
+        "hovered pet accepts native input",
+        "扔飞盘 moves the native pet window"
+      ],
+      "error": null,
+      "scope": "native launch, click-through, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display",
+      "menu_pointer": {
+        "requested": [
+          512,
+          400
+        ],
+        "actual": [
+          512,
+          400
+        ],
+        "extended_at_pet": "0x40118"
+      },
+      "native_menu_items": [
+        "打开互动面板…",
+        "和大熊聊聊…",
+        "",
+        "结束互动，喂块饼干",
+        "抛一球",
+        "扔飞盘",
+        "一起拔河",
+        "过来",
+        "收起玩具 / 结束练习",
+        "",
+        "更多"
+      ],
+      "video": "motion.mp4"
+    },
+    "games": {
+      "抛一球": {
+        "changes": 165,
+        "median_ms": 16.563,
+        "p95_ms": 21.862,
+        "max_ms": 22.514,
+        "scope": "Intervals include intentional catch/release pauses; inspect alongside video."
+      },
+      "扔飞盘": {
+        "changes": 147,
+        "median_ms": 16.493,
+        "p95_ms": 21.993,
+        "max_ms": 70.277,
+        "scope": "Intervals include intentional catch/release pauses; inspect alongside video."
+      }
+    }
+  },
+  "macos_x64": {
+    "accessibility_ready": true,
+    "dizzy_visuals": "real rapid native gaze and screenshot; star and pose inspection is separate from the stationary check",
+    "error": null,
+    "interaction": "passed native menu and tug smoke",
+    "multi_display": "not run",
+    "passed": [
+      "pet sprites and event listeners finish loading before input",
+      "built application starts and creates a visible native pet window",
+      "first pet tap starts from another active application",
+      "short pet tap opens correctly sized compact window",
+      "Escape hides compact input and keeps pet alive",
+      "compact records button creates full native chat",
+      "Escape hides full chat and keeps compact input alive",
+      "rapid gaze keeps the native window stationary",
+      "head contact keeps the native window stationary",
+      "belly contact keeps the native window stationary",
+      "real right-click menu opens interaction panel",
+      "closing panel keeps pet alive",
+      "real held rope makes pet resist",
+      "release hides rope for celebration",
+      "rope returns for another round"
+    ],
+    "pet_motion": {
+      "afterX": 804,
+      "beforeX": 831
+    },
+    "petting_visuals": "real pointer head/belly screenshots; pose inspection is separate from stationary checks",
+    "platform": "macOS",
+    "rope_input": {
+      "grabX": 811,
+      "grabY": 555,
+      "pullX": 741,
+      "pullY": 555
+    },
+    "scope": "native startup, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display",
+    "screen_recording_ready": true,
+    "window": {
+      "kCGWindowAlpha": 1,
+      "kCGWindowBounds": {
+        "Height": 240,
+        "Width": 300,
+        "X": 810,
+        "Y": 390
+      },
+      "kCGWindowIsOnscreen": true,
+      "kCGWindowLayer": 5,
+      "kCGWindowMemoryUsage": 2288,
+      "kCGWindowName": "大熊",
+      "kCGWindowNumber": 27,
+      "kCGWindowOwnerName": "daxiong-pet",
+      "kCGWindowOwnerPID": 76314,
+      "kCGWindowSharingState": 1,
+      "kCGWindowStoreType": 1
+    }
+  },
+  "final_e2e_artifact": 11709578505,
+  "ci_final": {
+    "e2e.json": {
+      "checks": [
+        "native WebKit loads decoded built-in pet",
+        "pet native context menu opens real interaction window",
+        "throw, chase, carry, return and score in native runtime",
+        "real pointer grabs toy window",
+        "real drag/release throws toy and completes a second fetch",
+        "cancel removes toy",
+        "hiding the pet removes independent toy window",
+        "focus cancels toys",
+        "native pet drag interrupts play",
+        "interaction panel has no error banner",
+        "legacy atlas loads and pet switching cancels toys",
+        "switching back restores all 27 built-in animation rows",
+        "completed fetches are recorded in local companion memory",
+        "nickname saved through real form",
+        "backend rejects oversized nickname",
+        "treat awards affection only after local save",
+        "pet renders eating response and personalized thank-you",
+        "feeding cooldown is enforced in Rust",
+        "feeding cooldown disables button",
+        "real hover petting persists affection",
+        "real process restart retains nickname, affection and counters",
+        "restart retains remaining feeding cooldown",
+        "real disk write failure is returned",
+        "failed save leaves in-memory nickname unchanged",
+        "corrupt memory is reported without overwriting original",
+        "corrupt memory explanation stays visible with settings collapsed",
+        "recovery requires an explicit second step",
+        "cancelling recovery preserves damaged file",
+        "explicit recovery backs up broken data and creates valid memory",
+        "disabled encounters never schedule and remove invitation toys",
+        "event preference survives real application restart",
+        "real focus session suppresses automatic encounters",
+        "hidden pet schedules no events or toys",
+        "naturally scheduled butterfly is rendered in actual pet window",
+        "butterfly event advances and finishes without interaction",
+        "naturally scheduled invitation displays independent ball window",
+        "ball event advances and finishes without interaction",
+        "unaccepted invitation cleans up ball",
+        "scheduler alternates both event types",
+        "real pointer can grab automatically offered ball",
+        "accepted invitation becomes real fetch game",
+        "native pet dragging immediately interrupts encounter and clears invitation",
+        "turning off events cancels active event immediately",
+        "automatic events do not prevent natural sleep",
+        "sleeping pet stays free of automatic encounters",
+        "normal pointer interaction wakes pet after encounter-enabled sleep"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "production-timing.json": {
+      "passed": true,
+      "elapsed_seconds": 100.19,
+      "kind": "butterfly",
+      "office_clicks": 45,
+      "timing": "production (no e2e feature)"
+    },
+    "fun-tricks/fun-e2e.json": {
+      "checks": [
+        "come: looks at you before action",
+        "come physically approaches cursor",
+        "come: completed action can be rewarded",
+        "spin: looks at you before action",
+        "spin physically circles and returns",
+        "spin: completed action can be rewarded",
+        "down: looks at you before action",
+        "down: existing pose rendered without moving",
+        "down: completed action can be rewarded",
+        "stay: looks at you before action",
+        "stay: existing pose rendered without moving",
+        "stay: completed action can be rewarded",
+        "practice 1: treat saves skill progress",
+        "practice 1: repeated reward rejected",
+        "focus rejects practice without reward",
+        "manual stop cancels command"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "petting/result.json": {
+      "checks": [
+        "head contact shows a dwell cue before committing",
+        "head contact uses original dedicated animation",
+        "one genuine touch contributes companionship once",
+        "gentle head strokes retain the pose and animate multiple frames",
+        "head overlay is decorative and never captures drag input",
+        "holding contact does not farm repeated rewards",
+        "belly contact begins the roll instead of head animation",
+        "contact follows exposed belly after rolling",
+        "lying canvas uses calibrated width without stretching the source cell",
+        "horizontal body stays inside native stage and shares the original ground line",
+        "belly kick and tail loop visits its animation frames",
+        "head can be stroked while lying without snapping upright",
+        "enlarged cheek outside the old box accepts real native contact",
+        "moving away plays the roll-up sequence",
+        "pressing cancels belly feedback before a drag",
+        "press and movement still drag the pet",
+        "stationary release completes gently before pointer leaves",
+        "focus interrupts an active belly rub",
+        "showing a toy suppresses accidental body petting",
+        "legacy pet gives feedback within its original rows",
+        "switching pets clears the active touch state"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": true
+    },
+    "tug/tug-e2e.json": {
+      "checks": [
+        "rope button opens independent native toy",
+        "round 1: intended rope direction",
+        "round 1: OS mouse grabs rope",
+        "round 1: tension and pet resistance are real",
+        "round 1: planted bite poses rendered",
+        "round 1: release completes exactly once",
+        "round 1: rope hides for happy response",
+        "round 1: ready for reuse",
+        "round 2: intended rope direction",
+        "round 2: OS mouse grabs rope",
+        "round 2: tension and pet resistance are real",
+        "round 2: planted bite poses rendered",
+        "round 2: release completes exactly once",
+        "round 2: rope hides for happy response",
+        "round 2: ready for reuse",
+        "switching games removes rope",
+        "focus removes native rope",
+        "hide clears rope"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "fun-fetch/fun-e2e.json": {
+      "checks": [
+        "catch 1: ball released exactly once",
+        "catch 2: ball released exactly once",
+        "catch 3: real third fetch invites chase",
+        "catch 3: only sprite carries ball",
+        "catch 3: ball released exactly once",
+        "catch 4: ball released exactly once",
+        "catch 5: ball released exactly once",
+        "catch 6: real third fetch invites chase",
+        "catch 6: only sprite carries ball",
+        "catch 6: ball released exactly once",
+        "invitation preference saves to local memory",
+        "disabled playful fetch still returns usable ball",
+        "hiding cleans toy and play",
+        "near: real returned ball grabbed",
+        "near: actual release selects distance feedback",
+        "fetch streak 1: celebration row 4 rendered",
+        "far: real returned ball grabbed",
+        "far: actual release selects distance feedback",
+        "fetch streak 2: celebration row 11 rendered",
+        "far: real returned ball grabbed",
+        "far: actual release selects distance feedback",
+        "fetch streak 3: celebration row 15 rendered",
+        "push back moves ball horizontally",
+        "ball is still rolling before native grab",
+        "rolling ball accepts real pointer grab"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "menu/menu-e2e.json": {
+      "checks": [
+        "Escape dismisses native menu without starting a game",
+        "right-click first item opens real panel",
+        "common games and feed visible while settings collapsed",
+        "nearby panel remains inside screen",
+        "native frisbee item routes existing panel to frisbee",
+        "closing panel retains ongoing frisbee and reusable return",
+        "reopening retains selected game and completed phase",
+        "native feeding commits exactly once and shows cooldown",
+        "shortcut defaults off",
+        "real checkbox registers OS shortcut",
+        "actual OS hotkey restores hidden pet and panel",
+        "shortcut preference written to disk",
+        "left edge opening clamps panel inside work area",
+        "right edge opening clamps panel inside work area",
+        "real restart registers saved shortcut",
+        "real OS shortcut conflict is visible and does not claim activation",
+        "disk failure visibly reported and registration rolled back",
+        "shortcut can recover and unregister after error",
+        "natural ball invitation routes an existing frisbee panel to fetch",
+        "native stop removes invitation and independent toy",
+        "native come item selects and starts real command",
+        "native stop cancels command without a reward",
+        "focus rejects toy with explicit explanation"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "menu-video/menu-e2e.json": {
+      "checks": [
+        "Escape dismisses native menu without starting a game",
+        "right-click first item opens real panel",
+        "common games and feed visible while settings collapsed",
+        "nearby panel remains inside screen",
+        "native frisbee item routes existing panel to frisbee",
+        "closing panel retains ongoing frisbee and reusable return",
+        "reopening retains selected game and completed phase",
+        "native feeding commits exactly once and shows cooldown",
+        "shortcut defaults off",
+        "real checkbox registers OS shortcut",
+        "actual OS hotkey restores hidden pet and panel",
+        "shortcut preference written to disk",
+        "left edge opening clamps panel inside work area",
+        "right edge opening clamps panel inside work area",
+        "natural ball invitation routes an existing frisbee panel to fetch",
+        "native stop removes invitation and independent toy",
+        "native come item selects and starts real command",
+        "native stop cancels command without a reward",
+        "focus rejects toy with explicit explanation"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "treat-compat/treat-e2e.json": {
+      "checks": [
+        "focus immediately interrupts eating",
+        "legacy pet keeps supported reaction and cookie fallback"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "ai-observation/e2e.json": {
+      "checks": [
+        "request ends as complete",
+        "explicit chat name is remembered automatically with source",
+        "request ends as complete",
+        "new explicit name replaces old name",
+        "undo restores prior name immediately",
+        "request ends as complete",
+        "request ends as complete",
+        "third-party and temporary statements do not create preferences",
+        "clear chat retains long-term preference",
+        "native foreground capture and CPU OCR identify fixture",
+        "screen uses separately selected external model",
+        "observation prompt uses current explicitly remembered owner name",
+        "screen preferences never enter long-term memory",
+        "screen text is absent from persisted chat",
+        "image payload works independently of text token budget",
+        "whole desktop scope is explicitly reported",
+        "pause clears short-term context and disables independent toggles",
+        "cancelled pending observation produces no late upload or cache",
+        "background observes with speech independently disabled",
+        "foreground change invalidates prior screen context",
+        "all AI personal data reset restores defaults and keeps pet alive",
+        "normal capture writes no screenshot files to app data",
+        "matching built-in weight is reused without another installed copy"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "ai-light/light-result.json": {
+      "checks": [
+        "light resources omit chat and visual weights",
+        "light retains CPU runner and OCR",
+        "light starts without a ready local model",
+        "GUI download receives real network bytes",
+        "download verifies pinned size and SHA256",
+        "download enables CPU model without bundled weights",
+        "request ends as complete",
+        "downloaded model generates through native CPU"
+      ],
+      "error": null,
+      "timings": {
+        "downloaded_cpu_reply_seconds": 8.724
+      },
+      "ok": null
+    },
+    "treat/treat-e2e.json": {
+      "checks": [
+        "feeding: all eight taking, biting, chewing and licking frames rendered",
+        "feeding: no second floating biscuit overlay",
+        "normal feeding saves exactly one biscuit",
+        "cooldown rejects repeated feeding",
+        "reward: all eight taking, biting, chewing and licking frames rendered",
+        "reward: no second floating biscuit overlay",
+        "training reward saves one learned practice",
+        "found: all eight taking, biting, chewing and licking frames rendered",
+        "found: no second floating biscuit overlay",
+        "found snack eats without increasing feeding counters"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "ai-external/e2e.json": {
+      "checks": [
+        "fixture has no bundled AI resources",
+        "external chat composer works without bundled weights",
+        "request ends as complete",
+        "separate external-only chat sends real request",
+        "external-only chat does not start a local model"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "ai-quick/e2e.json": {
+      "checks": [
+        "short native pet tap opens compact input",
+        "pet tap immediately focuses message input",
+        "compact window respects requested height",
+        "compact input fits centered below pet when space is available",
+        "compact user message immediately reaches full chat",
+        "full chat synchronizes generating state",
+        "request ends as complete",
+        "same completed reply reaches full chat",
+        "pet speaks same complete reply through paginated bubble",
+        "full chat synchronizes busy state to compact input",
+        "request ends as complete",
+        "full chat response also reaches pet bubble",
+        "request ends as cancelled",
+        "stop from full chat releases compact input too",
+        "request ends as complete",
+        "closing full chat preserves visible compact conversation",
+        "request ends as complete",
+        "closing compact input preserves its reply and shared record",
+        "clear full chat clears shared messages and pet reply",
+        "native pet drag does not reopen compact input",
+        "bottom right edge keeps whole compact window inside screen",
+        "visible compact input follows pet to opposite edge",
+        "hiding pet also hides compact input",
+        "one durable pair per shared request and no duplicated service calls",
+        "request ends as complete",
+        "real bundled CPU model completes through compact input",
+        "CPU conversation has one durable pair",
+        "real CPU reply reaches pet speech bubble",
+        "full chat loads identical real CPU reply"
+      ],
+      "error": null,
+      "timings": {
+        "compact_cpu_reply_seconds": 8.78
+      },
+      "ok": null
+    },
+    "frisbee/frisbee-e2e.json": {
+      "checks": [
+        "native button shows independent blue disc",
+        "throw 1: real button or drag starts glide",
+        "throw 1: air catch, biting carry and release",
+        "throw 1: returned once",
+        "throw 1: airborne feedback",
+        "throw 1: actual disc biting row 22 rendered",
+        "throw 1: disc visible at feet for reuse",
+        "throw 1: spoken feedback matches frisbee",
+        "returned frisbee accepts real pointer grab",
+        "throw 2: real button or drag starts glide",
+        "throw 2: air catch, biting carry and release",
+        "throw 2: returned once",
+        "throw 2: airborne feedback",
+        "throw 2: actual disc biting row 21 rendered",
+        "throw 2: disc visible at feet for reuse",
+        "throw 2: spoken feedback matches frisbee",
+        "returned disc remains available and score stable",
+        "button rethrows returned disc from its release spot",
+        "button rethrow completes a third round exactly once",
+        "focus cleans up disc",
+        "hide cancels disc and toy window"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "ux/result.json": {
+      "checks": [
+        "showing intro alone does not mark it learned",
+        "opening panel completes first-use discovery",
+        "chasing disables restart and removes respawn action",
+        "feeding states interruption and is visually secondary",
+        "first interaction feedback replaces introductory hint",
+        "returned toy exposes clear repeat action",
+        "repeat continues from returned location",
+        "switch provides feedback after cancelling prior game",
+        "active rope no longer offers restarting button",
+        "explicit feed ends interaction and commits once",
+        "help can be reopened and explains Mac and close semantics",
+        "nickname save gives local success feedback",
+        "relationship comes first and numerical records are optional",
+        "quiet preference preserves the encounter preference",
+        "quiet mode visibly explains paused encounters",
+        "quiet native runtime has no idle speech or encounters",
+        "requested frisbee works while quiet",
+        "quiet mode retains direct interaction feedback",
+        "real restart retains quiet setting and relationship records",
+        "leaving quiet restores original encounter preference"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": true
+    },
+    "fun-learning/fun-e2e.json": {
+      "checks": [
+        "come: looks at you before action",
+        "come physically approaches cursor",
+        "come: completed action can be rewarded",
+        "spin: looks at you before action",
+        "spin physically circles and returns",
+        "spin: completed action can be rewarded",
+        "down: looks at you before action",
+        "down: existing pose rendered without moving",
+        "down: completed action can be rewarded",
+        "stay: looks at you before action",
+        "stay: existing pose rendered without moving",
+        "stay: completed action can be rewarded",
+        "practice 1: treat saves skill progress",
+        "practice 1: repeated reward rejected",
+        "practice 2: treat saves skill progress",
+        "practice 2: repeated reward rejected",
+        "practice 3: treat saves skill progress",
+        "practice 3: repeated reward rejected",
+        "three rewarded practices visibly learn command",
+        "real restart preserves learned commands",
+        "learned command executes after restart",
+        "focus rejects practice without reward",
+        "manual stop cancels command"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "fun-snack/fun-e2e.json": {
+      "checks": [
+        "easy: independent treat is visible",
+        "easy: native pointer grabs cookie",
+        "easy: cookie placed at real desktop position",
+        "easy: visible cookie centre matches hit point",
+        "easy: pet really moves and finds once",
+        "easy: cookie cleaned after finding",
+        "far: independent treat is visible",
+        "far: native pointer grabs cookie",
+        "far: cookie placed at real desktop position",
+        "far: visible cookie centre matches hit point",
+        "far: pet really moves and finds once",
+        "far: cookie cleaned after finding",
+        "far search pauses to observe along route",
+        "finding does not bypass feeding cooldown or counters",
+        "focus removes hidden treat",
+        "real pet dragging cancels snack game",
+        "starting another game clears snack",
+        "hiding final game leaves no toys"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "dizzy/result.json": {
+      "checks": [
+        "ordinary slow gaze does not show dizzy stars",
+        "rapid native left-right gaze triggers dizziness",
+        "stars begin with the head wobble",
+        "dizzy collapse reuses the reviewed side-lying pose",
+        "three stars orbit around the head",
+        "star decoration never captures mouse input",
+        "complete collapse and rise visits the existing transition frames",
+        "all halo positions remain inside the native stage",
+        "dizziness does not award petting affection",
+        "immediate repeated gestures respect the cooldown",
+        "rapid native circular gaze also triggers after cooldown",
+        "pressing the pet immediately clears dizzy stars",
+        "dizzy interruption preserves real pet dragging",
+        "focus suppresses fast gaze gestures",
+        "a visible toy suppresses dizzy gestures",
+        "legacy pet retains ordinary gaze within original atlas rows",
+        "switching pets clears an active dizzy overlay"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": true
+    },
+    "video/video-scenes.json": {
+      "checks": [
+        "recorded real fetch return",
+        "recorded treat reward",
+        "visible ball center matches native pointer hit center",
+        "recorded both natural encounter animations",
+        "recorded natural sleep animation",
+        "recorded wake animation"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "carry/carry-e2e.json": {
+      "checks": [
+        "right: visible ball accepts native pointer grab",
+        "right: independent ball hidden while sprite bites it",
+        "right: dedicated biting cycle rendered",
+        "right: all eight carrying frames exercised",
+        "right: return completes once",
+        "right: release animation exercised",
+        "right: returned ball remains visible",
+        "returned ball survives old 30-second timeout and can be thrown again",
+        "left: visible ball accepts native pointer grab",
+        "left: independent ball hidden while sprite bites it",
+        "left: dedicated biting cycle rendered",
+        "left: all eight carrying frames exercised",
+        "left: return completes once",
+        "left: release animation exercised",
+        "left: returned ball remains visible"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "handoff/handoff-e2e.json": {
+      "checks": [
+        "ball-right: real pointer grabs independent toy",
+        "ball-right: independent toy hidden during atomic release",
+        "ball-right: return counted once",
+        "ball-right: returned toy visible and reusable",
+        "ball-right: release and pose share every painted frame",
+        "ball-right: starts at open jaws",
+        "ball-right: falling toy clears chest and front paws",
+        "ball-right: biting sprite has no second in-window toy",
+        "ball-right: no release overlay survives completion",
+        "ball-left: real pointer grabs independent toy",
+        "ball-left: independent toy hidden during atomic release",
+        "ball-left: return counted once",
+        "ball-left: returned toy visible and reusable",
+        "ball-left: release and pose share every painted frame",
+        "ball-left: starts at open jaws",
+        "ball-left: falling toy clears chest and front paws",
+        "ball-left: biting sprite has no second in-window toy",
+        "ball-left: no release overlay survives completion",
+        "frisbee-right: real pointer grabs independent toy",
+        "frisbee-right: independent toy hidden during atomic release",
+        "frisbee-right: return counted once",
+        "frisbee-right: returned toy visible and reusable",
+        "frisbee-right: release and pose share every painted frame",
+        "frisbee-right: starts at open jaws",
+        "frisbee-right: falling toy clears chest and front paws",
+        "frisbee-right: biting sprite has no second in-window toy",
+        "frisbee-right: no release overlay survives completion",
+        "frisbee-left: real pointer grabs independent toy",
+        "frisbee-left: independent toy hidden during atomic release",
+        "frisbee-left: return counted once",
+        "frisbee-left: returned toy visible and reusable",
+        "frisbee-left: release and pose share every painted frame",
+        "frisbee-left: starts at open jaws",
+        "frisbee-left: falling toy clears chest and front paws",
+        "frisbee-left: biting sprite has no second in-window toy",
+        "frisbee-left: no release overlay survives completion"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": null
+    },
+    "ai-chat/e2e.json": {
+      "checks": [
+        "AI database is lazy; ordinary pet startup does not create it",
+        "real chat defaults to disabled with verified resources available",
+        "GUI personality saved to SQLite",
+        "focused chat lowers pet overlay so form controls cannot be intercepted",
+        "real model request and native fetch run together",
+        "request ends as complete",
+        "real CPU model produced Chinese text persisted and rendered",
+        "request ends as cancelled",
+        "cancel preserves partial reply without later deltas",
+        "stale Stop cannot cancel the new request",
+        "closing chat keeps the pet alive",
+        "closing chat restores the pet always-on-top layer",
+        "request ends as cancelled",
+        "real draft preview produces text without saving profile or chat",
+        "request ends as failed",
+        "model crash reports visible failure",
+        "pet show and cancel commands still work after model crash",
+        "request ends as complete",
+        "model restarts successfully after crash",
+        "exiting native application leaves no model child",
+        "restart preserves chat/personality/settings and prunes expired messages",
+        "small chat window has no horizontal overflow and usable composer",
+        "clear chat retains saved personality",
+        "clicking chat over an occluded pet does not pet the dog through the window"
+      ],
+      "error": null,
+      "timings": {
+        "first_reply_seconds_in_shared_container": 10.27
+      },
+      "ok": null
+    },
+    "bubbles/result.json": {
+      "checks": [
+        "intro border and shadow fit inside native viewport",
+        "intro uses available width instead of half-window shrink-to-fit",
+        "short border and shadow remain inside viewport",
+        "short retains every character across pages",
+        "long border and shadow remain inside viewport",
+        "long retains every character across pages",
+        "english border and shadow remain inside viewport",
+        "english retains every character across pages",
+        "token border and shadow remain inside viewport",
+        "token page 2 fits",
+        "token page 3 fits",
+        "token retains every character across pages",
+        "multiline border and shadow remain inside viewport",
+        "multiline page 2 fits",
+        "multiline retains every character across pages",
+        "long error is readable without leaving the viewport",
+        "error page 2 fits",
+        "error page 3 fits",
+        "error page 4 fits",
+        "ambient speech cannot replace error after original seven seconds",
+        "error page 5 fits",
+        "error page 6 fits",
+        "long error retains every character",
+        "speech disappears after the final page",
+        "pet size and mouth coordinate origin stay unchanged"
+      ],
+      "error": null,
+      "timings": null,
+      "ok": true
+    }
+  },
+  "native_evidence_scope": "Real three-platform native smoke, single display. Original screenshots inspected separately from stationary-window checks.",
+  "release_verification": "Candidate 06489d2; four-platform builds and full Linux E2E attempt 2 successful; public installer check remains separate.",
+  "final_job_status": {
+    "source_sha": "06489d21902b8dea4334534d92fb16dfd295a7b7",
+    "runs": [
+      {
+        "id": 38155138178,
+        "jobs": [
+          {
+            "id": 114516451486,
+            "name": "macOS Apple Silicon",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 38155138178,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Run dtolnay/rust-toolchain@stable",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Install Linux build dependencies",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 7
+              },
+              {
+                "name": "Install frontend dependencies",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Test frontend image loading",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Test engine",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Build and stage bundled CPU AI",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Run native bundled model",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Build packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Smoke test Linux single instance",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 14
+              },
+              {
+                "name": "Native Windows input and tug smoke",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 15
+              },
+              {
+                "name": "Install Windows movement recorder",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 16
+              },
+              {
+                "name": "Native Windows ball and frisbee movement trace",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 17
+              },
+              {
+                "name": "Native macOS startup smoke",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 18
+              },
+              {
+                "name": "Upload native platform evidence",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 19
+              },
+              {
+                "name": "Upload packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 20
+              },
+              {
+                "name": "Stage light package without chat or vision weights",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 21
+              },
+              {
+                "name": "Build light packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 22
+              },
+              {
+                "name": "Verify light installer contains runtime and OCR without GGUF weights",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 23
+              },
+              {
+                "name": "Upload light packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 24
+              },
+              {
+                "name": "Post Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 45
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 46
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 47
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 48
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 49
+              }
+            ]
+          },
+          {
+            "id": 114516451608,
+            "name": "Windows x64",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 38155138178,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Run dtolnay/rust-toolchain@stable",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Install Linux build dependencies",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 7
+              },
+              {
+                "name": "Install frontend dependencies",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Test frontend image loading",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Test engine",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Build and stage bundled CPU AI",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Run native bundled model",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Build packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Smoke test Linux single instance",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 14
+              },
+              {
+                "name": "Native Windows input and tug smoke",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 15
+              },
+              {
+                "name": "Install Windows movement recorder",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 16
+              },
+              {
+                "name": "Native Windows ball and frisbee movement trace",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 17
+              },
+              {
+                "name": "Native macOS startup smoke",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 18
+              },
+              {
+                "name": "Upload native platform evidence",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 19
+              },
+              {
+                "name": "Upload packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 20
+              },
+              {
+                "name": "Stage light package without chat or vision weights",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 21
+              },
+              {
+                "name": "Build light packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 22
+              },
+              {
+                "name": "Verify light installer contains runtime and OCR without GGUF weights",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 23
+              },
+              {
+                "name": "Upload light packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 24
+              },
+              {
+                "name": "Post Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 45
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 46
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 47
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 48
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 49
+              }
+            ]
+          },
+          {
+            "id": 114516451654,
+            "name": "Linux x64 (X11)",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 38155138178,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Run dtolnay/rust-toolchain@stable",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Install Linux build dependencies",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Install frontend dependencies",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Test frontend image loading",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Test engine",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Build and stage bundled CPU AI",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Run native bundled model",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Build packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Smoke test Linux single instance",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 14
+              },
+              {
+                "name": "Native Windows input and tug smoke",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 15
+              },
+              {
+                "name": "Install Windows movement recorder",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 16
+              },
+              {
+                "name": "Native Windows ball and frisbee movement trace",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 17
+              },
+              {
+                "name": "Native macOS startup smoke",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 18
+              },
+              {
+                "name": "Upload native platform evidence",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 19
+              },
+              {
+                "name": "Upload packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 20
+              },
+              {
+                "name": "Stage light package without chat or vision weights",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 21
+              },
+              {
+                "name": "Build light packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 22
+              },
+              {
+                "name": "Verify light installer contains runtime and OCR without GGUF weights",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 23
+              },
+              {
+                "name": "Upload light packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 24
+              },
+              {
+                "name": "Post Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 45
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 46
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 47
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 48
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 49
+              }
+            ]
+          },
+          {
+            "id": 114516451671,
+            "name": "macOS Intel",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 38155138178,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Run dtolnay/rust-toolchain@stable",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Install Linux build dependencies",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 7
+              },
+              {
+                "name": "Install frontend dependencies",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Test frontend image loading",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Test engine",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Build and stage bundled CPU AI",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Run native bundled model",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Build packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Smoke test Linux single instance",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 14
+              },
+              {
+                "name": "Native Windows input and tug smoke",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 15
+              },
+              {
+                "name": "Install Windows movement recorder",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 16
+              },
+              {
+                "name": "Native Windows ball and frisbee movement trace",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 17
+              },
+              {
+                "name": "Native macOS startup smoke",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 18
+              },
+              {
+                "name": "Upload native platform evidence",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 19
+              },
+              {
+                "name": "Upload packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 20
+              },
+              {
+                "name": "Stage light package without chat or vision weights",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 21
+              },
+              {
+                "name": "Build light packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 22
+              },
+              {
+                "name": "Verify light installer contains runtime and OCR without GGUF weights",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 23
+              },
+              {
+                "name": "Upload light packages",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 24
+              },
+              {
+                "name": "Post Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 45
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 46
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 47
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 48
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 49
+              }
+            ]
+          },
+          {
+            "id": 114525808731,
+            "name": "prerelease",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 38155138178,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/download-artifact@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Require regression of unchanged application source",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Prepare full and light downloads",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Publish complete AI preview",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 38155140600,
+        "jobs": [
+          {
+            "id": 114521494896,
+            "name": "Real Tauri WebKit E2E (Linux X11)",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 38155140600,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Run dtolnay/rust-toolchain@stable",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Install native desktop dependencies",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Run npm ci",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Run npm test",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Run npm run build",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Run cargo test --locked --manifest-path src-tauri/Cargo.toml",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Run cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol,e2e",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Install Tauri WebDriver",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Verify and record native head and belly petting",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 14
+              },
+              {
+                "name": "Verify and record rapid gaze dizziness and recovery",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 15
+              },
+              {
+                "name": "Verify speech bubble bounds and complete long messages in native WebKit",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 16
+              },
+              {
+                "name": "Verify predictable controls, help, memory feedback and quiet companionship",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 17
+              },
+              {
+                "name": "Verify and record native tug interaction",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 18
+              },
+              {
+                "name": "Record atomic ball and frisbee release in both directions",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 19
+              },
+              {
+                "name": "Record frisbee glide, biting and reusable return",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 20
+              },
+              {
+                "name": "Upload tug and frisbee recordings",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 21
+              },
+              {
+                "name": "Run native E2E",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 22
+              },
+              {
+                "name": "Record native visual validation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 23
+              },
+              {
+                "name": "Record bidirectional carrying validation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 24
+              },
+              {
+                "name": "Verify fetch variety",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 25
+              },
+              {
+                "name": "Verify command learning and restart",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 26
+              },
+              {
+                "name": "Record four tricks",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 27
+              },
+              {
+                "name": "Verify hidden treat search and game switching",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 28
+              },
+              {
+                "name": "Record biscuit taking and chewing",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 29
+              },
+              {
+                "name": "Verify feeding cancellation and legacy pets",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 30
+              },
+              {
+                "name": "Verify native menus, shortcut persistence and rollback",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 31
+              },
+              {
+                "name": "Record native menus and nearby panel",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 32
+              },
+              {
+                "name": "Verify external chat without bundled model files",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 33
+              },
+              {
+                "name": "Stage built-in CPU model, vision and native OCR",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 34
+              },
+              {
+                "name": "Verify real native offline chat, cancellation and persistence",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 35
+              },
+              {
+                "name": "Verify compact pet input, shared chat and real CPU reply",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 36
+              },
+              {
+                "name": "Verify native capture, OCR, separate service scopes and memory",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 37
+              },
+              {
+                "name": "Stage light runtime and OCR without chat weights",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 38
+              },
+              {
+                "name": "Verify GUI downloads and uses real CPU model in light edition",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 39
+              },
+              {
+                "name": "Build with production timing",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 40
+              },
+              {
+                "name": "Verify production encounter cadence",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 41
+              },
+              {
+                "name": "Run actions/upload-artifact@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 42
+              },
+              {
+                "name": "Post Run Swatinem/rust-cache@v2",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 81
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 82
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 83
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 84
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 85
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

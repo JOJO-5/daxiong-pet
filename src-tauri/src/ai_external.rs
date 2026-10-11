@@ -74,11 +74,6 @@ pub fn generate(
     mut on_delta: impl FnMut(&str) -> Result<()>,
 ) -> Result<String> {
     validate_url(&settings.service_url)?;
-    let key = if settings.has_credential {
-        key(&settings.service_url)?
-    } else {
-        String::new()
-    };
     // Image bytes are transport, not text tokens. Reserve a bounded visual budget.
     let budget = |items: &Vec<Value>| -> Result<usize> {
         let mut copy = items.clone();
@@ -116,19 +111,37 @@ pub fn generate(
         // Loading the OS trust store can block (especially macOS Keychain).
         // Keep Stop responsive while it is being initialized, too.
         let timeout = settings.timeout_seconds;
-        let client = cancelable(
+        let url = settings.service_url.trim().to_owned();
+        let use_system_roots = reqwest::Url::parse(&url)
+            .map_err(|_| "服务地址无效。")?
+            .scheme()
+            == "https";
+        let has_credential = settings.has_credential;
+        let (client, key) = cancelable(
             tokio::task::spawn_blocking(move || {
-                reqwest::Client::builder()
+                let mut builder = reqwest::Client::builder()
                     .redirect(reqwest::redirect::Policy::none())
                     .connect_timeout(Duration::from_secs(10))
-                    .timeout(Duration::from_secs(timeout))
+                    .timeout(Duration::from_secs(timeout));
+                if !use_system_roots {
+                    // validate_url permits HTTP only on loopback, and redirects are disabled.
+                    // Local services need neither an HTTPS trust store nor a system proxy.
+                    builder = builder.no_proxy().tls_built_in_root_certs(false);
+                }
+                let client = builder
                     .build()
+                    .map_err(|_| "服务连接初始化失败。".to_string())?;
+                let credential = if has_credential {
+                    key(&url)?
+                } else {
+                    String::new()
+                };
+                Ok::<_, String>((client, credential))
             }),
             cancelled,
         )
         .await?
-        .map_err(|_| "服务连接初始化失败。")?
-        .map_err(|_| "服务连接初始化失败。")?;
+        .map_err(|_| "服务连接初始化失败。")??;
         let mut request=client.post(format!("{}/chat/completions",settings.service_url.trim().trim_end_matches('/'))).json(&json!({"model":settings.service_model,"messages":messages,"max_tokens":output,"stream":true,"temperature":0.6}));
         if !key.is_empty() {
             request = request.bearer_auth(key);

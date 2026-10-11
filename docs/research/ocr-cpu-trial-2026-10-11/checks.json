@@ -1,0 +1,78 @@
+{
+  "script_sha256": "0a7df51ebdfff7bd33fe9f9e9f95ee6c7a74f8dfdc1ed943a23964cbfc6d9920",
+  "runs": [
+    {
+      "suite": "v5",
+      "cases": 10,
+      "calls": 40,
+      "stable": true,
+      "image_hashes_match": true,
+      "boxes_in_bounds": true,
+      "text_line_count_and_y_order_match": true,
+      "cpu_provider_only": true,
+      "dictionary_plus_blank_space_matches_output_dimension": true,
+      "summary": {
+        "cer": 0.002369668246445498,
+        "reference_characters": 422,
+        "warm_median_ms": 796.8457555034547,
+        "peak_process_mib": 357.31640625,
+        "no_text_false_positive_lines": 0
+      }
+    },
+    {
+      "suite": "v6",
+      "cases": 10,
+      "calls": 40,
+      "stable": true,
+      "image_hashes_match": true,
+      "boxes_in_bounds": true,
+      "text_line_count_and_y_order_match": true,
+      "cpu_provider_only": true,
+      "dictionary_plus_blank_space_matches_output_dimension": true,
+      "summary": {
+        "cer": 0.0071090047393364926,
+        "reference_characters": 422,
+        "warm_median_ms": 309.5523365045665,
+        "peak_process_mib": 258.94140625,
+        "no_text_false_positive_lines": 2
+      }
+    },
+    {
+      "suite": "dense-v5",
+      "cases": 2,
+      "calls": 8,
+      "stable": true,
+      "image_hashes_match": true,
+      "boxes_in_bounds": true,
+      "text_line_count_and_y_order_match": true,
+      "cpu_provider_only": true,
+      "dictionary_plus_blank_space_matches_output_dimension": true,
+      "summary": {
+        "cer": 0.0,
+        "reference_characters": 2352,
+        "warm_median_ms": 3519.782731003943,
+        "peak_process_mib": 582.79296875,
+        "no_text_false_positive_lines": 0
+      }
+    },
+    {
+      "suite": "dense-v6",
+      "cases": 2,
+      "calls": 8,
+      "stable": true,
+      "image_hashes_match": true,
+      "boxes_in_bounds": true,
+      "text_line_count_and_y_order_match": true,
+      "cpu_provider_only": true,
+      "dictionary_plus_blank_space_matches_output_dimension": true,
+      "summary": {
+        "cer": 0.0,
+        "reference_characters": 2352,
+        "warm_median_ms": 1284.597001504153,
+        "peak_process_mib": 444.51171875,
+        "no_text_false_positive_lines": 0
+      }
+    }
+  ],
+  "note": "Sparse runs preceded additive dense suite and input-validation changes; same inference settings and samples. Measured times are not target-device benchmarks."
+}

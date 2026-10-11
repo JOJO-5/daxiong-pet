@@ -44,3 +44,7 @@ Rust `ort` 当前版本列表首项为 2.0.0-rc.13，没有稳定版；rc.10 的
 8GB/11代 i5 的图片时延、OCR时延与内存尚未测量；本次不承诺流畅秒回。共享云机测量只作为回归对照。未改宠物形象或动画。
 
 上游入口：[RapidOCR 3.10.0](https://github.com/RapidAI/RapidOCR/releases/tag/v3.10.0)、[ONNX Runtime 1.23.2](https://github.com/microsoft/onnxruntime/releases/tag/v1.23.2)、[ort rc.10 构建脚本](https://github.com/pykeio/ort/blob/v2.0.0-rc.10/ort-sys/build.rs)。
+
+## 后续实测更新
+
+本日已完成[96次CPU OCR对照](ocr-cpu-trial-2026-10-11.md)，嵌入字典核验通过，保持v5接入基线；原生worker和2B图片仍待测。上文“尚未OCR推理”为选型时快照，当前状态以此实测报告为准。

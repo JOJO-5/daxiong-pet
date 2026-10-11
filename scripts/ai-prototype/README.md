@@ -1,6 +1,6 @@
 # 独立 CPU 小模型原型
 
-只测试语言模型，不接入宠物实时引擎、不读取真实屏幕、不修改用户数据库。模型和编译产物放在仓库外，不随本原型提交；分发前另行履行模型许可证。
+独立测试语言、视觉与OCR候选，不接入宠物实时引擎、不读取真实屏幕、不修改用户数据库。模型和编译产物放在仓库外，不随本原型提交；分发前另行履行模型许可证。
 
 ## 复现（Linux x64 / AVX2）
 
@@ -159,3 +159,7 @@ python3 scripts/ai-prototype/companion-trial.py \
 ## 用户确认的当前实施路线
 
 后续用户已认可Qwen3.5 2B多模态+独立OCR，主要目标8GB/11代i5；`default-model.json`已切换2B及匹配视觉组件。第五轮比较结论保留为历史；2B图片未执行、OCR未运行，不把架构支持标成已验证。OCR优先明确指定RapidOCR v3.10.0的PP-OCRv5 mobile（上游默认v6 small），见[路线和固定来源](../../docs/research/qwen35-2b-ocr-route-2026-10-10.md)。下一步执行OCR下载/识字实测和2B视觉补测。
+
+## OCR CPU 对照
+
+`ocr-trial.py` 用 RapidOCR 3.10.0 + ONNX Runtime 1.23.2 比较显式指定的 PP-OCRv5 mobile 与 v6 tiny；不使用包内默认v6 small，不读取真实屏幕。模型从仓库固定下载核验清单校验；运行环境为独立Linux虚拟环境。`--candidate v5|v6`、`--suite sparse|dense`、`--threads 1..4`，输出目录须为空。依赖锁、复现命令、96次结果与局限见[OCR CPU试验](../../docs/research/ocr-cpu-trial-2026-10-11.md)。正式应用的原生worker尚未实现，不要求用户安装Python。

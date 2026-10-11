@@ -1,0 +1,768 @@
+{
+  "candidate": "v5",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "onnxruntime": "1.23.2",
+  "threads": 2,
+  "cpu_quota": "200000 100000",
+  "font_sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+  "metadata": [
+    {
+      "name": "ch_PP-OCRv5_det_mobile",
+      "sha256": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+      "providers": [
+        "CPUExecutionProvider"
+      ],
+      "metadata_keys": [],
+      "dictionary_sha256": null,
+      "dictionary_lines": 0,
+      "inputs": [
+        {
+          "name": "x",
+          "shape": [
+            "DynamicDimension.0",
+            3,
+            "DynamicDimension.1",
+            "DynamicDimension.2"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "fetch_name_0",
+          "shape": [
+            "ConvTranspose_497_o0__d0",
+            1,
+            "ConvTranspose_497_o0__d2",
+            "ConvTranspose_497_o0__d3"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ch_PP-OCRv5_rec_mobile",
+      "sha256": "5825fc7ebf84ae7a412be049820b4d86d77620f204a041697b0494669b1742c5",
+      "providers": [
+        "CPUExecutionProvider"
+      ],
+      "metadata_keys": [
+        "character"
+      ],
+      "dictionary_sha256": "17665d27ed39f0deb82007859992d626d3105d0ee4578c120b7c72138dc04d05",
+      "dictionary_lines": 18383,
+      "inputs": [
+        {
+          "name": "x",
+          "shape": [
+            "DynamicDimension.0",
+            3,
+            48,
+            "DynamicDimension.1"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "fetch_name_0",
+          "shape": [
+            "DynamicDimension.0",
+            "Reshape_524_o0__d2",
+            18385
+          ]
+        }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "name": "chinese-12",
+      "truth": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额 128.50 元，订单 20261011。"
+      ],
+      "recognized": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额128.50元，订单20261011。"
+      ],
+      "scores": [
+        0.99843,
+        0.99629,
+        0.99877
+      ],
+      "boxes": [
+        [
+          [
+            30.0,
+            29.0
+          ],
+          [
+            207.0,
+            29.0
+          ],
+          [
+            207.0,
+            48.0
+          ],
+          [
+            30.0,
+            47.0
+          ]
+        ],
+        [
+          [
+            31.0,
+            68.0
+          ],
+          [
+            217.0,
+            68.0
+          ],
+          [
+            217.0,
+            84.0
+          ],
+          [
+            31.0,
+            84.0
+          ]
+        ],
+        [
+          [
+            31.0,
+            107.0
+          ],
+          [
+            209.0,
+            107.0
+          ],
+          [
+            209.0,
+            123.0
+          ],
+          [
+            31.0,
+            123.0
+          ]
+        ]
+      ],
+      "image_sha256": "d4e287cc6685a1565dce4e02eebbd9690658823e8cc58f96196e327c19804dcc",
+      "first_ms": 737.424862003536,
+      "warm_ms": [
+        943.513644990162,
+        1071.3501289865235,
+        1014.608250989113
+      ],
+      "stable_text": true,
+      "edit_distance": 0,
+      "reference_characters": 52,
+      "cer": 0.0,
+      "false_positive_lines": null
+    },
+    {
+      "name": "chinese-14",
+      "truth": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额 128.50 元，订单 20261011。"
+      ],
+      "recognized": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额128.50元，订单20261011。"
+      ],
+      "scores": [
+        0.99946,
+        0.99859,
+        0.99734
+      ],
+      "boxes": [
+        [
+          [
+            32.0,
+            33.0
+          ],
+          [
+            236.0,
+            33.0
+          ],
+          [
+            236.0,
+            51.0
+          ],
+          [
+            32.0,
+            51.0
+          ]
+        ],
+        [
+          [
+            30.0,
+            71.0
+          ],
+          [
+            250.0,
+            71.0
+          ],
+          [
+            250.0,
+            90.0
+          ],
+          [
+            30.0,
+            90.0
+          ]
+        ],
+        [
+          [
+            30.0,
+            109.0
+          ],
+          [
+            238.0,
+            109.0
+          ],
+          [
+            238.0,
+            128.0
+          ],
+          [
+            30.0,
+            128.0
+          ]
+        ]
+      ],
+      "image_sha256": "c96ace23f035ad0a374a2e1087bac3d27f6db175e2ec77d9dece465f3a1e7df2",
+      "first_ms": 807.8849759913282,
+      "warm_ms": [
+        844.8829400003888,
+        932.6455400005216,
+        885.0221289903857
+      ],
+      "stable_text": true,
+      "edit_distance": 0,
+      "reference_characters": 52,
+      "cer": 0.0,
+      "false_positive_lines": null
+    },
+    {
+      "name": "chinese-16",
+      "truth": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额 128.50 元，订单 20261011。"
+      ],
+      "recognized": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额128.50元，订单20261011。"
+      ],
+      "scores": [
+        0.99935,
+        0.9991,
+        0.99874
+      ],
+      "boxes": [
+        [
+          [
+            31.0,
+            32.0
+          ],
+          [
+            264.0,
+            32.0
+          ],
+          [
+            264.0,
+            54.0
+          ],
+          [
+            31.0,
+            54.0
+          ]
+        ],
+        [
+          [
+            30.0,
+            70.0
+          ],
+          [
+            281.0,
+            70.0
+          ],
+          [
+            281.0,
+            92.0
+          ],
+          [
+            30.0,
+            92.0
+          ]
+        ],
+        [
+          [
+            29.0,
+            108.0
+          ],
+          [
+            268.0,
+            109.0
+          ],
+          [
+            268.0,
+            130.0
+          ],
+          [
+            29.0,
+            129.0
+          ]
+        ]
+      ],
+      "image_sha256": "1fa0e543d0d8d345062d3c6229d450bb841c5e98e09c0971ead5eef7f5298d5a",
+      "first_ms": 855.1172720035538,
+      "warm_ms": [
+        742.4084069934906,
+        797.2061640030006,
+        1165.6613899976946
+      ],
+      "stable_text": true,
+      "edit_distance": 0,
+      "reference_characters": 52,
+      "cer": 0.0,
+      "false_positive_lines": null
+    },
+    {
+      "name": "code-14",
+      "truth": [
+        "const total = price * count;",
+        "if (value === 0) return null;",
+        "file_name = \"report_2026.csv\";"
+      ],
+      "recognized": [
+        "const total = price * count;",
+        "if (value === 0) return null;",
+        "file_name = \"report_2026.csv\";"
+      ],
+      "scores": [
+        0.96164,
+        0.98415,
+        0.97559
+      ],
+      "boxes": [
+        [
+          [
+            29.0,
+            30.0
+          ],
+          [
+            205.0,
+            32.0
+          ],
+          [
+            205.0,
+            54.0
+          ],
+          [
+            29.0,
+            52.0
+          ]
+        ],
+        [
+          [
+            29.0,
+            68.0
+          ],
+          [
+            204.0,
+            70.0
+          ],
+          [
+            204.0,
+            92.0
+          ],
+          [
+            29.0,
+            90.0
+          ]
+        ],
+        [
+          [
+            30.0,
+            108.0
+          ],
+          [
+            235.0,
+            108.0
+          ],
+          [
+            235.0,
+            130.0
+          ],
+          [
+            30.0,
+            130.0
+          ]
+        ]
+      ],
+      "image_sha256": "3143ebe6fac5f3c5412256f67d91372835555d8e3a8bc671f5594f96c4fc3f89",
+      "first_ms": 804.1454670019448,
+      "warm_ms": [
+        796.4853470039088,
+        714.692522000405,
+        766.1821090005105
+      ],
+      "stable_text": true,
+      "edit_distance": 0,
+      "reference_characters": 75,
+      "cer": 0.0,
+      "false_positive_lines": null
+    },
+    {
+      "name": "mixed-14",
+      "truth": [
+        "任务 Task 42：保存 Save，取消 Cancel",
+        "CPU 2 threads / 内存 Memory 8GB"
+      ],
+      "recognized": [
+        "任务Task 42：保存 Save，取消 Cancel",
+        "CPU 2 threads /内存 Memory 8GB"
+      ],
+      "scores": [
+        0.95284,
+        0.97745
+      ],
+      "boxes": [
+        [
+          [
+            29.0,
+            31.0
+          ],
+          [
+            279.0,
+            30.0
+          ],
+          [
+            279.0,
+            51.0
+          ],
+          [
+            29.0,
+            52.0
+          ]
+        ],
+        [
+          [
+            30.0,
+            69.0
+          ],
+          [
+            253.0,
+            69.0
+          ],
+          [
+            253.0,
+            91.0
+          ],
+          [
+            30.0,
+            91.0
+          ]
+        ]
+      ],
+      "image_sha256": "76dc4b6c012a6aa09430a59352da4c3ae0674dfb92eb8d1412a7fe31f401d112",
+      "first_ms": 690.6361279980047,
+      "warm_ms": [
+        644.0240439987974,
+        673.4825079911388,
+        700.3338030044688
+      ],
+      "stable_text": true,
+      "edit_distance": 0,
+      "reference_characters": 47,
+      "cer": 0.0,
+      "false_positive_lines": null
+    },
+    {
+      "name": "numbers-14",
+      "truth": [
+        "0123456789 128.50 0.01 1,024.00",
+        "O0 I1 lI B8 S5 Z2"
+      ],
+      "recognized": [
+        "0123456789 128.50 0.01 1,024.00",
+        "O0 I1 II B8 S5 Z2"
+      ],
+      "scores": [
+        0.9719,
+        0.92968
+      ],
+      "boxes": [
+        [
+          [
+            31.0,
+            33.0
+          ],
+          [
+            244.0,
+            33.0
+          ],
+          [
+            244.0,
+            49.0
+          ],
+          [
+            31.0,
+            49.0
+          ]
+        ],
+        [
+          [
+            31.0,
+            72.0
+          ],
+          [
+            136.0,
+            72.0
+          ],
+          [
+            136.0,
+            88.0
+          ],
+          [
+            31.0,
+            88.0
+          ]
+        ]
+      ],
+      "image_sha256": "d2ff4ac20e4f08f6ebcbb470678621d666ed521c326df017c03beba99fd5e431",
+      "first_ms": 671.0204359987983,
+      "warm_ms": [
+        687.2211809968576,
+        690.8938699925784,
+        663.3539410104277
+      ],
+      "stable_text": true,
+      "edit_distance": 1,
+      "reference_characters": 40,
+      "cer": 0.025,
+      "false_positive_lines": null
+    },
+    {
+      "name": "low-contrast-14",
+      "truth": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额 128.50 元，订单 20261011。"
+      ],
+      "recognized": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额128.50元，订单20261011。"
+      ],
+      "scores": [
+        0.99916,
+        0.99716,
+        0.99769
+      ],
+      "boxes": [
+        [
+          [
+            32.0,
+            33.0
+          ],
+          [
+            235.0,
+            33.0
+          ],
+          [
+            235.0,
+            51.0
+          ],
+          [
+            32.0,
+            51.0
+          ]
+        ],
+        [
+          [
+            29.0,
+            69.0
+          ],
+          [
+            249.0,
+            70.0
+          ],
+          [
+            249.0,
+            90.0
+          ],
+          [
+            29.0,
+            89.0
+          ]
+        ],
+        [
+          [
+            30.0,
+            108.0
+          ],
+          [
+            238.0,
+            108.0
+          ],
+          [
+            238.0,
+            127.0
+          ],
+          [
+            30.0,
+            127.0
+          ]
+        ]
+      ],
+      "image_sha256": "8e516eba0f0885d9bb4d10f8b3b5612ac51002442882a35bac1409da6e79070b",
+      "first_ms": 733.0558810062939,
+      "warm_ms": [
+        902.3465029895306,
+        1118.6874420091044,
+        861.9875660078833
+      ],
+      "stable_text": true,
+      "edit_distance": 0,
+      "reference_characters": 52,
+      "cer": 0.0,
+      "false_positive_lines": null
+    },
+    {
+      "name": "dark-14",
+      "truth": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额 128.50 元，订单 20261011。"
+      ],
+      "recognized": [
+        "今天下午三点开会，记得带电脑。",
+        "项目进度：已完成测试，等待发布。",
+        "余额128.50元，订单20261011。"
+      ],
+      "scores": [
+        0.99906,
+        0.99866,
+        0.99791
+      ],
+      "boxes": [
+        [
+          [
+            32.0,
+            32.0
+          ],
+          [
+            234.0,
+            32.0
+          ],
+          [
+            234.0,
+            51.0
+          ],
+          [
+            32.0,
+            51.0
+          ]
+        ],
+        [
+          [
+            29.0,
+            69.0
+          ],
+          [
+            250.0,
+            70.0
+          ],
+          [
+            250.0,
+            90.0
+          ],
+          [
+            29.0,
+            89.0
+          ]
+        ],
+        [
+          [
+            30.0,
+            108.0
+          ],
+          [
+            238.0,
+            108.0
+          ],
+          [
+            238.0,
+            127.0
+          ],
+          [
+            30.0,
+            127.0
+          ]
+        ]
+      ],
+      "image_sha256": "36fe9361e80911271d53c82fd83aa217bbe00754cec422c7aad28e68886b0397",
+      "first_ms": 974.0727979951771,
+      "warm_ms": [
+        894.2558459966676,
+        890.8136609970825,
+        936.6633110039402
+      ],
+      "stable_text": true,
+      "edit_distance": 0,
+      "reference_characters": 52,
+      "cer": 0.0,
+      "false_positive_lines": null
+    },
+    {
+      "name": "blank",
+      "truth": [],
+      "recognized": [],
+      "scores": [],
+      "boxes": [],
+      "image_sha256": "09ab4eebdffa1d6b3b3afb341a945004d9def81297415446e2610277183e5573",
+      "first_ms": 767.9056230117567,
+      "warm_ms": [
+        554.738870006986,
+        495.6473230122356,
+        488.8242270098999
+      ],
+      "stable_text": true,
+      "edit_distance": 0,
+      "reference_characters": 0,
+      "cer": null,
+      "false_positive_lines": 0
+    },
+    {
+      "name": "shapes",
+      "truth": [],
+      "recognized": [],
+      "scores": [],
+      "boxes": [],
+      "image_sha256": "1dfef44d475020f65cff2c2844489b43b89c9e6a0a9084a0d5b016768b352e5a",
+      "first_ms": 515.5701110052178,
+      "warm_ms": [
+        732.2285289992578,
+        871.3446140027372,
+        760.4633690061746
+      ],
+      "stable_text": true,
+      "edit_distance": 0,
+      "reference_characters": 0,
+      "cer": null,
+      "false_positive_lines": 0
+    }
+  ],
+  "summary": {
+    "cer": 0.002369668246445498,
+    "reference_characters": 422,
+    "warm_median_ms": 796.8457555034547,
+    "peak_process_mib": 357.31640625,
+    "no_text_false_positive_lines": 0
+  }
+}

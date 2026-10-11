@@ -146,4 +146,5 @@ jobs:
         run: |
           TAG="v$(node -p "require('./package.json').version")"
           printf "\n桌面回归：%s\n四平台内置构建：https://github.com/%s/actions/runs/%s\n" "$(cat validated-e2e-url.txt)" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> docs/release-notes-ai-preview.md
+          if gh release view "$TAG" >/dev/null 2>&1; then echo "Version already published; existing assets are preserved."; exit 0; fi
           gh release create "$TAG" release-assets/* --target "$GITHUB_SHA" --prerelease --title "大熊 $TAG · 内置 CPU AI 测试版" --notes-file docs/release-notes-ai-preview.md

@@ -82,7 +82,11 @@ static cv::Mat crop(const cv::Mat &image,const Box &box) {
     if((float)h/w>=1.5)cv::rotate(result,result,cv::ROTATE_90_COUNTERCLOCKWISE);
     return result;
 }
+#ifdef _WIN32
+int wmain(int argc,wchar_t **argv) {
+#else
 int main(int argc,char **argv) {
+#endif
     try {
         if(argc!=4)throw std::runtime_error("expected_detector_recognizer_threads");
         int threads=std::stoi(argv[3]);if(threads<1||threads>4)throw std::runtime_error("invalid_threads");

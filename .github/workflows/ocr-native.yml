@@ -1,5 +1,8 @@
 name: Native OCR validation
 on:
+  push:
+    branches: [feat/local-ai-chat]
+    paths: ["native/**", "scripts/build-ocr-runtime.py", "scripts/smoke-ocr-runtime.py", ".github/workflows/ocr-native.yml"]
   workflow_dispatch:
 jobs:
   ocr:

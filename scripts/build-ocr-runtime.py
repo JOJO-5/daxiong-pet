@@ -77,7 +77,7 @@ def main():
             shutil.copyfile(p, output / p.name)
     notices = output / 'licenses'
     notices.mkdir(exist_ok=True)
-    for name, source in [('onnxruntime-LICENSE', ort_root / 'LICENSE'), ('onnxruntime-ThirdPartyNotices.txt', ort_root / 'ThirdPartyNotices.txt'), ('OpenCV-LICENSE', work / 'opencv-4.12.0/LICENSE'), ('RapidOCR-LICENSE', ROOT / 'docs/research/qwen35-2b-ocr-route-2026-10-10/RapidOCR-LICENSE.txt'), ('json-LICENSE.MIT', ROOT / 'native/ocr/vendor/json-LICENSE.MIT'), ('clipper-license-and-header.txt', ROOT / 'native/ocr/vendor/clipper.hpp')]:
+    for name, source in [('onnxruntime-LICENSE', ort_root / 'LICENSE'), ('onnxruntime-ThirdPartyNotices.txt', ort_root / 'ThirdPartyNotices.txt'), ('OpenCV-LICENSE', work / 'opencv-4.12.0/LICENSE'), ('RapidOCR-LICENSE', ROOT / 'docs/research/qwen35-2b-ocr-route-2026-10-10/RapidOCR-LICENSE.txt'), ('json-LICENSE.MIT', ROOT / 'native/ocr/vendor/json-LICENSE.MIT'), ('clipper-license-and-header.txt', ROOT / 'native/ocr/vendor/clipper.hpp'), ('clipper-LICENSE.txt', ROOT / 'native/ocr/vendor/clipper-LICENSE.txt')]:
         shutil.copyfile(source, notices / name)
     # Retain the bundled PNG/zlib notices without editing their text.
     for directory in ['libpng', 'zlib']:

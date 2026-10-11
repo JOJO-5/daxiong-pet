@@ -96,10 +96,10 @@ def main():
         c,r=request(port,'POST','/v1/chat/completions',dict(payload(long),tools=[]));check('text worker rejects unsupported tools',r.status==400);r.read();c.close()
         with socket.create_connection(('127.0.0.1',port),timeout=5) as s:
             s.sendall(b'POST /v1/chat/completions HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: 1\r\nContent-Length: 1\r\n\r\nx')
-            check('ambiguous HTTP length rejected',b' 400 ' in s.recv(1024))
+            check('ambiguous HTTP length rejected',b' 400 ' in s.makefile('rb').readline())
         with socket.create_connection(('127.0.0.1',port),timeout=5) as s:
             s.sendall(b'GET /health HTTP/1.1\r\nHost: localhost\r\nOrigin: https://example.invalid\r\n\r\n')
-            check('browser-origin requests rejected',b' 400 ' in s.recv(1024))
+            check('browser-origin requests rejected',b' 400 ' in s.makefile('rb').readline())
         first=[{'role':'system','content':'你是一只友好的桌面狗狗，简短回复。'},{'role':'user','content':'我的昵称是小林，请记住，只回复好的。'}]
         answer,n=complete(port,first);check('real model streams text and DONE',bool(answer) and n>0)
         history=first+[{'role':'assistant','content':answer},{'role':'user','content':'刚才我说我的昵称是什么？只回复昵称。'}]

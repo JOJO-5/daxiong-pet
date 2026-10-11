@@ -67,7 +67,7 @@ def main():
     subprocess.run([args.cmake, '--build', str(work / 'opencv-build'), '--config', 'Release', '--parallel', str(args.jobs)], check=True)
     subprocess.run([args.cmake, '--install', str(work / 'opencv-build'), '--config', 'Release'], check=True)
     build = work / 'worker'
-    subprocess.run([args.cmake, '-S', str(ROOT / 'native/ocr'), '-B', str(build), '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_PREFIX_PATH=' + str(install), '-DORT_ROOT=' + str(ort_root)], check=True)
+    subprocess.run([args.cmake, '-S', str(ROOT / 'native/ocr'), '-B', str(build), '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_PREFIX_PATH=' + str(install), '-DOpenCV_DIR=' + str(install / ('staticlib' if platform.system() == 'Windows' else 'lib/cmake/opencv4')), '-DORT_ROOT=' + str(ort_root)], check=True)
     subprocess.run([args.cmake, '--build', str(build), '--config', 'Release', '--parallel', str(args.jobs)], check=True)
     output = args.out.resolve()
     output.mkdir(parents=True, exist_ok=True)

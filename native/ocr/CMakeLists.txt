@@ -20,6 +20,8 @@ if(APPLE)
 endif()
 install(TARGETS daxiong-ocr RUNTIME DESTINATION .)
 if(WIN32)
+  # OpenCV static packages use /MT. Match the worker instead of mixing /MD.
+  set_property(TARGET daxiong-ocr PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
   include(InstallRequiredSystemLibraries)
 endif()

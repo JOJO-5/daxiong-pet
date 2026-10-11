@@ -418,11 +418,15 @@ impl Service {
             visual.has_credential = settings.screen_has_credential;
             crate::ai_external::generate(&visual, messages, 80, token, |_| Ok(()))
         } else {
-            self.runtime
+            let result = self
+                .runtime
                 .ensure_mode(settings, token, vision)
                 .and_then(|endpoint| {
                     ai_runtime::generate(&endpoint, messages, 80, token, |_| Ok(()))
-                })
+                });
+            // Idle starts after inference, not while an image is still being processed.
+            self.runtime.touch();
+            result
         }?;
         if token.load(Ordering::SeqCst)
             || captured_at.elapsed() > Duration::from_secs(120)

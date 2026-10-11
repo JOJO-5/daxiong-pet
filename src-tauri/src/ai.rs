@@ -99,7 +99,10 @@ impl Service {
             }
             let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
             if gate.is_none() {
-                s.runtime.unload_if_idle();
+                // Observation shares this gate: unloading is allowed only between heavy tasks.
+                if let Ok(_heavy) = s.heavy.try_lock() {
+                    s.runtime.unload_if_idle();
+                }
             }
             drop(gate);
             // Do not create a database for users who never open AI. Existing databases are maintained.

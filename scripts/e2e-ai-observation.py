@@ -72,7 +72,7 @@ int main(int argc,char **argv){gtk_init(&argc,&argv);GtkWidget *w=gtk_window_new
     parts=requests[-1]['messages'][-1]['content']
     check('image payload works independently of text token budget',len(requests)==before+1 and parts[1]['image_url']['url'].startswith('data:image/png;base64,'))
     if os.environ.get('E2E_AI_VISION')=='1':
-        configure(screen_backend='bundled',remote_screen=False)
+        configure(screen_backend='bundled',remote_screen=False,idle_seconds=30)
         before=len(requests);data=observe(True)
         check('real bundled 2B vision runs through app without remote upload',len(requests)==before and data['observation']['text'] and '过期' not in data['observation']['status'])
         configure(screen_backend='external',remote_screen=True)

@@ -28,5 +28,5 @@ assert len(data['lines']) == 3
 invalid = subprocess.run(command, input=b'not-a-png', stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30, cwd=runtime)
 assert invalid.returncode != 0 and not invalid.stdout
 args.out.mkdir(parents=True, exist_ok=True)
-(args.out / 'ocr-native.json').write_text(json.dumps({'elapsed_seconds': time.monotonic() - started, 'result': data, 'malformed_png_rejected': True}, ensure_ascii=False, indent=2) + '\n')
+(args.out / 'ocr-native.json').write_text(json.dumps({'elapsed_seconds': time.monotonic() - started, 'result': data, 'malformed_png_rejected': True}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 print('Native CPU OCR, 12px Chinese and malformed-image checks passed')

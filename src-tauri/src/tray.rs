@@ -204,7 +204,12 @@ pub(crate) fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
             refresh(app, &pets, &current, gravity);
         }
 
-        "ai_chat" => {if let Err(e)=crate::ai::open_chat_window(app) {crate::report_error(app,"打开聊天失败",e);}}
+        "ai_chat" => {
+            let app=app.clone();
+            tauri::async_runtime::spawn(async move {
+                if let Err(e)=crate::ai::open_chat(app.clone()).await {crate::report_error(&app,"打开聊天失败",e);}
+            });
+        }
         "quit" => app.exit(0),
         _ => {}
     }

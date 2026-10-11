@@ -17,6 +17,8 @@ use tauri::{AppHandle, Emitter, Manager, State, WebviewWindow};
 #[path = "ai_observe.rs"]
 mod observation;
 pub struct AiState(pub Arc<Service>);
+// Serializes lazy window creation on background workers, never the UI event thread.
+static CHAT_WINDOW_OPEN: Mutex<()> = Mutex::new(());
 struct Active {
     id: String,
     cancelled: Arc<AtomicBool>,
@@ -582,10 +584,13 @@ pub async fn close_chat(window: WebviewWindow, state: State<'_, AiState>) -> Res
     .await
 }
 #[tauri::command]
-pub fn open_chat(app: AppHandle) -> Result<()> {
-    open_chat_window(&app).map_err(|e| e.to_string())
+pub async fn open_chat(app: AppHandle) -> Result<()> {
+    blocking(move || open_chat_window(&app).map_err(|e| e.to_string())).await
 }
-pub fn open_chat_window(app: &AppHandle) -> tauri::Result<()> {
+fn open_chat_window(app: &AppHandle) -> tauri::Result<()> {
+    let _opening = CHAT_WINDOW_OPEN
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     if let Some(window) = app.get_webview_window("chat") {
         update_focus_layer(app, "chat", true);
         window.set_always_on_top(true)?;
@@ -599,6 +604,7 @@ pub fn open_chat_window(app: &AppHandle) -> tauri::Result<()> {
         tauri::WebviewUrl::App("index.html?view=chat".into()),
     )
     .title("和大熊聊聊")
+    .accept_first_mouse(true)
     .inner_size(500.0, 680.0)
     .min_inner_size(380.0, 480.0)
     .always_on_top(true)
@@ -616,7 +622,13 @@ fn chat_surface_visible(app: &AppHandle) -> bool {
 }
 
 #[tauri::command]
-pub fn open_quick_chat(app: AppHandle) -> Result<()> {
+pub async fn open_quick_chat(app: AppHandle) -> Result<()> {
+    blocking(move || open_quick_chat_window(app)).await
+}
+fn open_quick_chat_window(app: AppHandle) -> Result<()> {
+    let _opening = CHAT_WINDOW_OPEN
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     if let Some(window) = app.get_webview_window("quick-chat") {
         position_quick_chat(&app).map_err(|e| e.to_string())?;
         window
@@ -633,6 +645,7 @@ pub fn open_quick_chat(app: AppHandle) -> Result<()> {
             tauri::WebviewUrl::App("index.html?view=quick-chat".into()),
         )
         .title("给大熊说句话")
+        .accept_first_mouse(true)
         .inner_size(320.0, 146.0)
         .min_inner_size(320.0, 146.0)
         .max_inner_size(320.0, 146.0)

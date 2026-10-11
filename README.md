@@ -174,19 +174,17 @@ src-tauri/src/
 
 MIT
 
-## 本地 AI 文字聊天测试版
+## 本地 AI 测试版
 
-开发分支已接入 Qwen3.5 2B CPU 文字聊天：右键菜单、托盘和互动面板可打开聊天；性格、称呼、语气和回复长短通过界面修改。聊天与性格保存在独立 SQLite 数据库中，聊天默认保留 30 天，支持流式回复、停止和失败重试。AI 默认关闭，启用后首次回复会校验并加载模型。
+1.1.0-alpha.2 接入离线 Qwen3.5 2B CPU 聊天、按需图片理解、PP-OCRv5 mobile 原生 OCR。右键、托盘和互动面板均可打开聊天；性格通过界面修改。聊天默认保留30天，明确表达的长期偏好会自动记住，并可编辑、删除和撤销。
 
-[v1.1.0-alpha.1 测试版下载](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.1)已内置 Qwen3.5 2B 权重、各平台静态 CPU 运行器和许可证，安装后启用聊天即可离线使用；Windows 安装包约1.27GB，提供 Windows、Apple Silicon/Intel Mac 和 Linux 包。x64 CPU 需要 AVX2/FMA/F16C。OCR、图片理解、屏幕观察、长期偏好自动记忆和外接大模型继续按[目标文件](docs/LOCAL-AI-GOALS.md)实施；现有正式版保持不变。
+观察和主动说话分别开关、分别定时；默认只看当前前台窗口，也可选择显示器或全部桌面。观察文本和可用上下文最多在内存保留2分钟，切窗或暂停失效；不把屏幕写入聊天、长期偏好或系统命令。聊天和屏幕可分别接入OpenAI风格服务，密钥使用系统安全存储，远程屏幕发送默认关闭并须单独开启。
 
-开发者准备固定模型和目标平台 CPU 运行器后，用 `scripts/stage-ai-resources.py` 暂存资源，调试启动设置 `DAXIONG_AI_RESOURCE_DIR`。固定来源、编译/运行命令、实际原生测试和平台限制见[文字聊天开发验收](docs/validation/local-ai-chat-2026-10-11.md)。内置安装包与 Linux 实际安装聊天验证见[内置测试版验收](docs/validation/bundled-ai-preview-2026-10-11.md)。
+完整安装包内置2B权重、配套视觉组件、OCR、平台CPU运行器和许可证，不需要Python。视觉按需加载，默认后台只使用OCR；可选下载0.8B文字模型。x64需要AVX2/FMA/F16C，Mac最低14，Linux观察支持X11；Mac需自行授予屏幕录制权限。GPU增强仍在调研，8GB/11代i5性能及多屏混合DPI尚未实机验收。
 
+[测试版下载](https://github.com/JOJO-5/daxiong-pet/releases)：alpha.1只含文字；alpha.2完整包通过同源发布校验后提供，现有正式版保留。实际大小和校验和见发布资产，当前本地完整Linux包约1.71GiB。
 
-macOS 构建：`npm run tauri build -- --bundles dmg`。
-Linux 构建：`npm run tauri build -- --bundles appimage,deb`。
-行为回归测试：`cargo test --locked --manifest-path src-tauri/Cargo.toml engine::tests`。
-
+开发者使用`scripts/prepare-bundled-ai.py`在目标平台准备完整固定资源，或使用`scripts/stage-ai-resources.py`暂存已验证的运行器/权重/OCR。调试启动设置`DAXIONG_AI_RESOURCE_DIR`。进度见[目标文件](docs/LOCAL-AI-GOALS.md)，实际证据和未验证项见[完整AI功能验收](docs/validation/local-ai-observation-2026-10-11.md)，[ML Drift/LiteRT调查](docs/research/ml-drift-litert-2026-10-11.md)区分框架支持和本项目实测。
 
 ## 1.0.1 更新
 

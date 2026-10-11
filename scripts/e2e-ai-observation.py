@@ -64,6 +64,7 @@ int main(int argc,char **argv){gtk_init(&argc,&argv);GtkWidget *w=gtk_window_new
     (OUT/'synthetic-observation.json').write_text(json.dumps(data['observation'],ensure_ascii=False,indent=2),encoding='utf-8')
     check('native foreground capture and CPU OCR identify fixture', 'SCREEN_ONLY_MARKER' in (data['observation']['text'] or '') and 'Synthetic OCR Fixture' in data['observation']['label'])
     check('screen uses separately selected external model',len(requests)==before+1 and requests[-1]['model']=='vision-fixture')
+    check('observation prompt uses current explicitly remembered owner name','小王' in requests[-1]['messages'][0]['content'])
     check('screen preferences never enter long-term memory',snap()['preferences'][0]['value']=='小王' and len(snap()['preferences'])==1)
     with sqlite3.connect(db) as store:
         content=' '.join(str(row) for row in store.execute('SELECT content FROM chat_messages'))

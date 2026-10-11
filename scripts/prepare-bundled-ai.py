@@ -39,6 +39,8 @@ import shutil
 executable = runtime/('llama-server.exe' if __import__('os').name=='nt' else 'llama-server')
 shutil.copy2(executable, isolated/executable.name)
 if __import__('platform').system()=='Darwin':
+    devices=subprocess.check_output([str(isolated/executable.name),'--list-devices'],text=True,stderr=subprocess.STDOUT)
+    if 'BLAS: Accelerate' not in devices:raise RuntimeError('System CPU Accelerate backend is missing')
     guardian=isolated/'daxiong-ai-guard'
     subprocess.run(['clang','-std=c11','-O2','-Wall','-Wextra','-mmacosx-version-min=14.0',str(root/'native/ai-guard.c'),'-o',str(guardian)],check=True)
     subprocess.run([sys.executable,str(root/'scripts/smoke-process-guard.py'),'--guardian',str(guardian),'--out',str(work/'guard-smoke')],check=True)

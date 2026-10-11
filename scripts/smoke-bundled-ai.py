@@ -14,7 +14,10 @@ for vision in [False,True]:
     with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
     key=uuid.uuid4().hex
     command=[str(server),'--model',str(model),'--host','127.0.0.1','--port',str(port),'--api-key',key,'-ngl','0','-t','2','-tb','2','-c','4096','--jinja','--no-warmup']
-    command += ['--mmproj',str(projector),'--no-mmproj-offload','--image-min-tokens','256','--image-max-tokens','256'] if vision else ['--no-mmproj']
+    if vision:
+        command += ['--mmproj',str(projector),'--image-min-tokens','256','--image-max-tokens','256']
+        command += ['--mmproj-device','BLAS'] if __import__('platform').system()=='Darwin' else ['--no-mmproj-offload']
+    else:command += ['--no-mmproj']
     process=subprocess.Popen(command,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,env={**os.environ,'VECLIB_MAXIMUM_THREADS':'2'})
     def request(path,body=None):
         req=urllib.request.Request(f'http://127.0.0.1:{port}'+path,data=None if body is None else json.dumps(body).encode(),headers={'Authorization':'Bearer '+key,'Content-Type':'application/json'})

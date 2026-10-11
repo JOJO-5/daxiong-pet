@@ -317,13 +317,11 @@ impl Runtime {
             command
                 .arg("--mmproj")
                 .arg(projector.as_ref().ok_or("视觉组件缺失。")?)
-                .args([
-                    "--no-mmproj-offload",
-                    "--image-min-tokens",
-                    "256",
-                    "--image-max-tokens",
-                    "256",
-                ]);
+                .args(["--image-min-tokens", "256", "--image-max-tokens", "256"]);
+            #[cfg(target_os = "macos")]
+            command.args(["--mmproj-device", "BLAS"]); // System CPU Accelerate, not Metal.
+            #[cfg(not(target_os = "macos"))]
+            command.arg("--no-mmproj-offload");
         } else {
             command.arg("--no-mmproj");
         }

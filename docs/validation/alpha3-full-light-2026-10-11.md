@@ -5,3 +5,5 @@
 PR5四平台构建38121408972成功，完整回归38121408973失败于模型崩溃后的错误提示瞬时断言。SQLite请求状态先结束，WebView错误事件稍后渲染，改为等待同一错误节点，保留原检查及失败日志。本地完整聊天23项重跑通过，证据`/workspace/daxiong-ai-prototype/alpha3-chat`。新版本改动需要重新验证，不能沿用alpha.2检查。
 
 新增轻量stage生成器只从校验后的完整资源复制运行器/OCR/许可证，重新生成资源清单。四平台各构建完整和light安装包，生成10个公共安装资产及SHA256SUMS。窗口交互新加入Windows与Mac原生smoke；Mac无Accessibility授权时明确标未测。轻量版真实下载、最终CI和发布结果后补。
+
+轻量真实下载首两轮失败保留在alpha3-light-download/alpha3-light-download2，旧桥接容器网络代理不可达，curl同样超时；使用可联网host网络容器重跑。HTTPS运行库改用系统可信证书根，继续验证证书，不跳过TLS。下载失败有界面提示，临时文件不当成安装完成。Rust114项在该变更后通过，最终下载结果后补。

@@ -628,7 +628,9 @@ export default function ChatWindow() {
                   placeholder="和我说说吧…"
                   rows={2}
                   disabled={
-                    !snapshot.settings.enabled || !snapshot.assets.available
+                    !snapshot.settings.enabled ||
+                    (snapshot.settings.backend === "bundled" &&
+                      !snapshot.assets.available)
                   }
                   onChange={(e) => setText(e.target.value)}
                   onKeyDown={(e) => {
@@ -799,7 +801,8 @@ export default function ChatWindow() {
                 <p className="chat-footnote">
                   {snapshot.assets.model} ·{" "}
                   {snapshot.loaded ? "已加载" : "尚未加载"}
-                  。空闲5分钟释放模型。图片理解按需启动。
+                  。空闲{snapshot.settings.idle_seconds}
+                  秒后释放模型。图片理解按需启动。
                 </p>
                 <label className="chat-switch">
                   <input

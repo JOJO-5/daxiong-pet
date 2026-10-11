@@ -156,6 +156,13 @@ jobs:
           E2E_OUT: "test-results/menu-video"
           E2E_SCRIPT: scripts/e2e-menu.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Verify external chat without bundled model files
+        env:
+          DAXIONG_AI_RESOURCE_DIR: ${{ github.workspace }}/missing-ai-synthetic
+          E2E_RECORD: "1"
+          E2E_OUT: "test-results/ai-external"
+          E2E_SCRIPT: scripts/e2e-ai-external.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Stage built-in CPU model, vision and native OCR
         run: python scripts/prepare-bundled-ai.py --work ai-build
       - name: Verify real native offline chat, cancellation and persistence

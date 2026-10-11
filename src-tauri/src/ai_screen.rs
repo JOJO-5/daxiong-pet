@@ -131,7 +131,7 @@ pub fn capture(settings: &Settings, request: bool) -> Result<Capture> {
     permission(request)?;
     let window = foreground(settings)?;
     let identity = identity(settings)?;
-    let mut origin = (0_i64, 0_i64);
+    let origin: (i64, i64);
     let (mut image, label) = if settings.screen_scope == "window" {
         origin = (
             window.x().map_err(|_| "窗口位置不可用。")? as i64,

@@ -157,8 +157,24 @@ impl Runtime {
                 .map_err(|_| "启动本地模型失败，请检查运行器及其依赖。".into())
         }
     }
-    pub fn assets(&self) -> AssetStatus {
-        self.assets.status()
+    pub fn assets(&self, settings: &Settings) -> AssetStatus {
+        let mut status = self.assets.status();
+        if let Ok(spec) = crate::ai_models::spec(&settings.local_model) {
+            if let Some(name) = spec["name"].as_str() {
+                status.available = self.assets.binary_path().is_file()
+                    && (self.cache_root.join(name).is_file()
+                        || self.assets.root.join("models").join(name).is_file())
+                    && (!cfg!(target_os = "macos")
+                        || self.assets.root.join("runtime/daxiong-ai-guard").is_file());
+                status.note = if status.available {
+                    "本地资源已找到，首次聊天将校验并加载模型。"
+                } else {
+                    "本地模型或运行器缺失，请修复安装或选择外接服务。"
+                }
+                .into();
+            }
+        }
+        status
     }
     pub fn loaded(&self) -> bool {
         let mut guard = self.running.lock().unwrap_or_else(|p| p.into_inner());

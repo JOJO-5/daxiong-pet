@@ -126,7 +126,7 @@ impl Service {
         };
         let (messages, personality, settings) =
             self.db(|s| Ok((s.messages(now())?, s.profile()?, s.settings()?)))?;
-        let mut assets = self.runtime.assets();
+        let mut assets = self.runtime.assets(&settings);
         if settings.local_model == "small" {
             assets.model = "Qwen3.5 0.8B · CPU".into();
         }

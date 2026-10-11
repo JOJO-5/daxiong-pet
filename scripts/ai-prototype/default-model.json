@@ -1,6 +1,6 @@
 {
   "date_beijing": "2026-10-10",
-  "scope": "User-confirmed development route: Qwen3.5 2B text and image-capable architecture plus separate CPU OCR. Not app-bundled or release-qualified; 2B image execution still pending.",
+  "scope": "User-confirmed Qwen3.5 2B CPU route. Text-only app development slice implemented; full bundled AI release, OCR and 2B images pending.",
   "default_text_model": {
     "repository": "lmstudio-community/Qwen3.5-2B-GGUF",
     "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
@@ -35,7 +35,7 @@
   },
   "prompt_baseline": {
     "source": "companion-trial.py:PERSONAS + COMMON",
-    "description": "Tune short gentle/playful companion prompts for chosen 2B. GUI personality still pending; historical Qwen2.5 prompt no longer selected.",
+    "description": "App text slice uses editable gentle/playful GUI personality, short=96 or normal=192 output tokens; historical research prompts remain reproducible.",
     "release_validation": "Pending: renaming/identity, multi-turn unknown observations and GUI personality variations.",
     "latency_note": "2B fifth-round uncached shared two-core Linux: first content p50/p95 5.13/13.65s; total 20.22/35.71s. Not 8GB 11th-gen i5 benchmark; no 2B image latency measurement."
   },
@@ -47,7 +47,10 @@
     "actual_sqlite_memory": false,
     "actual_screen_capture": false,
     "image_capability_note": "Model architecture supports images only with matching projector and runtime; 2B projector not downloaded/executed yet. This flag describes capability, not tested app support.",
-    "actual_2b_image_execution_tested": false
+    "actual_2b_image_execution_tested": false,
+    "actual_sqlite_chat": true,
+    "actual_preference_auto_memory": false,
+    "sqlite_capability_note": "Chat/settings/personality are integrated; actual_sqlite_memory still false refers to automatic long-term preference memory (G3)."
   },
   "observation_plan": {
     "ocr_trial": "RapidOCR v3.10.0 + ONNX Runtime CPU, explicit PP-OCRv5 mobile detection/Chinese recognition. v6 tiny smaller comparison; not yet executed or final OCR selection.",
@@ -60,7 +63,7 @@
     "Companion response length/tone and multi-turn experience; observation scope/source enforced by host",
     "Native Windows/macOS/ARM and game-concurrent CPU/RAM tests",
     "Actual per-platform installation size, licenses, runtime distribution and cancellation/idle unload",
-    "SQLite, chat UI, GUI personality and 30-day retention integration"
+    "Full G2 external backend/credentials and G3 automatic preference memory; text slice native integration qualification"
   ],
   "selection_status": "user_confirmed_qwen35_2b_development_route",
   "selection_policy": {
@@ -99,5 +102,20 @@
     "threads": "benchmark 2 and 4 workers; leave responsiveness headroom, do not assume double speed"
   },
   "planned_model_artifact_bytes": 1942180448,
-  "ocr_evidence": "docs/research/qwen35-2b-ocr-route-2026-10-10.md"
+  "ocr_evidence": "docs/research/qwen35-2b-ocr-route-2026-10-10.md",
+  "application_text_slice": {
+    "status": "development_only",
+    "history_pairs_max": 12,
+    "context_tokens": 4096,
+    "chat_retention_days": 30,
+    "default_enabled": false,
+    "default_threads": 2,
+    "idle_unload_seconds": 300,
+    "cache_prompt": true,
+    "output_tokens": {
+      "short": 96,
+      "normal": 192
+    },
+    "evidence": "docs/validation/local-ai-chat-2026-10-11.md"
+  }
 }

@@ -11,6 +11,7 @@ root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--artifacts', type=Path, required=True)
 parser.add_argument('--out', type=Path, required=True)
+parser.add_argument('--bundled-ai', action='store_true', help='Installers carry resources; do not publish a resource-less portable exe')
 args = parser.parse_args()
 version = json.loads((root/'package.json').read_text())['version']
 assert json.loads((root/'package-lock.json').read_text())['version'] == version
@@ -27,6 +28,8 @@ packages = [
     ('daxiong-linux-x64', '*.AppImage', 'linux-x64.AppImage'),
     ('daxiong-linux-x64', '*.deb', 'linux-x64.deb'),
 ]
+if args.bundled_ai:
+    packages = [p for p in packages if p[2] != "windows-x64-portable.exe"]
 resolved=[]
 for artifact, pattern, suffix in packages:
     found = list((args.artifacts/artifact).rglob(pattern))

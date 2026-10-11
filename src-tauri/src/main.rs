@@ -1,6 +1,9 @@
 // 桌面宠物不需要控制台窗口
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod ai;
+mod ai_runtime;
+mod ai_store;
 mod atlas;
 mod activities;
 mod config;
@@ -347,7 +350,7 @@ fn open_pet_menu(app:AppHandle)->Result<(),String> {
     let label=if view.treat_wait>0 {format!("喂饼干（{} 秒后）",view.treat_wait)} else if interacting {"结束互动，喂块饼干".into()} else {"喂一块饼干".into()};
     let feed=MenuItem::with_id(&app,"pet_feed",label,view.treat_wait==0 && view.error.is_none(),None::<&str>).map_err(|e|e.to_string())?;
     let more=SubmenuBuilder::new(&app,"更多").text("pet_preferences","记忆与偏好…").text("pomodoro","专注 / 结束专注").text("toggle","隐藏大熊").build().map_err(|e|e.to_string())?;
-    let menu=MenuBuilder::new(&app).text("play","打开互动面板…").separator().item(&feed)
+    let menu=MenuBuilder::new(&app).text("play","打开互动面板…").text("ai_chat","和大熊聊聊…").separator().item(&feed)
         .text("pet_ball","抛一球").text("pet_frisbee","扔飞盘").text("pet_tug","一起拔河").text("pet_come","过来")
         .text("pet_stop","收起玩具 / 结束练习").separator().item(&more).build().map_err(|e|e.to_string())?;
     *app.state::<AppState>().pet_menu.lock().unwrap()=Some(menu.clone());
@@ -568,7 +571,8 @@ fn spawn_engine(
                 let (Ok(pos), Ok(size)) = (window.outer_position(), window.outer_size()) else { continue; };
                 let (cursor, button_down) = platform::pointer_state(&window);
                 input.cursor = cursor;
-                input.button_down = button_down;
+                // A pet behind the focused chat must not react to clicks on chat controls.
+                input.button_down = button_down && !app.state::<ai::AiState>().0.covers_pointer(cursor);
                 input.win_pos = (pos.x, pos.y);
                 input.win_size = (size.width as i32, size.height as i32);
                 input.scale_factor = window.scale_factor().unwrap_or(1.0);
@@ -749,6 +753,7 @@ fn main() {
         }).build())
         .on_menu_event(tray::on_menu_event)
         .on_window_event(|window,event| {
+            if window.label()=="chat" {ai::on_window_event(window,event);}
             if window.label()=="playground" {if let tauri::WindowEvent::CloseRequested {api,..}=event {api.prevent_close();let _=window.hide();}}
         })
         .plugin(tauri_plugin_dialog::init())
@@ -757,6 +762,7 @@ fn main() {
             None,
         ))
         .invoke_handler(tauri::generate_handler![
+            ai::open_chat, ai::close_chat, ai::ai_ready, ai::ai_snapshot, ai::ai_send, ai::ai_cancel, ai::ai_save_personality, ai::ai_configure, ai::ai_clear_chat,
             pet_ready,
             current_pet,
             list_pets,
@@ -785,6 +791,9 @@ fn main() {
             encounter_status
         ])
         .setup(|app| {
+            let mut ai_root=app.path().resource_dir()?.join("ai");
+            #[cfg(debug_assertions)] {if let Some(root)=std::env::var_os("DAXIONG_AI_RESOURCE_DIR") {ai_root=std::path::PathBuf::from(root);}}
+            app.manage(ai::AiState(ai::Service::new(app.path().app_data_dir()?.join("ai.sqlite3"),ai_runtime::Assets{root:ai_root})));
             let window = app.get_webview_window("main").expect("缺少 main 窗口");
 
             // GTK 隐藏窗口尚未 realize 时，tao 的穿透实现会 unwrap 空 GdkWindow。
@@ -884,8 +893,9 @@ fn main() {
             );
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("Tauri 应用启动失败");
+        .build(tauri::generate_context!())
+        .expect("Tauri 应用启动失败")
+        .run(|app,event| {if let tauri::RunEvent::Exit=event {if let Some(state)=app.try_state::<ai::AiState>() {state.0.shutdown();}}});
 }
 
 #[cfg(test)]

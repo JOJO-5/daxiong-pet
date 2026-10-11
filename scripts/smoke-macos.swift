@@ -137,7 +137,7 @@ do {
         _=try waitWindow("和大熊一起玩",visible:false)
         try require(app.isRunning,"closing panel keeps pet alive")
         try petMenu();key(115)
-        for _ in 0..<4 { key(125) }
+        for _ in 0..<5 { key(125) }
         key(36)
         _=try waitWindow("大熊的球")
         Thread.sleep(forTimeInterval:0.35)

@@ -1,7 +1,7 @@
 name: Build desktop packages
 on:
   push:
-    branches: [main]
+    branches: [main, feat/local-ai-chat]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -57,8 +57,12 @@ jobs:
         run: npm test
       - name: Test engine
         run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+      - name: Build and stage bundled CPU AI
+        run: python scripts/prepare-bundled-ai.py --work ai-build
+      - name: Run native bundled model
+        run: python scripts/smoke-bundled-ai.py --ai ai-build/ai
       - name: Build packages
-        run: npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+        run: npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }} --config ai-build/tauri-ai.json
         env:
           NO_STRIP: true
       - name: Smoke test Linux single instance
@@ -97,4 +101,49 @@ jobs:
             src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
             src-tauri/target/${{ matrix.target }}/release/bundle/appimage/*.AppImage
             src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
-            src-tauri/target/${{ matrix.target }}/release/daxiong-pet.exe
+
+  prerelease:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/local-ai-chat'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: daxiong-*
+          path: release-artifacts
+      - name: Require regression of unchanged application source
+        run: |
+          python3 - <<'PYGATE'
+          import json, os, subprocess, time
+          allowed={'scripts/stage-ai-resources.py','scripts/smoke-bundled-ai.py','.github/workflows/build-desktop.yml','.github/workflows/diagnose-ai-build.yml'}
+          for attempt in range(120):
+              runs=json.loads(subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/workflows/e2e-desktop.yml/runs?per_page=50']))['workflow_runs']
+              qualified=None
+              for r in runs:
+                  if r['status']!='completed' or r['conclusion']!='success': continue
+                  subprocess.run(['git','fetch','origin',r['head_sha']],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+                  changed=subprocess.check_output(['git','diff','--name-only',r['head_sha'],os.environ['GITHUB_SHA']],text=True).splitlines()
+                  if all(name in allowed or name.startswith('docs/') for name in changed):
+                      qualified=r;break
+              if qualified:
+                  print('Qualified desktop regression:',qualified['html_url'])
+                  open('validated-e2e-url.txt','w').write(qualified['html_url'])
+                  break
+              time.sleep(20)
+          else: raise RuntimeError('regression for unchanged application source not completed')
+          PYGATE
+      - name: Prepare bundled downloads
+        run: python3 scripts/prepare-release.py --artifacts release-artifacts --out release-assets --bundled-ai
+      - name: Publish complete AI preview
+        run: |
+          TAG="v$(node -p "require('./package.json').version")"
+          printf "\n桌面回归：%s\n四平台内置构建：https://github.com/%s/actions/runs/%s\n" "$(cat validated-e2e-url.txt)" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> docs/release-notes-ai-preview.md
+          gh release create "$TAG" release-assets/* --target "$GITHUB_SHA" --prerelease --title "大熊 $TAG · 内置 CPU AI 测试版" --notes-file docs/release-notes-ai-preview.md

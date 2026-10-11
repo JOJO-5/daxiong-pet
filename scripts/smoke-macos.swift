@@ -112,7 +112,15 @@ do {
     try screenshot("desktop.png")
     if AXIsProcessTrusted() {
         report["scope"] = "native startup, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display"
-        Thread.sleep(forTimeInterval:1)
+        guard let finder=NSWorkspace.shared.runningApplications.first(where: {$0.bundleIdentifier=="com.apple.finder"}) else {
+            throw NSError(domain:"NativeSmoke",code:6,userInfo:[NSLocalizedDescriptionKey:"Finder unavailable for inactive-window input check"])
+        }
+        finder.activate(options:[.activateIgnoringOtherApps])
+        let inactiveDeadline=Date().addingTimeInterval(5)
+        while Date()<inactiveDeadline && NSRunningApplication(processIdentifier:app.processIdentifier)?.isActive==true {
+            Thread.sleep(forTimeInterval:0.08)
+        }
+        try require(NSRunningApplication(processIdentifier:app.processIdentifier)?.isActive==false,"first pet tap starts from another active application")
         let quickPet=try hoverPet(150,160)
         let quickPoint=CGPoint(x:quickPet.minX+150,y:quickPet.minY+160)
         Thread.sleep(forTimeInterval:0.35)

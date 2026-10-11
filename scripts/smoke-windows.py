@@ -133,6 +133,9 @@ try:
     check('pet is always on top',bool(extended&0x00000008))
     user.SetCursorPos(5,5);time.sleep(.4)
     check('transparent desktop area is click-through',bool(user.GetWindowLongW(main,-20)&0x00000020))
+    user.mouse_event(0x0002,0,0,0,0);time.sleep(.06);user.mouse_event(0x0004,0,0,0,0)
+    wait(lambda:user.GetForegroundWindow()!=main)
+    check('first pet tap starts from another active window')
     def hover_pet(x,y):
         current=rect(main);scale=(current.right-current.left)/300
         user.SetCursorPos(round(current.left+x*scale),round(current.top+y*scale))

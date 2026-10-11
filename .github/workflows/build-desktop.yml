@@ -199,6 +199,8 @@ jobs:
         run: python3 scripts/prepare-release.py --artifacts release-artifacts --out release-assets --bundled-ai --with-light --move
       - name: Publish complete AI preview
         run: |
+          BRANCH_HEAD="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/${GITHUB_REF#refs/heads/}" --jq '.object.sha')"
+          if [ "$BRANCH_HEAD" != "$GITHUB_SHA" ]; then echo "Superseded build; publishing is reserved for the current branch head."; exit 0; fi
           TAG="v$(node -p "require('./package.json').version")"
           printf "\n桌面回归：%s\n四平台内置构建：https://github.com/%s/actions/runs/%s\n" "$(cat validated-e2e-url.txt)" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> docs/release-notes-ai-preview.md
           if gh release view "$TAG" >/dev/null 2>&1; then echo "Version already published; existing assets are preserved."; exit 0; fi

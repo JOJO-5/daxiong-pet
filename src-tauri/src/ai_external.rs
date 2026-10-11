@@ -271,8 +271,8 @@ mod protocol_tests {
         let kind = content_type.to_string();
         let worker = std::thread::spawn(move || {
             listener.set_nonblocking(true).unwrap();
-            // Cold OS certificate discovery can outlast three seconds on macOS.
-            // Bound fixture lifetime without racing real client initialization.
+            // Bound fixture lifetime while allowing cold client initialization.
+            // The cancellation test may stop before it ever opens a socket.
             let deadline = Instant::now() + Duration::from_secs(15);
             let mut stream = loop {
                 match listener.accept() {
@@ -289,8 +289,30 @@ mod protocol_tests {
             stream
                 .set_read_timeout(Some(Duration::from_secs(3)))
                 .unwrap();
-            let mut request = [0; 8192];
-            let _ = stream.read(&mut request);
+            // TCP may split headers and JSON across reads. Closing with unread
+            // request bytes can reset the connection and discard our response.
+            let mut request = Vec::new();
+            let mut chunk = [0; 1024];
+            loop {
+                let n = match stream.read(&mut chunk) {
+                    Ok(0) => return, // A cancelled client may leave an incomplete request.
+                    Ok(n) => n,
+                    Err(e) if matches!(e.kind(), std::io::ErrorKind::ConnectionReset
+                        | std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut) => return,
+                    Err(e) => panic!("fixture request read failed: {e}"),
+                };
+                request.extend_from_slice(&chunk[..n]);
+                assert!(request.len() <= 8192, "fixture request exceeds limit");
+                if let Some(end) = request.windows(4).position(|bytes| bytes == b"\r\n\r\n") {
+                    let headers = std::str::from_utf8(&request[..end]).unwrap();
+                    let length = headers.lines().find_map(|line| {
+                        let (name, value) = line.split_once(':')?;
+                        name.eq_ignore_ascii_case("content-length")
+                            .then(|| value.trim().parse::<usize>().unwrap())
+                    }).expect("fixture request requires Content-Length");
+                    if request.len() >= end + 4 + length { break; }
+                }
+            }
             std::thread::sleep(delay);
             let header=format!("HTTP/1.1 200 OK\r\nContent-Type: {kind}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",body.len());
             let _ = stream.write_all(header.as_bytes());
@@ -301,6 +323,25 @@ mod protocol_tests {
             }
         });
         (settings, worker)
+    }
+    #[test]
+    fn fixture_waits_for_a_split_request_body() {
+        use std::net::TcpStream;
+        let (settings, worker) = mock(b"ok".to_vec(), "text/plain", Duration::ZERO);
+        let url = reqwest::Url::parse(&settings.service_url).unwrap();
+        let mut stream = TcpStream::connect(("127.0.0.1", url.port().unwrap())).unwrap();
+        stream.write_all(b"POST /v1/chat/completions HTTP/1.1\r\nHost: localhost\r\nContent-Length: 4\r\n\r\nab").unwrap();
+        stream.set_read_timeout(Some(Duration::from_millis(100))).unwrap();
+        let mut byte = [0];
+        let error = stream.read(&mut byte).expect_err("fixture replied before receiving the full request");
+        assert!(matches!(error.kind(), std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut));
+        stream.write_all(b"cd").unwrap();
+        stream.set_read_timeout(Some(Duration::from_secs(3))).unwrap();
+        let mut response = String::new();
+        stream.read_to_string(&mut response).unwrap();
+        assert!(response.starts_with("HTTP/1.1 200 OK\r\n"));
+        assert!(response.ends_with("\r\n\r\nok"));
+        worker.join().unwrap();
     }
     #[test]
     fn stream_chunks_and_non_stream_json_are_supported() {

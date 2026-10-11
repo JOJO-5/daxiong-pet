@@ -1,7 +1,7 @@
 # 大熊本地 AI 目标与执行文件
 
 更新时间：2026-10-11（北京时间）  
-状态：首期软件功能已交付 v1.1.0-alpha.2（内置2B文字/视觉、原生OCR、外接服务、明确偏好、独立观察/说话和模型管理）。源码47cac9c四平台完整构建与同源Linux整套回归通过，公开Linux deb实际下载散列一致、非root离线聊天与安装/升级/卸载通过。8GB/11代i5、混合DPI/授权多屏实机、独立质量集和长期办公体验仍未验证；GPU未接入。
+状态：PR #4已合并main（c1d1519）；首期软件功能已交付 v1.1.0-alpha.2（内置2B文字/视觉、原生OCR、外接服务、明确偏好、独立观察/说话和模型管理）。源码47cac9c四平台完整构建与同源Linux整套回归通过，公开Linux deb实际下载散列一致、非root离线聊天与安装/升级/卸载通过。8GB/11代i5、混合DPI/授权多屏实机、独立质量集和长期办公体验仍未验证；GPU未接入。
 执行入口：后续用户说“按目标文件执行”时，以本文件为任务清单，从第一个未完成阶段开始。
 
 ## 1. 最终目标
@@ -420,3 +420,5 @@ OCR优先试**RapidOCR v3.10.0 + ONNX Runtime CPU + PP-OCRv5 mobile**，v6 tiny�
 ### 最终软件交付（2026-10-11）
 
 [v1.1.0-alpha.2](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.2)公开资产对应47cac9cb271e865247c5f2783415a07aef44e301。[四平台完整构建38113066358](https://github.com/JOJO-5/daxiong-pet/actions/runs/38113066358)与[同源整套桌面回归38113068478](https://github.com/JOJO-5/daxiong-pet/actions/runs/38113068478)成功，后者保留第一次菜单悬停失败，不绕过校验。安装资产/原生CPU探针/普通用户实际下载证据见[最终验证记录](validation/local-ai-observation-2026-10-11.md)。下次执行从仍未勾选的独立质量/目标硬件项目继续，不重复实现已交付软件。ML Drift/LiteRT仅完成选型研究，GPU没有发布；不能用框架支持表代替本项目设备验证。
+
+PR #4已合并到main：c1d1519bcba05b8aa629cbe71e73d0d14325cec2。该合并与已验证发布源码47cac9c仅README/目标/验证文档不同，应用源码一致。

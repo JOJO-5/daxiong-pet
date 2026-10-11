@@ -405,3 +405,7 @@ OCR优先试**RapidOCR v3.10.0 + ONNX Runtime CPU + PP-OCRv5 mobile**，v6 tiny�
 用户要求先选型，开发基线为现有 Qwen3.5 2B + 配套 BF16 视觉组件、PP-OCRv5 mobile ONNX + 原生 ONNX Runtime CPU worker；v6 tiny 留作缩包对照。四个 OCR 权重已下载且哈希匹配，尚未推理。ONNX Runtime 1.23.2 先做四平台兼容性原型，Rust绑定版本需经实际加载验证再锁定。详细依据、包大小、截图适配和执行验收顺序见[后续接入选型](research/next-ai-integration-2026-10-11.md)。本次仅文档与下载核验，没有开启屏幕观察或发布新功能。
 
 执行记录：2026-10-11，按“进行下一步”完成独立 CPU OCR 首轮：固定 v5 mobile/v6 tiny 的四个 ONNX、嵌入字典和输出维度核对，12张合成图片每模型4遍，共96次真实推理。v5/v6稀疏 CER 1/422与3/422；v6将无文字图形误报为两行，v5无误报。1080p30行亮/暗页均0/2352，热运行中位数约3.52/1.28秒，整页Python进程峰值约583/445MiB。继续选v5作原生worker接入基线，保留v6优化对照；这些是共享Linux两核配额原型结果，不是8GB/11代i5结论。见[OCR试验与完整证据](research/ocr-cpu-trial-2026-10-11.md)。下一项：原生worker绑定锁定、与Python对照、取消/超时/退出及四平台OCR验证，再补2B真实图片试验；OCR未进入安装包，不新增tag。
+
+## 2026-10-11 用户新增：Google ML Drift 可选加速
+
+见[ML Drift/LiteRT 适配调研](research/ml-drift-litert-2026-10-11.md)。官方已有跨平台 GPU 与 Qwen3.5 转换路径，纳入 G6 可选后端比较。当前 GGUF 不能直接复用；现成 INT8 文本/视觉权重分别约2.12/3.15GB，8GB GPU 内存和 Intel Mac 支持待测。继续完成 CPU 交付；不把该调查写成 GPU 已接入或性能已通过。

@@ -13,6 +13,10 @@
 #include <filesystem>
 #include <sstream>
 #include <vector>
+#ifdef _WIN32
+#include <io.h>
+#include <fcntl.h>
+#endif
 using json = nlohmann::json;
 using Box = std::array<cv::Point2f, 4>;
 static Box ordered(const cv::RotatedRect &r) {
@@ -88,6 +92,9 @@ int wmain(int argc,wchar_t **argv) {
 int main(int argc,char **argv) {
 #endif
     try {
+#ifdef _WIN32
+        if (_setmode(_fileno(stdin), _O_BINARY) == -1) throw std::runtime_error("stdin_mode_failed");
+#endif
         if(argc!=4)throw std::runtime_error("expected_detector_recognizer_threads");
         int threads=std::stoi(argv[3]);if(threads<1||threads>4)throw std::runtime_error("invalid_threads");
         cv::setNumThreads(1);Ort::Env env(ORT_LOGGING_LEVEL_ERROR,"daxiong-ocr");Ort::SessionOptions options;

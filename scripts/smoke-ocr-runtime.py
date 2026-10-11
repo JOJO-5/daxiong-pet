@@ -17,7 +17,7 @@ command = [str(binary), str(runtime / 'ch_PP-OCRv5_det_mobile.onnx'), str(runtim
 fixture = root / 'docs/research/ocr-cpu-trial-2026-10-11/v5/chinese-12.png'
 started = time.monotonic()
 result = subprocess.run(command, input=fixture.read_bytes(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30, cwd=runtime)
-assert result.returncode == 0, 'native OCR worker failed'
+assert result.returncode == 0, f'native OCR worker failed, exit={result.returncode}, stderr={result.stderr.decode(errors="replace")[:300]}'
 data = json.loads(result.stdout)
 assert data['provider'] == 'cpu' and data['version'] == 1
 actual = ''.join(''.join(line['text'] for line in data['lines']).split())

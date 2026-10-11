@@ -258,7 +258,9 @@ mod protocol_tests {
         let kind = content_type.to_string();
         let worker = std::thread::spawn(move || {
             listener.set_nonblocking(true).unwrap();
-            let deadline = Instant::now() + Duration::from_secs(3);
+            // Cold OS certificate discovery can outlast three seconds on macOS.
+            // Bound fixture lifetime without racing real client initialization.
+            let deadline = Instant::now() + Duration::from_secs(15);
             let mut stream = loop {
                 match listener.accept() {
                     Ok((stream, _)) => break stream,

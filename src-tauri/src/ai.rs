@@ -126,13 +126,17 @@ impl Service {
         };
         let (messages, personality, settings) =
             self.db(|s| Ok((s.messages(now())?, s.profile()?, s.settings()?)))?;
+        let mut assets = self.runtime.assets();
+        if settings.local_model == "small" {
+            assets.model = "Qwen3.5 0.8B · CPU".into();
+        }
         Ok(Snapshot {
             messages,
             preferences: self.db(|s| s.preferences())?,
             personality,
             defaults: Personality::default(),
             settings,
-            assets: self.runtime.assets(),
+            assets,
             models: self.models.catalog(&self.assets.root),
             download: self.models.view(),
             loaded: self.runtime.loaded(),

@@ -3,10 +3,8 @@ use crate::ai_store::{Result, Settings};
 use reqwest::blocking::Client;
 use serde::Serialize;
 use serde_json::{json, Value};
-use sha2::{Digest, Sha256};
 use std::{
-    fs::File,
-    io::{BufRead, BufReader, Read},
+    io::{BufRead, BufReader},
     net::TcpListener,
     path::PathBuf,
     process::{Child, Command, Stdio},
@@ -80,10 +78,10 @@ struct Running {
 pub struct Runtime {
     assets: Assets,
     cache_root: PathBuf,
-    verified_model: Mutex<Option<String>>,
+    verified_model: Mutex<Option<(String, PathBuf)>>,
     running: Mutex<Option<Running>>,
     idle_seconds: std::sync::atomic::AtomicU64,
-    vision_verified: AtomicBool,
+    vision_verified: Mutex<Option<PathBuf>>,
     last_used: Mutex<Instant>,
     #[cfg(target_os = "linux")]
     launcher: Mutex<Option<std::sync::mpsc::Sender<Launch>>>,
@@ -111,7 +109,7 @@ impl Runtime {
             assets,
             running: Mutex::new(None),
             idle_seconds: std::sync::atomic::AtomicU64::new(300),
-            vision_verified: AtomicBool::new(false),
+            vision_verified: Mutex::new(None),
             last_used: Mutex::new(Instant::now()),
             #[cfg(target_os = "linux")]
             launcher: Mutex::new(None),
@@ -175,7 +173,7 @@ impl Runtime {
     pub fn stop(&self) {
         let mut guard = self.running.lock().unwrap_or_else(|p| p.into_inner());
         if let Some(mut running) = guard.take() {
-            let _ = running.child.kill();
+            let _ = crate::ai_process::kill(&mut running.child);
             let _ = running.child.wait();
         }
     }
@@ -225,52 +223,48 @@ impl Runtime {
         }
         self.stop();
         let model_spec = crate::ai_models::spec(model_id)?;
-        let name = model_spec["name"].as_str().ok_or("模型清单无效。")?;
-        let cached = self.cache_root.join(name);
-        let model = if cached.is_file() {
-            cached
-        } else {
-            self.assets.root.join("models").join(name)
-        };
-        {
+        let model = {
             let mut verified = self
                 .verified_model
                 .lock()
                 .unwrap_or_else(|p| p.into_inner());
-            if verified.as_deref() != Some(model_id) {
-                crate::ai_models::verified(&model, &model_spec, cancelled)?;
-                *verified = Some(model_id.into());
-            }
-        }
-        let cached_projector = self.cache_root.join("mmproj-Qwen3.5-2B-BF16.gguf");
-        let projector = if cached_projector.is_file() {
-            cached_projector
-        } else {
-            self.assets.root.join("models/mmproj-Qwen3.5-2B-BF16.gguf")
-        };
-        if vision && !self.vision_verified.load(Ordering::SeqCst) {
-            let mut file =
-                File::open(&projector).map_err(|_| "内置视觉组件缺失，文字聊天仍可使用。")?;
-            if file.metadata().map_err(|_| "视觉组件读取失败。")?.len() != 671372416 {
-                return Err("视觉组件大小不符。".into());
-            }
-            let mut digest = Sha256::new();
-            let mut buf = vec![0; 1024 * 1024];
-            loop {
-                check_cancel(cancelled)?;
-                let n = file.read(&mut buf).map_err(|_| "视觉组件读取失败。")?;
-                if n == 0 {
-                    break;
-                }
-                digest.update(&buf[..n]);
-            }
-            if format!("{:x}", digest.finalize())
-                != "31a8b681d34e70eaef158f7bacf1bc726a7a29babd185119ab3ebf402890dfbc"
+            if let Some((id, path)) = verified
+                .as_ref()
+                .filter(|(id, path)| id == model_id && path.is_file())
             {
-                return Err("视觉组件校验失败。".into());
+                let _ = id;
+                path.clone()
+            } else {
+                let path = crate::ai_models::resolve(
+                    &self.cache_root,
+                    &self.assets.root,
+                    &model_spec,
+                    cancelled,
+                )?;
+                *verified = Some((model_id.into(), path.clone()));
+                path
             }
-            self.vision_verified.store(true, Ordering::SeqCst);
-        }
+        };
+        let projector = if vision {
+            let mut verified = self
+                .vision_verified
+                .lock()
+                .unwrap_or_else(|p| p.into_inner());
+            if let Some(path) = verified.as_ref().filter(|p| p.is_file()) {
+                Some(path.clone())
+            } else {
+                let path = crate::ai_models::resolve(
+                    &self.cache_root,
+                    &self.assets.root,
+                    &crate::ai_models::spec("vision")?,
+                    cancelled,
+                )?;
+                *verified = Some(path.clone());
+                Some(path)
+            }
+        } else {
+            None
+        };
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|_| "无法为本地模型分配端口。")?;
         let port = listener
             .local_addr()
@@ -282,7 +276,10 @@ impl Runtime {
             context: settings.local_context,
             timeout: settings.timeout_seconds,
         };
-        let mut command = Command::new(self.assets.binary_path());
+        let mut command = crate::ai_process::command(
+            &self.assets.binary_path(),
+            &self.assets.root.join("runtime"),
+        )?;
         command
             .args(["-m"])
             .arg(model)
@@ -301,13 +298,16 @@ impl Runtime {
             .stdout(Stdio::null())
             .stderr(Stdio::null());
         if vision {
-            command.arg("--mmproj").arg(projector).args([
-                "--no-mmproj-offload",
-                "--image-min-tokens",
-                "256",
-                "--image-max-tokens",
-                "256",
-            ]);
+            command
+                .arg("--mmproj")
+                .arg(projector.as_ref().ok_or("视觉组件缺失。")?)
+                .args([
+                    "--no-mmproj-offload",
+                    "--image-min-tokens",
+                    "256",
+                    "--image-max-tokens",
+                    "256",
+                ]);
         } else {
             command.arg("--no-mmproj");
         }

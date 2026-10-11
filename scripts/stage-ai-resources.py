@@ -47,7 +47,7 @@ def main():
     license_file = Path(args.runtime_license).resolve()
     if not license_file.is_file():
         parser.error('runtime license is required')
-    files = [p for p in runtime.iterdir() if p.is_file() and (p in binaries or ('bench' not in p.name and ('.so' in p.name or p.suffix in ('.dll', '.dylib'))))]
+    files = [p for p in runtime.iterdir() if p.is_file() and (p in binaries or p.name=='daxiong-ai-guard' or ('bench' not in p.name and ('.so' in p.name or p.suffix in ('.dll', '.dylib'))))]
     (stage / 'runtime').mkdir(parents=True)
     (stage / 'models').mkdir()
     (stage / 'licenses').mkdir()
@@ -90,6 +90,8 @@ def main():
         target = stage / 'licenses/llama.cpp-third-party' / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+    if (stage / 'runtime/daxiong-ai-guard').exists():
+        shutil.copy2(ROOT / 'LICENSE', stage / 'licenses/daxiong-process-guard-LICENSE.txt')
     (stage / 'licenses/ATTRIBUTION.txt').write_text(
         'CPU runtime: ggml-org/llama.cpp, pinned commit '
         + json.loads((ROOT / 'scripts/ai-prototype/default-model.json').read_text())['runtime']['commit']

@@ -38,6 +38,10 @@ isolated = work/'portable-runtime'; isolated.mkdir(exist_ok=True)
 import shutil
 executable = runtime/('llama-server.exe' if __import__('os').name=='nt' else 'llama-server')
 shutil.copy2(executable, isolated/executable.name)
+if __import__('platform').system()=='Darwin':
+    guardian=isolated/'daxiong-ai-guard'
+    subprocess.run(['clang','-std=c11','-O2','-Wall','-Wextra','-mmacosx-version-min=14.0',str(root/'native/ai-guard.c'),'-o',str(guardian)],check=True)
+    subprocess.run([sys.executable,str(root/'scripts/smoke-process-guard.py'),'--guardian',str(guardian),'--out',str(work/'guard-smoke')],check=True)
 subprocess.run([str(isolated/executable.name),'--version'],check=True)
 runtime = isolated
 subprocess.run(['python',str(root/'scripts/stage-ai-resources.py'),'--runtime-dir',str(runtime),'--model',str(model),'--projector',str(projector),'--ocr-dir',str(ocr),'--runtime-license',str(source/'LICENSE'),'--out',str(work/'ai'),'--bundle-config',str(work/'tauri-ai.json')],check=True)

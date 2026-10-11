@@ -5,7 +5,7 @@ use sha2::{Digest, Sha256};
 use std::{
     io::{Read, Write},
     path::Path,
-    process::{Child, Command, Stdio},
+    process::{Child, Stdio},
     sync::{
         atomic::{AtomicBool, Ordering},
         mpsc,
@@ -27,7 +27,7 @@ pub struct Output {
 struct OwnedChild(Child);
 impl Drop for OwnedChild {
     fn drop(&mut self) {
-        let _ = self.0.kill();
+        let _ = crate::ai_process::kill(&mut self.0);
         let _ = self.0.wait();
     }
 }
@@ -63,7 +63,7 @@ pub fn recognize(root: &Path, png: Vec<u8>, threads: u8, cancelled: &AtomicBool)
     } else {
         "daxiong-ocr"
     });
-    let mut command = Command::new(binary);
+    let mut command = crate::ai_process::command(&binary, &root.join("runtime"))?;
     command
         .arg(&models[0])
         .arg(&models[1])
@@ -110,7 +110,7 @@ pub fn recognize(root: &Path, png: Vec<u8>, threads: u8, cancelled: &AtomicBool)
     let start = Instant::now();
     let status = loop {
         if cancelled.load(Ordering::SeqCst) || start.elapsed() > Duration::from_secs(30) {
-            let _ = child.0.kill();
+            let _ = crate::ai_process::kill(&mut child.0);
             let _ = child.0.wait();
             let _ = writer.join();
             let _ = reader.join();

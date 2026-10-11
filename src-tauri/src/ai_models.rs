@@ -58,6 +58,19 @@ pub fn verified(path: &Path, spec: &Value, token: &AtomicBool) -> Result<()> {
     }
     Ok(())
 }
+pub fn resolve(cache: &Path, bundled: &Path, spec: &Value, token: &AtomicBool) -> Result<PathBuf> {
+    let name = spec["name"].as_str().ok_or("模型清单无效。")?;
+    let cached = cache.join(name);
+    if verified(&cached, spec, token).is_ok() {
+        return Ok(cached);
+    }
+    if token.load(Ordering::SeqCst) {
+        return Err("模型操作已停止。".into());
+    }
+    let path = bundled.join("models").join(name);
+    verified(&path, spec, token)?;
+    Ok(path)
+}
 #[derive(Clone, Serialize)]
 pub struct Download {
     pub id: Option<String>,
@@ -83,6 +96,14 @@ pub struct ModelManager {
 }
 impl ModelManager {
     pub fn new(root: PathBuf, bundled: PathBuf) -> Self {
+        // Only fixed, inactive temporary filenames owned by this manager are reclaimed.
+        for id in ["2b", "vision", "small"] {
+            if let Ok(spec) = spec(id) {
+                if let Some(name) = spec["name"].as_str() {
+                    let _ = std::fs::remove_file(root.join(name).with_extension("part"));
+                }
+            }
+        }
         Self {
             root,
             bundled,
@@ -292,6 +313,22 @@ impl ModelManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn corrupt_or_old_cached_weight_falls_back_to_verified_bundle() {
+        let dir = tempfile::tempdir().unwrap();
+        let cache = dir.path().join("cache");
+        let bundled = dir.path().join("bundled");
+        std::fs::create_dir_all(&cache).unwrap();
+        std::fs::create_dir_all(bundled.join("models")).unwrap();
+        let spec = serde_json::json!({"name":"model.gguf","bytes":5,"sha256":format!("{:x}",Sha256::digest(b"right"))});
+        std::fs::write(cache.join("model.gguf"), b"wrong").unwrap();
+        std::fs::write(bundled.join("models/model.gguf"), b"right").unwrap();
+        assert_eq!(
+            resolve(&cache, &bundled, &spec, &AtomicBool::new(false)).unwrap(),
+            bundled.join("models/model.gguf")
+        );
+        assert!(resolve(&cache, &bundled, &spec, &AtomicBool::new(true)).is_err());
+    }
     #[test]
     fn invalid_or_cancelled_files_are_never_qualified() {
         let dir = tempfile::tempdir().unwrap();

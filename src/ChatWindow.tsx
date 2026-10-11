@@ -854,6 +854,13 @@ export default function ChatWindow() {
                       step: 1024,
                     },
                     {
+                      key: "external_context",
+                      label: "外接上下文预算",
+                      min: 1024,
+                      max: 32768,
+                      step: 1024,
+                    },
+                    {
                       key: "output_tokens",
                       label: "回复token上限",
                       min: 32,
@@ -876,7 +883,7 @@ export default function ChatWindow() {
                     },
                   ] as const
                 ).map((field) => (
-                  <label key={field.key}>
+                  <label key={`${field.key}:${snapshot.settings[field.key]}`}>
                     {field.label}
                     <input
                       type="number"
@@ -1546,6 +1553,8 @@ export default function ChatWindow() {
                         setError("");
                         try {
                           await invoke("ai_reset_personal_data");
+                          setPreview("");
+                          setText("");
                           stream.current = null;
                           draftDirty.current = false;
                           initialized.current = false;

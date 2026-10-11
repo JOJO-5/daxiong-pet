@@ -4,19 +4,20 @@ import argparse,base64,hashlib,json,subprocess,time,urllib.request
 from pathlib import Path
 from importlib.util import spec_from_file_location,module_from_spec
 spec=spec_from_file_location('chat',Path(__file__).with_name('chat-trial.py'));chat=module_from_spec(spec);spec.loader.exec_module(chat)
-p=argparse.ArgumentParser();p.add_argument('--server',required=True);p.add_argument('--models',required=True);p.add_argument('--manifest',required=True);p.add_argument('--fixtures',required=True);p.add_argument('--out',required=True);p.add_argument('--min-image-tokens',type=int,default=0);p.add_argument('--case-ids',default='');a=p.parse_args();out=Path(a.out)
+p=argparse.ArgumentParser();p.add_argument('--server',required=True);p.add_argument('--models',required=True);p.add_argument('--manifest',required=True);p.add_argument('--fixtures',required=True);p.add_argument('--out',required=True);p.add_argument('--min-image-tokens',type=int,default=0);p.add_argument('--max-image-tokens',type=int,default=1024);p.add_argument('--output-tokens',type=int,default=192);p.add_argument('--case-ids',default='');a=p.parse_args();out=Path(a.out)
 if out.exists() and any(out.iterdir()):p.error('--out must be empty')
 out.mkdir(parents=True);manifest=json.loads(Path(a.manifest).read_text());fixture=Path(a.fixtures);cases=json.loads((fixture/'cases.json').read_text());system=json.loads(Path(__file__).with_name('chat-cases.json').read_text())['system']
 if a.min_image_tokens < 0 or a.min_image_tokens > 1024:p.error('min-image-tokens must be 0..1024')
+if not 1<=a.max_image_tokens<=2048 or a.min_image_tokens>a.max_image_tokens or not 1<=a.output_tokens<=512:p.error('invalid image/output token budget')
 if a.case_ids:cases=[c for c in cases if c['id'] in a.case_ids.split(',')]
 if not cases:p.error('no cases selected')
 for m in manifest['candidates']:
  file=Path(a.models)/m['name'];assert file.stat().st_size==m['bytes'] and chat.sha(file)==m['sha256']
 model=next(m for m in manifest['candidates'] if not m['name'].startswith('mmproj'));proj=next(m for m in manifest['candidates'] if m['name'].startswith('mmproj'))
-cmd=[a.server,'-m',str(Path(a.models)/model['name']),'--mmproj',str(Path(a.models)/proj['name']),'--no-mmproj-offload','--host','127.0.0.1','--port','18891','-t','2','-tb','2','-c','4096','-np','1','-ngl','0','--jinja','--no-warmup','--image-max-tokens','1024']
+cmd=[a.server,'-m',str(Path(a.models)/model['name']),'--mmproj',str(Path(a.models)/proj['name']),'--no-mmproj-offload','--host','127.0.0.1','--port','18891','-t','2','-tb','2','-c','4096','-np','1','-ngl','0','--jinja','--no-warmup','--image-max-tokens',str(a.max_image_tokens)]
 if a.min_image_tokens:cmd+=['--image-min-tokens',str(a.min_image_tokens)]
-params={'stream':True,'stream_options':{'include_usage':True},'max_tokens':192,'temperature':0.6,'top_p':0.9,'top_k':40,'min_p':0.0,'repeat_penalty':1.05,'seed':20261010,'cache_prompt':True,'chat_template_kwargs':{'enable_thinking':False}}
-(out/'configuration.json').write_text(json.dumps({'command':cmd,'parameters':params,'manifest':manifest,'cases':cases,'system':system,'note':'Synthetic 960x540 PNGs, max image tokens 1024; minimum and selected probes are in command/cases; no real capture/OCR, no privacy/permission integration. Same shared CPU as chat.'},ensure_ascii=False,indent=2)+'\n')
+params={'stream':True,'stream_options':{'include_usage':True},'max_tokens':a.output_tokens,'temperature':0.6,'top_p':0.9,'top_k':40,'min_p':0.0,'repeat_penalty':1.05,'seed':20261010,'cache_prompt':True,'chat_template_kwargs':{'enable_thinking':False}}
+(out/'configuration.json').write_text(json.dumps({'command':cmd,'parameters':params,'manifest':manifest,'cases':cases,'system':system,'note':f'Synthetic 960x540 PNGs, max image tokens {a.max_image_tokens}; minimum and selected probes are in command/cases; no real capture/OCR, no privacy/permission integration. Same shared CPU as chat.'},ensure_ascii=False,indent=2)+'\n')
 (out/'source-hashes.json').write_text(json.dumps({x.name:chat.sha(x) for x in [Path(__file__),Path(__file__).with_name('chat-trial.py'),Path(__file__).with_name('make-vision-cases.py')]},indent=2)+'\n')
 log=(out/'server.txt').open('w');process=subprocess.Popen(cmd,stdout=log,stderr=log);base='http://127.0.0.1:18891';records=[];started=time.perf_counter()
 try:

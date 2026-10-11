@@ -63,11 +63,12 @@ def main():
     command = [args.cmake, '-S', str(work / 'opencv-4.12.0'), '-B', str(work / 'opencv-build'), '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_INSTALL_PREFIX=' + str(install), '-DBUILD_LIST=core,imgproc,imgcodecs', '-DBUILD_SHARED_LIBS=OFF', '-DBUILD_TESTS=OFF', '-DBUILD_PERF_TESTS=OFF', '-DBUILD_EXAMPLES=OFF', '-DBUILD_opencv_apps=OFF', '-DBUILD_opencv_gapi=OFF', '-DWITH_ADE=OFF', '-DWITH_VTK=OFF', '-DBUILD_JAVA=OFF', '-DBUILD_opencv_python2=OFF', '-DBUILD_opencv_python3=OFF', '-DWITH_PNG=ON', '-DBUILD_PNG=ON', '-DBUILD_ZLIB=ON']
     for feature in ['JPEG', 'TIFF', 'WEBP', 'OPENJPEG', 'JASPER', 'OPENEXR', 'GDAL', 'FFMPEG', 'GSTREAMER', 'GTK', 'QT', 'IPP', 'ITT', 'OPENCL', 'LAPACK', 'EIGEN', 'PROTOBUF', 'TBB', 'V4L', 'DC1394', 'AVFOUNDATION', 'MSMF']:
         command.append('-DWITH_' + feature + '=OFF')
+    if platform.system()=="Darwin": command.append("-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0")
     subprocess.run(command, check=True)
     subprocess.run([args.cmake, '--build', str(work / 'opencv-build'), '--config', 'Release', '--parallel', str(args.jobs)], check=True)
     subprocess.run([args.cmake, '--install', str(work / 'opencv-build'), '--config', 'Release'], check=True)
     build = work / 'worker'
-    subprocess.run([args.cmake, '-S', str(ROOT / 'native/ocr'), '-B', str(build), '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_PREFIX_PATH=' + str(install), '-DOpenCV_DIR=' + str(install / ('staticlib' if platform.system() == 'Windows' else 'lib/cmake/opencv4')), '-DORT_ROOT=' + str(ort_root)], check=True)
+    subprocess.run([args.cmake, '-S', str(ROOT / 'native/ocr'), '-B', str(build), '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_PREFIX_PATH=' + str(install), '-DOpenCV_DIR=' + str(install / ('staticlib' if platform.system() == 'Windows' else 'lib/cmake/opencv4')), '-DORT_ROOT=' + str(ort_root), *(['-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0'] if platform.system()=='Darwin' else [])], check=True)
     subprocess.run([args.cmake, '--build', str(build), '--config', 'Release', '--parallel', str(args.jobs)], check=True)
     output = args.out.resolve()
     output.mkdir(parents=True, exist_ok=True)

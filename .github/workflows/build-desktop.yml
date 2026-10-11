@@ -8,6 +8,7 @@ permissions:
   contents: read
 jobs:
   build:
+    if: github.event_name != 'pull_request' || github.head_ref != 'feat/local-ai-chat'
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -40,6 +41,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -56,6 +60,8 @@ jobs:
       - name: Test frontend image loading
         run: npm test
       - name: Test engine
+        env:
+          DAXIONG_TEST_NATIVE_CREDENTIALS: ${{ runner.os != 'Linux' && '1' || '0' }}
         run: cargo test --locked --manifest-path src-tauri/Cargo.toml
       - name: Build and stage bundled CPU AI
         run: python scripts/prepare-bundled-ai.py --work ai-build
@@ -65,6 +71,7 @@ jobs:
         run: npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }} --config ai-build/tauri-ai.json
         env:
           NO_STRIP: true
+          MACOSX_DEPLOYMENT_TARGET: "14.0"
       - name: Smoke test Linux single instance
         if: runner.os == 'Linux'
         run: xvfb-run -a dbus-run-session -- bash scripts/smoke-linux.sh

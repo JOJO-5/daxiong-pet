@@ -20,6 +20,8 @@ def main():
     parser.add_argument('--runtime-dir', required=True)
     parser.add_argument('--model', required=True)
     parser.add_argument('--runtime-license', required=True)
+    parser.add_argument('--projector')
+    parser.add_argument('--ocr-dir')
     parser.add_argument('--out', required=True)
     parser.add_argument('--symlink', action='store_true', help='Development only; never distribute links to local source files.')
     parser.add_argument('--bundle-config', help='Write a separate Tauri resource override, for a copy stage only.')
@@ -33,6 +35,11 @@ def main():
     model = Path(args.model).resolve()
     if model.name != spec['name'] or model.stat().st_size != spec['bytes'] or sha(model) != spec['sha256']:
         parser.error('model does not match pinned Qwen3.5 2B artifact')
+    projector = Path(args.projector).resolve() if args.projector else None
+    if projector:
+        visual = json.loads((ROOT / 'scripts/ai-prototype/default-model.json').read_text())['vision_component']
+        if projector.name != visual['name'] or projector.stat().st_size != visual['bytes'] or sha(projector) != visual['sha256']:
+            parser.error('visual component does not match pinned model')
     runtime = Path(args.runtime_dir).resolve()
     binaries = [p for p in runtime.iterdir() if p.name in ('llama-server', 'llama-server.exe')]
     if len(binaries) != 1:
@@ -55,6 +62,18 @@ def main():
             shutil.copy2(linked, target)
         else:
             shutil.copy2(source, target)
+    if projector:
+        target = stage / 'models' / projector.name
+        if args.symlink: target.symlink_to(projector)
+        else: shutil.copy2(projector,target)
+    if args.ocr_dir:
+        ocr=Path(args.ocr_dir).resolve()
+        manifest=json.loads((ocr/'manifest.json').read_text())
+        for name, expected in manifest.items():
+            source=(ocr/name).resolve()
+            if not source.is_relative_to(ocr) or not source.is_file() or sha(source)!=expected: parser.error('OCR resource checksum mismatch')
+        if args.symlink: (stage/'ocr').symlink_to(ocr,target_is_directory=True)
+        else: shutil.copytree(ocr,stage/'ocr')
     shutil.copy2(license_file, stage / 'licenses/llama.cpp-LICENSE.txt')
     shutil.copy2(ROOT / 'scripts/ai-prototype/QWEN35-LICENSE.txt', stage / 'licenses/QWEN35-LICENSE.txt')
     # The static server includes vendored code with independent copyright notices.
@@ -83,6 +102,6 @@ def main():
         Path(args.bundle_config).write_text(json.dumps({'bundle': {'resources': {str(stage) + '/': 'ai/'}}}, indent=2) + '\n')
     print('Verified stage:', stage)
     print('Development: set DAXIONG_AI_RESOURCE_DIR to this directory before launching a debug app.')
-    print('Text-only development slice; OCR and visual component are not staged by this helper yet.')
+    print('Vision and OCR staged:', bool(projector), bool(args.ocr_dir))
 if __name__ == '__main__':
     main()

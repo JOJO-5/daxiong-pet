@@ -4,6 +4,12 @@
 mod ai;
 mod ai_runtime;
 mod ai_store;
+mod ai_memory;
+mod ai_models;
+mod ai_process;
+mod ai_ocr;
+mod ai_external;
+mod ai_screen;
 mod atlas;
 mod activities;
 mod config;
@@ -89,6 +95,8 @@ struct AppState {
     pet_revision: Arc<AtomicU64>,
     requested_visible: AtomicBool,
     focusing: AtomicBool,
+    ai_available: AtomicBool,
+    ai_bubble_until: AtomicU64,
     play: Mutex<play::PlayView>,
     memory: Mutex<MemoryState>,
     activity: Mutex<activities::ActivityView>,
@@ -680,6 +688,7 @@ fn spawn_engine(
                 prev_clickable = Some(out.clickable);
             }
 
+            state.ai_available.store(!out.sleeping && !input.button_down && !out.clickable && state.play.lock().unwrap().phase=="off" && state.activity.lock().unwrap().phase=="off",Ordering::Relaxed);
             let frame = FramePayload {row:out.row,col:out.col,released_toy,petting:out.petting,dizzy:out.dizzy};
             if visible && prev_frame.as_ref()!=Some(&frame) {
                 let _ = app.emit("pet:frame", &frame);
@@ -762,7 +771,7 @@ fn main() {
             None,
         ))
         .invoke_handler(tauri::generate_handler![
-            ai::open_chat, ai::close_chat, ai::ai_ready, ai::ai_snapshot, ai::ai_send, ai::ai_cancel, ai::ai_save_personality, ai::ai_configure, ai::ai_clear_chat,
+            ai::open_chat, ai::close_chat, ai::ai_ready, ai::ai_snapshot, ai::ai_send, ai::ai_cancel, ai::ai_save_personality, ai::ai_configure, ai::ai_clear_chat, ai::ai_change_preference, ai::ai_undo_preference, ai::ai_save_key, ai::ai_reset_personal_data, ai::ai_observe, ai::ai_pause_observation, ai::ai_displays, ai::ai_protect_bubble, ai::ai_claim_ambient, ai::ai_model_download, ai::ai_model_cancel, ai::ai_model_remove,
             pet_ready,
             current_pet,
             list_pets,
@@ -855,7 +864,7 @@ fn main() {
                 sleep_frame: sleep_frame.clone(),
                 engine_tx: Mutex::new(tx),
                 pet_revision: pet_revision.clone(),
-                requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false),
+                requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false), ai_available:AtomicBool::new(false), ai_bubble_until:AtomicU64::new(0),
                 play: Mutex::new(play::Play::default().view()),
                 memory: Mutex::new(memory),
                 activity: Mutex::new(activities::Activities::default().view()),rewarded_trick:AtomicU64::new(0),
@@ -864,6 +873,7 @@ fn main() {
                 pet_menu:Mutex::new(None),
             });
 
+            app.state::<ai::AiState>().0.start_observation_scheduler(app.handle().clone());
             if saved.shortcut_enabled {
                 use tauri_plugin_global_shortcut::GlobalShortcutExt;
                 if let Err(e)=app.global_shortcut().register(OPEN_SHORTCUT) {app.state::<AppState>().shortcut.lock().unwrap().error=Some(format!("快捷键未生效：{e}，仍可用右键菜单打开"));}
@@ -909,7 +919,7 @@ mod tests {
             sleep_frame: Arc::new(AtomicU16::new(pack_sleep(5, 2))), engine_tx: Mutex::new(tx),
             shortcut:Mutex::new(ShortcutPrefs::default()),
             pet_menu:Mutex::new(None),
-            pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false),
+            pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false), ai_available:AtomicBool::new(false), ai_bubble_until:AtomicU64::new(0),
                 play: Mutex::new(play::Play::default().view()),
                 activity: Mutex::new(activities::Activities::default().view()),rewarded_trick:AtomicU64::new(0),
                 memory: Mutex::new(MemoryState{data:companion::Memory::default(),error:None}),

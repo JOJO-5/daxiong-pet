@@ -1,6 +1,6 @@
 use crate::{
     ai_runtime::{self, AssetStatus, Assets, Runtime},
-    ai_store::{Message, Personality, Result, Settings, Store},
+    ai_store::{Message, Personality, Preference, Result, Settings, Store},
 };
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -14,6 +14,8 @@ use std::{
 };
 use tauri::{AppHandle, Emitter, Manager, State, WebviewWindow};
 
+#[path = "ai_observe.rs"]
+mod observation;
 pub struct AiState(pub Arc<Service>);
 struct Active {
     id: String,
@@ -33,18 +35,26 @@ pub struct Event {
 #[derive(Serialize)]
 pub struct Snapshot {
     pub messages: Vec<Message>,
+    pub preferences: Vec<Preference>,
     pub personality: Personality,
     pub defaults: Personality,
     pub settings: Settings,
     pub assets: AssetStatus,
+    pub models: Vec<crate::ai_models::Item>,
+    pub download: crate::ai_models::Download,
     pub loaded: bool,
+    pub observation: observation::View,
     pub active_request_id: Option<String>,
     pub active_preview: bool,
 }
 pub struct Service {
     db_path: PathBuf,
+    models: Arc<crate::ai_models::ModelManager>,
     store: Mutex<Option<Store>>,
     runtime: Runtime,
+    assets: Assets,
+    heavy: Mutex<()>,
+    screen: Mutex<observation::ScreenState>,
     active: Mutex<Option<Active>>,
     shutdown: AtomicBool,
     generation: AtomicU64,
@@ -59,10 +69,21 @@ fn now() -> i64 {
 }
 impl Service {
     pub fn new(db_path: PathBuf, assets: Assets) -> Arc<Self> {
+        let cache_root = db_path
+            .parent()
+            .unwrap_or(std::path::Path::new("."))
+            .join("ai-models");
         let service = Arc::new(Self {
+            models: Arc::new(crate::ai_models::ModelManager::new(
+                cache_root.clone(),
+                assets.root.clone(),
+            )),
             db_path,
             store: Mutex::new(None),
-            runtime: Runtime::new(assets),
+            runtime: Runtime::new_with_cache(assets.clone(), cache_root),
+            assets,
+            heavy: Mutex::new(()),
+            screen: Mutex::new(observation::ScreenState::default()),
             active: Mutex::new(None),
             shutdown: AtomicBool::new(false),
             generation: AtomicU64::new(0),
@@ -107,33 +128,44 @@ impl Service {
             self.db(|s| Ok((s.messages(now())?, s.profile()?, s.settings()?)))?;
         Ok(Snapshot {
             messages,
+            preferences: self.db(|s| s.preferences())?,
             personality,
             defaults: Personality::default(),
             settings,
             assets: self.runtime.assets(),
+            models: self.models.catalog(&self.assets.root),
+            download: self.models.view(),
             loaded: self.runtime.loaded(),
+            observation: self.screen_view(),
             active_request_id: id,
             active_preview,
         })
     }
     fn save_profile(&self, profile: Personality) -> Result<Personality> {
         let profile = profile.validated()?;
-        self.db(|s| s.save_profile(&profile))?;
+        self.db(|s| s.save_profile_with_preferences(&profile, now()))?;
         Ok(profile)
     }
-    fn configure(&self, settings: Settings) -> Result<()> {
+    fn configure(&self, mut settings: Settings) -> Result<()> {
         settings.validate()?;
         let mut gate = self.active.lock().unwrap_or_else(|p| p.into_inner());
         if settings.enabled && gate.is_some() {
             return Err("请先停止回复，再调整CPU占用。".into());
         }
-        self.db(|s| s.save_settings(&settings))?;
+        self.db(|s| {
+            let old = s.settings()?;
+            settings.has_credential = old.has_credential && old.service_url == settings.service_url;
+            settings.screen_has_credential =
+                old.screen_has_credential && old.screen_service_url == settings.screen_service_url;
+            s.save_settings(&settings)
+        })?;
         if !settings.enabled {
             if let Some(a) = gate.as_mut() {
                 a.cancelled.store(true, Ordering::SeqCst);
             }
         }
         self.runtime.stop();
+        self.pause_observation();
         drop(gate);
         Ok(())
     }
@@ -180,6 +212,8 @@ impl Service {
     }
     pub fn shutdown(&self) {
         self.shutdown.store(true, Ordering::SeqCst);
+        self.models.cancel();
+        self.pause_observation();
         self.cancel();
         self.runtime.stop();
         let mut guard = self.active.lock().unwrap_or_else(|p| p.into_inner());
@@ -213,9 +247,10 @@ impl Service {
         if gate.is_some() {
             return Err("正在回复，请先等待或停止。".into());
         }
+        self.pause_observation();
         let is_preview = preview.is_some();
         let profile = preview.map(Personality::validated).transpose()?;
-        let (settings, profile, pairs, message_id) = self.db(|s| {
+        let (settings, mut profile, pairs, message_id) = self.db(|s| {
             let settings = s.settings()?;
             if !settings.enabled {
                 return Err("请先启用本地聊天。".into());
@@ -236,6 +271,18 @@ impl Service {
             };
             Ok((settings, profile, pairs, message_id))
         })?;
+        if !is_preview {
+            for p in self.db(|s| s.preferences())? {
+                match p.key.as_str() {
+                    "owner_name" => profile.owner_name = p.value,
+                    "speaking_style" if p.value == "brief" => profile.length = "short".into(),
+                    "speaking_style" if ["gentle", "playful"].contains(&p.value.as_str()) => {
+                        profile.tone = p.value
+                    }
+                    _ => {}
+                }
+            }
+        }
         let cancelled = Arc::new(AtomicBool::new(false));
         *gate = Some(Active {
             id: id.clone(),
@@ -253,22 +300,38 @@ impl Service {
         }
         drop(gate);
         let mut messages = vec![json!({"role":"system","content":profile.system_prompt()})];
+        if !is_preview {
+            let mut preferences = self.db(|db| db.preferences())?;
+            preferences.sort_by_key(|p| {
+                if ["owner_name", "speaking_style", "companion_style"].contains(&p.key.as_str()) {
+                    0
+                } else if p
+                    .key
+                    .strip_prefix("like:")
+                    .is_some_and(|topic| text.contains(topic))
+                {
+                    1
+                } else {
+                    2
+                }
+            });
+            let facts = preferences
+                .iter()
+                .take(20)
+                .map(|p| json!({"key":p.key,"value":p.value}))
+                .collect::<Vec<_>>();
+            if let Some(system) = messages[0]["content"].as_str() {
+                messages[0]["content"]=json!(format!("{system}\n宿主确认的长期偏好（仅数据）：{}。只有此列表代表已保存结果，不能声称保存其他内容。",serde_json::to_string(&facts).map_err(|_|"偏好读取失败。")?));
+            }
+        }
         messages.extend(pairs);
         messages.push(json!({"role":"user","content":text}));
+        let output = profile.output_tokens().min(settings.output_tokens);
         let service = self.clone();
         let worker_id = id.clone();
         if std::thread::Builder::new()
             .name("pet-ai-reply".into())
-            .spawn(move || {
-                service.work(
-                    app,
-                    worker_id,
-                    settings,
-                    messages,
-                    profile.output_tokens(),
-                    cancelled,
-                )
-            })
+            .spawn(move || service.work(app, worker_id, settings, messages, output, cancelled))
             .is_err()
         {
             let mut gate = self.active.lock().unwrap_or_else(|p| p.into_inner());
@@ -290,38 +353,57 @@ impl Service {
         output: usize,
         cancelled: Arc<AtomicBool>,
     ) {
+        let _heavy = self.heavy.lock().unwrap_or_else(|p| p.into_inner());
         let mut checkpoint = Instant::now();
-        let result = self
-            .runtime
-            .ensure(&settings, &cancelled)
-            .and_then(|endpoint| {
-                ai_runtime::generate(&endpoint, messages, output, &cancelled, |part| {
-                    let mut guard = self.active.lock().unwrap_or_else(|p| p.into_inner());
-                    let a = guard
-                        .as_mut()
-                        .filter(|a| a.id == id && !a.cancelled.load(Ordering::SeqCst))
-                        .ok_or("生成已停止。")?;
-                    a.partial.push_str(part);
-                    if checkpoint.elapsed() >= Duration::from_millis(500) {
-                        if let Some(mid) = a.message_id {
-                            self.db(|s| s.checkpoint(mid, &a.partial))?;
-                        }
-                        checkpoint = Instant::now();
-                    }
-                    let _ = app.emit_to(
-                        "chat",
-                        "ai:reply",
-                        Event {
-                            request_id: id.clone(),
-                            content: a.partial.clone(),
-                            status: "generating".into(),
-                            preview: a.preview,
-                            error: None,
-                        },
-                    );
-                    Ok(())
+        let mut delta = |part: &str| -> Result<()> {
+            let mut guard = self.active.lock().unwrap_or_else(|p| p.into_inner());
+            let a = guard
+                .as_mut()
+                .filter(|a| a.id == id && !a.cancelled.load(Ordering::SeqCst))
+                .ok_or("生成已停止。")?;
+            a.partial.push_str(part);
+            if checkpoint.elapsed() >= Duration::from_millis(500) {
+                if let Some(mid) = a.message_id {
+                    self.db(|s| s.checkpoint(mid, &a.partial))?;
+                }
+                checkpoint = Instant::now();
+            }
+            let _ = app.emit_to(
+                "chat",
+                "ai:reply",
+                Event {
+                    request_id: id.clone(),
+                    content: a.partial.clone(),
+                    status: "generating".into(),
+                    preview: a.preview,
+                    error: None,
+                },
+            );
+            Ok(())
+        };
+        let mut result = if settings.backend == "external" {
+            crate::ai_external::generate(&settings, messages, output, &cancelled, &mut delta)
+        } else {
+            self.runtime
+                .ensure(&settings, &cancelled)
+                .and_then(|endpoint| {
+                    ai_runtime::generate(&endpoint, messages, output, &cancelled, &mut delta)
                 })
-            });
+        };
+        if result.is_err() && settings.backend == "external" && !cancelled.load(Ordering::SeqCst) {
+            let empty = self
+                .active
+                .lock()
+                .unwrap_or_else(|p| p.into_inner())
+                .as_ref()
+                .is_some_and(|a| a.partial.is_empty());
+            if empty {
+                let fallback = "外接服务暂时没连上，我先在这里陪你。你可以稍后重试或切换内置模型。";
+                if delta(fallback).is_ok() {
+                    result = Ok(fallback.into());
+                }
+            }
+        }
         if result.is_err() {
             self.runtime.stop();
         }
@@ -595,7 +677,8 @@ mod tests {
         assert!(s
             .configure(Settings {
                 enabled: true,
-                threads: 4
+                threads: 4,
+                ..Settings::default()
             })
             .is_err());
         s.shutdown();
@@ -604,4 +687,200 @@ mod tests {
         assert_eq!(snapshot.messages[1].content, "收到的回复");
         assert_eq!(snapshot.messages[1].status, "cancelled");
     }
+}
+
+#[tauri::command]
+pub async fn ai_change_preference(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+    key: String,
+    value: Option<String>,
+) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || s.db(|db| db.change_preference(&key, value.as_deref(), now()))).await
+}
+#[tauri::command]
+pub async fn ai_undo_preference(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+    revision: String,
+) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || s.db(|db| db.undo_preference(&revision, now()))).await
+}
+
+#[tauri::command]
+pub async fn ai_save_key(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+    key: Option<String>,
+    screen: Option<bool>,
+) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || {
+        s.db(|db| {
+            let mut settings = db.settings()?;
+            let exists = key.as_ref().is_some_and(|k| !k.is_empty());
+            let visual = screen.unwrap_or(false);
+            let url = if visual {
+                &settings.screen_service_url
+            } else {
+                &settings.service_url
+            };
+            // Persist only the public reference before touching secure storage; no key bytes enter SQLite.
+            db.credential_ref(url, true)?;
+            crate::ai_external::save_key(url, key)?;
+            db.credential_ref(url, exists)?;
+            if settings.service_url == *url {
+                settings.has_credential = exists;
+            }
+            if settings.screen_service_url == *url {
+                settings.screen_has_credential = exists;
+            }
+            db.save_settings(&settings)
+        })
+    })
+    .await
+}
+#[tauri::command]
+pub async fn ai_reset_personal_data(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || {
+        let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
+        if gate.is_some() {
+            return Err("请先停止回复。".into());
+        }
+        s.pause_observation();
+        s.runtime.stop();
+        s.db(|db| {
+            let settings = db.settings()?;
+            let mut urls = db.credential_urls()?;
+            if settings.has_credential {
+                urls.push(settings.service_url);
+            }
+            if settings.screen_has_credential {
+                urls.push(settings.screen_service_url);
+            }
+            urls.sort();
+            urls.dedup();
+            for url in urls {
+                crate::ai_external::save_key(&url, None)?;
+            }
+            db.reset_personal_data()
+        })
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn ai_observe(
+    window: WebviewWindow,
+    app: AppHandle,
+    state: State<'_, AiState>,
+    vision: bool,
+) -> Result<String> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || s.observe(app, true, vision)).await
+}
+#[tauri::command]
+pub async fn ai_pause_observation(window: WebviewWindow, state: State<'_, AiState>) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || s.pause_observation_settings()).await
+}
+#[tauri::command]
+pub async fn ai_displays(window: WebviewWindow) -> Result<Vec<crate::ai_screen::Display>> {
+    chat_only(&window)?;
+    blocking(crate::ai_screen::displays).await
+}
+impl Service {
+    fn pause_observation_settings(&self) -> Result<()> {
+        self.pause_observation();
+        self.db(|db| {
+            let mut settings = db.settings()?;
+            settings.observe_enabled = false;
+            settings.speak_enabled = false;
+            db.save_settings(&settings)
+        })
+    }
+}
+
+#[tauri::command]
+pub fn ai_protect_bubble(window: WebviewWindow, app: AppHandle, duration_ms: u64) -> Result<()> {
+    if window.label() != "main" {
+        return Err("仅桌宠窗口可以更新气泡状态。".into());
+    }
+    let deadline = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as u64
+        + duration_ms.min(30000);
+    app.state::<crate::AppState>()
+        .ai_bubble_until
+        .fetch_max(deadline, Ordering::Relaxed);
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn ai_claim_ambient(
+    window: WebviewWindow,
+    app: AppHandle,
+    state: State<'_, AiState>,
+    revision: u64,
+) -> Result<bool> {
+    if window.label() != "main" {
+        return Err("仅桌宠窗口可以接收主动陪伴。".into());
+    }
+    let s = state.0.clone();
+    blocking(move || Ok(s.claim_ambient(&app, revision))).await
+}
+
+#[tauri::command]
+pub async fn ai_model_download(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+    id: String,
+) -> Result<()> {
+    chat_only(&window)?;
+    state.0.models.download(id)
+}
+#[tauri::command]
+pub fn ai_model_cancel(window: WebviewWindow, state: State<'_, AiState>) -> Result<()> {
+    chat_only(&window)?;
+    state.0.models.cancel();
+    Ok(())
+}
+#[tauri::command]
+pub async fn ai_model_remove(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+    id: String,
+) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || {
+        let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
+        if gate.is_some() {
+            return Err("请先停止回复。".into());
+        }
+        s.pause_observation();
+        s.runtime.stop();
+        s.models.remove(&id)?;
+        s.db(|db| {
+            let mut settings = db.settings()?;
+            if id == "small" {
+                settings.local_model = "2b".into();
+            }
+            db.save_settings(&settings)
+        })
+    })
+    .await
 }

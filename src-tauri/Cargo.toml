@@ -21,9 +21,15 @@ tempfile = "3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 rusqlite = { version = "0.32", features = ["bundled"] }
-reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls", "stream"] }
 sha2 = "0.10"
 uuid = { version = "1", features = ["v4"] }
+regex = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+xcap = "=0.4.1"
+futures-util = "0.3"
+tokio = { version = "1", features = ["time", "macros"] }
+keyring = { version = "3.6.3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust", "vendored"] }
 # 只用来读图集头部拿尺寸（校验契约），不需要完整解码
 image = { version = "0.25", default-features = false, features = ["webp", "png"] }
 base64 = "0.22"
@@ -32,6 +38,9 @@ tauri-plugin-global-shortcut = "2"
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [
     "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_JobObjects",
+    "Win32_System_Threading",
     "Win32_UI_WindowsAndMessaging",
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_System_SystemInformation",
@@ -39,7 +48,6 @@ windows-sys = { version = "0.59", features = [
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
 device_query = "4.0.1"
-chrono = { version = "0.4", default-features = false, features = ["clock"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 gtk = "0.18"

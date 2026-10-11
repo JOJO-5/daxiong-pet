@@ -18,6 +18,7 @@ use std::{
 };
 
 const MODEL_MANIFEST: &str = include_str!("../../scripts/ai-prototype/default-model.json");
+#[cfg(test)]
 pub const CONTEXT: usize = 4096;
 #[derive(Clone)]
 pub struct Assets {
@@ -60,47 +61,29 @@ impl Assets {
             .into(),
         }
     }
-    fn verify(&self, cancelled: &AtomicBool) -> Result<()> {
-        if !self.status().available {
-            return Err(self.status().note);
-        }
-        let spec = self.spec();
-        let expected = spec["bytes"].as_u64().ok_or("模型清单损坏。")?;
-        let mut file = File::open(self.model_path()).map_err(|_| "本地模型无法读取。")?;
-        if file.metadata().map_err(|_| "本地模型无法读取。")?.len() != expected {
-            return Err("模型文件大小不符，请重新准备本地AI资源。".into());
-        }
-        let mut hasher = Sha256::new();
-        let mut buffer = vec![0u8; 1024 * 1024];
-        loop {
-            check_cancel(cancelled)?;
-            let n = file.read(&mut buffer).map_err(|_| "校验本地模型失败。")?;
-            if n == 0 {
-                break;
-            }
-            hasher.update(&buffer[..n]);
-        }
-        if format!("{:x}", hasher.finalize()) != spec["sha256"].as_str().ok_or("模型清单损坏。")?
-        {
-            return Err("模型校验不符，请重新准备本地AI资源。".into());
-        }
-        Ok(())
-    }
 }
 #[derive(Clone)]
 pub struct Endpoint {
     base: String,
     key: String,
+    context: usize,
+    timeout: u64,
 }
 struct Running {
     child: Child,
     endpoint: Endpoint,
     threads: u8,
+    vision: bool,
+    model_id: String,
+    context: usize,
 }
 pub struct Runtime {
     assets: Assets,
+    cache_root: PathBuf,
+    verified_model: Mutex<Option<String>>,
     running: Mutex<Option<Running>>,
-    verified: AtomicBool,
+    idle_seconds: std::sync::atomic::AtomicU64,
+    vision_verified: AtomicBool,
     last_used: Mutex<Instant>,
     #[cfg(target_os = "linux")]
     launcher: Mutex<Option<std::sync::mpsc::Sender<Launch>>>,
@@ -114,20 +97,21 @@ fn check_cancel(cancelled: &AtomicBool) -> Result<()> {
         Ok(())
     }
 }
-fn client() -> Result<Client> {
-    Client::builder()
-        .no_proxy()
-        .connect_timeout(Duration::from_secs(2))
-        .timeout(Duration::from_secs(180))
-        .build()
-        .map_err(|_| "无法创建本地模型连接。".into())
-}
+
 impl Runtime {
+    #[cfg(test)]
     pub fn new(assets: Assets) -> Self {
+        let cache = assets.root.join("cache");
+        Self::new_with_cache(assets, cache)
+    }
+    pub fn new_with_cache(assets: Assets, cache_root: PathBuf) -> Self {
         Self {
+            cache_root,
+            verified_model: Mutex::new(None),
             assets,
             running: Mutex::new(None),
-            verified: AtomicBool::new(false),
+            idle_seconds: std::sync::atomic::AtomicU64::new(300),
+            vision_verified: AtomicBool::new(false),
             last_used: Mutex::new(Instant::now()),
             #[cfg(target_os = "linux")]
             launcher: Mutex::new(None),
@@ -171,6 +155,7 @@ impl Runtime {
             let mut command = command;
             command
                 .spawn()
+                .and_then(crate::ai_process::own)
                 .map_err(|_| "启动本地模型失败，请检查运行器及其依赖。".into())
         }
     }
@@ -200,7 +185,7 @@ impl Runtime {
             .lock()
             .unwrap_or_else(|p| p.into_inner())
             .elapsed()
-            >= Duration::from_secs(300)
+            >= Duration::from_secs(self.idle_seconds.load(Ordering::Relaxed))
         {
             self.stop();
         }
@@ -209,12 +194,26 @@ impl Runtime {
         *self.last_used.lock().unwrap_or_else(|p| p.into_inner()) = Instant::now();
     }
     pub fn ensure(&self, settings: &Settings, cancelled: &AtomicBool) -> Result<Endpoint> {
+        self.ensure_mode(settings, cancelled, false)
+    }
+    pub fn ensure_mode(
+        &self,
+        settings: &Settings,
+        cancelled: &AtomicBool,
+        vision: bool,
+    ) -> Result<Endpoint> {
         check_cancel(cancelled)?;
+        let model_id = if vision { "2b" } else { &settings.local_model };
         self.touch();
+        self.idle_seconds
+            .store(settings.idle_seconds, Ordering::Relaxed);
         {
             let mut guard = self.running.lock().unwrap_or_else(|p| p.into_inner());
             if let Some(r) = guard.as_mut() {
                 if r.threads == settings.threads
+                    && r.vision == vision
+                    && r.model_id == model_id
+                    && r.context == settings.local_context
                     && r.child
                         .try_wait()
                         .map_err(|_| "无法读取模型进程状态。")?
@@ -225,9 +224,52 @@ impl Runtime {
             }
         }
         self.stop();
-        if !self.verified.load(Ordering::SeqCst) {
-            self.assets.verify(cancelled)?;
-            self.verified.store(true, Ordering::SeqCst);
+        let model_spec = crate::ai_models::spec(model_id)?;
+        let name = model_spec["name"].as_str().ok_or("模型清单无效。")?;
+        let cached = self.cache_root.join(name);
+        let model = if cached.is_file() {
+            cached
+        } else {
+            self.assets.root.join("models").join(name)
+        };
+        {
+            let mut verified = self
+                .verified_model
+                .lock()
+                .unwrap_or_else(|p| p.into_inner());
+            if verified.as_deref() != Some(model_id) {
+                crate::ai_models::verified(&model, &model_spec, cancelled)?;
+                *verified = Some(model_id.into());
+            }
+        }
+        let cached_projector = self.cache_root.join("mmproj-Qwen3.5-2B-BF16.gguf");
+        let projector = if cached_projector.is_file() {
+            cached_projector
+        } else {
+            self.assets.root.join("models/mmproj-Qwen3.5-2B-BF16.gguf")
+        };
+        if vision && !self.vision_verified.load(Ordering::SeqCst) {
+            let mut file =
+                File::open(&projector).map_err(|_| "内置视觉组件缺失，文字聊天仍可使用。")?;
+            if file.metadata().map_err(|_| "视觉组件读取失败。")?.len() != 671372416 {
+                return Err("视觉组件大小不符。".into());
+            }
+            let mut digest = Sha256::new();
+            let mut buf = vec![0; 1024 * 1024];
+            loop {
+                check_cancel(cancelled)?;
+                let n = file.read(&mut buf).map_err(|_| "视觉组件读取失败。")?;
+                if n == 0 {
+                    break;
+                }
+                digest.update(&buf[..n]);
+            }
+            if format!("{:x}", digest.finalize())
+                != "31a8b681d34e70eaef158f7bacf1bc726a7a29babd185119ab3ebf402890dfbc"
+            {
+                return Err("视觉组件校验失败。".into());
+            }
+            self.vision_verified.store(true, Ordering::SeqCst);
         }
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|_| "无法为本地模型分配端口。")?;
         let port = listener
@@ -237,11 +279,13 @@ impl Runtime {
         let endpoint = Endpoint {
             base: format!("http://127.0.0.1:{port}"),
             key: uuid::Uuid::new_v4().to_string(),
+            context: settings.local_context,
+            timeout: settings.timeout_seconds,
         };
         let mut command = Command::new(self.assets.binary_path());
         command
             .args(["-m"])
-            .arg(self.assets.model_path())
+            .arg(model)
             .args(["--host", "127.0.0.1", "--port"])
             .arg(port.to_string())
             .args(["--api-key"])
@@ -250,20 +294,23 @@ impl Runtime {
             .arg(settings.threads.to_string())
             .args(["-tb"])
             .arg(settings.threads.to_string())
-            .args([
-                "-c",
-                "4096",
-                "-np",
-                "1",
-                "-ngl",
-                "0",
-                "--jinja",
-                "--no-warmup",
-                "--no-mmproj",
-            ])
+            .arg("-c")
+            .arg(settings.local_context.to_string())
+            .args(["-np", "1", "-ngl", "0", "--jinja", "--no-warmup"])
             .stdin(Stdio::null())
             .stdout(Stdio::null())
             .stderr(Stdio::null());
+        if vision {
+            command.arg("--mmproj").arg(projector).args([
+                "--no-mmproj-offload",
+                "--image-min-tokens",
+                "256",
+                "--image-max-tokens",
+                "256",
+            ]);
+        } else {
+            command.arg("--no-mmproj");
+        }
         #[cfg(windows)]
         {
             use std::os::windows::process::CommandExt;
@@ -295,6 +342,9 @@ impl Runtime {
                 child,
                 endpoint: endpoint.clone(),
                 threads: settings.threads,
+                vision,
+                model_id: model_id.into(),
+                context: settings.local_context,
             });
         }
         let health = Client::builder()
@@ -330,13 +380,22 @@ impl Drop for Runtime {
     }
 }
 
+#[cfg(test)]
 pub fn fit_context(
+    messages: Vec<Value>,
+    output_tokens: usize,
+    count: impl FnMut(&[Value]) -> Result<usize>,
+) -> Result<Vec<Value>> {
+    fit_context_limit(messages, output_tokens, CONTEXT, count)
+}
+fn fit_context_limit(
     mut messages: Vec<Value>,
     output_tokens: usize,
+    context: usize,
     mut count: impl FnMut(&[Value]) -> Result<usize>,
 ) -> Result<Vec<Value>> {
     loop {
-        if count(&messages)? + output_tokens + 128 <= CONTEXT {
+        if count(&messages)? + output_tokens + 128 <= context {
             return Ok(messages);
         }
         if messages.len() <= 2 {
@@ -365,8 +424,13 @@ pub fn generate(
     cancelled: &AtomicBool,
     mut on_delta: impl FnMut(&str) -> Result<()>,
 ) -> Result<String> {
-    let client = client()?;
-    let messages = fit_context(messages, output_tokens, |m| {
+    let client = Client::builder()
+        .no_proxy()
+        .connect_timeout(Duration::from_secs(2))
+        .timeout(Duration::from_secs(endpoint.timeout))
+        .build()
+        .map_err(|_| "本地模型连接失败。")?;
+    let messages = fit_context_limit(messages, output_tokens, endpoint.context, |m| {
         check_cancel(cancelled)?;
         let rendered = post_json(
             &client,
@@ -383,9 +447,15 @@ pub fn generate(
             "/tokenize",
             &json!({"content":prompt,"add_special":false}),
         )?;
+        let images = m
+            .iter()
+            .filter_map(|x| x["content"].as_array())
+            .flatten()
+            .filter(|x| x["type"] == "image_url")
+            .count();
         tokens["tokens"]
             .as_array()
-            .map(|t| t.len())
+            .map(|t| t.len() + images * 1024)
             .ok_or_else(|| "模型没有返回有效token数。".into())
     })?;
     check_cancel(cancelled)?;
@@ -509,8 +579,13 @@ mod tests {
             endpoint: Endpoint {
                 base: String::new(),
                 key: String::new(),
+                context: 4096,
+                timeout: 180,
             },
             threads: 2,
+            vision: false,
+            model_id: "2b".into(),
+            context: 4096,
         });
         runtime.unload_if_idle();
         assert!(runtime.loaded());

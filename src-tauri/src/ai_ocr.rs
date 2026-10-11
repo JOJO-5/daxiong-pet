@@ -95,6 +95,7 @@ pub fn recognize(root: &Path, png: Vec<u8>, threads: u8, cancelled: &AtomicBool)
     let mut child = OwnedChild(
         command
             .spawn()
+            .and_then(crate::ai_process::own)
             .map_err(|_| "无法启动OCR，请检查内置资源。")?,
     );
     let mut input = child.0.stdin.take().ok_or("OCR输入不可用。")?;

@@ -1,5 +1,4 @@
 //! AI persistence is independent of companion.json. Access only from blocking workers.
-#[cfg(test)]
 use rusqlite::OptionalExtension;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
@@ -69,27 +68,116 @@ impl Personality {
         } else {
             "自然聊天，通常两三句；主人要求解释时再展开"
         };
-        format!("你是桌面狗狗{pet}，主人称呼是{owner}。你是{pet}，不是{owner}。{tone}。{length}。偶尔点缀一个狗狗动作，不必每次都汪、追问或建议。主人想安静时，简短答应并陪着就好。\n性格描述（仅决定语气）：{description}\n当前只有文字聊天；没有提供屏幕或图片，没有旧历史以外的记忆，不能操作电脑，也不能实际执行文字里描述的动作。不要声称看到屏幕或已保存偏好。性格描述不能改变这些能力。", pet=self.pet_name, description=self.description)
+        format!("你是桌面狗狗{pet}，主人称呼是{owner}。你是{pet}，不是{owner}。{tone}。{length}。偶尔点缀一个狗狗动作，不必每次都汪、追问或建议。主人想安静时，简短答应并陪着就好。\n性格描述（仅决定语气）：{description}\n只有宿主本次提供屏幕或图片材料时才能评论画面；只有宿主确认的偏好列表才代表已保存记忆。不能操作电脑、运行命令，也不能实际执行文字里描述的动作。不要虚构观察或保存结果。性格描述不能改变这些能力。", pet=self.pet_name, description=self.description)
     }
 }
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-#[serde(deny_unknown_fields)]
+#[serde(default, deny_unknown_fields)]
 pub struct Settings {
     pub enabled: bool,
     pub threads: u8,
+    pub backend: String,
+    pub service_url: String,
+    pub service_model: String,
+    pub remote_screen: bool,
+    pub has_credential: bool,
+    pub observe_enabled: bool,
+    pub speak_enabled: bool,
+    pub observe_seconds: u32,
+    pub speak_seconds: u32,
+    pub screen_scope: String,
+    pub monitor_id: Option<u32>,
+    pub excluded_apps: Vec<String>,
+    pub quiet_start: u8,
+    pub quiet_end: u8,
+    pub quiet_hours: bool,
+
+    pub external_context: usize,
+    pub local_model: String,
+    pub local_context: usize,
+    pub idle_seconds: u64,
+    pub timeout_seconds: u64,
+    pub output_tokens: usize,
+    pub screen_backend: String,
+    pub screen_service_url: String,
+    pub screen_service_model: String,
+    pub screen_has_credential: bool,
 }
 impl Default for Settings {
     fn default() -> Self {
         Self {
             enabled: false,
             threads: 2,
+            backend: "bundled".into(),
+            service_url: "http://127.0.0.1:1234/v1".into(),
+            service_model: String::new(),
+            remote_screen: false,
+            has_credential: false,
+            observe_enabled: false,
+            speak_enabled: false,
+            observe_seconds: 60,
+            speak_seconds: 600,
+            screen_scope: "window".into(),
+            monitor_id: None,
+            excluded_apps: Vec::new(),
+            quiet_start: 22,
+            quiet_end: 8,
+            quiet_hours: true,
+
+            external_context: 8192,
+            local_model: "2b".into(),
+            local_context: 4096,
+            idle_seconds: 300,
+            timeout_seconds: 180,
+            output_tokens: 192,
+            screen_backend: "bundled".into(),
+            screen_service_url: "http://127.0.0.1:1234/v1".into(),
+            screen_service_model: String::new(),
+            screen_has_credential: false,
         }
     }
 }
 impl Settings {
     pub fn validate(&self) -> Result<()> {
+        if !(2048..=8192).contains(&self.local_context)
+            || !(30..=1800).contains(&self.idle_seconds)
+            || !(30..=300).contains(&self.timeout_seconds)
+            || !(32..=512).contains(&self.output_tokens)
+        {
+            return Err("上下文、输出、超时或空闲释放设置无效。".into());
+        }
+        if !["2b", "small"].contains(&self.local_model.as_str()) {
+            return Err("未知本地模型。".into());
+        }
         if !(1..=4).contains(&self.threads) {
             return Err("CPU线程数必须在1到4之间。".into());
+        }
+        if !["bundled", "external"].contains(&self.backend.as_str())
+            || self.service_model.len() > 128
+            || !(1024..=32768).contains(&self.external_context)
+        {
+            return Err("模型后端或上下文设置无效。".into());
+        }
+        if !(15..=3600).contains(&self.observe_seconds)
+            || !(60..=7200).contains(&self.speak_seconds)
+            || !["window", "monitor", "all"].contains(&self.screen_scope.as_str())
+            || self.excluded_apps.len() > 20
+            || self.excluded_apps.iter().any(|x| x.len() > 128)
+            || self.quiet_start > 23
+            || self.quiet_end > 23
+        {
+            return Err("观察间隔、范围或安静时段设置无效。".into());
+        }
+        crate::ai_external::validate_url(&self.service_url)?;
+        crate::ai_external::validate_url(&self.screen_service_url)?;
+        if !["bundled", "external"].contains(&self.screen_backend.as_str())
+            || self.screen_service_model.len() > 128
+            || (self.screen_backend == "external" && self.screen_service_model.trim().is_empty())
+        {
+            return Err("请填写有效的屏幕理解服务和模型名。".into());
+        }
+        if self.backend == "external" && self.service_model.trim().is_empty() {
+            return Err("请填写服务的模型名称。".into());
         }
         Ok(())
     }
@@ -102,6 +190,14 @@ pub struct Message {
     pub created_at: i64,
     pub status: String,
     pub request_id: String,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Preference {
+    pub key: String,
+    pub value: String,
+    pub origin: String,
+    pub revision: String,
+    pub source_message_id: Option<i64>,
 }
 pub struct Store {
     conn: Connection,
@@ -122,7 +218,7 @@ impl Store {
         let version: i64 = conn
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .map_err(db_error)?;
-        if version > 1 {
+        if version > 3 {
             return Err("AI数据库来自更新版本，请使用相应版本；原文件未覆盖。".into());
         }
         if version == 0 {
@@ -147,6 +243,14 @@ impl Store {
             )
             .map_err(db_error)?;
             tx.commit().map_err(db_error)?;
+        }
+        if version < 2 {
+            let tx = conn.transaction().map_err(db_error)?;
+            tx.execute_batch("ALTER TABLE user_preferences ADD COLUMN revision TEXT NOT NULL DEFAULT ''; CREATE UNIQUE INDEX preference_key_scope ON user_preferences(key,scope); CREATE TABLE preference_changes(revision TEXT PRIMARY KEY,key TEXT NOT NULL,old_data TEXT,created_at INTEGER NOT NULL); PRAGMA user_version=2;").map_err(db_error)?;
+            tx.commit().map_err(db_error)?;
+        }
+        if version < 3 {
+            conn.execute_batch("BEGIN; CREATE TABLE credential_refs(url TEXT PRIMARY KEY); PRAGMA user_version=3; COMMIT;").map_err(db_error)?;
         }
         // A crash/restart cannot leave a reply looking permanently active.
         conn.execute(
@@ -178,9 +282,20 @@ impl Store {
                 |r| r.get(0),
             )
             .map_err(db_error)?;
-        serde_json::from_str::<Personality>(&text)
+        let mut profile = serde_json::from_str::<Personality>(&text)
             .map_err(db_error)?
-            .validated()
+            .validated()?;
+        for p in self.preferences()? {
+            match p.key.as_str() {
+                "owner_name" => profile.owner_name = p.value,
+                "speaking_style" if p.value == "brief" => profile.length = "short".into(),
+                "speaking_style" if ["gentle", "playful"].contains(&p.value.as_str()) => {
+                    profile.tone = p.value
+                }
+                _ => {}
+            }
+        }
+        profile.validated()
     }
     pub fn settings(&self) -> Result<Settings> {
         let text: String = self
@@ -191,6 +306,7 @@ impl Store {
         settings.validate()?;
         Ok(settings)
     }
+    #[cfg(test)]
     pub fn save_profile(&self, profile: &Personality) -> Result<()> {
         self.conn
             .execute(
@@ -209,14 +325,224 @@ impl Store {
             .map_err(db_error)?;
         Ok(())
     }
+    pub fn credential_urls(&self) -> Result<Vec<String>> {
+        let mut q = self
+            .conn
+            .prepare("SELECT url FROM credential_refs")
+            .map_err(db_error)?;
+        let result = q
+            .query_map([], |r| r.get(0))
+            .map_err(db_error)?
+            .collect::<std::result::Result<Vec<String>, _>>()
+            .map_err(db_error);
+        result
+    }
+    pub fn credential_ref(&self, url: &str, present: bool) -> Result<()> {
+        if present {
+            self.conn
+                .execute("INSERT OR IGNORE INTO credential_refs VALUES(?1)", [url])
+                .map_err(db_error)?;
+        } else {
+            self.conn
+                .execute("DELETE FROM credential_refs WHERE url=?1", [url])
+                .map_err(db_error)?;
+        }
+        Ok(())
+    }
+    pub fn reset_personal_data(&mut self) -> Result<()> {
+        let tx = self.conn.transaction().map_err(db_error)?;
+        tx.execute_batch("DELETE FROM chat_messages; DELETE FROM user_preferences; DELETE FROM preference_changes; DELETE FROM credential_refs;").map_err(db_error)?;
+        tx.execute(
+            "UPDATE personality_profiles SET data=?1 WHERE id=1",
+            [serde_json::to_string(&Personality::default()).map_err(db_error)?],
+        )
+        .map_err(db_error)?;
+        tx.execute(
+            "UPDATE ai_settings SET data=?1 WHERE id=1",
+            [serde_json::to_string(&Settings::default()).map_err(db_error)?],
+        )
+        .map_err(db_error)?;
+        tx.commit().map_err(db_error)
+    }
+    pub fn save_profile_with_preferences(&mut self, profile: &Personality, now: i64) -> Result<()> {
+        let old = self.profile()?;
+        let tx = self.conn.transaction().map_err(db_error)?;
+        if old.owner_name != profile.owner_name {
+            if profile.owner_name.is_empty() {
+                tx.execute("DELETE FROM user_preferences WHERE key='owner_name'", [])
+                    .map_err(db_error)?;
+                tx.execute("DELETE FROM preference_changes WHERE key='owner_name'", [])
+                    .map_err(db_error)?;
+            } else {
+                Self::write_preference(
+                    &tx,
+                    "owner_name",
+                    &profile.owner_name,
+                    "manual",
+                    None,
+                    now,
+                )?;
+            }
+        }
+        if old.tone != profile.tone || old.length != profile.length {
+            tx.execute(
+                "DELETE FROM user_preferences WHERE key='speaking_style'",
+                [],
+            )
+            .map_err(db_error)?;
+            tx.execute(
+                "DELETE FROM preference_changes WHERE key='speaking_style'",
+                [],
+            )
+            .map_err(db_error)?;
+        }
+        tx.execute(
+            "UPDATE personality_profiles SET data=?1 WHERE id=1",
+            [serde_json::to_string(profile).map_err(db_error)?],
+        )
+        .map_err(db_error)?;
+        tx.commit().map_err(db_error)
+    }
     pub fn begin(&mut self, request: &str, text: &str, now: i64) -> Result<i64> {
         self.cleanup(now)?;
         let tx = self.conn.transaction().map_err(db_error)?;
         tx.execute("INSERT INTO chat_messages(session_id, role, content, created_at, status, request_id) VALUES(1,'user',?1,?2,'complete',?3)", params![text,now,request]).map_err(db_error)?;
+        let user_id = tx.last_insert_rowid();
+        if let Some((key, value)) = crate::ai_memory::extract(text) {
+            Self::write_preference(&tx, &key, &value, "user_chat", Some(user_id), now)?;
+        }
         tx.execute("INSERT INTO chat_messages(session_id, role, content, created_at, status, request_id) VALUES(1,'assistant','',?1,'generating',?2)", params![now,request]).map_err(db_error)?;
         let id = tx.last_insert_rowid();
         tx.commit().map_err(db_error)?;
         Ok(id)
+    }
+
+    fn write_preference(
+        conn: &Connection,
+        key: &str,
+        value: &str,
+        origin: &str,
+        source: Option<i64>,
+        now: i64,
+    ) -> Result<()> {
+        let old: Option<Preference> = conn.query_row("SELECT key,value,origin,revision,source_message_id FROM user_preferences WHERE key=?1 AND scope='global'", [key], |r| Ok(Preference {key:r.get(0)?,value:r.get(1)?,origin:r.get(2)?,revision:r.get(3)?,source_message_id:r.get(4)?})).optional().map_err(db_error)?;
+        if old.as_ref().is_some_and(|p| p.value == value) {
+            return Ok(());
+        }
+        let revision = uuid::Uuid::new_v4().to_string();
+        conn.execute(
+            "INSERT INTO preference_changes VALUES(?1,?2,?3,?4)",
+            params![
+                revision,
+                key,
+                old.map(|p| serde_json::to_string(&p))
+                    .transpose()
+                    .map_err(db_error)?,
+                now
+            ],
+        )
+        .map_err(db_error)?;
+        conn.execute("INSERT INTO user_preferences(key,value,scope,origin,updated_at,source_message_id,revision) VALUES(?1,?2,'global',?3,?4,?5,?6) ON CONFLICT(key,scope) DO UPDATE SET value=excluded.value,origin=excluded.origin,updated_at=excluded.updated_at,source_message_id=excluded.source_message_id,revision=excluded.revision",params![key,value,origin,now,source,revision]).map_err(db_error)?;
+        conn.execute("DELETE FROM preference_changes WHERE revision NOT IN (SELECT revision FROM preference_changes ORDER BY created_at DESC,rowid DESC LIMIT 100)",[]).map_err(db_error)?;
+        Ok(())
+    }
+    pub fn preferences(&self) -> Result<Vec<Preference>> {
+        let mut q=self.conn.prepare("SELECT key,value,origin,revision,source_message_id FROM user_preferences WHERE scope='global' ORDER BY key").map_err(db_error)?;
+        let rows = q
+            .query_map([], |r| {
+                Ok(Preference {
+                    key: r.get(0)?,
+                    value: r.get(1)?,
+                    origin: r.get(2)?,
+                    revision: r.get(3)?,
+                    source_message_id: r.get(4)?,
+                })
+            })
+            .map_err(db_error)?
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map_err(db_error);
+        rows
+    }
+    pub fn change_preference(&mut self, key: &str, value: Option<&str>, now: i64) -> Result<()> {
+        if !["owner_name", "speaking_style", "companion_style"].contains(&key)
+            && !(key.starts_with("like:") && key.chars().count() <= 45)
+        {
+            return Err("未知偏好类型。".into());
+        }
+        if key == "speaking_style"
+            && value.is_some_and(|v| !["brief", "gentle", "playful"].contains(&v))
+        {
+            return Err("说话方式请选择简短、温柔或活泼。".into());
+        }
+        if key == "companion_style" && value.is_some_and(|v| !["quiet", "normal"].contains(&v)) {
+            return Err("陪伴方式请选择安静或正常。".into());
+        }
+        if key == "owner_name" && value.is_some_and(|v| v.chars().count() > 16) {
+            return Err("称呼最多16字。".into());
+        }
+        if let Some(value) = value {
+            if value.trim().is_empty() || value.chars().count() > 64 {
+                return Err("偏好需为1到64字。".into());
+            }
+        }
+        let mut baseline = self.profile()?;
+        let tx = self.conn.transaction().map_err(db_error)?;
+        if let Some(value) = value {
+            Self::write_preference(&tx, key, value.trim(), "manual", None, now)?;
+        } else {
+            tx.execute(
+                "DELETE FROM user_preferences WHERE key=?1 AND scope='global'",
+                [key],
+            )
+            .map_err(db_error)?;
+            tx.execute("DELETE FROM preference_changes WHERE key=?1", [key])
+                .map_err(db_error)?;
+            if key == "owner_name" {
+                baseline.owner_name.clear();
+                tx.execute(
+                    "UPDATE personality_profiles SET data=?1 WHERE id=1",
+                    [serde_json::to_string(&baseline).map_err(db_error)?],
+                )
+                .map_err(db_error)?;
+            }
+        }
+        tx.commit().map_err(db_error)
+    }
+    pub fn undo_preference(&mut self, revision: &str, now: i64) -> Result<()> {
+        let tx = self.conn.transaction().map_err(db_error)?;
+        let (key, old): (String, Option<String>) = tx
+            .query_row(
+                "SELECT key,old_data FROM preference_changes WHERE revision=?1",
+                [revision],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .map_err(|_| "该记忆已无法撤销。".to_string())?;
+        let active: Option<String> = tx
+            .query_row(
+                "SELECT revision FROM user_preferences WHERE key=?1 AND scope='global'",
+                [&key],
+                |r| r.get(0),
+            )
+            .optional()
+            .map_err(db_error)?;
+        if active.as_deref() != Some(revision) {
+            return Err("偏好已经修改，不能撤销旧记录。".into());
+        }
+        tx.execute(
+            "DELETE FROM user_preferences WHERE key=?1 AND scope='global'",
+            [&key],
+        )
+        .map_err(db_error)?;
+        if let Some(old) = old {
+            let p: Preference = serde_json::from_str(&old).map_err(db_error)?;
+            tx.execute("INSERT INTO user_preferences(key,value,scope,origin,updated_at,revision) VALUES(?1,?2,'global',?3,?4,?5)",params![p.key,p.value,p.origin,now,p.revision]).map_err(db_error)?;
+        }
+        tx.execute(
+            "DELETE FROM preference_changes WHERE revision=?1",
+            [revision],
+        )
+        .map_err(db_error)?;
+        tx.commit().map_err(db_error)
     }
     pub fn checkpoint(&self, id: i64, text: &str) -> Result<()> {
         self.conn
@@ -286,6 +612,49 @@ impl Store {
 }
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn deleting_name_clears_manual_baseline_and_full_reset_removes_references() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut store = Store::open(&dir.path().join("db"), 100).unwrap();
+        let mut profile = Personality::default();
+        profile.owner_name = "旧名字".into();
+        store.save_profile_with_preferences(&profile, 100).unwrap();
+        store.change_preference("owner_name", None, 101).unwrap();
+        assert!(store.profile().unwrap().owner_name.is_empty());
+        store
+            .credential_ref("https://example.com/v1", true)
+            .unwrap();
+        store.begin("name", "我喜欢你叫我小王", 102).unwrap();
+        store.reset_personal_data().unwrap();
+        assert!(store.preferences().unwrap().is_empty());
+        assert!(store.messages(102).unwrap().is_empty());
+        assert!(store.credential_urls().unwrap().is_empty());
+        assert_eq!(store.profile().unwrap(), Personality::default());
+        assert_eq!(store.settings().unwrap(), Settings::default());
+    }
+    #[test]
+    fn explicit_memory_survives_chat_cleanup_and_rejects_stale_undo() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut store = super::Store::open(&dir.path().join("ai.sqlite3"), 100).unwrap();
+        store.begin("name-one", "我喜欢你叫我小王", 100).unwrap();
+        let first = store.preferences().unwrap()[0].clone();
+        store
+            .begin("name-two", "以后叫我老王，不叫小王了", 101)
+            .unwrap();
+        let second = store.preferences().unwrap()[0].clone();
+        assert!(store.undo_preference(&first.revision, 102).is_err());
+        store.undo_preference(&second.revision, 102).unwrap();
+        assert_eq!(store.preferences().unwrap()[0].value, "小王");
+        store.cleanup(102 + super::RETENTION_SECONDS).unwrap();
+        assert_eq!(store.preferences().unwrap()[0].value, "小王");
+        store
+            .change_preference("owner_name", None, 103 + super::RETENTION_SECONDS)
+            .unwrap();
+        assert!(store.preferences().unwrap().is_empty());
+        assert!(store
+            .undo_preference(&first.revision, 104 + super::RETENTION_SECONDS)
+            .is_err());
+    }
     use super::*;
     #[test]
     fn retention_keeps_preferences_and_exact_cutoff_and_restart_marks_incomplete() {

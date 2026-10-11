@@ -99,6 +99,12 @@ do {
         Thread.sleep(forTimeInterval: 0.1)
     }
     guard let petWindow = pet else { throw NSError(domain:"NativeSmoke",code:1,userInfo:[NSLocalizedDescriptionKey:"No visible 300×240 pet window, or process exited"] ) }
+    let readyDeadline=Date().addingTimeInterval(40)
+    while Date()<readyDeadline && app.isRunning {
+        if (try? String(contentsOf:output,encoding:.utf8))?.contains("Pet frontend ready:")==true { break }
+        Thread.sleep(forTimeInterval:0.08)
+    }
+    try require((try? String(contentsOf:output,encoding:.utf8))?.contains("Pet frontend ready:")==true,"pet sprites and event listeners finish loading before input")
     passed.append("built application starts and creates a visible native pet window")
     report["window"] = petWindow
     report["accessibility_ready"] = AXIsProcessTrusted()
@@ -191,4 +197,7 @@ if let error = failure { report["error"] = error } else { report["error"] = NSNu
 let data = try JSONSerialization.data(withJSONObject:report,options:[.prettyPrinted,.sortedKeys])
 try data.write(to:directory.appendingPathComponent("native-smoke.json"))
 print(String(data:data,encoding:.utf8)!)
-if failure != nil { exit(1) }
+if failure != nil {
+    if let logs=try? String(contentsOf:output,encoding:.utf8) { print(logs) }
+    exit(1)
+}

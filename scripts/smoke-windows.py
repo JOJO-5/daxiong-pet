@@ -121,7 +121,8 @@ dizzy_capture=None
 try:
     process=subprocess.Popen([str(Path(args.application).resolve())],stdout=(out/'stdout.log').open('w'),stderr=(out/'stderr.log').open('w'))
     main=wait(lambda:next(iter(windows('大熊')),None),40)
-    time.sleep(1)
+    wait(lambda:'Pet frontend ready:' in (out/'stderr.log').read_text(errors='replace'),40)
+    check('pet sprites and event listeners finish loading before input')
     check('built-in pet creates a visible native window')
     style=user.GetWindowLongW(main,-16);extended=user.GetWindowLongW(main,-20)
     r=rect(main);client=w.RECT();assert user.GetClientRect(main,c.byref(client))
@@ -136,7 +137,9 @@ try:
         current=rect(main);scale=(current.right-current.left)/300
         user.SetCursorPos(round(current.left+x*scale),round(current.top+y*scale))
         return current.left,current.top
-    hover_pet(150,160);time.sleep(.35)
+    hover_pet(150,160)
+    wait(lambda:not (user.GetWindowLongW(main,-20)&0x00000020))
+    time.sleep(.12)
     user.mouse_event(0x0002,0,0,0,0);time.sleep(.06);user.mouse_event(0x0004,0,0,0,0)
     quick=wait(lambda:next(iter(windows('给大熊说句话')),None))
     qr=rect(quick);pr=rect(main);scale=(pr.right-pr.left)/300
@@ -213,4 +216,6 @@ finally:
         process.terminate()
         try:process.wait(timeout=5)
         except subprocess.TimeoutExpired:process.kill();process.wait()
+    if report.get('error'):
+        print((out/'stderr.log').read_text(errors='replace'),flush=True)
     (out/'native-smoke.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')

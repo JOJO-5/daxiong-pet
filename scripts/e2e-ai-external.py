@@ -6,9 +6,9 @@ try:
     new_session();invoke('open_chat');wait(chat_window)
     check('fixture has no bundled AI resources',not snap()['assets']['available'])
     configure(enabled=True,backend='external',service_url=f'http://127.0.0.1:{server.server_port}/v1',service_model='external-only-fixture')
-    js("location.reload();return true")
+    # ai_configure emits the same live settings event used by the real UI.
     wait(lambda:js("return !!document.querySelector('#chat-message') && !document.querySelector('#chat-message').disabled"))
-    check('external chat composer works without bundled weights',not js("return document.querySelector('#chat-message').disabled"))
+    check('external chat composer works without bundled weights',js("return !!document.querySelector('#chat-message') && !document.querySelector('#chat-message').disabled"))
     done(send('你好，陪我说一句话。'),timeout=30)
     check('separate external-only chat sends real request',len(requests)==1 and requests[0]['model']=='external-only-fixture')
     check('external-only chat does not start a local model',not model_pids())

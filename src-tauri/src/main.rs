@@ -200,6 +200,7 @@ fn restore_memory(app:AppHandle) -> Result<companion::MemoryView,String> {
 /// 前端完成精灵图解码后调用，此时才真正显示窗口，避免透明窗口白闪。
 #[tauri::command]
 fn pet_ready(window: WebviewWindow, app: AppHandle) -> Result<(), String> {
+    eprintln!("Pet frontend ready: sprites decoded and listeners registered");
     if app.state::<AppState>().requested_visible.load(Ordering::Relaxed) {
         window.show().map_err(|e| e.to_string())?;
     }

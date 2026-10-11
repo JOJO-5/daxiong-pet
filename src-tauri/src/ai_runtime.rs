@@ -327,6 +327,8 @@ impl Runtime {
         } else {
             command.arg("--no-mmproj");
         }
+        #[cfg(target_os = "macos")]
+        command.env("VECLIB_MAXIMUM_THREADS", settings.threads.to_string());
         #[cfg(windows)]
         {
             use std::os::windows::process::CommandExt;

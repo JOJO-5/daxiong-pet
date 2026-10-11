@@ -29,7 +29,9 @@ def main():
     flags = ['-DCMAKE_BUILD_TYPE=Release', '-DBUILD_SHARED_LIBS=OFF', '-DGGML_BACKEND_DL=OFF', '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>', '-DGGML_NATIVE=OFF', '-DGGML_CUDA=OFF', '-DGGML_VULKAN=OFF', '-DGGML_METAL=OFF', '-DGGML_BLAS=OFF', '-DGGML_OPENMP=OFF', '-DGGML_CCACHE=OFF', '-DLLAMA_BUILD_TESTS=OFF', '-DLLAMA_BUILD_EXAMPLES=OFF', '-DLLAMA_BUILD_TOOLS=ON', '-DLLAMA_BUILD_SERVER=ON', '-DLLAMA_BUILD_MTMD=OFF', '-DLLAMA_OPENSSL=OFF', '-DLLAMA_BUILD_UI=OFF', '-DLLAMA_USE_PREBUILT_UI=OFF', '-DLLAMA_BUILD_COMMIT=' + commit[:12]]
     if machine in ('x86_64', 'amd64'):
         flags += ['-DGGML_AVX2=ON', '-DGGML_AVX512=OFF', '-DGGML_FMA=ON', '-DGGML_F16C=ON']
-    if platform.system()=="Darwin": flags += ["-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0"]
+    if platform.system()=="Darwin":
+        # System CPU BLAS; no Metal/GPU runtime or extra downloaded framework.
+        flags += ["-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0", "-DGGML_BLAS=ON", "-DGGML_BLAS_VENDOR=Apple"]
     build = str(Path(args.build_dir).resolve())
     subprocess.run([args.cmake, '-S', str(source), '-B', build, *flags], check=True)
     subprocess.run([args.cmake, '--build', build, '--config', 'Release', '--target', 'llama-server', '-j', str(args.jobs)], check=True)

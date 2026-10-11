@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Actual CPU text/image protocol probe; GUI and image semantics qualify separately."""
-import argparse, base64, json, socket, subprocess, time, urllib.request, uuid
+import argparse, base64, json, os, socket, subprocess, time, urllib.request, uuid
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--ai',required=True,type=Path);a=p.parse_args()
 root=Path(__file__).resolve().parents[1]
@@ -15,7 +15,7 @@ for vision in [False,True]:
     key=uuid.uuid4().hex
     command=[str(server),'--model',str(model),'--host','127.0.0.1','--port',str(port),'--api-key',key,'-ngl','0','-t','2','-tb','2','-c','4096','--jinja','--no-warmup']
     command += ['--mmproj',str(projector),'--no-mmproj-offload','--image-min-tokens','256','--image-max-tokens','256'] if vision else ['--no-mmproj']
-    process=subprocess.Popen(command,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    process=subprocess.Popen(command,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,env={**os.environ,'VECLIB_MAXIMUM_THREADS':'2'})
     def request(path,body=None):
         req=urllib.request.Request(f'http://127.0.0.1:{port}'+path,data=None if body is None else json.dumps(body).encode(),headers={'Authorization':'Bearer '+key,'Content-Type':'application/json'})
         with opener.open(req,timeout=180) as response:return json.load(response)

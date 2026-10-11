@@ -61,6 +61,7 @@ int main(int argc,char **argv){gtk_init(&argc,&argv);GtkWidget *w=gtk_window_new
     target=wait(lambda: subprocess.run(['xdotool','search','--name','^Synthetic OCR Fixture$'],capture_output=True,text=True).stdout.strip().splitlines()[0] if subprocess.run(['xdotool','search','--name','^Synthetic OCR Fixture$'],capture_output=True,text=True).returncode==0 else None)
     configure(screen_backend='external',screen_service_url=f'http://127.0.0.1:{server.server_port}/v1',screen_service_model='vision-fixture',remote_screen=True,screen_scope='window',quiet_hours=False)
     before=len(requests);data=observe()
+    (OUT/'synthetic-observation.json').write_text(json.dumps(data['observation'],ensure_ascii=False,indent=2),encoding='utf-8')
     check('native foreground capture and CPU OCR identify fixture', 'SCREEN_ONLY_MARKER' in (data['observation']['text'] or '') and 'Synthetic OCR Fixture' in data['observation']['label'])
     check('screen uses separately selected external model',len(requests)==before+1 and requests[-1]['model']=='vision-fixture')
     check('screen preferences never enter long-term memory',snap()['preferences'][0]['value']=='小王' and len(snap()['preferences'])==1)

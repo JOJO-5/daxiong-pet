@@ -133,6 +133,10 @@ pub fn capture(settings: &Settings, request: bool) -> Result<Capture> {
     let identity = identity(settings)?;
     let mut origin = (0_i64, 0_i64);
     let (mut image, label) = if settings.screen_scope == "window" {
+        origin = (
+            window.x().map_err(|_| "窗口位置不可用。")? as i64,
+            window.y().map_err(|_| "窗口位置不可用。")? as i64,
+        );
         (
             window
                 .capture_image()
@@ -204,6 +208,13 @@ pub fn capture(settings: &Settings, request: bool) -> Result<Capture> {
                     .iter()
                     .any(|s| !s.is_empty() && app.contains(&s.to_lowercase()));
             if !excluded || own.is_minimized().unwrap_or(true) {
+                continue;
+            }
+            // A foreground capture must not mask apps behind the target.
+            if settings.screen_scope == "window"
+                && own.z().map_err(|_| "窗口层级不可用。")?
+                    <= window.z().map_err(|_| "窗口层级不可用。")?
+            {
                 continue;
             }
             let x = own.x().map_err(|_| "无法遮蔽排除窗口。")? as i64 - origin.0;

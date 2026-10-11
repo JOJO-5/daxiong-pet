@@ -92,8 +92,13 @@ mod tests {
         let Ok(path) = std::env::var("DAXIONG_JOB_TEST_PID") else {
             return;
         };
-        let mut command = std::process::Command::new("cmd.exe");
-        command.args(["/C", "ping -n 60 127.0.0.1 >nul"]);
+        let mut command = std::process::Command::new("powershell.exe");
+        command.args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Start-Sleep -Seconds 60",
+        ]);
         let child = own(command.spawn().unwrap()).unwrap();
         std::fs::write(path, child.id().to_string()).unwrap();
         // Deliberately bypass Rust destructors: Windows must close the job itself.

@@ -28,3 +28,5 @@ OpenCV4.12仅core/imgproc/imgcodecs、PNG/ZLIB静态编译；ONNX Runtime1.23.2 
 本页不能代替新版本的四平台完整应用构建/发布、Mac授权截图、Windows混合DPI/锁屏、多屏实机、Linux凭据服务可用性、8GB/11代i5性能、长期办公打扰评估和50张独立画面质量评测。模型六次图片试验含失败样本，见[视觉原始试验](../research/vision-2b-2026-10-11.md)。GPU未接入，ML Drift/LiteRT候选见调研文件。宠物美术未修改，原始形象/嘴部核对沿用既有球/盘修复证据，需最终同源回归后才能发布。
 
 四平台完整构建38105252501中的Windows、Mac ARM、Mac Intel engine步骤已通过系统安全凭据合成写/读/删测试（非用户密钥）。最新缓存修复/进程合同仍需最终同源CI，不沿用旧源的安装包资格。
+
+最终源码回归发现前台排除窗口遮蔽规则把后方聊天窗口也当成遮挡：`final-observation-e2e` 未通过OCR标记。修复捕获原点和Z层级后 `final-observation-e2e2` 实际OCR恢复完整合成三行；四平台原生OCR源49f3d72的38105951088全部通过。

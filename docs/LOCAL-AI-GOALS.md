@@ -1,7 +1,7 @@
 # 大熊本地 AI 目标与执行文件
 
-更新时间：2026-10-10（北京时间）  
-状态：用户已确认按Qwen3.5 2B多模态 + 独立CPU OCR推进，主要验收配置为8GB/11代i5；2B仅文字已测，2B图片与OCR待测，AI尚未接入正式桌宠。
+更新时间：2026-10-11（北京时间）  
+状态：已发布内置 Qwen3.5 2B 的文字测试版 v1.1.0-alpha.1；聊天、SQLite 与性格界面已接入测试版。后续视觉/OCR选型见文末；2B图片、OCR推理与8GB/11代i5性能仍待测。
 执行入口：后续用户说“按目标文件执行”时，以本文件为任务清单，从第一个未完成阶段开始。
 
 ## 1. 最终目标
@@ -399,3 +399,7 @@ OCR优先试**RapidOCR v3.10.0 + ONNX Runtime CPU + PP-OCRv5 mobile**，v6 tiny�
 
 
 发布记录：2026-10-11，G6文字测试版内置包已完成并发布 [v1.1.0-alpha.1](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.1)，tag/安装包源码 `625b729`，五个安装包加SHA256SUMS齐全；四平台真实CPU模型、构建与原生宠物检查全部通过（Actions 38073266902），完整桌面回归 38071373049 通过且应用源码一致。Linux生产deb实际安装后的GUI离线聊天、数据库complete状态和退出清理已验证。证据与平台限制见[内置包验收](validation/bundled-ai-preview-2026-10-11.md)。这只完成内置文字聊天预发布；Windows/macOS安装后完整聊天GUI、8GB/11代i5性能、G2外接服务、G3偏好、G4 OCR/图像/观察、G5调度和完整G6仍待做，正式版未替换。
+
+## 2026-10-11 后续接入选型
+
+用户要求先选型，开发基线为现有 Qwen3.5 2B + 配套 BF16 视觉组件、PP-OCRv5 mobile ONNX + 原生 ONNX Runtime CPU worker；v6 tiny 留作缩包对照。四个 OCR 权重已下载且哈希匹配，尚未推理。ONNX Runtime 1.23.2 先做四平台兼容性原型，Rust绑定版本需经实际加载验证再锁定。详细依据、包大小、截图适配和执行验收顺序见[后续接入选型](research/next-ai-integration-2026-10-11.md)。本次仅文档与下载核验，没有开启屏幕观察或发布新功能。

@@ -12,6 +12,8 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--artifacts', type=Path, required=True)
 parser.add_argument('--out', type=Path, required=True)
 parser.add_argument('--bundled-ai', action='store_true', help='Installers carry resources; do not publish a resource-less portable exe')
+parser.add_argument('--with-light', action='store_true', help='Include five runtime/OCR-only installers')
+parser.add_argument('--move', action='store_true', help='Consume staged artifacts without duplicating large installer files')
 args = parser.parse_args()
 version = json.loads((root/'package.json').read_text())['version']
 assert json.loads((root/'package-lock.json').read_text())['version'] == version
@@ -30,6 +32,9 @@ packages = [
 ]
 if args.bundled_ai:
     packages = [p for p in packages if p[2] != "windows-x64-portable.exe"]
+if args.with_light:
+    assert args.bundled_ai, 'light installers require resource-aware packaging'
+    packages += [('light-'+artifact, pattern, 'light-'+suffix) for artifact, pattern, suffix in list(packages)]
 resolved=[]
 for artifact, pattern, suffix in packages:
     found = list((args.artifacts/artifact).rglob(pattern))
@@ -41,7 +46,8 @@ args.out.mkdir(parents=True,exist_ok=True)
 checksums=[]
 for source, name in resolved:
     target=args.out/name
-    shutil.copyfile(source,target)
+    if args.move: shutil.move(source,target)
+    else: shutil.copyfile(source,target)
     with target.open("rb") as file:
         digest=hashlib.file_digest(file,"sha256").hexdigest()
     checksums.append(f'{digest}  {name}')

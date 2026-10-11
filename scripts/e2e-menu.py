@@ -4,6 +4,24 @@ from pathlib import Path
 exec((Path(__file__).resolve().parent/'e2e-desktop.py').read_text().split('\ntry:\n    new_session()')[0])
 def shoot(name): subprocess.run(['import','-window','root',str(OUT/f'{name}.png')],check=True)
 menu_origin=None
+hover_trace=[]
+# Verify the real native input region before right-clicking. Frontend state
+# delivery is asynchronous and is not the OS's acceptance of pointer input.
+import ctypes
+class XRectangle(ctypes.Structure):
+    _fields_=[('x',ctypes.c_short),('y',ctypes.c_short),('width',ctypes.c_ushort),('height',ctypes.c_ushort)]
+xlib=ctypes.CDLL('libX11.so.6');xext=ctypes.CDLL('libXext.so.6')
+xlib.XOpenDisplay.restype=ctypes.c_void_p
+xlib.XFree.argtypes=[ctypes.c_void_p];xlib.XCloseDisplay.argtypes=[ctypes.c_void_p]
+xext.XShapeGetRectangles.argtypes=[ctypes.c_void_p,ctypes.c_ulong,ctypes.c_int,ctypes.POINTER(ctypes.c_int),ctypes.POINTER(ctypes.c_int)]
+xext.XShapeGetRectangles.restype=ctypes.POINTER(XRectangle)
+xdisplay=xlib.XOpenDisplay(None);assert xdisplay,'native X11 display unavailable'
+def input_rectangles(window):
+    count=ctypes.c_int();ordering=ctypes.c_int()
+    regions=xext.XShapeGetRectangles(xdisplay,int(window),2,ctypes.byref(count),ctypes.byref(ordering))
+    try:return [(r.x,r.y,r.width,r.height) for r in regions[:count.value]] if regions else []
+    finally:
+        if regions:xlib.XFree(regions)
 def pet_menu():
     global menu_origin
     menu_origin=command('GET','/window')
@@ -14,7 +32,14 @@ def pet_menu():
     # Follow its actual position until the real cursor is inside the pet hit area.
     def hover_current_position():
         pointer('mousemove','--window',native,150,160)
-        return js("return document.querySelector('[data-testid=pet]').dataset.clickable==='true'")
+        status=js("return {clickable:document.querySelector('[data-testid=pet]').dataset.clickable,viewport:[innerWidth,innerHeight],visible:document.visibilityState}")
+        geometry=dict(line.split('=') for line in subprocess.check_output(['xdotool','getwindowgeometry','--shell',native],text=True).strip().splitlines())
+        cursor=dict(line.split('=') for line in subprocess.check_output(['xdotool','getmouselocation','--shell'],text=True).strip().splitlines())
+        regions=input_rectangles(native)
+        observation={'native':native,'geometry':geometry,'cursor':cursor,'webview':status,'input_regions':regions}
+        if not hover_trace or hover_trace[-1]!=observation:hover_trace.append(observation)
+        x,y=int(cursor['X'])-int(geometry['X']),int(cursor['Y'])-int(geometry['Y'])
+        return any(rx<=x<rx+width and ry<=y<ry+height for rx,ry,width,height in regions)
     wait(hover_current_position)
     time.sleep(.15);pointer('click',3);time.sleep(.4)
     # Changing the WebDriver window focuses its webview and can dismiss GTK's popup.
@@ -120,7 +145,8 @@ d=x.XOpenDisplay(None);key=x.XKeysymToKeycode(d,ord('p'));x.XGrabKey(d,key,12,x.
     except AssertionError as e:check('focus rejects toy with explicit explanation','专注' in str(e))
 except Exception:shoot('failure');raise
 finally:
-    error=sys.exc_info()[1];OUT.joinpath('menu-e2e.json').write_text(json.dumps({'version':json.loads(ROOT.joinpath('package.json').read_text())['version'],'passed':checks,'error':str(error) if error else None},ensure_ascii=False,indent=2))
+    error=sys.exc_info()[1];OUT.joinpath('menu-e2e.json').write_text(json.dumps({'version':json.loads(ROOT.joinpath('package.json').read_text())['version'],'passed':checks,'hover_trace':hover_trace,'error':str(error) if error else None},ensure_ascii=False,indent=2))
+    xlib.XCloseDisplay(xdisplay)
     if session:
         try:command('DELETE','')
         except Exception:pass

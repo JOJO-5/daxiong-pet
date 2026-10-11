@@ -27,6 +27,7 @@ user.PostMessageW.argtypes=[w.HWND,w.UINT,w.WPARAM,w.LPARAM]
 user.SetForegroundWindow.argtypes=[w.HWND]
 user.GetWindowLongW.argtypes=[w.HWND,c.c_int]
 user.GetWindowLongW.restype=w.LONG
+user.GetForegroundWindow.restype=w.HWND
 user.mouse_event.argtypes=[w.DWORD,w.DWORD,w.DWORD,w.DWORD,c.c_size_t]
 user.keybd_event.argtypes=[w.BYTE,w.BYTE,w.DWORD,c.c_size_t]
 user.SetCursorPos.argtypes=[c.c_int,c.c_int]
@@ -120,7 +121,8 @@ dizzy_capture=None
 try:
     process=subprocess.Popen([str(Path(args.application).resolve())],stdout=(out/'stdout.log').open('w'),stderr=(out/'stderr.log').open('w'))
     main=wait(lambda:next(iter(windows('大熊')),None),40)
-    time.sleep(1)
+    wait(lambda:'Pet frontend ready:' in (out/'stderr.log').read_text(errors='replace'),40)
+    check('pet sprites and event listeners finish loading before input')
     check('built-in pet creates a visible native window')
     style=user.GetWindowLongW(main,-16);extended=user.GetWindowLongW(main,-20)
     r=rect(main);client=w.RECT();assert user.GetClientRect(main,c.byref(client))
@@ -131,10 +133,43 @@ try:
     check('pet is always on top',bool(extended&0x00000008))
     user.SetCursorPos(5,5);time.sleep(.4)
     check('transparent desktop area is click-through',bool(user.GetWindowLongW(main,-20)&0x00000020))
+    user.mouse_event(0x0002,0,0,0,0);time.sleep(.06);user.mouse_event(0x0004,0,0,0,0)
+    wait(lambda:user.GetForegroundWindow()!=main)
+    check('first pet tap starts from another active window')
     def hover_pet(x,y):
         current=rect(main);scale=(current.right-current.left)/300
         user.SetCursorPos(round(current.left+x*scale),round(current.top+y*scale))
         return current.left,current.top
+    hover_pet(150,160)
+    wait(lambda:not (user.GetWindowLongW(main,-20)&0x00000020))
+    time.sleep(.12)
+    user.mouse_event(0x0002,0,0,0,0);time.sleep(.06);user.mouse_event(0x0004,0,0,0,0)
+    quick=wait(lambda:next(iter(windows('给大熊说句话')),None))
+    qr=rect(quick);pr=rect(main);scale=(pr.right-pr.left)/300
+    # Borderless resizable windows retain an invisible Win32 resize frame.
+    # inner_size specifies the client area, not GetWindowRect's outer frame.
+    qc=w.RECT();assert user.GetClientRect(quick,c.byref(qc))
+    report['quick_geometry']={'outer':[qr.left,qr.top,qr.right,qr.bottom],
+        'client':[qc.left,qc.top,qc.right,qc.bottom],'scale':scale}
+    check('short pet tap opens correctly sized compact window',abs((qc.right-qc.left)-320*scale)<=2 and abs((qc.bottom-qc.top)-146*scale)<=2)
+    wait(lambda:user.GetForegroundWindow()==quick)
+    check('compact window receives native keyboard focus')
+    capture('quick-chat.png');key(27)
+    wait(lambda:not windows('给大熊说句话'))
+    check('Escape hides compact input and keeps pet alive',bool(windows('大熊')))
+    hover_pet(150,160);wait(lambda:not (user.GetWindowLongW(main,-20)&0x00000020))
+    user.mouse_event(0x0002,0,0,0,0);time.sleep(.06);user.mouse_event(0x0004,0,0,0,0)
+    quick=wait(lambda:next(iter(windows('给大熊说句话')),None));qr=rect(quick)
+    user.SetCursorPos(round(qr.left+240*scale),round(qr.top+22*scale));time.sleep(.15)
+    user.mouse_event(0x0002,0,0,0,0);time.sleep(.06);user.mouse_event(0x0004,0,0,0,0)
+    full=wait(lambda:next(iter(windows('和大熊聊聊')),None))
+    wait(lambda:user.GetForegroundWindow()==full)
+    check('compact records button creates and focuses full native chat')
+    capture('full-chat.png');key(27);wait(lambda:not windows('和大熊聊聊'))
+    check('Escape hides full chat and keeps compact input alive',bool(windows('给大熊说句话')))
+    qr=rect(quick);user.SetCursorPos(round(qr.left+292*scale),round(qr.top+22*scale));time.sleep(.15)
+    user.mouse_event(0x0002,0,0,0,0);time.sleep(.06);user.mouse_event(0x0004,0,0,0,0)
+    wait(lambda:not windows('给大熊说句话'))
     hover_pet(35,52);time.sleep(.5)
     dizzy_before=rect(main)
     dizzy_capture,dizzy_trigger,dizzy_ready=prepare_dizzy_capture()
@@ -203,4 +238,6 @@ finally:
         process.terminate()
         try:process.wait(timeout=5)
         except subprocess.TimeoutExpired:process.kill();process.wait()
+    if report.get('error'):
+        print((out/'stderr.log').read_text(errors='replace'),flush=True)
     (out/'native-smoke.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')

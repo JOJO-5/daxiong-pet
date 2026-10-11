@@ -8,6 +8,6 @@ import "./styles.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    {view === "chat" ? <ChatWindow /> : view === "playground" ? <PlayPanel /> : view === "toy" ? <Toy /> : <App />}
+    {view === "quick-chat" ? <ChatWindow compact /> : view === "chat" ? <ChatWindow /> : view === "playground" ? <PlayPanel /> : view === "toy" ? <Toy /> : <App />}
   </React.StrictMode>
 );

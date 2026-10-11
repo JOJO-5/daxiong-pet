@@ -17,6 +17,8 @@ use tauri::{AppHandle, Emitter, Manager, State, WebviewWindow};
 #[path = "ai_observe.rs"]
 mod observation;
 pub struct AiState(pub Arc<Service>);
+// Serializes lazy window creation on background workers, never the UI event thread.
+static CHAT_WINDOW_OPEN: Mutex<()> = Mutex::new(());
 struct Active {
     id: String,
     cancelled: Arc<AtomicBool>,
@@ -58,8 +60,7 @@ pub struct Service {
     active: Mutex<Option<Active>>,
     shutdown: AtomicBool,
     generation: AtomicU64,
-    chat_focused: AtomicBool,
-    chat_hitbox: Mutex<Option<(i32, i32, u32, u32)>>,
+    chat_hitbox: Mutex<Vec<(i32, i32, u32, u32)>>,
 }
 fn now() -> i64 {
     SystemTime::now()
@@ -87,8 +88,7 @@ impl Service {
             active: Mutex::new(None),
             shutdown: AtomicBool::new(false),
             generation: AtomicU64::new(0),
-            chat_focused: AtomicBool::new(false),
-            chat_hitbox: Mutex::new(None),
+            chat_hitbox: Mutex::new(Vec::new()),
         });
         let weak = Arc::downgrade(&service);
         std::thread::spawn(move || loop {
@@ -193,7 +193,8 @@ impl Service {
         self.chat_hitbox
             .lock()
             .unwrap_or_else(|p| p.into_inner())
-            .is_some_and(|(x, y, w, h)| {
+            .iter()
+            .any(|&(x, y, w, h)| {
                 let (cx, cy) = (i64::from(cursor.0), i64::from(cursor.1));
                 cx >= i64::from(x)
                     && cy >= i64::from(y)
@@ -299,13 +300,15 @@ impl Service {
             partial: String::new(),
         });
         self.generation.fetch_add(1, Ordering::SeqCst);
-        if app
-            .get_webview_window("chat")
-            .is_none_or(|w| !w.is_visible().unwrap_or(false))
-        {
+        if !chat_surface_visible(&app) {
             cancelled.store(true, Ordering::SeqCst);
         }
         drop(gate);
+        let _ = app.emit(
+            "ai:started",
+            json!({"request_id": id, "preview": is_preview}),
+        );
+        let _ = app.emit("ai:changed", ());
         let mut messages = vec![json!({"role":"system","content":profile.system_prompt()})];
         if !is_preview {
             let mut preferences = self.db(|db| db.preferences())?;
@@ -375,8 +378,7 @@ impl Service {
                 }
                 checkpoint = Instant::now();
             }
-            let _ = app.emit_to(
-                "chat",
+            let _ = app.emit(
                 "ai:reply",
                 Event {
                     request_id: id.clone(),
@@ -437,8 +439,7 @@ impl Service {
             }
         }
         self.runtime.touch();
-        let _ = app.emit_to(
-            "chat",
+        let _ = app.emit(
             "ai:reply",
             Event {
                 request_id: id,
@@ -462,7 +463,7 @@ impl Service {
     }
 }
 fn chat_only(window: &WebviewWindow) -> Result<()> {
-    if window.label() != "chat" {
+    if !matches!(window.label(), "chat" | "quick-chat") {
         Err("请在聊天窗口执行此操作。".into())
     } else {
         Ok(())
@@ -487,7 +488,11 @@ pub async fn ai_save_personality(
 ) -> Result<Personality> {
     chat_only(&window)?;
     let s = state.0.clone();
-    blocking(move || s.save_profile(personality)).await
+    let result = blocking(move || s.save_profile(personality)).await;
+    if result.is_ok() {
+        let _ = window.app_handle().emit("ai:changed", ());
+    }
+    result
 }
 #[tauri::command]
 pub async fn ai_configure(
@@ -497,7 +502,11 @@ pub async fn ai_configure(
 ) -> Result<()> {
     chat_only(&window)?;
     let s = state.0.clone();
-    blocking(move || s.configure(settings)).await
+    let result = blocking(move || s.configure(settings)).await;
+    if result.is_ok() {
+        let _ = window.app_handle().emit("ai:changed", ());
+    }
+    result
 }
 #[tauri::command]
 pub async fn ai_send(
@@ -530,24 +539,43 @@ pub async fn ai_cancel(
 pub async fn ai_clear_chat(window: WebviewWindow, state: State<'_, AiState>) -> Result<()> {
     chat_only(&window)?;
     let s = state.0.clone();
-    blocking(move || s.clear()).await
+    let result = blocking(move || s.clear()).await;
+    if result.is_ok() {
+        let _ = window.app_handle().emit("ai:cleared", ());
+        let _ = window.app_handle().emit("ai:changed", ());
+    }
+    result
 }
 #[tauri::command]
 pub fn ai_ready(window: WebviewWindow) -> Result<()> {
     chat_only(&window)?;
-    update_focus_layer(window.app_handle(), true);
+    if window.label() == "quick-chat" {
+        position_quick_chat(window.app_handle()).map_err(|e| e.to_string())?;
+    }
     window.set_always_on_top(true).map_err(|e| e.to_string())?;
     window
         .show()
         .and_then(|_| window.set_focus())
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+    if window.label() == "quick-chat" {
+        position_quick_chat(window.app_handle()).map_err(|e| e.to_string())?;
+    }
+    update_focus_layer(window.app_handle(), window.label(), true);
+    if window.label() == "quick-chat" {
+        let _ = window.emit("ai:focus", ());
+    }
+    Ok(())
 }
+
 #[tauri::command]
 pub async fn close_chat(window: WebviewWindow, state: State<'_, AiState>) -> Result<()> {
     chat_only(&window)?;
     let generation = state.0.generation();
     window.hide().map_err(|e| e.to_string())?;
-    update_focus_layer(window.app_handle(), false);
+    update_focus_layer(window.app_handle(), window.label(), false);
+    if window.label() == "quick-chat" || chat_surface_visible(window.app_handle()) {
+        return Ok(());
+    }
     let s = state.0.clone();
     blocking(move || {
         s.cancel_generation(generation);
@@ -556,12 +584,15 @@ pub async fn close_chat(window: WebviewWindow, state: State<'_, AiState>) -> Res
     .await
 }
 #[tauri::command]
-pub fn open_chat(app: AppHandle) -> Result<()> {
-    open_chat_window(&app).map_err(|e| e.to_string())
+pub async fn open_chat(app: AppHandle) -> Result<()> {
+    blocking(move || open_chat_window(&app).map_err(|e| e.to_string())).await
 }
-pub fn open_chat_window(app: &AppHandle) -> tauri::Result<()> {
+fn open_chat_window(app: &AppHandle) -> tauri::Result<()> {
+    let _opening = CHAT_WINDOW_OPEN
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     if let Some(window) = app.get_webview_window("chat") {
-        update_focus_layer(app, true);
+        update_focus_layer(app, "chat", true);
         window.set_always_on_top(true)?;
         window.show()?;
         window.set_focus()?;
@@ -573,6 +604,7 @@ pub fn open_chat_window(app: &AppHandle) -> tauri::Result<()> {
         tauri::WebviewUrl::App("index.html?view=chat".into()),
     )
     .title("和大熊聊聊")
+    .accept_first_mouse(true)
     .inner_size(500.0, 680.0)
     .min_inner_size(380.0, 480.0)
     .always_on_top(true)
@@ -582,47 +614,141 @@ pub fn open_chat_window(app: &AppHandle) -> tauri::Result<()> {
     Ok(())
 }
 
-fn update_focus_layer(app: &AppHandle, focused: bool) {
-    app.state::<AiState>()
-        .0
-        .chat_focused
-        .store(focused, Ordering::Relaxed);
+fn chat_surface_visible(app: &AppHandle) -> bool {
+    ["chat", "quick-chat"].iter().any(|label| {
+        app.get_webview_window(label)
+            .is_some_and(|w| w.is_visible().unwrap_or(false))
+    })
+}
+
+#[tauri::command]
+pub async fn open_quick_chat(app: AppHandle) -> Result<()> {
+    blocking(move || open_quick_chat_window(app)).await
+}
+fn open_quick_chat_window(app: AppHandle) -> Result<()> {
+    let _opening = CHAT_WINDOW_OPEN
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    if let Some(window) = app.get_webview_window("quick-chat") {
+        position_quick_chat(&app).map_err(|e| e.to_string())?;
+        window
+            .show()
+            .and_then(|_| window.set_focus())
+            .map_err(|e| e.to_string())?;
+        position_quick_chat(&app).map_err(|e| e.to_string())?;
+        update_focus_layer(&app, "quick-chat", true);
+        let _ = app.emit_to("quick-chat", "ai:focus", ());
+    } else {
+        tauri::WebviewWindowBuilder::new(
+            &app,
+            "quick-chat",
+            tauri::WebviewUrl::App("index.html?view=quick-chat".into()),
+        )
+        .title("给大熊说句话")
+        .accept_first_mouse(true)
+        .inner_size(320.0, 146.0)
+        .min_inner_size(320.0, 146.0)
+        .max_inner_size(320.0, 146.0)
+        .resizable(true)
+        .decorations(false)
+        .transparent(true)
+        .skip_taskbar(true)
+        .always_on_top(true)
+        .visible(false)
+        .build()
+        .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+pub fn hide_quick_chat(app: &AppHandle) -> tauri::Result<()> {
+    if let Some(quick) = app.get_webview_window("quick-chat") {
+        quick.hide()?;
+    }
+    update_chat_hitbox(app);
+    Ok(())
+}
+
+pub fn position_quick_chat(app: &AppHandle) -> tauri::Result<()> {
+    let (Some(pet), Some(quick)) = (
+        app.get_webview_window("main"),
+        app.get_webview_window("quick-chat"),
+    ) else {
+        return Ok(());
+    };
+    let pos = pet.outer_position()?;
+    let size = pet.outer_size()?;
+    let panel = quick.outer_size()?;
+    let (sx, sy, sw, sh) = crate::screen_rect(&pet);
+    let gap = (8.0 * pet.scale_factor()?).round() as i32;
+    let w = panel.width as i32;
+    let h = panel.height as i32;
+    let below = pos.y + size.height as i32 + gap;
+    let (x, y) = if below + h <= sy + sh {
+        (pos.x + (size.width as i32 - w) / 2, below)
+    } else {
+        let right = pos.x + size.width as i32 + gap;
+        let x = if right + w <= sx + sw {
+            right
+        } else {
+            pos.x - w - gap
+        };
+        (x, pos.y + size.height as i32 - h)
+    };
+    let target = tauri::PhysicalPosition::new(
+        x.clamp(sx, sx + (sw - w).max(0)),
+        y.clamp(sy, sy + (sh - h).max(0)),
+    );
+    if quick.outer_position()? != target {
+        quick.set_position(target)?;
+    }
+    Ok(())
+}
+
+fn update_focus_layer(app: &AppHandle, label: &str, focused: bool) {
+    let chat_focused = if label == "chat" {
+        focused
+    } else {
+        app.get_webview_window("chat")
+            .is_some_and(|w| w.is_visible().unwrap_or(false) && w.is_focused().unwrap_or(false))
+    };
     if let Some(pet) = app.get_webview_window("main") {
-        // Two always-on-top windows can trade order as the pet moves. Put the pet
-        // in the normal layer while chatting, so it cannot intercept form input.
-        let _ = pet.set_always_on_top(!focused);
+        let _ = pet.set_always_on_top(!chat_focused);
     }
     if let Some(chat) = app.get_webview_window("chat") {
-        let _ = chat.set_always_on_top(focused);
+        let _ = chat.set_always_on_top(chat_focused);
     }
     update_chat_hitbox(app);
 }
-
 fn update_chat_hitbox(app: &AppHandle) {
-    let state = app.state::<AiState>();
-    let rect = if state.0.chat_focused.load(Ordering::Relaxed) {
-        app.get_webview_window("chat").and_then(|chat| {
-            if !chat.is_visible().unwrap_or(false) {
+    let rectangles = ["chat", "quick-chat"]
+        .iter()
+        .filter_map(|label| {
+            let w = app.get_webview_window(label)?;
+            if !w.is_visible().unwrap_or(false) {
                 return None;
             }
-            let position = chat.outer_position().ok()?;
-            let size = chat.outer_size().ok()?;
-            Some((position.x, position.y, size.width, size.height))
+            let p = w.outer_position().ok()?;
+            let s = w.outer_size().ok()?;
+            Some((p.x, p.y, s.width, s.height))
         })
-    } else {
-        None
-    };
-    *state
+        .collect();
+    *app.state::<AiState>()
         .0
         .chat_hitbox
         .lock()
-        .unwrap_or_else(|p| p.into_inner()) = rect;
+        .unwrap_or_else(|p| p.into_inner()) = rectangles;
 }
 
 pub fn on_window_event(window: &tauri::Window, event: &tauri::WindowEvent) {
     match event {
-        tauri::WindowEvent::Focused(focused) => update_focus_layer(window.app_handle(), *focused),
+        tauri::WindowEvent::Focused(focused) => {
+            update_focus_layer(window.app_handle(), window.label(), *focused)
+        }
         tauri::WindowEvent::Moved(_) | tauri::WindowEvent::Resized(_) => {
+            if window.label() == "quick-chat" && window.is_visible().unwrap_or(false) {
+                let _ = position_quick_chat(window.app_handle());
+            }
             update_chat_hitbox(window.app_handle())
         }
         tauri::WindowEvent::CloseRequested { api, .. } => {
@@ -630,8 +756,10 @@ pub fn on_window_event(window: &tauri::Window, event: &tauri::WindowEvent) {
             let service = window.state::<AiState>().0.clone();
             let generation = service.generation();
             let _ = window.hide();
-            update_focus_layer(window.app_handle(), false);
-            tauri::async_runtime::spawn_blocking(move || service.cancel_generation(generation));
+            update_focus_layer(window.app_handle(), window.label(), false);
+            if window.label() == "chat" && !chat_surface_visible(window.app_handle()) {
+                tauri::async_runtime::spawn_blocking(move || service.cancel_generation(generation));
+            }
         }
         _ => {}
     }
@@ -759,7 +887,7 @@ pub async fn ai_reset_personal_data(
 ) -> Result<()> {
     chat_only(&window)?;
     let s = state.0.clone();
-    blocking(move || {
+    let result = blocking(move || {
         let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
         if gate.is_some() {
             return Err("请先停止回复。".into());
@@ -783,7 +911,12 @@ pub async fn ai_reset_personal_data(
             db.reset_personal_data()
         })
     })
-    .await
+    .await;
+    if result.is_ok() {
+        let _ = window.app_handle().emit("ai:cleared", ());
+        let _ = window.app_handle().emit("ai:changed", ());
+    }
+    result
 }
 
 #[tauri::command]

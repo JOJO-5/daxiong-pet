@@ -1,0 +1,14 @@
+{
+  "checks": [
+    "installed light package has no chat or vision weights",
+    "all installed light resources match manifest hashes",
+    "ordinary installed light app opens compact input without models",
+    "installed light compact input uses verified cache and completes CPU reply",
+    "installed full chat opens shared conversation",
+    "installed app exit leaves no model child"
+  ],
+  "uid": 1000,
+  "scope": "downloaded public light installer, non-root X11, verified pre-existing cache; no physical i5 performance claim",
+  "input_scope": "First scripted key input produced no record. After checking the real desktop, an explicit native composer click/type/Enter completed one durable pair. This is installed CPU behavior evidence, not autofocus acceptance.",
+  "video_seconds": 112.96
+}

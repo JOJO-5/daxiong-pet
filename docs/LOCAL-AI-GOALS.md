@@ -422,3 +422,27 @@ OCR优先试**RapidOCR v3.10.0 + ONNX Runtime CPU + PP-OCRv5 mobile**，v6 tiny�
 [v1.1.0-alpha.2](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.2)公开资产对应47cac9cb271e865247c5f2783415a07aef44e301。[四平台完整构建38113066358](https://github.com/JOJO-5/daxiong-pet/actions/runs/38113066358)与[同源整套桌面回归38113068478](https://github.com/JOJO-5/daxiong-pet/actions/runs/38113068478)成功，后者保留第一次菜单悬停失败，不绕过校验。安装资产/原生CPU探针/普通用户实际下载证据见[最终验证记录](validation/local-ai-observation-2026-10-11.md)。下次执行从仍未勾选的独立质量/目标硬件项目继续，不重复实现已交付软件。ML Drift/LiteRT仅完成选型研究，GPU没有发布；不能用框架支持表代替本项目设备验证。
 
 PR #4已合并到main：c1d1519bcba05b8aa629cbe71e73d0d14325cec2。该合并与已验证发布源码47cac9c仅README/目标/验证文档不同，应用源码一致。
+
+## 2026-10-11 用户新增：直接与桌宠对话（R16）
+
+短按宠物，在宠物下方打开小输入框；Enter发送，Shift+Enter换行，Escape收起。宠物用现有分页气泡回复，完整聊天窗口继续保留。两处共用本地SQLite记录、模型配置、当前请求与停止状态；输入草稿分别保留。拖动和长按维持原交互，屏幕底部改在旁边显示，隐藏宠物时收起小框。关闭小框不取消已经发送的回复；完整窗口单独使用时仍保留原关闭取消语义。
+
+GPU保持独立的可选加速计划：驱动/后端差异、显存占用、动画争用和模型格式转换需要设备验证；成功接入之前继续使用CPU。先比较当前GGUF的Vulkan/Metal路径与LiteRT转换成本，必须具备CPU回退，不能把框架支持表写成已适配。
+
+源码与Linux原生录屏验收见[桌宠小输入框验证](validation/pet-quick-chat-2026-10-11.md)。本项不在alpha.2中，现已随alpha.4交付；Windows及两种Mac原生交互通过，混合DPI仍待实机验证。
+
+## 2026-10-11 用户新增：CPU完整/轻量两种发布
+
+继续默认CPU，不将GPU或LiteRT作为发布前置。alpha.3准备同时提供完整包与light包；light省去聊天/视觉权重，保留运行器与OCR，用户在界面点击下载固定版本模型，SHA-256校验后可聊天；下载不自动切换模型。完整回归成功后发布tag，禁止复用上一版应用源码的验证。Google LiteRT在独立目录做最小CPU试验，不塞入默认包、不宣称GPU已适配。进度与限制见[alpha.3交付](validation/alpha3-full-light-2026-10-11.md)。
+
+
+## 2026-10-11 alpha.4 收尾验证进展
+
+CPU默认；完整包携带2B文字与配套视觉权重，轻量包省去约1.94GB权重但保留原生运行器、OCR和许可证。两种版本共享界面下载、固定版本/SHA校验、缓存复用与外接服务能力。发布候选为05ab6b，应用源码沿用735b75a；原始角色图集和嘴部锚点没有修改。
+
+最终同源四平台完整/轻量安装器及实际包内容检查已通过；Windows21项、两种Mac各15项原生交互通过，Windows球/飞盘运动检查通过。完整Linux AI桌面回归第二轮成功，含真实GUI模型下载8项、小框CPU29项及生产偶遇时序。[v1.1.0-alpha.4](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.4)已公开，tag指向05ab6b；十个完整/轻量安装器及校验文件齐全。实际下载轻量Linux deb、SHA校验、UID1000普通用户安装、小框CPU回复/完整窗共享记录及退出无子进程六项通过。首次界面下载有CI独立八项验证；公开安装复核使用已有验证缓存。最终资格、失败时间线和公开安装器复核记录统一见[alpha.4验收](validation/alpha4-release-2026-10-11.md)。本地前端15项、Rust115项、小框真实CPU29项、全玩法66项和摸宠物单次快照18项通过；不能当作目标消费级硬件性能结论。
+
+Google LiteRT 0.18.0独立CPU原型已实际运行0.8B文字，并通过原生外接SSE聊天；现成INT8权重963MB，大于同规模GGUF的528MB，未增加到安装包。详见[研究与实测](research/ml-drift-litert-2026-10-11.md)。原“仅调研、未试跑”记录是历史状态。GPU、LiteRT的Windows/Mac原生与视觉、8GB/11代i5性能、混合DPI及真实办公长期质量仍未验证，不勾选这些项目。
+
+
+alpha.4发布收尾：Windows light约39.44MB，两种Mac light约61.06/65.69MB，Linux deb light约68.35MB、AppImage light约127.86MB；完整包约1.76–1.90GB。README、目标与验收文档跟随发布更新；发布后的摸宠物轮询改为单次状态快照，本地18项通过，避免脚本两次IPC读取的竞态，不改变已发布应用。原始角色素材未改；发布CI不会替代独立姿态/嘴部视觉检查。仍未完成的质量/真实硬件/GPU验收维持未勾选，不再重复实现已交付功能。

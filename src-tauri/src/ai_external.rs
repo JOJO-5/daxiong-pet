@@ -74,11 +74,6 @@ pub fn generate(
     mut on_delta: impl FnMut(&str) -> Result<()>,
 ) -> Result<String> {
     validate_url(&settings.service_url)?;
-    let key = if settings.has_credential {
-        key(&settings.service_url)?
-    } else {
-        String::new()
-    };
     // Image bytes are transport, not text tokens. Reserve a bounded visual budget.
     let budget = |items: &Vec<Value>| -> Result<usize> {
         let mut copy = items.clone();
@@ -113,12 +108,40 @@ pub fn generate(
         messages.drain(1..3);
     }
     tauri::async_runtime::block_on(async {
-        let client = reqwest::Client::builder()
-            .redirect(reqwest::redirect::Policy::none())
-            .connect_timeout(Duration::from_secs(10))
-            .timeout(Duration::from_secs(settings.timeout_seconds))
-            .build()
-            .map_err(|_| "服务连接初始化失败。")?;
+        // Loading the OS trust store can block (especially macOS Keychain).
+        // Keep Stop responsive while it is being initialized, too.
+        let timeout = settings.timeout_seconds;
+        let url = settings.service_url.trim().to_owned();
+        let use_system_roots = reqwest::Url::parse(&url)
+            .map_err(|_| "服务地址无效。")?
+            .scheme()
+            == "https";
+        let has_credential = settings.has_credential;
+        let (client, key) = cancelable(
+            tokio::task::spawn_blocking(move || {
+                let mut builder = reqwest::Client::builder()
+                    .redirect(reqwest::redirect::Policy::none())
+                    .connect_timeout(Duration::from_secs(10))
+                    .timeout(Duration::from_secs(timeout));
+                if !use_system_roots {
+                    // validate_url permits HTTP only on loopback, and redirects are disabled.
+                    // Local services need neither an HTTPS trust store nor a system proxy.
+                    builder = builder.no_proxy().tls_built_in_root_certs(false);
+                }
+                let client = builder
+                    .build()
+                    .map_err(|_| "服务连接初始化失败。".to_string())?;
+                let credential = if has_credential {
+                    key(&url)?
+                } else {
+                    String::new()
+                };
+                Ok::<_, String>((client, credential))
+            }),
+            cancelled,
+        )
+        .await?
+        .map_err(|_| "服务连接初始化失败。")??;
         let mut request=client.post(format!("{}/chat/completions",settings.service_url.trim().trim_end_matches('/'))).json(&json!({"model":settings.service_model,"messages":messages,"max_tokens":output,"stream":true,"temperature":0.6}));
         if !key.is_empty() {
             request = request.bearer_auth(key);
@@ -247,9 +270,51 @@ mod protocol_tests {
         };
         let kind = content_type.to_string();
         let worker = std::thread::spawn(move || {
-            let (mut stream, _) = listener.accept().unwrap();
-            let mut request = [0; 8192];
-            let _ = stream.read(&mut request);
+            listener.set_nonblocking(true).unwrap();
+            // Bound fixture lifetime while allowing cold client initialization.
+            // The cancellation test may stop before it ever opens a socket.
+            let deadline = Instant::now() + Duration::from_secs(15);
+            let mut stream = loop {
+                match listener.accept() {
+                    Ok((stream, _)) => break stream,
+                    Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                        if Instant::now() >= deadline {
+                            return;
+                        }
+                        std::thread::sleep(Duration::from_millis(5));
+                    }
+                    Err(e) => panic!("fixture accept failed: {e}"),
+                }
+            };
+            // Accepted sockets inherit nonblocking mode on Windows/macOS.
+            stream.set_nonblocking(false).unwrap();
+            stream
+                .set_read_timeout(Some(Duration::from_secs(3)))
+                .unwrap();
+            // TCP may split headers and JSON across reads. Closing with unread
+            // request bytes can reset the connection and discard our response.
+            let mut request = Vec::new();
+            let mut chunk = [0; 1024];
+            loop {
+                let n = match stream.read(&mut chunk) {
+                    Ok(0) => return, // A cancelled client may leave an incomplete request.
+                    Ok(n) => n,
+                    Err(e) if matches!(e.kind(), std::io::ErrorKind::ConnectionReset
+                        | std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut) => return,
+                    Err(e) => panic!("fixture request read failed: {e}"),
+                };
+                request.extend_from_slice(&chunk[..n]);
+                assert!(request.len() <= 8192, "fixture request exceeds limit");
+                if let Some(end) = request.windows(4).position(|bytes| bytes == b"\r\n\r\n") {
+                    let headers = std::str::from_utf8(&request[..end]).unwrap();
+                    let length = headers.lines().find_map(|line| {
+                        let (name, value) = line.split_once(':')?;
+                        name.eq_ignore_ascii_case("content-length")
+                            .then(|| value.trim().parse::<usize>().unwrap())
+                    }).expect("fixture request requires Content-Length");
+                    if request.len() >= end + 4 + length { break; }
+                }
+            }
             std::thread::sleep(delay);
             let header=format!("HTTP/1.1 200 OK\r\nContent-Type: {kind}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",body.len());
             let _ = stream.write_all(header.as_bytes());
@@ -260,6 +325,25 @@ mod protocol_tests {
             }
         });
         (settings, worker)
+    }
+    #[test]
+    fn fixture_waits_for_a_split_request_body() {
+        use std::net::TcpStream;
+        let (settings, worker) = mock(b"ok".to_vec(), "text/plain", Duration::ZERO);
+        let url = reqwest::Url::parse(&settings.service_url).unwrap();
+        let mut stream = TcpStream::connect(("127.0.0.1", url.port().unwrap())).unwrap();
+        stream.write_all(b"POST /v1/chat/completions HTTP/1.1\r\nHost: localhost\r\nContent-Length: 4\r\n\r\nab").unwrap();
+        stream.set_read_timeout(Some(Duration::from_millis(100))).unwrap();
+        let mut byte = [0];
+        let error = stream.read(&mut byte).expect_err("fixture replied before receiving the full request");
+        assert!(matches!(error.kind(), std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut));
+        stream.write_all(b"cd").unwrap();
+        stream.set_read_timeout(Some(Duration::from_secs(3))).unwrap();
+        let mut response = String::new();
+        stream.read_to_string(&mut response).unwrap();
+        assert!(response.starts_with("HTTP/1.1 200 OK\r\n"));
+        assert!(response.ends_with("\r\n\r\nok"));
+        worker.join().unwrap();
     }
     #[test]
     fn stream_chunks_and_non_stream_json_are_supported() {

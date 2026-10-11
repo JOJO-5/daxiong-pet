@@ -1,0 +1,54 @@
+{
+  "report": {
+    "platform": "Windows",
+    "passed": [
+      "hovered pet accepts native input",
+      "抛一球 moves the native pet window",
+      "hovered pet accepts native input",
+      "扔飞盘 moves the native pet window"
+    ],
+    "error": null,
+    "scope": "native launch, click-through, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display",
+    "menu_pointer": {
+      "requested": [
+        512,
+        400
+      ],
+      "actual": [
+        512,
+        400
+      ],
+      "extended_at_pet": "0x40118"
+    },
+    "native_menu_items": [
+      "打开互动面板…",
+      "和大熊聊聊…",
+      "",
+      "结束互动，喂块饼干",
+      "抛一球",
+      "扔飞盘",
+      "一起拔河",
+      "过来",
+      "收起玩具 / 结束练习",
+      "",
+      "更多"
+    ],
+    "video": "motion.mp4"
+  },
+  "games": {
+    "抛一球": {
+      "position_changes": 162,
+      "samples": 2425,
+      "median_change_interval_ms": 16.637,
+      "max_change_interval_ms": 29.133,
+      "note": "Intervals include intentional catch/release pauses; inspect alongside video."
+    },
+    "扔飞盘": {
+      "position_changes": 146,
+      "samples": 2423,
+      "median_change_interval_ms": 16.6555,
+      "max_change_interval_ms": 53.655,
+      "note": "Intervals include intentional catch/release pauses; inspect alongside video."
+    }
+  }
+}

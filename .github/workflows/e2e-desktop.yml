@@ -172,12 +172,29 @@ jobs:
           E2E_OUT: "test-results/ai-chat"
           E2E_SCRIPT: scripts/e2e-ai-chat.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Verify compact pet input, shared chat and real CPU reply
+        env:
+          DAXIONG_AI_RESOURCE_DIR: ${{ github.workspace }}/ai-build/ai
+          E2E_RECORD: "1"
+          E2E_AI_QUICK_CPU: "1"
+          E2E_OUT: "test-results/ai-quick"
+          E2E_SCRIPT: scripts/e2e-ai-quick.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Verify native capture, OCR, separate service scopes and memory
         env:
           DAXIONG_AI_RESOURCE_DIR: ${{ github.workspace }}/ai-build/ai
           E2E_RECORD: "1"
           E2E_OUT: "test-results/ai-observation"
           E2E_SCRIPT: scripts/e2e-ai-observation.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Stage light runtime and OCR without chat weights
+        run: python scripts/stage-light-ai.py --source ai-build/ai --out ai-build/ai-light --config ai-build/tauri-light.json
+      - name: Verify GUI downloads and uses real CPU model in light edition
+        env:
+          DAXIONG_AI_RESOURCE_DIR: ${{ github.workspace }}/ai-build/ai-light
+          E2E_RECORD: "1"
+          E2E_OUT: "test-results/ai-light"
+          E2E_SCRIPT: scripts/e2e-ai-light.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Build with production timing
         run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol

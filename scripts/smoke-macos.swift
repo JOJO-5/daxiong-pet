@@ -99,6 +99,12 @@ do {
         Thread.sleep(forTimeInterval: 0.1)
     }
     guard let petWindow = pet else { throw NSError(domain:"NativeSmoke",code:1,userInfo:[NSLocalizedDescriptionKey:"No visible 300×240 pet window, or process exited"] ) }
+    let readyDeadline=Date().addingTimeInterval(40)
+    while Date()<readyDeadline && app.isRunning {
+        if (try? String(contentsOf:output,encoding:.utf8))?.contains("Pet frontend ready:")==true { break }
+        Thread.sleep(forTimeInterval:0.08)
+    }
+    try require((try? String(contentsOf:output,encoding:.utf8))?.contains("Pet frontend ready:")==true,"pet sprites and event listeners finish loading before input")
     passed.append("built application starts and creates a visible native pet window")
     report["window"] = petWindow
     report["accessibility_ready"] = AXIsProcessTrusted()
@@ -106,7 +112,39 @@ do {
     try screenshot("desktop.png")
     if AXIsProcessTrusted() {
         report["scope"] = "native startup, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display"
-        Thread.sleep(forTimeInterval:1)
+        guard let finder=NSWorkspace.shared.runningApplications.first(where: {$0.bundleIdentifier=="com.apple.finder"}) else {
+            throw NSError(domain:"NativeSmoke",code:6,userInfo:[NSLocalizedDescriptionKey:"Finder unavailable for inactive-window input check"])
+        }
+        finder.activate(options:[.activateIgnoringOtherApps])
+        let inactiveDeadline=Date().addingTimeInterval(5)
+        while Date()<inactiveDeadline && NSRunningApplication(processIdentifier:app.processIdentifier)?.isActive==true {
+            Thread.sleep(forTimeInterval:0.08)
+        }
+        try require(NSRunningApplication(processIdentifier:app.processIdentifier)?.isActive==false,"first pet tap starts from another active application")
+        let quickPet=try hoverPet(150,160)
+        let quickPoint=CGPoint(x:quickPet.minX+150,y:quickPet.minY+160)
+        Thread.sleep(forTimeInterval:0.35)
+        mouse(.leftMouseDown,quickPoint);Thread.sleep(forTimeInterval:0.06);mouse(.leftMouseUp,quickPoint)
+        let quickBounds=bounds(try stableWindow("给大熊说句话"))
+        try require(abs(quickBounds.width-320)<2 && abs(quickBounds.height-146)<2,"short pet tap opens correctly sized compact window")
+        try screenshot("quick-chat.png");key(53)
+        _=try waitWindow("给大熊说句话",visible:false)
+        try require(named("大熊") != nil,"Escape hides compact input and keeps pet alive")
+        let secondPet=try hoverPet(150,160);Thread.sleep(forTimeInterval:0.35)
+        let secondPoint=CGPoint(x:secondPet.minX+150,y:secondPet.minY+160)
+        mouse(.leftMouseDown,secondPoint);Thread.sleep(forTimeInterval:0.06);mouse(.leftMouseUp,secondPoint)
+        let secondQuick=bounds(try stableWindow("给大熊说句话"))
+        let recordsPoint=CGPoint(x:secondQuick.minX+240,y:secondQuick.minY+22)
+        mouse(.mouseMoved,recordsPoint);mouse(.leftMouseDown,recordsPoint);Thread.sleep(forTimeInterval:0.06);mouse(.leftMouseUp,recordsPoint)
+        _=try stableWindow("和大熊聊聊")
+        passed.append("compact records button creates full native chat")
+        try screenshot("full-chat.png");key(53)
+        _=try waitWindow("和大熊聊聊",visible:false)
+        try require(named("给大熊说句话") != nil,"Escape hides full chat and keeps compact input alive")
+        let closeQuick=bounds(try waitWindow("给大熊说句话")!)
+        let closePoint=CGPoint(x:closeQuick.minX+292,y:closeQuick.minY+22)
+        mouse(.mouseMoved,closePoint);mouse(.leftMouseDown,closePoint);Thread.sleep(forTimeInterval:0.06);mouse(.leftMouseUp,closePoint)
+        _=try waitWindow("给大熊说句话",visible:false)
         _=try hoverPet(35,52);Thread.sleep(forTimeInterval:0.5)
         let dizzyBefore=bounds(try waitWindow("大熊")!)
         for i in 0..<14 {
@@ -182,4 +220,7 @@ if let error = failure { report["error"] = error } else { report["error"] = NSNu
 let data = try JSONSerialization.data(withJSONObject:report,options:[.prettyPrinted,.sortedKeys])
 try data.write(to:directory.appendingPathComponent("native-smoke.json"))
 print(String(data:data,encoding:.utf8)!)
-if failure != nil { exit(1) }
+if failure != nil {
+    if let logs=try? String(contentsOf:output,encoding:.utf8) { print(logs) }
+    exit(1)
+}

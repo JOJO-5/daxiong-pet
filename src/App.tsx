@@ -31,6 +31,7 @@ type Frame = { row: number; col: number; petting?: TouchFeedback | null; dizzy?:
  * 说话的内容从话术表随机挑（触发时机由主进程决定）。
  */
 export default function App() {
+  const press = useRef<{x:number;y:number;at:number;moved:boolean} | null>(null);
   const [frame, setFrame] = useState<Frame>({ row: 0, col: 0 });
   const [bubble, setBubble] = useState<{ text: string; id: number; duration: number; protect: boolean } | null>(null);
   const [src, setSrc] = useState<string>(BUILTIN_SRC);
@@ -132,6 +133,13 @@ export default function App() {
     const offMessage = listen<string>("pet:message",event => {
       if(alive && Date.now()>=errorUntil.current) displayMessage(event.payload);
     });
+    const offReply = listen<{content:string;status:string;preview:boolean;error:string|null}>("ai:reply", event => {
+      if(!alive || event.payload.preview || event.payload.status==="generating") return;
+      const text=event.payload.content.trim() || event.payload.error || (event.payload.status==="cancelled" ? "好，先不说啦。" : "这次没答出来，可以再试一次。");
+      if(text) displayMessage(text,8000,true);
+    });
+    const offStarted = listen<{preview:boolean}>("ai:started", event=>{if(alive&&!event.payload.preview) displayMessage("让我想想…",8000,true);});
+    const offCleared = listen("ai:cleared",()=>{if(alive){setBubble(null);bubbleUntil.current=0;errorUntil.current=0;}});
     const offAi = listen<{ text: string; revision: number }>("ai:ambient", event => {
       if (!alive || Date.now() < errorUntil.current || Date.now() < bubbleUntil.current || !event.payload.text.trim()) return;
       void invoke<boolean>("ai_claim_ambient", { revision: event.payload.revision }).then(valid => {
@@ -150,7 +158,7 @@ export default function App() {
     });
 
     // 监听注册完成再取快照，避免启动时漏掉帧 / 切换事件。
-    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter, offIntro, offAi]).then(async () => {
+    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter, offIntro, offAi, offReply, offStarted, offCleared]).then(async () => {
       const observed = revision;
       const pet = await invoke<PetSwitch>("current_pet");
       if (alive && revision === observed) await applyPet(pet);
@@ -172,6 +180,10 @@ export default function App() {
       offTreat.then(off=>off()).catch(console.error);
       offEncounter.then(off=>off()).catch(console.error);
       offIntro.then(off=>off()).catch(console.error);
+      offAi.then(off=>off()).catch(console.error);
+      offReply.then(off=>off()).catch(console.error);
+      offStarted.then(off=>off()).catch(console.error);
+      offCleared.then(off=>off()).catch(console.error);
     };
   }, []);
 
@@ -189,7 +201,12 @@ export default function App() {
         {frame.released_toy.toy==="frisbee" ? <ToyDisc/> : <div className="toy-ball"/>}
       </div> : null}
       {/* 用一个裁剪窗口套住整张图集，靠 transform 平移来切帧 */}
-      <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-clickable={clickable} data-sleeping={sleeping} data-row={frame.row} data-col={frame.col}>
+      <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-clickable={clickable} data-sleeping={sleeping} data-row={frame.row} data-col={frame.col}
+        onPointerDown={e=>{if(e.button===0) press.current={x:e.screenX,y:e.screenY,at:Date.now(),moved:false};}}
+        onPointerMove={e=>{const p=press.current;if(p&&Math.hypot(e.screenX-p.x,e.screenY-p.y)>6)p.moved=true;}}
+        onPointerCancel={()=>{press.current=null;}}
+        onPointerUp={e=>{const p=press.current;press.current=null;if(e.button===0&&p&&!p.moved&&Math.hypot(e.screenX-p.x,e.screenY-p.y)<=6&&Date.now()-p.at<250) void invoke("open_quick_chat").catch(error=>setBubble({id:++bubbleId.current,text:String(error),duration:5000,protect:true}));}}>
+
         <img
           className="pet-sheet"
           alt=""

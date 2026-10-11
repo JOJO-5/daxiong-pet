@@ -1,0 +1,19 @@
+{
+  "model": "Qwen3-0.6B-Q4_K_M",
+  "cases": 32,
+  "positive_total": 16,
+  "negative_total": 16,
+  "raw_passed": 20,
+  "raw_positive_passed": 15,
+  "raw_false_calls": 11,
+  "guarded_passed": 28,
+  "guarded_positive_passed": 12,
+  "guarded_false_calls": 0,
+  "guarded_missed_positive": 4,
+  "rules_only_passed": 28,
+  "rules_only_positive_passed": 12,
+  "rules_only_false_calls": 0,
+  "errors": 0,
+  "seconds_p50": 2.4496775524985424,
+  "seconds_p95": 2.9245039479974366
+}

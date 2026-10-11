@@ -1,0 +1,20 @@
+{
+  "model": "LFM2.5-350M-QAD-Q4_0",
+  "profile": "zero_shot",
+  "cases": 32,
+  "positive_total": 16,
+  "negative_total": 16,
+  "raw_passed": 15,
+  "raw_positive_passed": 10,
+  "raw_false_calls": 11,
+  "guarded_passed": 24,
+  "guarded_positive_passed": 8,
+  "guarded_false_calls": 0,
+  "guarded_missed_positive": 8,
+  "rules_only_passed": 28,
+  "rules_only_positive_passed": 12,
+  "rules_only_false_calls": 0,
+  "errors": 0,
+  "seconds_p50": 3.507425299500028,
+  "seconds_p95": 4.398000888999377
+}

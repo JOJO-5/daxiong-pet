@@ -1,0 +1,46 @@
+{
+  "model": {
+    "repository": "lmstudio-community/Qwen3.5-2B-GGUF",
+    "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+    "name": "Qwen3.5-2B-Q4_K_M.gguf",
+    "bytes": 1270808032,
+    "sha256": "0bfe35afc9f05b7fac3fa04925e051ac7939a42a8a17ea11afc99701bea826cc",
+    "license_metadata": "apache-2.0",
+    "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-2B-GGUF?blobs=true"
+  },
+  "command": [
+    "/workspace/daxiong-ai-prototype/runtime/build/bin/llama-server",
+    "-m",
+    "/workspace/daxiong-ai-prototype/models/Qwen3.5-2B-Q4_K_M.gguf",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "18891",
+    "-t",
+    "2",
+    "-tb",
+    "2",
+    "-c",
+    "4096",
+    "-np",
+    "1",
+    "-ngl",
+    "0",
+    "--jinja",
+    "--no-warmup",
+    "--no-mmproj"
+  ],
+  "parameters": {
+    "temperature": 0.6,
+    "top_p": 0.9,
+    "top_k": 40,
+    "min_p": 0.0,
+    "repeat_penalty": 1.05,
+    "seed": 20261010,
+    "max_tokens": 192,
+    "cache_prompt": false,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "reviewer": "single assistant, unblinded subjective review",
+  "dimensions": "four independent ordinal 0–2 dimensions, not accuracy",
+  "records": [
+    {
+      "id": "playful-celebrate-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "有狗动作但爪子等着看你不自然，反复追问。",
+      "reply_sha256": "8abfee36e2de4d91b9e9519eb5f6cf06a4a11105592298592896270ae99a1dec"
+    },
+    {
+      "id": "playful-celebrate-2",
+      "scores": {
+        "natural": 0,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 0
+      },
+      "note": "大脑和键盘出问题语气冒犯，错字笑话延展不通顺。",
+      "reply_sha256": "f57111897b7e3ed80f27229680a50e99d5dfe8be32184584a99437c60dc19ed5"
+    },
+    {
+      "id": "playful-celebrate-3",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "有玩心但重复爪子等着看，没给明确玩法。",
+      "reply_sha256": "5ff7779f71b54006cd3a88e44611d80aa686c36b41bb6c55a8839b4fcc7057b1"
+    },
+    {
+      "id": "playful-comfort-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 0,
+        "personality": 1,
+        "companionship": 0
+      },
+      "note": "凭空说没有喊木木，忽视低落并过度救场。",
+      "reply_sha256": "cc81bd05661c3d31d0233cd8cc67abf2065d119f2b21896e4692794aeac85f71"
+    },
+    {
+      "id": "playful-comfort-2",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 0
+      },
+      "note": "明确不要大道理后长篇表演加列表，达到输出上限而截断。",
+      "reply_sha256": "8c762e6ae6f0e7863844c453525730b73b10e471fd3118c8037b308de42f8d06"
+    },
+    {
+      "id": "playful-comfort-3",
+      "scores": {
+        "natural": 0,
+        "continuity": 0,
+        "personality": 0,
+        "companionship": 0
+      },
+      "note": "十分钟变十秒，要求安静却兴奋表演和拽起来，冒犯。",
+      "reply_sha256": "aee5c992fde853f4e5fb767911eeec5d90f32c6e14766dc1522ef03354e735b6"
+    },
+    {
+      "id": "playful-banter-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 0,
+        "companionship": 0
+      },
+      "note": "拖鞋玩笑有响应，但木木/大熊视角混乱且一记耳光。",
+      "reply_sha256": "9761eebffa06b5d153aaaefdbd26eb6bcdead35707f9c6c84d2ccee7b12561cc"
+    },
+    {
+      "id": "playful-banter-2",
+      "scores": {
+        "natural": 1,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "能接住拖鞋枕头，不过赘述与生气条件显得别扭。",
+      "reply_sha256": "3702e6ff1c5e5e077837717c4264e853012f497f19e9cf6a00df3275e36bf83b"
+    },
+    {
+      "id": "playful-banter-3",
+      "scores": {
+        "natural": 0,
+        "continuity": 0,
+        "personality": 0,
+        "companionship": 0
+      },
+      "note": "木木叫大熊，角色混乱且重复耳光。",
+      "reply_sha256": "209938cc7a8236b1285118520fd4e0e92bd57e0769c408b2c34cdcbb24e6060a"
+    },
+    {
+      "id": "gentle-celebrate-1",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "摸摸头温和，仍追问已明确完成的报告。",
+      "reply_sha256": "44c1144a68bec46984836e7c6213d0f3b8b806a772106f37f8e2de13d4ab80e1"
+    },
+    {
+      "id": "gentle-celebrate-2",
+      "scores": {
+        "natural": 0,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "有尾巴动作，但把两个改两个无意义；没有接住错字玩笑。",
+      "reply_sha256": "3b71f024c4856fbb9dbafe054eca3aaa907f9c8614b52f0adeee0c5bd455d3e3"
+    },
+    {
+      "id": "gentle-celebrate-3",
+      "scores": {
+        "natural": 1,
+        "continuity": 0,
+        "personality": 1,
+        "companionship": 0
+      },
+      "note": "已完成报表又让先做完，不玩与摸鱼前后矛盾。",
+      "reply_sha256": "4d105b8b9f42ef2ae805769e86368f98dbbadc70a49cc15cd6f1b54d0b422e15"
+    },
+    {
+      "id": "gentle-comfort-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 0,
+        "personality": 0,
+        "companionship": 1
+      },
+      "note": "混写木木大熊和主人视角，安慰泛泛。",
+      "reply_sha256": "c9446501eaca6ce8e2dc09ac1b53670f57ff2c20eb4601f1cb56401632a851dc"
+    },
+    {
+      "id": "gentle-comfort-2",
+      "scores": {
+        "natural": 1,
+        "continuity": 0,
+        "personality": 0,
+        "companionship": 0
+      },
+      "note": "把主人与宠物关系反转，让用户去陪自己的主人。",
+      "reply_sha256": "e9b4a125bd7cf5f62afee868cda8a9dab80de34060fc0e9e50ad8356f3dda23c"
+    },
+    {
+      "id": "gentle-comfort-3",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "趴下响应尚可，但明天把做放那个位置含糊。",
+      "reply_sha256": "331b7092bdf87f5f62fd16e8e4cfedb399bd2586659d37551fc1f8d7b7f23881"
+    },
+    {
+      "id": "gentle-banter-1",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 2,
+        "companionship": 2
+      },
+      "note": "短句装作藏拖鞋，温柔调皮，允许低风险角色玩笑。",
+      "reply_sha256": "22baa9951b963be421b1bf28ce592e34150223a9a86b5d30f41f72cb84343b93"
+    },
+    {
+      "id": "gentle-banter-2",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "枕头话题接住，但把你的拖鞋枕头主体混淆。",
+      "reply_sha256": "0bba785bf7699529070d11030e08a31d418dc74745f789253bd48fe9c98c0d23"
+    },
+    {
+      "id": "gentle-banter-3",
+      "scores": {
+        "natural": 1,
+        "continuity": 0,
+        "personality": 0,
+        "companionship": 1
+      },
+      "note": "仅答木木，没有报自己名字，不能理解成完整双方姓名。",
+      "reply_sha256": "fd490571ae002bcb231341e131ce6354917d03a6f54a0dff87d7cb410856cc90"
+    }
+  ]
+}

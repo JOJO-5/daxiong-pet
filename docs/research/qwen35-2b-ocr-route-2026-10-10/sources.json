@@ -1,0 +1,22 @@
+{
+  "checked_date_beijing": "2026-10-10",
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/RapidAI/RapidOCR/v3.10.0/python/rapidocr/default_models.yaml",
+      "local": "rapidocr-default-models.yaml",
+      "sha256": "90e0159dead16c21adbf000014a46043c981ae097f041d92d8b19a52c2f2ed9a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/RapidAI/RapidOCR/v3.10.0/python/rapidocr/config.yaml",
+      "local": "rapidocr-config.yaml",
+      "sha256": "06623941e188461a0bc263fe16175cb5e5f6f6b01f4387e546d3a741569fc021"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/RapidAI/RapidOCR/v3.10.0/LICENSE",
+      "local": "RapidOCR-LICENSE.txt",
+      "sha256": "3e0af25fdd06aa9586ae97adb00ea927ebe5a3805ac77d2d3a81ce5f55693333"
+    }
+  ],
+  "release": "https://github.com/RapidAI/RapidOCR/releases/tag/v3.10.0",
+  "release_published_at": "2026-10-08T15:21:09Z"
+}

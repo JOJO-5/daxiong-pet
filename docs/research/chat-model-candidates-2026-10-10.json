@@ -1,0 +1,102 @@
+{
+  "date_beijing": "2026-10-10",
+  "method": "Pinned CPU chat/vision candidates. Every executed artifact downloaded and SHA-256 verified; 2B projector metadata only, see artifact_status.",
+  "units": "bytes; decimal MB",
+  "candidates": [
+    {
+      "repository": "LiquidAI/LFM2.5-350M-GGUF",
+      "revision": "657e078c94084481950a2d555a941481f715536b",
+      "license_metadata": "other",
+      "name": "LFM2.5-350M-Q4_K_M.gguf",
+      "bytes": 229312224,
+      "sha256": "7e6f72643caafc9a68256686638c4d7916f2cec76d1df478d4c3ddcd95a6aed4",
+      "source_api": "https://huggingface.co/api/models/LiquidAI/LFM2.5-350M-GGUF?blobs=true"
+    },
+    {
+      "repository": "LiquidAI/LFM2.5-350M-GGUF",
+      "revision": "657e078c94084481950a2d555a941481f715536b",
+      "license_metadata": "other",
+      "name": "LFM2.5-350M-QAD-Q4_0.gguf",
+      "bytes": 219312832,
+      "sha256": "3d10b6ab8fc91a919534b9558e266255aca0bbc7f6d015963599aa9e74e05b1d",
+      "source_api": "https://huggingface.co/api/models/LiquidAI/LFM2.5-350M-GGUF?blobs=true"
+    },
+    {
+      "repository": "lmstudio-community/Qwen3-0.6B-GGUF",
+      "revision": "3334d820ab76652cf6e242d7c6302b10f0951f23",
+      "license_metadata": "apache-2.0",
+      "name": "Qwen3-0.6B-Q4_K_M.gguf",
+      "bytes": 484219808,
+      "sha256": "cd47557a67d7e8f2891d98b5e1dbf2988544569fdf4f1bdb30e92b71aa61b548",
+      "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3-0.6B-GGUF?blobs=true"
+    },
+    {
+      "repository": "lmstudio-community/Qwen3.5-0.8B-GGUF",
+      "revision": "26bab2c9369648924251c0ebb3dae012f5147707",
+      "name": "Qwen3.5-0.8B-Q4_K_M.gguf",
+      "bytes": 527502816,
+      "sha256": "f5b14da98939b60bbe1019a964eba656407e1e0b64f1fe3003ff6d650e93bfec",
+      "license_metadata": "apache-2.0",
+      "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-0.8B-GGUF?blobs=true"
+    },
+    {
+      "repository": "lmstudio-community/Qwen3.5-0.8B-GGUF",
+      "revision": "26bab2c9369648924251c0ebb3dae012f5147707",
+      "name": "mmproj-Qwen3.5-0.8B-BF16.gguf",
+      "bytes": 207345952,
+      "sha256": "6fdd1b4bdc3d2ae8bd15d783e23260dd07dcf83f45604a21dabfd6efad8f8bc5",
+      "license_metadata": "apache-2.0",
+      "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-0.8B-GGUF?blobs=true"
+    },
+    {
+      "repository": "lmstudio-community/Qwen3.5-2B-GGUF",
+      "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+      "name": "Qwen3.5-2B-Q4_K_M.gguf",
+      "bytes": 1270808032,
+      "sha256": "0bfe35afc9f05b7fac3fa04925e051ac7939a42a8a17ea11afc99701bea826cc",
+      "license_metadata": "apache-2.0",
+      "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-2B-GGUF?blobs=true"
+    },
+    {
+      "repository": "lmstudio-community/Qwen3.5-2B-GGUF",
+      "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+      "name": "mmproj-Qwen3.5-2B-BF16.gguf",
+      "bytes": 671372416,
+      "sha256": "31a8b681d34e70eaef158f7bacf1bc726a7a29babd185119ab3ebf402890dfbc",
+      "license_metadata": "apache-2.0",
+      "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-2B-GGUF?blobs=true"
+    },
+    {
+      "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+      "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+      "name": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "bytes": 1117320736,
+      "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "license_metadata": "apache-2.0",
+      "source_api": "https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct-GGUF?blobs=true"
+    }
+  ],
+  "qwen35_original": {
+    "repository": "Qwen/Qwen3.5-0.8B",
+    "revision": "2fc06364715b967f1860aea9cf38778875588b17",
+    "architecture": "Qwen3_5ForConditionalGeneration",
+    "pipeline_tag": "image-text-to-text",
+    "license": "apache-2.0"
+  },
+  "qwen35_2b_original": {
+    "repository": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "pipeline_tag": "image-text-to-text",
+    "license": "apache-2.0"
+  },
+  "artifact_status": {
+    "Qwen3.5-2B-Q4_K_M.gguf": "Downloaded/SHA-256 verified; 36 CPU chat and 24 prompt/cache diagnostic requests completed.",
+    "mmproj-Qwen3.5-2B-BF16.gguf": "Metadata only; not downloaded or evaluated."
+  },
+  "qwen25_15_original": {
+    "repository": "Qwen/Qwen2.5-1.5B-Instruct",
+    "revision": "989aa7980e4cf806f80c7fef2b1adb7bc71aa306",
+    "pipeline_tag": "text-generation",
+    "license": "apache-2.0"
+  }
+}

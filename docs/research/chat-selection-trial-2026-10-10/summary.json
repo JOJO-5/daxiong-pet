@@ -1,0 +1,358 @@
+{
+  "main": [
+    {
+      "model": {
+        "repository": "lmstudio-community/Qwen3-0.6B-GGUF",
+        "revision": "3334d820ab76652cf6e242d7c6302b10f0951f23",
+        "license_metadata": "apache-2.0",
+        "name": "Qwen3-0.6B-Q4_K_M.gguf",
+        "bytes": 484219808,
+        "sha256": "cd47557a67d7e8f2891d98b5e1dbf2988544569fdf4f1bdb30e92b71aa61b548",
+        "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3-0.6B-GGUF?blobs=true"
+      },
+      "requests": 36,
+      "errors": 0,
+      "truncated": 0,
+      "reasoning_nonempty": 0,
+      "startup_health_seconds": 3.1313681399988127,
+      "peak_single_process_kib": {
+        "VmRSS": 1292036,
+        "VmHWM": 1292036
+      },
+      "final_rss_kib": {
+        "VmRSS": 1292036,
+        "VmHWM": 1292036
+      },
+      "latency": {
+        "first_content_seconds": {
+          "p50": 0.6022749969997676,
+          "p95": 1.4321394979997422
+        },
+        "first_sentence_seconds": {
+          "p50": 1.2099904579990834,
+          "p95": 2.351352180001413
+        },
+        "total_seconds": {
+          "p50": 1.5832441670027038,
+          "p95": 2.6724715800010017
+        }
+      },
+      "semantic_score": null,
+      "basic_acceptable_cases_assistant_review": 15,
+      "review_path": "reviews/Qwen3-0.6B-Q4_K_M.json"
+    },
+    {
+      "model": {
+        "repository": "LiquidAI/LFM2.5-350M-GGUF",
+        "revision": "657e078c94084481950a2d555a941481f715536b",
+        "license_metadata": "other",
+        "name": "LFM2.5-350M-QAD-Q4_0.gguf",
+        "bytes": 219312832,
+        "sha256": "3d10b6ab8fc91a919534b9558e266255aca0bbc7f6d015963599aa9e74e05b1d",
+        "source_api": "https://huggingface.co/api/models/LiquidAI/LFM2.5-350M-GGUF?blobs=true"
+      },
+      "requests": 36,
+      "errors": 0,
+      "truncated": 0,
+      "reasoning_nonempty": 0,
+      "startup_health_seconds": 0.5253603489982197,
+      "peak_single_process_kib": {
+        "VmRSS": 507680,
+        "VmHWM": 507680
+      },
+      "final_rss_kib": {
+        "VmRSS": 507680,
+        "VmHWM": 507680
+      },
+      "latency": {
+        "first_content_seconds": {
+          "p50": 2.9275121909995505,
+          "p95": 3.808471748001466
+        },
+        "first_sentence_seconds": {
+          "p50": 3.3566286440000113,
+          "p95": 4.344300521999685
+        },
+        "total_seconds": {
+          "p50": 3.1289008999992802,
+          "p95": 4.584933982998336
+        }
+      },
+      "semantic_score": null,
+      "basic_acceptable_cases_assistant_review": 3,
+      "review_path": "reviews/LFM2.5-350M-QAD-Q4_0.json"
+    },
+    {
+      "model": {
+        "repository": "LiquidAI/LFM2.5-350M-GGUF",
+        "revision": "657e078c94084481950a2d555a941481f715536b",
+        "license_metadata": "other",
+        "name": "LFM2.5-350M-Q4_K_M.gguf",
+        "bytes": 229312224,
+        "sha256": "7e6f72643caafc9a68256686638c4d7916f2cec76d1df478d4c3ddcd95a6aed4",
+        "source_api": "https://huggingface.co/api/models/LiquidAI/LFM2.5-350M-GGUF?blobs=true"
+      },
+      "requests": 36,
+      "errors": 0,
+      "truncated": 0,
+      "reasoning_nonempty": 0,
+      "startup_health_seconds": 0.6540841060013918,
+      "peak_single_process_kib": {
+        "VmRSS": 497792,
+        "VmHWM": 497792
+      },
+      "final_rss_kib": {
+        "VmRSS": 497792,
+        "VmHWM": 497792
+      },
+      "latency": {
+        "first_content_seconds": {
+          "p50": 2.261011665999831,
+          "p95": 3.402137547996972
+        },
+        "first_sentence_seconds": {
+          "p50": 2.727627290998498,
+          "p95": 4.311678013000346
+        },
+        "total_seconds": {
+          "p50": 2.598883446997206,
+          "p95": 4.632826610999473
+        }
+      },
+      "semantic_score": null,
+      "basic_acceptable_cases_assistant_review": 2,
+      "review_path": "reviews/LFM2.5-350M-Q4_K_M.json"
+    },
+    {
+      "model": {
+        "repository": "lmstudio-community/Qwen3.5-0.8B-GGUF",
+        "revision": "26bab2c9369648924251c0ebb3dae012f5147707",
+        "name": "Qwen3.5-0.8B-Q4_K_M.gguf",
+        "bytes": 527502816,
+        "sha256": "f5b14da98939b60bbe1019a964eba656407e1e0b64f1fe3003ff6d650e93bfec",
+        "license_metadata": "apache-2.0",
+        "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-0.8B-GGUF?blobs=true"
+      },
+      "requests": 36,
+      "errors": 0,
+      "truncated": 0,
+      "reasoning_nonempty": 0,
+      "startup_health_seconds": 1.5038216960019781,
+      "peak_single_process_kib": {
+        "VmRSS": 1104676,
+        "VmHWM": 1104676
+      },
+      "final_rss_kib": {
+        "VmRSS": 1104676,
+        "VmHWM": 1104676
+      },
+      "latency": {
+        "first_content_seconds": {
+          "p50": 1.0120976460020756,
+          "p95": 5.704162475998601
+        },
+        "first_sentence_seconds": {
+          "p50": 2.0883913120014768,
+          "p95": 6.612832785998762
+        },
+        "total_seconds": {
+          "p50": 3.0438575869993656,
+          "p95": 7.852873488998739
+        }
+      },
+      "semantic_score": null,
+      "basic_acceptable_cases_assistant_review": 18,
+      "review_path": "reviews/Qwen3.5-0.8B-Q4_K_M.json"
+    },
+    {
+      "model": {
+        "repository": "lmstudio-community/Qwen3.5-2B-GGUF",
+        "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+        "name": "Qwen3.5-2B-Q4_K_M.gguf",
+        "bytes": 1270808032,
+        "sha256": "0bfe35afc9f05b7fac3fa04925e051ac7939a42a8a17ea11afc99701bea826cc",
+        "license_metadata": "apache-2.0",
+        "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-2B-GGUF?blobs=true"
+      },
+      "requests": 36,
+      "errors": 0,
+      "truncated": 0,
+      "reasoning_nonempty": 0,
+      "startup_health_seconds": 2.6859657649984,
+      "peak_single_process_kib": {
+        "VmRSS": 2206504,
+        "VmHWM": 2206504
+      },
+      "final_rss_kib": {
+        "VmRSS": 2206504,
+        "VmHWM": 2206504
+      },
+      "latency": {
+        "first_content_seconds": {
+          "p50": 1.7071822120014986,
+          "p95": 7.228009888000088
+        },
+        "first_sentence_seconds": {
+          "p50": 4.5110148019994085,
+          "p95": 8.802407735001907
+        },
+        "total_seconds": {
+          "p50": 7.412070135997055,
+          "p95": 13.758021175999602
+        }
+      },
+      "semantic_score": null,
+      "basic_acceptable_cases_assistant_review": 18,
+      "review_path": "reviews/Qwen3.5-2B-Q4_K_M.json"
+    },
+    {
+      "model": {
+        "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+        "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+        "name": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+        "bytes": 1117320736,
+        "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+        "license_metadata": "apache-2.0",
+        "source_api": "https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct-GGUF?blobs=true"
+      },
+      "requests": 36,
+      "errors": 0,
+      "truncated": 0,
+      "reasoning_nonempty": 0,
+      "startup_health_seconds": 1.564779088999785,
+      "peak_single_process_kib": {
+        "VmRSS": 1946304,
+        "VmHWM": 1946304
+      },
+      "final_rss_kib": {
+        "VmRSS": 1946304,
+        "VmHWM": 1946304
+      },
+      "latency": {
+        "first_content_seconds": {
+          "p50": 0.6846519300015643,
+          "p95": 1.921896600000764
+        },
+        "first_sentence_seconds": {
+          "p50": 1.5457871510006953,
+          "p95": 3.064155235999351
+        },
+        "total_seconds": {
+          "p50": 2.0347734860006312,
+          "p95": 5.000711664000846
+        }
+      },
+      "semantic_score": null,
+      "basic_acceptable_cases_assistant_review": 16,
+      "review_path": "reviews/qwen2.5-1.5b-instruct-q4_k_m.json"
+    }
+  ],
+  "prompt": [
+    {
+      "directory": "prompt-2b",
+      "profiles": {
+        "long_uncached": {
+          "requests": 6,
+          "basic_acceptable_cases_assistant_review": 2,
+          "total_seconds_p50": 9.68451418100085,
+          "total_seconds_p95": 14.509946605998266
+        },
+        "new_short_uncached": {
+          "requests": 12,
+          "basic_acceptable_cases_assistant_review": 6,
+          "total_seconds_p50": 10.990213549001055,
+          "total_seconds_p95": 13.312476633000188
+        },
+        "short_uncached": {
+          "requests": 6,
+          "basic_acceptable_cases_assistant_review": 2,
+          "total_seconds_p50": 10.454798590999417,
+          "total_seconds_p95": 12.249650314002793
+        }
+      }
+    },
+    {
+      "directory": "prompt-08",
+      "profiles": {
+        "new_short_uncached": {
+          "requests": 12,
+          "basic_acceptable_cases_assistant_review": 5,
+          "total_seconds_p50": 3.2332981120016484,
+          "total_seconds_p95": 4.943233952002629
+        }
+      }
+    },
+    {
+      "directory": "prompt-06",
+      "profiles": {
+        "new_short_uncached": {
+          "requests": 12,
+          "basic_acceptable_cases_assistant_review": 4,
+          "total_seconds_p50": 1.8449538179993397,
+          "total_seconds_p95": 2.119433832998766
+        }
+      }
+    },
+    {
+      "directory": "prompt-qwen25",
+      "profiles": {
+        "new_short_uncached": {
+          "requests": 12,
+          "basic_acceptable_cases_assistant_review": 10,
+          "total_seconds_p50": 4.2752292359982675,
+          "total_seconds_p95": 7.290672027000255
+        }
+      }
+    }
+  ],
+  "vision": [
+    {
+      "directory": "vision-baseline",
+      "requests": 4,
+      "errors": 0,
+      "startup_health_seconds": 2.872341461999895,
+      "single_process_final_status_kib": {
+        "VmRSS": 1517004,
+        "VmHWM": 1517004
+      },
+      "latency": {
+        "first_content_seconds": {
+          "p50": 17.31866003899995,
+          "p95": 18.74300430799849
+        },
+        "total_seconds": {
+          "p50": 20.669468523999967,
+          "p95": 21.368341278001026
+        }
+      },
+      "semantic_score": null
+    },
+    {
+      "directory": "vision-min1024",
+      "requests": 2,
+      "errors": 0,
+      "startup_health_seconds": 1.8902345019996574,
+      "single_process_final_status_kib": {
+        "VmRSS": 1453716,
+        "VmHWM": 1453716
+      },
+      "latency": {
+        "first_content_seconds": {
+          "p50": 38.83498980299919,
+          "p95": 38.83498980299919
+        },
+        "total_seconds": {
+          "p50": 45.21695889200055,
+          "p95": 45.21695889200055
+        }
+      },
+      "semantic_score": null
+    }
+  ],
+  "reviewer": "Single assistant qualitative review, unblinded; not independent human/production accuracy.",
+  "totals": {
+    "main_chat_requests": 216,
+    "diagnostic_chat_requests": 60,
+    "vision_requests": 6
+  }
+}

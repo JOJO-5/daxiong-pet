@@ -1,0 +1,7 @@
+{
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "runtime_source_commit": "d81235049384534c167caea52b85a694f6103d14",
+  "server_sha256": "254d78f31171fe37f3b43d02c872e36764c47a2524c52e5047e00951aa6de9f9",
+  "cpu_quota": "200000 100000",
+  "measurement": "shared Linux, sequential models, 2 threads, no actual pet application running; warm file cache; no cold-start/RAM/idle metrics in this round"
+}

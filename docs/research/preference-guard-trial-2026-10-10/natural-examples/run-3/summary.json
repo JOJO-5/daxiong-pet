@@ -1,0 +1,57 @@
+[
+  {
+    "model": {
+      "repository": "lmstudio-community/Qwen3-0.6B-GGUF",
+      "revision": "3334d820ab76652cf6e242d7c6302b10f0951f23",
+      "license_metadata": "apache-2.0",
+      "name": "Qwen3-0.6B-Q4_K_M.gguf",
+      "bytes": 484219808,
+      "sha256": "cd47557a67d7e8f2891d98b5e1dbf2988544569fdf4f1bdb30e92b71aa61b548",
+      "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3-0.6B-GGUF?blobs=true"
+    },
+    "profile": "few_shot",
+    "cases": 32,
+    "passed": 20,
+    "positive_passed": 15,
+    "positive_total": 16,
+    "negative_passed": 5,
+    "negative_total": 16,
+    "false_calls": 11,
+    "errors": 0,
+    "schema_invalid": 0,
+    "seconds_p50": 2.4496775524985424,
+    "seconds_p95": 2.9245039479974366,
+    "command": [
+      "/workspace/daxiong-ai-prototype/runtime/build/bin/llama-server",
+      "-m",
+      "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18891",
+      "-t",
+      "2",
+      "-tb",
+      "2",
+      "-c",
+      "4096",
+      "-np",
+      "1",
+      "-ngl",
+      "0",
+      "--jinja",
+      "--no-warmup"
+    ],
+    "template_caps": {
+      "supports_object_arguments": true,
+      "supports_parallel_tool_calls": true,
+      "supports_preserve_reasoning": false,
+      "supports_reasoning_effort": false,
+      "supports_string_content": true,
+      "supports_system_role": true,
+      "supports_tool_calls": true,
+      "supports_tools": true,
+      "supports_typed_content": false
+    }
+  }
+]

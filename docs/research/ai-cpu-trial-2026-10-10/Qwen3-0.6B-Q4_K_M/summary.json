@@ -1,0 +1,101 @@
+{
+  "model": {
+    "repository": "lmstudio-community/Qwen3-0.6B-GGUF",
+    "revision": "3334d820ab76652cf6e242d7c6302b10f0951f23",
+    "license_metadata": "apache-2.0",
+    "name": "Qwen3-0.6B-Q4_K_M.gguf",
+    "bytes": 484219808,
+    "sha256": "cd47557a67d7e8f2891d98b5e1dbf2988544569fdf4f1bdb30e92b71aa61b548",
+    "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3-0.6B-GGUF?blobs=true"
+  },
+  "settings": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "repeat_penalty": 1.0
+  },
+  "command": [
+    "/workspace/daxiong-ai-prototype/runtime/build/bin/llama-server",
+    "-m",
+    "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "18891",
+    "-t",
+    "2",
+    "-tb",
+    "2",
+    "-c",
+    "2048",
+    "-np",
+    "1",
+    "-ngl",
+    "0",
+    "--jinja",
+    "--no-warmup"
+  ],
+  "server_ready_seconds": 3.7458238439994602,
+  "first_request": {
+    "case_id": "001",
+    "category": "pet_chat",
+    "expected": null,
+    "reply": "早上好，小主人！有什么想做的事情吗？",
+    "reasoning": "",
+    "first_content_seconds": 1.1718270800010941,
+    "total_seconds": 1.8786453880002227,
+    "error": null,
+    "automated_check": null,
+    "last_event": {
+      "choices": [],
+      "created": 1791625550,
+      "id": "chatcmpl-6w9xxaWP3Yschzon2x7PSq4nkKS0gjpU",
+      "model": "/workspace/daxiong-ai-prototype/models/Qwen3-0.6B-Q4_K_M.gguf",
+      "system_fingerprint": "b1-d812350",
+      "object": "chat.completion.chunk",
+      "usage": {
+        "completion_tokens": 12,
+        "prompt_tokens": 108,
+        "total_tokens": 120,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 108,
+        "prompt_ms": 1139.85,
+        "prompt_per_token_ms": 10.554166666666665,
+        "prompt_per_second": 94.749309119621,
+        "predicted_n": 12,
+        "predicted_ms": 698.969,
+        "predicted_per_token_ms": 63.54263636363637,
+        "predicted_per_second": 15.737464751655653
+      }
+    }
+  },
+  "idle_start_kib": {
+    "VmRSS": 973264,
+    "VmHWM": 973264
+  },
+  "idle_end_kib": {
+    "VmRSS": 1024632,
+    "VmHWM": 1039928
+  },
+  "peak_kib": {
+    "VmRSS": 1026468,
+    "VmHWM": 1039928
+  },
+  "cases": 100,
+  "errors": 0,
+  "warm_first_content_p50_seconds": 0.7426682699988305,
+  "warm_first_content_p95_seconds": 1.0030119149996608,
+  "warm_total_p50_seconds": 1.3950944609987346,
+  "warm_total_p95_seconds": 2.0525093189990002,
+  "warm_over_5_seconds": 0,
+  "automated_checks": {
+    "passed": 8,
+    "total": 50,
+    "note": "Exact synthetic JSON/substring checks; not a human conversation quality score."
+  }
+}

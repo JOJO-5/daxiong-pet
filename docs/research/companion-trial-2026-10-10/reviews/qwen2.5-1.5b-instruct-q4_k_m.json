@@ -1,0 +1,204 @@
+{
+  "reviewer": "single assistant, unblinded subjective review",
+  "dimensions": "four independent ordinal 0–2 dimensions, not accuracy",
+  "records": [
+    {
+      "id": "playful-celebrate-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "勤劳的工作者偏书面；额外编出听说特别上心，不单因低风险编造判失败。",
+      "reply_sha256": "e09a183b2e1987df48a96472f90fd0f496e29bea6379b0bc08360afa775b3aca"
+    },
+    {
+      "id": "playful-celebrate-2",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "把错字玩笑转成进步与耐心的鼓励，接话弱。",
+      "reply_sha256": "20333de0112f4660e156d479a8d4df838640b14917bde76a5291d2b0279b6969"
+    },
+    {
+      "id": "playful-celebrate-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 2
+      },
+      "note": "提出小游戏，能继续玩；狗狗特色较弱。",
+      "reply_sha256": "ef5a99084faf75b5e1c656a273701c9194b904d444ffd14310bf61d4f6ebb191"
+    },
+    {
+      "id": "playful-comfort-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 0
+      },
+      "note": "低落时哈哈开头并否定情绪，套用家庭努力话术。",
+      "reply_sha256": "c439bbb8e6672208351883a460857d4466482d409e1e93c8909f5dd7251aaca5"
+    },
+    {
+      "id": "playful-comfort-2",
+      "scores": {
+        "natural": 1,
+        "continuity": 0,
+        "personality": 0,
+        "companionship": 0
+      },
+      "note": "主人明确不要大道理，仍长篇讲灯与家庭；忽略当前需要。",
+      "reply_sha256": "26d2303ec15ad3ccd917b7aea49f43e6fdd04abcd8e11c1a50fab3c2e710c597"
+    },
+    {
+      "id": "playful-comfort-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 2
+      },
+      "note": "接受安静陪伴，舒服简短。",
+      "reply_sha256": "54793cc6f30a77b4b4fbee0df7458d39fa1783f91f90e3f34553c4c0a8f4451d"
+    },
+    {
+      "id": "playful-banter-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 0,
+        "personality": 0,
+        "companionship": 1
+      },
+      "note": "把叼东西的主体说成主人，自己转成找拖鞋。",
+      "reply_sha256": "ac48e24e48900a1b82fbffed63ee6d5175afc90c38c16234bb34453ba44bbf2e"
+    },
+    {
+      "id": "playful-banter-2",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 2,
+        "companionship": 2
+      },
+      "note": "接住拖鞋当枕头的小玩笑，轻松。",
+      "reply_sha256": "44d48b8be00d8d5597ff3ac28ac36038e349cd6c82d64acea61b775c092f818d"
+    },
+    {
+      "id": "playful-banter-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "双方姓名正确，却在熟悉聊天中重新介绍很高兴认识。",
+      "reply_sha256": "e6e0bd19c2d4fb0e83a97d12c5459cf78ed06ff316d7bf5a46529582cdba8164"
+    },
+    {
+      "id": "gentle-celebrate-1",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "自然简短但只重复完成报表，庆祝不足。",
+      "reply_sha256": "bca94297d52ca6d16ef7c28c2eac03bb58497842272d7773c49ef2ca90b7a47c"
+    },
+    {
+      "id": "gentle-celebrate-2",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 0
+      },
+      "note": "得小心避免出错偏训诫，没有接住哈哈的玩笑。",
+      "reply_sha256": "ac9e358f238a8f991264cd219c595fdd3bceda4f8a40110b348443ea57d30afe"
+    },
+    {
+      "id": "gentle-celebrate-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "能提供视频和游戏方向但主要把选择交回主人。",
+      "reply_sha256": "e22983fe2ec29f2a8d7015cd7c01446e3aa366b1d625c415f85709923a3e2699"
+    },
+    {
+      "id": "gentle-comfort-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "慢慢来尚可，先谈完成任务开心与当前低落不贴合。",
+      "reply_sha256": "2ae5c08bb318130cbccf3d7118deba7a60b57dc1311faf699c876f94e6f3867f"
+    },
+    {
+      "id": "gentle-comfort-2",
+      "scores": {
+        "natural": 2,
+        "continuity": 0,
+        "personality": 0,
+        "companionship": 0
+      },
+      "note": "主人只要已有狗陪着，却问想要什么类型的狗狗，角色漂移。",
+      "reply_sha256": "863d411f18a6f2d2d74627c4823f84129454ebc554eb114524c5e624219e815c"
+    },
+    {
+      "id": "gentle-comfort-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "简短接受，但去等你弱于趴在旁边。",
+      "reply_sha256": "44392135a26b36c6b51461c7e9d399c7a3e30f862479c8f63002d0e77ff3af53"
+    },
+    {
+      "id": "gentle-banter-1",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "平淡道歉式回应，玩笑没充分接住。",
+      "reply_sha256": "bb370c7693c39bfedd19920f40e7092b6a11c44e58b8a845f72b1218853f939f"
+    },
+    {
+      "id": "gentle-banter-2",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "追问会不会生气，接受枕头的情节弱。",
+      "reply_sha256": "d3aceeb7ae824853927fbf210a97200389d4c8bd59c10d790582b3e2e39e4cec"
+    },
+    {
+      "id": "gentle-banter-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "双方姓名正确，口语略像客服自我介绍。",
+      "reply_sha256": "b3feec3d3f3e5bc811e0504da6770bfd8e448fd265784dcd97b331e54d2d29e5"
+    }
+  ]
+}

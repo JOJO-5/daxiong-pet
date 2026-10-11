@@ -1,0 +1,204 @@
+{
+  "reviewer": "single assistant, unblinded subjective review",
+  "dimensions": "four independent ordinal 0–2 dimensions, not accuracy",
+  "records": [
+    {
+      "id": "playful-celebrate-1",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 2
+      },
+      "note": "庆祝和懒腰有陪伴感，后半虚构表格细节仅记为低风险延展；偏长。",
+      "reply_sha256": "80f7562e7161223c2464ef25f73de41c2362d11e4ff1c04b65bc5ed71c063b8a"
+    },
+    {
+      "id": "playful-celebrate-2",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "有玩笑但将自造表格细节当成主人曾说，吐槽与惩罚尾句偏过头。",
+      "reply_sha256": "11670fd5134d5f2672d527238a1fd94eedda686230089d6c19f281dc098bf759"
+    },
+    {
+      "id": "playful-celebrate-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "愿意陪摸鱼，玩法有幽默感；长篇列表、狗狗特色较弱。",
+      "reply_sha256": "75e605ded7962318cf1e0ffece5890a7b6ec0a11297b99ce066e4765920313ef"
+    },
+    {
+      "id": "playful-comfort-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 0
+      },
+      "note": "低落时哈哈开头、说跑得太慢，木木作为狗角色混淆。",
+      "reply_sha256": "bf8f679055bb18fcbb9cf9e1f7b85dc386400af17012d75409c9920ccf18f882"
+    },
+    {
+      "id": "playful-comfort-2",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "响应不讲道理但转成长篇表演，输出上限截断；不是知识错直接淘汰。",
+      "reply_sha256": "9cdd4883d852d6ef707f4e9823f5461831144def27c0244c5abbdf8fc2cc258e"
+    },
+    {
+      "id": "playful-comfort-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "有陪伴动作与十分钟回应，但混写木木/小爪子并沿用举哑铃，太长。",
+      "reply_sha256": "9dac42cbbf32b0936162ad3c7ee0c9f7298bdbeb6274a2a337beb1c19b32a966"
+    },
+    {
+      "id": "playful-banter-1",
+      "scores": {
+        "natural": 1,
+        "continuity": 2,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "被发现了接住玩笑，不过主人大力咬狗逻辑别扭。",
+      "reply_sha256": "4eb74a30bc29830281a1569cbbdd8dd45b8024befcd54fa7bcb446a879704d34"
+    },
+    {
+      "id": "playful-banter-2",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 0
+      },
+      "note": "接受枕头的情节被严肃警告和锋利牙齿抢走，不够舒服。",
+      "reply_sha256": "fdb7336904a230d032dd246d7ace95839046af6cc5e402c0cd4185b2639508b0"
+    },
+    {
+      "id": "playful-banter-3",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 0
+      },
+      "note": "自己大熊正确，但继续重复咬和叼主人，忽略简短报名字。",
+      "reply_sha256": "ebef600529299f63bee60091af16611a823cc87ce1b0d74f7e1a16878ea917b8"
+    },
+    {
+      "id": "gentle-celebrate-1",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 0,
+        "companionship": 1
+      },
+      "note": "语气温柔，却写木木的尾巴、木木看你，狗与主人混淆。",
+      "reply_sha256": "8a97c271c7d5cbe4b4d6f8dee28b93157a1b582c10f664aae11afd7938bba5f0"
+    },
+    {
+      "id": "gentle-celebrate-2",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 0,
+        "companionship": 1
+      },
+      "note": "能接错字主题，但继续木木作为狗；把笑话转向检查。",
+      "reply_sha256": "6edfad006a9cdb8da9a8b582a8bfb3a7549d8f680f0e1af53e3753abab9a7d7f"
+    },
+    {
+      "id": "gentle-celebrate-3",
+      "scores": {
+        "natural": 1,
+        "continuity": 1,
+        "personality": 0,
+        "companionship": 1
+      },
+      "note": "愿意玩但同词配同词不成游戏，狗仍自称木木；悄悄改字是虚构游戏设定，不能当实际操作成功。",
+      "reply_sha256": "c6e03b3278c4b4cebd74c4f0d6ef9a65302171fea564f5356930144ba6211604"
+    },
+    {
+      "id": "gentle-comfort-1",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 2,
+        "companionship": 2
+      },
+      "note": "提议坐旁边什么都不做，温柔接住低落，双方名字正确。",
+      "reply_sha256": "bebb11f753ccb9ece0a09fb2b283879912063145f3176a44a62a93799ba6f458"
+    },
+    {
+      "id": "gentle-comfort-2",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 2,
+        "companionship": 2
+      },
+      "note": "接纳不听大道理并提议静坐；仍有一点泛泛解释与反正没事做，评分主观。",
+      "reply_sha256": "27a680023ae7842492f14457d53a371d3a105d658f1294f9f177d21a56aba96b"
+    },
+    {
+      "id": "gentle-comfort-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 2,
+        "companionship": 2
+      },
+      "note": "趴旁边、十分钟和随时在回应完整，有温柔狗动作；文本动作不算已执行动画。",
+      "reply_sha256": "647c73e2a29229216811047519f61d4500aedadbb2735d59e351b5f05ae913f7"
+    },
+    {
+      "id": "gentle-banter-1",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 0,
+        "companionship": 1
+      },
+      "note": "拖鞋枕头玩笑自然，但把自己称作木木，角色错位。",
+      "reply_sha256": "a4954e8bb43a11c4354575c28f0de33d366ed7a38086a22eba8588833f82ed76"
+    },
+    {
+      "id": "gentle-banter-2",
+      "scores": {
+        "natural": 2,
+        "continuity": 1,
+        "personality": 1,
+        "companionship": 1
+      },
+      "note": "简短但归你与不抓没有充分回应允许当枕头。",
+      "reply_sha256": "09e7f9d71052a8b12651957e93608967288a205d9815a36cde7e501ae3581419"
+    },
+    {
+      "id": "gentle-banter-3",
+      "scores": {
+        "natural": 2,
+        "continuity": 2,
+        "personality": 2,
+        "companionship": 2
+      },
+      "note": "正确双方姓名，挠耳朵的害羞狗动作自然。",
+      "reply_sha256": "a954dfdcf012472432dd5fbd4d057de2790379df47fa434144abb4100714883a"
+    }
+  ]
+}

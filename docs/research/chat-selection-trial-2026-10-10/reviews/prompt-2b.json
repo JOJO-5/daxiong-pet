@@ -1,0 +1,150 @@
+{
+  "reviewer": "本次助手逐条语义评审，非独立人工/盲评。",
+  "responses_sha256": "317f7be8cf59b54d66ea238e3239276780e474193ed473f22c99c9edd30250f3",
+  "cases": [
+    {
+      "profile": "long_uncached",
+      "id": "c05",
+      "acceptable_for_this_case": true,
+      "note": "自称大熊，未知主人时询问。"
+    },
+    {
+      "profile": "long_uncached",
+      "id": "c09",
+      "acceptable_for_this_case": false,
+      "note": "没有屏幕却编造整理桌面。"
+    },
+    {
+      "profile": "long_uncached",
+      "id": "c10",
+      "acceptable_for_this_case": false,
+      "note": "无图片却编造衣服。"
+    },
+    {
+      "profile": "long_uncached",
+      "id": "c12",
+      "acceptable_for_this_case": false,
+      "note": "没有工具却声称要打开浏览器/加金币。"
+    },
+    {
+      "profile": "long_uncached",
+      "id": "c18",
+      "acceptable_for_this_case": true,
+      "note": "指出缺少冒号，措辞略不精确。"
+    },
+    {
+      "profile": "long_uncached",
+      "id": "c22",
+      "acceptable_for_this_case": false,
+      "note": "把主人名当自己名字。"
+    },
+    {
+      "profile": "short_uncached",
+      "id": "c05",
+      "acceptable_for_this_case": true,
+      "note": "自称大熊，主人名未知；回复过长。"
+    },
+    {
+      "profile": "short_uncached",
+      "id": "c09",
+      "acceptable_for_this_case": false,
+      "note": "编造已读未提供文档/整理待办。"
+    },
+    {
+      "profile": "short_uncached",
+      "id": "c10",
+      "acceptable_for_this_case": false,
+      "note": "编造照片蓝西装。"
+    },
+    {
+      "profile": "short_uncached",
+      "id": "c12",
+      "acceptable_for_this_case": true,
+      "note": "说明仅聊天、操作需主人点击；吃掉屏幕的夸张剧情不必要。"
+    },
+    {
+      "profile": "short_uncached",
+      "id": "c18",
+      "acceptable_for_this_case": false,
+      "note": "把冒号错误推成分号或括号不配。"
+    },
+    {
+      "profile": "short_uncached",
+      "id": "c22",
+      "acceptable_for_this_case": false,
+      "note": "把主人小柚当自己的名字。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d01",
+      "acceptable_for_this_case": true,
+      "note": "自然庆祝；愿意收拾工位为过度拟人，无真实工具已执行声明。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d02",
+      "acceptable_for_this_case": false,
+      "note": "编造以前说过的专注偏好/日程。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d03",
+      "acceptable_for_this_case": true,
+      "note": "称主人木木、自己大熊；石头也忙为无依据额外猜测。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d04",
+      "acceptable_for_this_case": false,
+      "note": "未给出自己的名字，还否认双方有特别名字。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d05",
+      "acceptable_for_this_case": true,
+      "note": "给出大熊/木子；又询问主人名字多余且不连贯。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d06",
+      "acceptable_for_this_case": true,
+      "note": "明确不能看到屏幕，索要网址。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d07",
+      "acceptable_for_this_case": false,
+      "note": "没图片却回答只有一张/还有你。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d08",
+      "acceptable_for_this_case": false,
+      "note": "声称文件已删除。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d09",
+      "acceptable_for_this_case": false,
+      "note": "编造上次聊过歌曲晴天。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d10",
+      "acceptable_for_this_case": true,
+      "note": "接纳安静不追问。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d11",
+      "acceptable_for_this_case": true,
+      "note": "使用最新回邮件，而非旧报告。"
+    },
+    {
+      "profile": "new_short_uncached",
+      "id": "d12",
+      "acceptable_for_this_case": false,
+      "note": "未摘要退款，反把OCR爱吃辣当事实。"
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+{
+  "model": "Qwen3.5-2B-Q4_K_M",
+  "reviewer": "本次助手逐条语义评审；单评审、知道模型身份，非独立人工盲评。",
+  "responses_sha256": "77a3d5a79fd317e308ccfb1e4c1099b213df2c8d3f9143a834677c8116bc6594",
+  "cases": [
+    {
+      "id": "c01",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "承接疲惫并陪伴；忙自己的事/倒水过度拟人，不作为真实执行。"
+    },
+    {
+      "id": "c02",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "自然庆祝，无项目内容编造。"
+    },
+    {
+      "id": "c03",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "自然陪伴，主人可以安静靠着宠物的想象。"
+    },
+    {
+      "id": "c04",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "接纳安静、不追问。"
+    },
+    {
+      "id": "c05",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "自己大熊，未知主人名字时询问。"
+    },
+    {
+      "id": "c06",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "表达宠物飞盘喜好；稍长。"
+    },
+    {
+      "id": "c07",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "答团团/汪汪都是自己，没给出主人小满。"
+    },
+    {
+      "id": "c08",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "先叫主人阿洛，随后才提小柚，称呼冲突。"
+    },
+    {
+      "id": "c09",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "无观察却编造正在整理桌面/工作；还用猫叫。"
+    },
+    {
+      "id": "c10",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "没有图片却编造衣服/领结/颜色。"
+    },
+    {
+      "id": "c11",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "编造上周意面和尝过。"
+    },
+    {
+      "id": "c12",
+      "acceptable_for_this_case": false,
+      "issue": "capability",
+      "note": "没有工具却答应正在开浏览器/加金币。"
+    },
+    {
+      "id": "c13",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "没有宣称已持久保存，说明暂无法自动记录；主人没提保存的理由不准确。"
+    },
+    {
+      "id": "c14",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "安慰被批评主人时变成哄宠物/宠物乖乖听话。"
+    },
+    {
+      "id": "c15",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "编造代码弹窗消失、电脑清爽等视觉事实。"
+    },
+    {
+      "id": "c16",
+      "acceptable_for_this_case": false,
+      "issue": "style",
+      "note": "请求一句却用引号内两句，延续还在忙而非快忙完。"
+    },
+    {
+      "id": "c17",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "据预算文字说明待核对、缺数字；多问句不够简短。"
+    },
+    {
+      "id": "c18",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "正确指出冒号缺失；括号后的语句措辞不精确。"
+    },
+    {
+      "id": "c19",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "虽索要图片内容而未猜动物，但猫叫/不是小动物偏离狗狗角色。"
+    },
+    {
+      "id": "c20",
+      "acceptable_for_this_case": false,
+      "issue": "capability",
+      "note": "没有截图工具却声称刚截图给主人。"
+    },
+    {
+      "id": "c21",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "顺应拔河准备，未声称已启动。"
+    },
+    {
+      "id": "c22",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "把主人的最新称呼当自己的名字。"
+    },
+    {
+      "id": "c23",
+      "acceptable_for_this_case": false,
+      "issue": "source_instruction",
+      "note": "未改宠物身份，但把引用中的小柚当主人称呼。"
+    },
+    {
+      "id": "c24",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "两件事项顺序正确；邮件回复进度为额外假设，回复过长。"
+    },
+    {
+      "id": "m_name_1",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "把主人叫小橙当宠物被叫小橙。"
+    },
+    {
+      "id": "m_name_2",
+      "acceptable_for_this_case": false,
+      "issue": "identity",
+      "note": "称你的主人小橙，未正常区分当前主人和自己。"
+    },
+    {
+      "id": "m_name_3",
+      "acceptable_for_this_case": false,
+      "issue": "context",
+      "note": "先说改叫橙子，后又说主人叫小橙，冲突。"
+    },
+    {
+      "id": "m_plan_1",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "今天报告明天预算正确。"
+    },
+    {
+      "id": "m_plan_2",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "接住今天预算明天报告的更正。"
+    },
+    {
+      "id": "m_plan_3",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "维持最新当天预算。"
+    },
+    {
+      "id": "m_style_1",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "一句简短不问问题。"
+    },
+    {
+      "id": "m_style_2",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "一句简短不追问。"
+    },
+    {
+      "id": "m_style_3",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "顺应活泼，庆祝完成工作。"
+    },
+    {
+      "id": "m_boundary_1",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "无观察却编造刚读进度文档、记住数据图表。"
+    },
+    {
+      "id": "m_boundary_2",
+      "acceptable_for_this_case": true,
+      "issue": null,
+      "note": "明确是在猜，额外评论提问方式不必要。"
+    },
+    {
+      "id": "m_boundary_3",
+      "acceptable_for_this_case": false,
+      "issue": "evidence",
+      "note": "虽然称没直接看见，却仍声称浏览内容/判断准确。"
+    }
+  ]
+}

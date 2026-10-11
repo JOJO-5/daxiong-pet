@@ -67,6 +67,16 @@ jobs:
       - name: Native Windows input and tug smoke
         if: runner.os == 'Windows'
         run: python scripts/smoke-windows.py --application src-tauri/target/${{ matrix.target }}/release/daxiong-pet.exe --out test-results/windows
+      - name: Install Windows movement recorder
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
+            choco install ffmpeg -y --no-progress
+          }
+      - name: Native Windows ball and frisbee movement trace
+        if: runner.os == 'Windows'
+        run: python scripts/motion-windows.py --application src-tauri/target/${{ matrix.target }}/release/daxiong-pet.exe --out test-results/windows-motion
       - name: Native macOS startup smoke
         if: runner.os == 'macOS'
         run: swift scripts/smoke-macos.swift "$PWD/src-tauri/target/${{ matrix.target }}/release/daxiong-pet" test-results/macos

@@ -1,0 +1,23 @@
+[
+  {
+    "name": "LFM2.5-350M-Q4_K_M.gguf",
+    "verified": true,
+    "bytes": 229312224,
+    "sha256": "7e6f72643caafc9a68256686638c4d7916f2cec76d1df478d4c3ddcd95a6aed4",
+    "seconds": 14.99
+  },
+  {
+    "name": "LFM2.5-350M-QAD-Q4_0.gguf",
+    "verified": true,
+    "bytes": 219312832,
+    "sha256": "3d10b6ab8fc91a919534b9558e266255aca0bbc7f6d015963599aa9e74e05b1d",
+    "seconds": 13.56
+  },
+  {
+    "name": "Qwen3-0.6B-Q4_K_M.gguf",
+    "verified": true,
+    "bytes": 484219808,
+    "sha256": "cd47557a67d7e8f2891d98b5e1dbf2988544569fdf4f1bdb30e92b71aa61b548",
+    "seconds": 34.63
+  }
+]

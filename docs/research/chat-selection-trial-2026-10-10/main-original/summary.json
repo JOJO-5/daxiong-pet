@@ -1,0 +1,119 @@
+[
+  {
+    "model": {
+      "repository": "LiquidAI/LFM2.5-350M-GGUF",
+      "revision": "657e078c94084481950a2d555a941481f715536b",
+      "license_metadata": "other",
+      "name": "LFM2.5-350M-Q4_K_M.gguf",
+      "bytes": 229312224,
+      "sha256": "7e6f72643caafc9a68256686638c4d7916f2cec76d1df478d4c3ddcd95a6aed4",
+      "source_api": "https://huggingface.co/api/models/LiquidAI/LFM2.5-350M-GGUF?blobs=true"
+    },
+    "requests": 36,
+    "errors": 0,
+    "truncated": 0,
+    "reasoning_nonempty": 0,
+    "startup_health_seconds": 0.6540841060013918,
+    "peak_single_process_kib": {
+      "VmRSS": 497792,
+      "VmHWM": 497792
+    },
+    "final_rss_kib": {
+      "VmRSS": 497792,
+      "VmHWM": 497792
+    },
+    "latency": {
+      "first_content_seconds": {
+        "p50": 2.261011665999831,
+        "p95": 3.402137547996972
+      },
+      "first_sentence_seconds": {
+        "p50": 2.727627290998498,
+        "p95": 4.311678013000346
+      },
+      "total_seconds": {
+        "p50": 2.598883446997206,
+        "p95": 4.632826610999473
+      }
+    },
+    "semantic_score": null
+  },
+  {
+    "model": {
+      "repository": "LiquidAI/LFM2.5-350M-GGUF",
+      "revision": "657e078c94084481950a2d555a941481f715536b",
+      "license_metadata": "other",
+      "name": "LFM2.5-350M-QAD-Q4_0.gguf",
+      "bytes": 219312832,
+      "sha256": "3d10b6ab8fc91a919534b9558e266255aca0bbc7f6d015963599aa9e74e05b1d",
+      "source_api": "https://huggingface.co/api/models/LiquidAI/LFM2.5-350M-GGUF?blobs=true"
+    },
+    "requests": 36,
+    "errors": 0,
+    "truncated": 0,
+    "reasoning_nonempty": 0,
+    "startup_health_seconds": 0.5253603489982197,
+    "peak_single_process_kib": {
+      "VmRSS": 507680,
+      "VmHWM": 507680
+    },
+    "final_rss_kib": {
+      "VmRSS": 507680,
+      "VmHWM": 507680
+    },
+    "latency": {
+      "first_content_seconds": {
+        "p50": 2.9275121909995505,
+        "p95": 3.808471748001466
+      },
+      "first_sentence_seconds": {
+        "p50": 3.3566286440000113,
+        "p95": 4.344300521999685
+      },
+      "total_seconds": {
+        "p50": 3.1289008999992802,
+        "p95": 4.584933982998336
+      }
+    },
+    "semantic_score": null
+  },
+  {
+    "model": {
+      "repository": "lmstudio-community/Qwen3-0.6B-GGUF",
+      "revision": "3334d820ab76652cf6e242d7c6302b10f0951f23",
+      "license_metadata": "apache-2.0",
+      "name": "Qwen3-0.6B-Q4_K_M.gguf",
+      "bytes": 484219808,
+      "sha256": "cd47557a67d7e8f2891d98b5e1dbf2988544569fdf4f1bdb30e92b71aa61b548",
+      "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3-0.6B-GGUF?blobs=true"
+    },
+    "requests": 36,
+    "errors": 0,
+    "truncated": 0,
+    "reasoning_nonempty": 0,
+    "startup_health_seconds": 3.1313681399988127,
+    "peak_single_process_kib": {
+      "VmRSS": 1292036,
+      "VmHWM": 1292036
+    },
+    "final_rss_kib": {
+      "VmRSS": 1292036,
+      "VmHWM": 1292036
+    },
+    "latency": {
+      "first_content_seconds": {
+        "p50": 0.6022749969997676,
+        "p95": 1.4321394979997422
+      },
+      "first_sentence_seconds": {
+        "p50": 1.2099904579990834,
+        "p95": 2.351352180001413
+      },
+      "total_seconds": {
+        "p50": 1.5832441670027038,
+        "p95": 2.6724715800010017
+      }
+    },
+    "semantic_score": null
+  }
+]

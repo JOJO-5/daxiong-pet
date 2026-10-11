@@ -1,0 +1,7 @@
+{
+  "python": "3.12.14",
+  "Pillow": "12.3.0",
+  "font_path": "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+  "font_sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+  "note": "Synthetic fixture generation; font not distributed. Reproduction with current environment byte-identical to saved four PNGs."
+}

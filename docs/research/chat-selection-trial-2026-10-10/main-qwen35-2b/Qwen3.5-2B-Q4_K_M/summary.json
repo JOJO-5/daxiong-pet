@@ -1,0 +1,39 @@
+{
+  "model": {
+    "repository": "lmstudio-community/Qwen3.5-2B-GGUF",
+    "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+    "name": "Qwen3.5-2B-Q4_K_M.gguf",
+    "bytes": 1270808032,
+    "sha256": "0bfe35afc9f05b7fac3fa04925e051ac7939a42a8a17ea11afc99701bea826cc",
+    "license_metadata": "apache-2.0",
+    "source_api": "https://huggingface.co/api/models/lmstudio-community/Qwen3.5-2B-GGUF?blobs=true"
+  },
+  "requests": 36,
+  "errors": 0,
+  "truncated": 0,
+  "reasoning_nonempty": 0,
+  "startup_health_seconds": 2.6859657649984,
+  "peak_single_process_kib": {
+    "VmRSS": 2206504,
+    "VmHWM": 2206504
+  },
+  "final_rss_kib": {
+    "VmRSS": 2206504,
+    "VmHWM": 2206504
+  },
+  "latency": {
+    "first_content_seconds": {
+      "p50": 1.7071822120014986,
+      "p95": 7.228009888000088
+    },
+    "first_sentence_seconds": {
+      "p50": 4.5110148019994085,
+      "p95": 8.802407735001907
+    },
+    "total_seconds": {
+      "p50": 7.412070135997055,
+      "p95": 13.758021175999602
+    }
+  },
+  "semantic_score": null
+}

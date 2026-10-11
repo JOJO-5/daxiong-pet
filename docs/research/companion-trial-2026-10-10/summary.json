@@ -1,0 +1,121 @@
+{
+  "requests": 54,
+  "reviewer": "single assistant, unblinded; subjective ordinal grades, not independent user acceptance",
+  "quantile_method": "linear interpolation at (n-1)*q",
+  "models": {
+    "Qwen3.5-0.8B-Q4_K_M": {
+      "requests": 18,
+      "finish_counts": {
+        "stop": 17,
+        "length": 1
+      },
+      "first_content_seconds": {
+        "p50": 2.9933251830007066,
+        "p95": 6.904596577148732
+      },
+      "total_seconds": {
+        "p50": 9.490051200498783,
+        "p95": 20.43223655080037
+      },
+      "reply_characters_p50": 116.5,
+      "subjective_grade_counts": {
+        "natural": {
+          "0": 4,
+          "1": 11,
+          "2": 3
+        },
+        "continuity": {
+          "0": 7,
+          "1": 9,
+          "2": 2
+        },
+        "personality": {
+          "0": 6,
+          "1": 11,
+          "2": 1
+        },
+        "companionship": {
+          "0": 8,
+          "1": 9,
+          "2": 1
+        }
+      }
+    },
+    "Qwen3.5-2B-Q4_K_M": {
+      "requests": 18,
+      "finish_counts": {
+        "stop": 17,
+        "length": 1
+      },
+      "first_content_seconds": {
+        "p50": 5.130184754501897,
+        "p95": 13.647491327251736
+      },
+      "total_seconds": {
+        "p50": 20.220078784999714,
+        "p95": 35.70873973159941
+      },
+      "reply_characters_p50": 134.0,
+      "subjective_grade_counts": {
+        "natural": {
+          "0": 0,
+          "1": 7,
+          "2": 11
+        },
+        "continuity": {
+          "0": 0,
+          "1": 11,
+          "2": 7
+        },
+        "personality": {
+          "0": 4,
+          "1": 10,
+          "2": 4
+        },
+        "companionship": {
+          "0": 3,
+          "1": 10,
+          "2": 5
+        }
+      }
+    },
+    "qwen2.5-1.5b-instruct-q4_k_m": {
+      "requests": 18,
+      "finish_counts": {
+        "stop": 18,
+        "length": 0
+      },
+      "first_content_seconds": {
+        "p50": 3.0474677750007686,
+        "p95": 3.9968157437506298
+      },
+      "total_seconds": {
+        "p50": 5.778175130499221,
+        "p95": 7.202943895552015
+      },
+      "reply_characters_p50": 31.0,
+      "subjective_grade_counts": {
+        "natural": {
+          "0": 0,
+          "1": 6,
+          "2": 12
+        },
+        "continuity": {
+          "0": 3,
+          "1": 8,
+          "2": 7
+        },
+        "personality": {
+          "0": 3,
+          "1": 14,
+          "2": 1
+        },
+        "companionship": {
+          "0": 4,
+          "1": 11,
+          "2": 3
+        }
+      }
+    }
+  }
+}

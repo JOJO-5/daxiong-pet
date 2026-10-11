@@ -107,6 +107,15 @@ do {
     if AXIsProcessTrusted() {
         report["scope"] = "native startup, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display"
         Thread.sleep(forTimeInterval:1)
+        let quickPet=try hoverPet(150,160)
+        let quickPoint=CGPoint(x:quickPet.minX+150,y:quickPet.minY+160)
+        Thread.sleep(forTimeInterval:0.35)
+        mouse(.leftMouseDown,quickPoint);Thread.sleep(forTimeInterval:0.06);mouse(.leftMouseUp,quickPoint)
+        let quickBounds=bounds(try stableWindow("给大熊说句话"))
+        try require(abs(quickBounds.width-320)<2 && abs(quickBounds.height-146)<2,"short pet tap opens correctly sized compact window")
+        try screenshot("quick-chat.png");key(53)
+        _=try waitWindow("给大熊说句话",visible:false)
+        try require(named("大熊") != nil,"Escape hides compact input and keeps pet alive")
         _=try hoverPet(35,52);Thread.sleep(forTimeInterval:0.5)
         let dizzyBefore=bounds(try waitWindow("大熊")!)
         for i in 0..<14 {

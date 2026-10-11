@@ -430,3 +430,7 @@ PR #4已合并到main：c1d1519bcba05b8aa629cbe71e73d0d14325cec2。该合并与�
 GPU保持独立的可选加速计划：驱动/后端差异、显存占用、动画争用和模型格式转换需要设备验证；成功接入之前继续使用CPU。先比较当前GGUF的Vulkan/Metal路径与LiteRT转换成本，必须具备CPU回退，不能把框架支持表写成已适配。
 
 源码与Linux原生录屏验收见[桌宠小输入框验证](validation/pet-quick-chat-2026-10-11.md)。本项不在已发布alpha.2中，Windows/macOS新交互和混合DPI仍待验证。
+
+## 2026-10-11 用户新增：CPU完整/轻量两种发布
+
+继续默认CPU，不将GPU或LiteRT作为发布前置。alpha.3准备同时提供完整包与light包；light省去聊天/视觉权重，保留运行器与OCR，用户在界面点击下载固定版本模型，SHA-256校验后可聊天；下载不自动切换模型。完整回归成功后发布tag，禁止复用上一版应用源码的验证。Google LiteRT在独立目录做最小CPU试验，不塞入默认包、不宣称GPU已适配。进度与限制见[alpha.3交付](validation/alpha3-full-light-2026-10-11.md)。

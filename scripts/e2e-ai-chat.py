@@ -154,6 +154,7 @@ try:
     for pid in model_pids():
         os.kill(pid, signal.SIGKILL)
     done(crashed, 'failed')
+    wait(lambda: js("return !!document.querySelector('.chat-error')"))
     check('model crash reports failure while pet commands still work', js("return !!document.querySelector('.chat-error')") and invoke('play_status')['phase'] == 'off')
     retry = send('你好呀，回来陪我说一句。')
     done(retry)

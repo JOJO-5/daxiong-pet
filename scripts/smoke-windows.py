@@ -27,6 +27,7 @@ user.PostMessageW.argtypes=[w.HWND,w.UINT,w.WPARAM,w.LPARAM]
 user.SetForegroundWindow.argtypes=[w.HWND]
 user.GetWindowLongW.argtypes=[w.HWND,c.c_int]
 user.GetWindowLongW.restype=w.LONG
+user.GetForegroundWindow.restype=w.HWND
 user.mouse_event.argtypes=[w.DWORD,w.DWORD,w.DWORD,w.DWORD,c.c_size_t]
 user.keybd_event.argtypes=[w.BYTE,w.BYTE,w.DWORD,c.c_size_t]
 user.SetCursorPos.argtypes=[c.c_int,c.c_int]
@@ -135,6 +136,15 @@ try:
         current=rect(main);scale=(current.right-current.left)/300
         user.SetCursorPos(round(current.left+x*scale),round(current.top+y*scale))
         return current.left,current.top
+    hover_pet(150,160);time.sleep(.35)
+    user.mouse_event(0x0002,0,0,0,0);time.sleep(.06);user.mouse_event(0x0004,0,0,0,0)
+    quick=wait(lambda:next(iter(windows('给大熊说句话')),None))
+    qr=rect(quick);pr=rect(main);scale=(pr.right-pr.left)/300
+    check('short pet tap opens correctly sized compact window',abs((qr.right-qr.left)-320*scale)<=2 and abs((qr.bottom-qr.top)-146*scale)<=2)
+    check('compact window receives native keyboard focus',user.GetForegroundWindow()==quick)
+    capture('quick-chat.png');key(27)
+    wait(lambda:not windows('给大熊说句话'))
+    check('Escape hides compact input and keeps pet alive',bool(windows('大熊')))
     hover_pet(35,52);time.sleep(.5)
     dizzy_before=rect(main)
     dizzy_capture,dizzy_trigger,dizzy_ready=prepare_dizzy_capture()

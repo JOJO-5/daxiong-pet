@@ -979,7 +979,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
               <section>
                 <h2>内置模型与可选下载</h2>
                 <p className="chat-footnote">
-                  默认2B文字、视觉组件和OCR随安装包提供，安装后离线可用。可选0.8B仅用于轻量文字聊天。下载不会自动切换模型。
+                  完整版预装2B聊天与视觉权重；轻量版保留CPU运行器和OCR，点击下方下载模型后使用。0.8B仅用于文字聊天，下载后需在上方选择。
                 </p>
                 <label>
                   本地聊天模型
@@ -1023,7 +1023,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                             .catch((e) => setError(String(e)))
                         }
                       >
-                        {model.id === "small" ? "下载/校验" : "下载修复副本"}
+                        {model.installed ? "校验/修复副本" : model.id === "vision" ? "下载视觉组件" : "下载模型"}
                       </button>
                       {model.cached ? (
                         <button

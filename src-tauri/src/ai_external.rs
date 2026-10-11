@@ -113,12 +113,22 @@ pub fn generate(
         messages.drain(1..3);
     }
     tauri::async_runtime::block_on(async {
-        let client = reqwest::Client::builder()
-            .redirect(reqwest::redirect::Policy::none())
-            .connect_timeout(Duration::from_secs(10))
-            .timeout(Duration::from_secs(settings.timeout_seconds))
-            .build()
-            .map_err(|_| "服务连接初始化失败。")?;
+        // Loading the OS trust store can block (especially macOS Keychain).
+        // Keep Stop responsive while it is being initialized, too.
+        let timeout = settings.timeout_seconds;
+        let client = cancelable(
+            tokio::task::spawn_blocking(move || {
+                reqwest::Client::builder()
+                    .redirect(reqwest::redirect::Policy::none())
+                    .connect_timeout(Duration::from_secs(10))
+                    .timeout(Duration::from_secs(timeout))
+                    .build()
+            }),
+            cancelled,
+        )
+        .await?
+        .map_err(|_| "服务连接初始化失败。")?
+        .map_err(|_| "服务连接初始化失败。")?;
         let mut request=client.post(format!("{}/chat/completions",settings.service_url.trim().trim_end_matches('/'))).json(&json!({"model":settings.service_model,"messages":messages,"max_tokens":output,"stream":true,"temperature":0.6}));
         if !key.is_empty() {
             request = request.bearer_auth(key);
@@ -247,7 +257,23 @@ mod protocol_tests {
         };
         let kind = content_type.to_string();
         let worker = std::thread::spawn(move || {
-            let (mut stream, _) = listener.accept().unwrap();
+            listener.set_nonblocking(true).unwrap();
+            let deadline = Instant::now() + Duration::from_secs(3);
+            let mut stream = loop {
+                match listener.accept() {
+                    Ok((stream, _)) => break stream,
+                    Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                        if Instant::now() >= deadline {
+                            return;
+                        }
+                        std::thread::sleep(Duration::from_millis(5));
+                    }
+                    Err(e) => panic!("fixture accept failed: {e}"),
+                }
+            };
+            stream
+                .set_read_timeout(Some(Duration::from_secs(3)))
+                .unwrap();
             let mut request = [0; 8192];
             let _ = stream.read(&mut request);
             std::thread::sleep(delay);

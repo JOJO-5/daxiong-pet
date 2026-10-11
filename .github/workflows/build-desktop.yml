@@ -116,6 +116,36 @@ jobs:
         env:
           NO_STRIP: true
           MACOSX_DEPLOYMENT_TARGET: "14.0"
+      - name: Verify light installer contains runtime and OCR without GGUF weights
+        shell: bash
+        run: |
+          python - <<'PYLIGHT'
+          import os, platform, shutil, subprocess, tempfile
+          from pathlib import Path
+          bundle=Path('src-tauri/target/${{ matrix.target }}/release/bundle')
+          system=platform.system()
+          if system=='Linux':
+              packages=list(bundle.glob('deb/*.deb'));assert len(packages)==1
+              listing=subprocess.check_output(['dpkg-deb','--contents',str(packages[0])],text=True)
+              assert '.gguf' not in listing and '/ai/runtime/llama-server' in listing and '/ai/ocr/manifest.json' in listing
+          elif system=='Windows':
+              packages=list(bundle.glob('nsis/*.exe'));assert len(packages)==1
+              seven=shutil.which('7z') or str(Path(os.environ['ProgramFiles'])/'7-Zip/7z.exe')
+              listing=subprocess.check_output([seven,'l','-slt',str(packages[0])],text=True)
+              assert '.gguf' not in listing and 'llama-server.exe' in listing and 'ocr' in listing and 'manifest.json' in listing
+          else:
+              packages=list(bundle.glob('dmg/*.dmg'));assert len(packages)==1
+              with tempfile.TemporaryDirectory(prefix='daxiong-light-check-') as temp:
+                  mount=Path(temp)/'mount';mount.mkdir()
+                  subprocess.run(['hdiutil','attach','-readonly','-nobrowse','-mountpoint',str(mount),str(packages[0])],check=True)
+                  try:
+                      apps=list(mount.glob('*.app'));assert len(apps)==1
+                      ai=apps[0]/'Contents/Resources/ai'
+                      assert not list(apps[0].rglob('*.gguf'))
+                      assert (ai/'runtime/llama-server').is_file() and (ai/'ocr/manifest.json').is_file()
+                  finally:subprocess.run(['hdiutil','detach',str(mount)],check=True)
+          print('Verified actual light installer: CPU runtime and OCR present, no chat/vision GGUF')
+          PYLIGHT
       - name: Upload light packages
         uses: actions/upload-artifact@v4
         with:

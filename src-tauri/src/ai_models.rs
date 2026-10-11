@@ -146,7 +146,9 @@ impl ModelManager {
                     cached,
                     purpose: match id {
                         "small" => "可选轻量文字模型，低资源时使用；不含视觉，复杂回答能力较弱。",
-                        "vision" => "2B匹配视觉组件，图片理解需要；未预装时可下载，已有文件可校验修复。",
+                        "vision" => {
+                            "2B匹配视觉组件，图片理解需要；未预装时可下载，已有文件可校验修复。"
+                        }
                         _ => "默认2B文字模型；轻量版需下载，完整版可校验修复已有权重。",
                     }
                     .into(),
@@ -244,18 +246,28 @@ impl ModelManager {
             spec["name"].as_str().ok_or("模型清单无效。")?
         );
         let result = tauri::async_runtime::block_on(async {
-            let client = reqwest::Client::builder()
-                .connect_timeout(Duration::from_secs(15))
-                .timeout(Duration::from_secs(3600))
-                .build()
+            let future = async {
+                let client = tokio::task::spawn_blocking(|| {
+                    reqwest::Client::builder()
+                        .connect_timeout(Duration::from_secs(15))
+                        .timeout(Duration::from_secs(3600))
+                        .build()
+                })
+                .await
+                .map_err(|_| "无法创建模型下载连接。")?
                 .map_err(|_| "无法创建模型下载连接。")?;
-            let future = client.get(url).send();
+                client
+                    .get(url)
+                    .send()
+                    .await
+                    .map_err(|_| "模型下载连接失败，可以重试。")
+            };
             tokio::pin!(future);
             let response = loop {
                 if token.load(Ordering::SeqCst) {
                     return Err("下载已停止。".into());
                 }
-                tokio::select! {value=&mut future=>break value.map_err(|_|"模型下载连接失败，可以重试。")?,_=tokio::time::sleep(Duration::from_millis(25))=>{}}
+                tokio::select! {value=&mut future=>break value?,_=tokio::time::sleep(Duration::from_millis(25))=>{}}
             };
             if !response.status().is_success() {
                 return Err("模型来源暂不可用，可以重试。".into());

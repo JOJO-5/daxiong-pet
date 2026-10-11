@@ -38,3 +38,13 @@ ML Drift 是 Google LiteRT 的 GPU 加速组件，源码在 `google-ai-edge/Lite
 5. 通过后才提供可选加速组件。8GB 默认是否启用必须由实际剩余内存及测量决定；不在默认包同时塞两份完整权重。
 
 当前无可用于硬件验证的 `/dev/dri` GPU 设备，因此本次是来源与适配调查，不是 GPU 性能验收。
+
+## 独立CPU最小试验（本次用户允许试验）
+
+安装官方PyPI `litert-lm==0.18.0`，未修改生产依赖或加入安装包。下载并校验社区[Qwen3.5 0.8B](https://huggingface.co/litert-community/Qwen3.5-0.8B/tree/10243c0a01d24e6b122a0e814f8c4d984c9c92d6)文字INT8：963,184,864字节，SHA256 `64ed396fcdae75e5158945c77a08142b1322ce1bbf1be4d2198783119a1169e8`。当前GGUF 0.8B为527,502,816字节；现成LiteRT INT8更大，不能证明INT4转换后仍有同样差距。官方Python轮内`liblitert-lm.so`未压缩131,785,976字节，此SDK文件大小不是定制C++发行版或所有平台的增量包大小。
+
+指定`Backend.CPU(thread_count=2)`、上下文1024、输出32、`ThinkingConfig(enable_thinking=False)`，实际中文问候成功。共享Linux主机本轮加载28.837秒、回复3.288秒、Python进程峰值1,992,988KiB。首次误用API参数`enabled`失败，保留记录后按SDK实际字段修正；不删除失败。不以此对比2B模型或预测8GB/i5。GPU仅注册组件，实际选用CPU，未做GPU硬件推理。
+
+官方CLI `serve`仅绑定127.0.0.1，独立配置CPU/2线程/1024上下文/关闭思考。通过本项目已有外接服务接口，真实原生Tauri聊天收到该模型SSE回复、落库并与宠物气泡内容一致，3项通过；包含首次加载的本轮整体70.113秒，不是仅解码速度。证据`/workspace/daxiong-ai-prototype/litert-research`：固定Hub元数据、下载哈希、最小脚本、SDK日志、CLI配置、原生回归及录屏。首张原生截图全聊天窗口遮住宠物，不能当作气泡视觉验收；后续独立布局重试有一次窗口尚未映射的测试失败，保留记录。
+
+结论：LiteRT CPU可独立运行，已有OpenAI风格外接入口可用于试验，无需在默认包同时装两套权重。尚未验证Qwen3.5 2B/INT4转换、视觉、取消/崩溃/退出全链路、Windows/Mac或GPU，不能替换当前经过完整资格验收的CPU运行器。

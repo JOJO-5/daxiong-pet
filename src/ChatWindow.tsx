@@ -98,7 +98,7 @@ type Reply = {
   error: string | null;
 };
 
-export default function ChatWindow() {
+export default function ChatWindow({ compact = false }: { compact?: boolean }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState<Personality | null>(null);
@@ -185,7 +185,7 @@ export default function ChatWindow() {
         return latest &&
           !latest.preview &&
           latest.request_id === message.request_id &&
-          message.role === "assistant"
+          message.role === "assistant" && message.status === "generating"
           ? {
               ...message,
               content: latest.content,
@@ -211,7 +211,13 @@ export default function ChatWindow() {
     mounted.current = true;
     const off = listen<Reply>("ai:reply", (event) => {
       const reply = event.payload;
-      if (!alive || stream.current?.request_id !== reply.request_id) return;
+      if (!alive) return;
+      if (stream.current?.request_id !== reply.request_id) {
+        if (sending.current) {void refresh().catch(e => setError(String(e)));return;}
+        stream.current = reply;
+        setBusy(reply.status === "generating");
+        void refresh().catch(e => {if(alive) setError(String(e));});
+      }
       stream.current = reply;
       if (reply.preview) setPreview(reply.content);
       else
@@ -233,7 +239,18 @@ export default function ChatWindow() {
         });
       }
     });
-    off
+    const changed = listen("ai:changed", () => {
+      if (alive) void refresh().catch(e => { if (alive) setError(String(e)); });
+    });
+    const cleared = listen("ai:cleared", () => {
+      if (!alive) return;
+      stream.current = null;
+      setPreview("");
+    });
+    const focused = listen("ai:focus", () => {
+      if (alive) input.current?.focus();
+    });
+    Promise.all([off, changed, cleared, focused])
       .then(async () => {
         if (!alive) return;
         try {
@@ -312,6 +329,9 @@ export default function ChatWindow() {
       window.removeEventListener("focus", focus);
       window.removeEventListener("keydown", key);
       void off.then((fn) => fn()).catch(console.error);
+      void changed.then(fn=>fn()).catch(console.error);
+      void cleared.then(fn=>fn()).catch(console.error);
+      void focused.then(fn=>fn()).catch(console.error);
     };
   }, [refresh]);
 
@@ -459,6 +479,55 @@ export default function ChatWindow() {
     (snapshot.settings.backend === "external" || snapshot.assets.available) &&
     !busy &&
     !saving;
+  if (compact) return (
+    <main className="quick-chat" data-testid="quick-chat">
+      <header>
+        <strong>给{pet}说句话</strong>
+        <button type="button" onClick={() => void invoke("open_chat").catch(e => setError(String(e)))}>
+          聊天记录
+        </button>
+        <button type="button" aria-label="关闭小输入框" onClick={() => void invoke("close_chat").catch(e => setError(String(e)))}>
+          ×
+        </button>
+      </header>
+      <form onSubmit={e => { e.preventDefault(); void send(); }}>
+        <textarea
+          autoFocus
+          ref={input}
+          id="chat-message"
+          aria-label={`给${pet}的消息`}
+          placeholder={`和${pet}说说话…`}
+          maxLength={2000}
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+              e.preventDefault();
+              void send();
+            }
+          }}
+        />
+        <footer>
+          <span role={error ? "alert" : "status"} title={error}>
+            {error || (busy ? `${pet}正在想…` : !snapshot ? "正在准备…" :
+              snapshot.settings.backend === "bundled" && !snapshot.assets.available ?
+                "模型未准备好，请打开聊天记录" : "Enter 发送 · Shift+Enter 换行")}
+          </span>
+          {busy ? (
+            <button type="button" disabled={stopping} onClick={() => void stop()}>
+              {stopping ? "正在停止" : "停止"}
+            </button>
+          ) : snapshot && !snapshot.settings.enabled ? (
+            <button type="button" disabled={saving} onClick={() => void configure({ ...snapshot.settings, enabled: true })}>
+              启用聊天
+            </button>
+          ) : (
+            <button type="submit" disabled={!canSend || !text.trim()}>发送</button>
+          )}
+        </footer>
+      </form>
+    </main>
+  );
   return (
     <main className="chat-window">
       <header className="chat-heading">

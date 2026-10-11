@@ -259,7 +259,7 @@ fn set_visible(visible: bool, app: AppHandle) -> Result<(), String> {
 
 pub(crate) fn apply_visibility(app: &AppHandle, visible: bool) -> tauri::Result<()> {
     if let Some(window)=app.get_webview_window("main") {
-        if visible { window.show()?; } else { window.hide()?; }
+        if visible { window.show()?; } else { window.hide()?; ai::hide_quick_chat(app)?; }
         app.state::<AppState>().requested_visible.store(visible,Ordering::Relaxed);
     }
     Ok(())
@@ -762,7 +762,8 @@ fn main() {
         }).build())
         .on_menu_event(tray::on_menu_event)
         .on_window_event(|window,event| {
-            if window.label()=="chat" {ai::on_window_event(window,event);}
+            if matches!(window.label(), "chat" | "quick-chat") {ai::on_window_event(window,event);}
+            if window.label()=="main" && matches!(event, tauri::WindowEvent::Moved(_)) && window.app_handle().get_webview_window("quick-chat").is_some_and(|w|w.is_visible().unwrap_or(false)) {let _=ai::position_quick_chat(window.app_handle());}
             if window.label()=="playground" {if let tauri::WindowEvent::CloseRequested {api,..}=event {api.prevent_close();let _=window.hide();}}
         })
         .plugin(tauri_plugin_dialog::init())
@@ -771,7 +772,7 @@ fn main() {
             None,
         ))
         .invoke_handler(tauri::generate_handler![
-            ai::open_chat, ai::close_chat, ai::ai_ready, ai::ai_snapshot, ai::ai_send, ai::ai_cancel, ai::ai_save_personality, ai::ai_configure, ai::ai_clear_chat, ai::ai_change_preference, ai::ai_undo_preference, ai::ai_save_key, ai::ai_reset_personal_data, ai::ai_observe, ai::ai_pause_observation, ai::ai_displays, ai::ai_protect_bubble, ai::ai_claim_ambient, ai::ai_model_download, ai::ai_model_cancel, ai::ai_model_remove,
+            ai::open_quick_chat, ai::open_chat, ai::close_chat, ai::ai_ready, ai::ai_snapshot, ai::ai_send, ai::ai_cancel, ai::ai_save_personality, ai::ai_configure, ai::ai_clear_chat, ai::ai_change_preference, ai::ai_undo_preference, ai::ai_save_key, ai::ai_reset_personal_data, ai::ai_observe, ai::ai_pause_observation, ai::ai_displays, ai::ai_protect_bubble, ai::ai_claim_ambient, ai::ai_model_download, ai::ai_model_cancel, ai::ai_model_remove,
             pet_ready,
             current_pet,
             list_pets,

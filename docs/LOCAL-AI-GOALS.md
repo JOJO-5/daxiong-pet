@@ -422,3 +422,11 @@ OCR优先试**RapidOCR v3.10.0 + ONNX Runtime CPU + PP-OCRv5 mobile**，v6 tiny�
 [v1.1.0-alpha.2](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.2)公开资产对应47cac9cb271e865247c5f2783415a07aef44e301。[四平台完整构建38113066358](https://github.com/JOJO-5/daxiong-pet/actions/runs/38113066358)与[同源整套桌面回归38113068478](https://github.com/JOJO-5/daxiong-pet/actions/runs/38113068478)成功，后者保留第一次菜单悬停失败，不绕过校验。安装资产/原生CPU探针/普通用户实际下载证据见[最终验证记录](validation/local-ai-observation-2026-10-11.md)。下次执行从仍未勾选的独立质量/目标硬件项目继续，不重复实现已交付软件。ML Drift/LiteRT仅完成选型研究，GPU没有发布；不能用框架支持表代替本项目设备验证。
 
 PR #4已合并到main：c1d1519bcba05b8aa629cbe71e73d0d14325cec2。该合并与已验证发布源码47cac9c仅README/目标/验证文档不同，应用源码一致。
+
+## 2026-10-11 用户新增：直接与桌宠对话（R16）
+
+短按宠物，在宠物下方打开小输入框；Enter发送，Shift+Enter换行，Escape收起。宠物用现有分页气泡回复，完整聊天窗口继续保留。两处共用本地SQLite记录、模型配置、当前请求与停止状态；输入草稿分别保留。拖动和长按维持原交互，屏幕底部改在旁边显示，隐藏宠物时收起小框。关闭小框不取消已经发送的回复；完整窗口单独使用时仍保留原关闭取消语义。
+
+GPU保持独立的可选加速计划：驱动/后端差异、显存占用、动画争用和模型格式转换需要设备验证；成功接入之前继续使用CPU。先比较当前GGUF的Vulkan/Metal路径与LiteRT转换成本，必须具备CPU回退，不能把框架支持表写成已适配。
+
+源码与Linux原生录屏验收见[桌宠小输入框验证](validation/pet-quick-chat-2026-10-11.md)。本项不在已发布alpha.2中，Windows/macOS新交互和混合DPI仍待验证。

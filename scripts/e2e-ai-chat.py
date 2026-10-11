@@ -66,12 +66,14 @@ def done(request_id, status='complete', timeout=180):
 def model_pids():
     # Do not log argv: it includes a per-process authentication key.
     result = []
+    resource_root = Path(os.environ['DAXIONG_AI_RESOURCE_DIR']).absolute()
+    prefixes = [os.fsencode(str(resource_root) + '/'), os.fsencode(str(resource_root.resolve()) + '/')]
     for entry in Path('/proc').iterdir():
         if not entry.name.isdigit():
             continue
         try:
             argv = (entry / 'cmdline').read_bytes().split(b'\0')
-            if argv and b'llama-server' in argv[0] and any(b'chat-native-assets' in a for a in argv):
+            if argv and b'llama-server' in argv[0] and any(a.startswith(prefix) for a in argv for prefix in prefixes):
                 result.append(int(entry.name))
         except (FileNotFoundError, PermissionError, ProcessLookupError):
             pass

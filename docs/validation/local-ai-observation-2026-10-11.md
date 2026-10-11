@@ -32,3 +32,5 @@ OpenCV4.12仅core/imgproc/imgcodecs、PNG/ZLIB静态编译；ONNX Runtime1.23.2 
 最终源码回归发现前台排除窗口遮蔽规则把后方聊天窗口也当成遮挡：`final-observation-e2e` 未通过OCR标记。修复捕获原点和Z层级后 `final-observation-e2e2` 实际OCR恢复完整合成三行；四平台原生OCR源49f3d72的38105951088全部通过。
 
 前台遮蔽修复后的 `final-observation-e2e2` 完整27项通过，包含真实2B视觉/0.8B。另补无内置权重的外接聊天原生WebKit回归：输入框启用、实际本机服务请求、完整回复、无本地模型子进程共5项通过（external-only-e2e2）；初始测试通过IPC改设置后未刷新React视图而超时，修正测试为重载视图，保留失败记录。缺失内置权重可通过固定缓存模型恢复可用性。PR #3已合并0491ec1，PR #4已改为main并ready。
+
+源码1df43e6四个平台完整构建38106269457全部平台作业成功（文字/图片/OCR、Windows异常父进程Job测试、安全凭据、两个Mac监护进程合同、原生游戏检查及安装包）。发布作业因桌面回归未完成而正确拒绝。桌面回归38106272693在真实中文/取消/性格试聊后失败：测试进程扫描写死本地chat-native-assets目录，CI使用ai-build/ai，因此未找到真实模型进程，尚未执行崩溃重启检查。修正测试从DAXIONG_AI_RESOURCE_DIR识别进程后重跑；不是模型初始化失败，也不把整轮失败当通过。

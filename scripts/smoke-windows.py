@@ -146,8 +146,14 @@ try:
     user.mouse_event(0x0002,0,0,0,0);time.sleep(.06);user.mouse_event(0x0004,0,0,0,0)
     quick=wait(lambda:next(iter(windows('给大熊说句话')),None))
     qr=rect(quick);pr=rect(main);scale=(pr.right-pr.left)/300
-    check('short pet tap opens correctly sized compact window',abs((qr.right-qr.left)-320*scale)<=2 and abs((qr.bottom-qr.top)-146*scale)<=2)
-    check('compact window receives native keyboard focus',user.GetForegroundWindow()==quick)
+    # Borderless resizable windows retain an invisible Win32 resize frame.
+    # inner_size specifies the client area, not GetWindowRect's outer frame.
+    qc=w.RECT();assert user.GetClientRect(quick,c.byref(qc))
+    report['quick_geometry']={'outer':[qr.left,qr.top,qr.right,qr.bottom],
+        'client':[qc.left,qc.top,qc.right,qc.bottom],'scale':scale}
+    check('short pet tap opens correctly sized compact window',abs((qc.right-qc.left)-320*scale)<=2 and abs((qc.bottom-qc.top)-146*scale)<=2)
+    wait(lambda:user.GetForegroundWindow()==quick)
+    check('compact window receives native keyboard focus')
     capture('quick-chat.png');key(27)
     wait(lambda:not windows('给大熊说句话'))
     check('Escape hides compact input and keeps pet alive',bool(windows('大熊')))

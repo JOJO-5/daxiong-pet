@@ -3,6 +3,9 @@
 from pathlib import Path
 exec((Path(__file__).resolve().parent/'e2e-desktop.py').read_text().split('\ntry:\n    new_session()')[0])
 frames=[]
+fetch_phase_history=[]
+version=json.loads(ROOT.joinpath('package.json').read_text())['version']
+core_version=tuple(int(part) for part in version.split('-',1)[0].split('.'))
 scope=os.environ.get("E2E_FUN_SCOPE","all")
 def click_id(value):
     native_click("document.querySelector("+json.dumps(f'[data-testid={value}]')+")")
@@ -29,7 +32,14 @@ try:
     if scope in ("all","fetch"):
         for turn in range(1,7):
             click('抛一球')
-            wait(lambda: phase() in ('returning','teasing'),25)
+            def fetch_progress():
+                view=invoke('play_status')
+                observed={'turn':turn,'phase':view['phase'],'catches':view['catches']}
+                if not fetch_phase_history or fetch_phase_history[-1]!=observed:fetch_phase_history.append(observed)
+                # A close catch can return before the next WebDriver poll.
+                # Accept completion only for this round, never stale returned state.
+                return view['phase'] in ('returning','teasing') or (view['phase']=='returned' and view['catches']==turn)
+            wait(fetch_progress,25)
             if turn%3==0:
                 wait(lambda: phase()=='teasing',15)
                 check(f'catch {turn}: real third fetch invites chase')
@@ -47,7 +57,7 @@ try:
         check('disabled playful fetch still returns usable ball')
         invoke('set_visible',{'visible':False});wait(lambda: phase()=='off')
         check('hiding cleans toy and play',not invoke('plugin:window|is_visible',{'label':'toy'}))
-    if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=13 and scope in ('all','fetch'):
+    if core_version >= (1,0,13) and scope in ('all','fetch'):
         invoke('set_visible',{'visible':True});wait(lambda: invoke('plugin:window|is_visible',{'label':'main'}))
         for turn,style,row in [(1,'near',4),(2,'far',11),(3,'far',15)]:
             if phase()=='off': invoke('play_action',{'action':'show'})
@@ -69,12 +79,19 @@ try:
         before=invoke('play_status')['ball'];time.sleep(.2);after=invoke('play_status')['ball']
         check('push back moves ball horizontally',after[0]!=before[0] and after[1]==before[1])
         shoot('rolling')
-        pointer('mousemove',*after);pointer('mousedown',1)
+        # The ball keeps rolling during screenshot/IPC round trips. Target
+        # its current native window, then press in the same xdotool command.
+        toy_size=invoke('plugin:window|outer_size',{'label':'toy'})
+        windows=subprocess.check_output(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],text=True).strip().splitlines()
+        toy_native=next(w for w in windows if f"WIDTH={toy_size['width']}" in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True))
+        toy_geometry=dict(line.split('=') for line in subprocess.check_output(['xdotool','getwindowgeometry','--shell',toy_native],text=True).strip().splitlines())
+        check('ball is still rolling before native grab',invoke('play_status')['phase']=='rolling')
+        pointer('mousemove','--window',toy_native,int(toy_geometry['WIDTH'])//2,int(toy_geometry['HEIGHT'])//2,'mousedown',1)
         wait(lambda: phase()=='held');check('rolling ball accepts real pointer grab')
         pointer('mouseup',1);wait(lambda: phase()=='returned',25)
         invoke('play_action',{'action':'cancel'})
-    if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=14 and scope in ('all','learning','tricks'):
-        if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=15: click('小指令')
+    if core_version >= (1,0,14) and scope in ('all','learning','tricks'):
+        if core_version >= (1,0,15): click('小指令')
         def trick_phase(): return js("return document.querySelector('[data-testid=trick-phase]').dataset.phase")
         for cue,expected in [('come',None),('spin',None),('down',12),('stay',6)]:
             before=geometry();js('window.__frames=[];return true');click_id(f'trick-{cue}')
@@ -107,7 +124,12 @@ try:
             check('three rewarded practices visibly learn command');shoot('learned-stay')
             exec(ROOT.joinpath('scripts/e2e-memory.py').read_text().split('\nwait(lambda: js(')[0])
             restart_app()
-            if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=15: click('小指令')
+            # Restart creates a new panel and anchors it beside the pet. Keep
+            # the same non-overlapping test layout used before the restart.
+            windows=subprocess.check_output(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],text=True).strip().splitlines()
+            panel_native=next(w for w in windows if 'WIDTH=360' in subprocess.check_output(['xdotool','getwindowgeometry','--shell',w],text=True))
+            pointer('windowmove',panel_native,870,30);pointer('mousemove',30,30)
+            if core_version >= (1,0,15): click('小指令')
             check('real restart preserves learned commands',invoke('companion_status')['training'][3]==3)
             click_id('trick-stay');pointer('mousemove',30,30);wait(lambda: trick_phase()=='performing')
             check('learned command executes after restart')
@@ -116,7 +138,7 @@ try:
         check('focus rejects practice without reward',not invoke('trick_status')['rewardable'])
         invoke('set_pomodoro',{'active':False});click_id('trick-spin');wait(lambda: trick_phase()=='attention')
         click('结束练习');wait(lambda: trick_phase()=='off');check('manual stop cancels command')
-    if int(json.loads(ROOT.joinpath('package.json').read_text())['version'].split('.')[-1])>=15 and scope in ('all','snack'):
+    if core_version >= (1,0,15) and scope in ('all','snack'):
         click('找零食')
         def snack_phase(): return js("return document.querySelector('[data-testid=snack-phase]').dataset.phase")
         treats_before=invoke('companion_status')['treats']
@@ -158,5 +180,5 @@ try:
 finally:
     if sys.exc_info()[1]: shoot('failure')
     frames=js('return window.__frames') if session and not sys.exc_info()[1] else []
-    OUT.joinpath('fun-e2e.json').write_text(json.dumps({'version':json.loads(ROOT.joinpath('package.json').read_text())['version'],'passed':checks,'frames':frames,'error':str(sys.exc_info()[1]) if sys.exc_info()[1] else None},ensure_ascii=False,indent=2))
+    OUT.joinpath('fun-e2e.json').write_text(json.dumps({'version':json.loads(ROOT.joinpath('package.json').read_text())['version'],'passed':checks,'frames':frames,'fetch_phase_history':fetch_phase_history,'error':str(sys.exc_info()[1]) if sys.exc_info()[1] else None},ensure_ascii=False,indent=2))
     if session: command('DELETE','')

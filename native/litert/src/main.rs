@@ -166,6 +166,9 @@ fn peer_closed(stream: &TcpStream) -> bool {
     }
 }
 fn request(stream: &mut TcpStream) -> Result<(String, String, Vec<u8>), String> {
+    // Windows accepted sockets inherit the nonblocking listener mode.
+    // Handlers use bounded blocking reads on every platform.
+    stream.set_nonblocking(false).map_err(|e| e.to_string())?;
     stream
         .set_read_timeout(Some(Duration::from_secs(1)))
         .map_err(|e| e.to_string())?;

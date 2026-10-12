@@ -180,10 +180,10 @@ impl Service {
     }
     fn configure(&self, mut settings: Settings) -> Result<()> {
         settings.validate()?;
+        let mut gate = self.active.lock().unwrap_or_else(|p| p.into_inner());
         if self.acceleration_testing.load(Ordering::SeqCst) {
             return Err("请先停止加速试运行。".into());
         }
-        let mut gate = self.active.lock().unwrap_or_else(|p| p.into_inner());
         if settings.enabled && gate.is_some() {
             return Err("请先停止回复，再调整CPU占用。".into());
         }
@@ -456,30 +456,18 @@ impl Service {
                     if let Some(Err(e)) = failed {
                         self.accelerated.fallback(&e);
                         // Replace an interrupted GPU draft before retrying on CPU.
-                        if let Some(a) = self
-                            .active
-                            .lock()
-                            .unwrap_or_else(|p| p.into_inner())
-                            .as_mut()
-                            .filter(|a| a.id == id)
-                        {
-                            a.partial.clear();
+                        if let Some(preview) = self.reset_partial_for_cpu_retry(&id) {
+                            let _ = app.emit(
+                                "ai:reply",
+                                Event {
+                                    request_id: id.clone(),
+                                    content: String::new(),
+                                    status: "generating".into(),
+                                    preview,
+                                    error: None,
+                                },
+                            );
                         }
-                        let _ = app.emit(
-                            "ai:reply",
-                            Event {
-                                request_id: id.clone(),
-                                content: String::new(),
-                                status: "generating".into(),
-                                preview: self
-                                    .active
-                                    .lock()
-                                    .unwrap_or_else(|p| p.into_inner())
-                                    .as_ref()
-                                    .is_some_and(|a| a.preview),
-                                error: None,
-                            },
-                        );
                     }
                     self.runtime
                         .ensure(&settings, &cancelled)
@@ -546,6 +534,21 @@ impl Service {
                 error,
             },
         );
+    }
+    fn management_gate(&self) -> Result<std::sync::MutexGuard<'_, Option<Active>>> {
+        let gate = self.active.lock().unwrap_or_else(|p| p.into_inner());
+        if gate.is_some() || self.acceleration_testing.load(Ordering::SeqCst) {
+            return Err("请先停止回复或加速试运行。".into());
+        }
+        Ok(gate)
+    }
+    fn reset_partial_for_cpu_retry(&self, id: &str) -> Option<bool> {
+        let mut guard = self.active.lock().unwrap_or_else(|p| p.into_inner());
+        let active = guard
+            .as_mut()
+            .filter(|a| a.id == id && !a.cancelled.load(Ordering::SeqCst))?;
+        active.partial.clear();
+        Some(active.preview)
     }
     fn clear(&self) -> Result<()> {
         let gate = self.active.lock().unwrap_or_else(|p| p.into_inner());
@@ -861,6 +864,33 @@ pub fn on_window_event(window: &tauri::Window, event: &tauri::WindowEvent) {
 #[cfg(test)]
 mod tests {
     #[test]
+    fn gpu_trial_blocks_management_and_cancelled_draft_is_preserved() {
+        let dir = tempfile::tempdir().unwrap();
+        let s = service(dir.path().join("db"));
+        s.acceleration_testing.store(true, Ordering::SeqCst);
+        assert!(s.management_gate().is_err());
+        s.acceleration_testing.store(false, Ordering::SeqCst);
+        assert!(s.management_gate().is_ok());
+        let cancelled = Arc::new(AtomicBool::new(true));
+        *s.active.lock().unwrap() = Some(Active {
+            id: "request".into(),
+            cancelled: cancelled.clone(),
+            message_id: None,
+            preview: false,
+            partial: "already streamed".into(),
+        });
+        assert_eq!(s.reset_partial_for_cpu_retry("request"), None);
+        assert_eq!(
+            s.active.lock().unwrap().as_ref().unwrap().partial,
+            "already streamed"
+        );
+        cancelled.store(false, Ordering::SeqCst);
+        assert_eq!(s.reset_partial_for_cpu_retry("stale"), None);
+        assert_eq!(s.reset_partial_for_cpu_retry("request"), Some(false));
+        s.shutdown();
+    }
+
+    #[test]
     fn unused_ai_does_not_create_database_during_idle_maintenance() {
         let dir = tempfile::tempdir().unwrap();
         let db = dir.path().join("ai.sqlite3");
@@ -1000,12 +1030,10 @@ pub async fn ai_reset_personal_data(
     chat_only(&window)?;
     let s = state.0.clone();
     let result = blocking(move || {
-        let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
-        if gate.is_some() {
-            return Err("请先停止回复。".into());
-        }
+        let _gate = s.management_gate()?;
         s.pause_observation();
         s.runtime.stop();
+        s.accelerated.reset();
         s.db(|db| {
             let settings = db.settings()?;
             let mut urls = db.credential_urls()?;
@@ -1119,12 +1147,10 @@ pub async fn ai_model_remove(
     chat_only(&window)?;
     let s = state.0.clone();
     blocking(move || {
-        let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
-        if gate.is_some() {
-            return Err("请先停止回复。".into());
-        }
+        let _gate = s.management_gate()?;
         s.pause_observation();
         s.runtime.stop();
+        s.accelerated.stop();
         s.models.remove(&id)?;
         s.db(|db| {
             let mut settings = db.settings()?;

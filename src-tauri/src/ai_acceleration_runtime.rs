@@ -10,7 +10,7 @@ use std::{
     path::Path,
     process::{Child, ChildStdin, Stdio},
     sync::{
-        atomic::{AtomicBool, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
         Mutex,
     },
     time::{Duration, Instant},
@@ -32,6 +32,7 @@ pub struct Runtime {
     view: Mutex<View>,
     failed: AtomicBool,
     last_used: Mutex<Instant>,
+    idle_seconds: AtomicU64,
 }
 impl Runtime {
     pub fn new() -> Self {
@@ -43,6 +44,7 @@ impl Runtime {
             }),
             failed: AtomicBool::new(false),
             last_used: Mutex::new(Instant::now()),
+            idle_seconds: AtomicU64::new(300),
         }
     }
     pub fn view(&self) -> View {
@@ -93,13 +95,13 @@ impl Runtime {
             let _ = r.child.wait();
         }
     }
-    pub fn unload_if_idle(&self, seconds: u64) {
+    pub fn unload_if_idle(&self) {
         if self
             .last_used
             .lock()
             .unwrap_or_else(|p| p.into_inner())
             .elapsed()
-            >= Duration::from_secs(seconds)
+            >= Duration::from_secs(self.idle_seconds.load(Ordering::Relaxed))
         {
             self.stop()
         }
@@ -115,6 +117,7 @@ impl Runtime {
             return Err("生成已停止。".into());
         }
         *self.last_used.lock().unwrap_or_else(|p| p.into_inner()) = Instant::now();
+        self.idle_seconds.store(s.idle_seconds, Ordering::Relaxed);
         {
             let mut running = self.running.lock().unwrap_or_else(|p| p.into_inner());
             if let Some(r) = running.as_mut() {

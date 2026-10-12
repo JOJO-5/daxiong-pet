@@ -118,9 +118,7 @@ impl Service {
                 // Observation shares this gate: unloading is allowed only between heavy tasks.
                 if let Ok(_heavy) = s.heavy.try_lock() {
                     s.runtime.unload_if_idle();
-                    if let Ok(settings) = s.db(|db| db.settings()) {
-                        s.accelerated.unload_if_idle(settings.idle_seconds);
-                    }
+                    s.accelerated.unload_if_idle();
                 }
             }
             drop(gate);
@@ -862,6 +860,25 @@ pub fn on_window_event(window: &tauri::Window, event: &tauri::WindowEvent) {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn unused_ai_does_not_create_database_during_idle_maintenance() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("ai.sqlite3");
+        let service = Service::new(
+            db.clone(),
+            Assets {
+                root: dir.path().join("missing-assets"),
+            },
+        );
+        std::thread::sleep(Duration::from_secs(6));
+        assert!(
+            !db.exists(),
+            "idle release must not initialize AI persistence"
+        );
+        assert!(service.store.lock().unwrap().is_none());
+        service.shutdown();
+    }
+
     use super::*;
     fn service(path: PathBuf) -> Arc<Service> {
         Service::new(

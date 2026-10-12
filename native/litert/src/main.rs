@@ -252,6 +252,23 @@ fn infer(
 ) -> Result<(), String> {
     let conversation =
         engine.conversation(&chat.system, &chat.history, chat.output, chat.temperature)?;
+    // Verify history wiring using LiteRT's actual rendered preface, independent
+    // of a model's recall accuracy. Never expose or log the preface contents.
+    let preface = conversation.preface()?;
+    let history: Value = serde_json::from_str(&chat.history).map_err(|e| e.to_string())?;
+    let messages = history.as_array().ok_or("Invalid normalized history")?;
+    for message in messages {
+        let text = message["content"][0]["text"]
+            .as_str()
+            .ok_or("Invalid normalized history text")?;
+        if !preface.contains(text) {
+            return Err("Requested history missing from native preface".into());
+        }
+    }
+    sse(
+        stream,
+        json!({"object":"chat.completion.chunk","choices":[{"index":0,"delta":{},"finish_reason":null}],"native_meta":{"history_messages":messages.len(),"history_rendered":true}}),
+    )?;
     {
         let mut state = control.state.lock().unwrap();
         state.active = Some(conversation.clone());

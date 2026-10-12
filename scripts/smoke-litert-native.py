@@ -17,7 +17,7 @@ def main():
     model=stage.download(stage.SOURCES['test_model'],args.model.resolve())
     worker=component/('daxiong-litert-worker.exe' if manifest['target'].startswith('windows') else 'daxiong-litert-worker')
     library=component/manifest['source']['files'][0]
-    result={'target':manifest['target'],'runtime':manifest['version'],'backend_requested':'cpu','model_sha256':stage.SOURCES['test_model']['sha256'],'checks':[],'timings':{},'replies':[],'scope':'native 0.8B INT8 CPU; synthetic text; no GPU or 2B/INT4 quality qualification'}
+    result={'target':manifest['target'],'runtime':manifest['version'],'backend_requested':'cpu','model_sha256':stage.SOURCES['test_model']['sha256'],'checks':[],'timings':{},'replies':[],'native_history_checks':[],'scope':'native 0.8B INT8 CPU; synthetic text; no GPU or 2B/INT4 quality qualification'}
     processes=[];connections=[];peak_rss=0;stop_memory=threading.Event()
     def check(name,ok=True):
         assert ok,name
@@ -56,6 +56,7 @@ def main():
             value=line[5:].strip()
             if value==b'[DONE]':return 'DONE',None
             data=json.loads(value)
+            if 'native_meta' in data:result['native_history_checks'].append(data['native_meta'])
             if 'error' in data:return 'ERROR',data['error']
             text=data.get('choices',[{}])[0].get('delta',{}).get('content')
             if text:return 'TEXT',text
@@ -103,7 +104,9 @@ def main():
         first=[{'role':'system','content':'你是一只友好的桌面狗狗，简短回复。'},{'role':'user','content':'我的昵称是小林，请记住，只回复好的。'}]
         answer,n=complete(port,first);check('real model streams text and DONE',bool(answer) and n>0)
         history=first+[{'role':'assistant','content':answer},{'role':'user','content':'刚才我说我的昵称是什么？只回复昵称。'}]
-        recall,_=complete(port,history);check('full request history reaches the native model','小林' in recall)
+        recall,_=complete(port,history)
+        check('full request history is present in real C API rendered preface',result['native_history_checks'][-1]=={'history_messages':2,'history_rendered':True})
+        result['semantic_recall']={'expected':'小林','actual':recall,'passed':'小林' in recall,'scope':'separate model quality sample, not native ABI/lifecycle qualification'}
         for turn in range(3):
             c,r=request(port,'POST','/v1/chat/completions',payload(long,128));assert r.status==200
             kind,text=read_chunk(r);assert kind=='TEXT',(kind,text)

@@ -41,8 +41,11 @@ Library names vary by platform; read `component-manifest.json`. The worker
 prints one JSON `ready` event containing its actual loopback port and PID.
 HTTP binds **127.0.0.1 only**, supports `/health`, `/v1/models`, and streaming
 `/v1/chat/completions` using model ID `daxiong-litert`. Text system/user/assistant
-history is rebuilt per request. Thinking is disabled; `temperature` 0..2 and
-output limits 1..256 are supported. The schema rejects media and tools instead
+history is rebuilt per request and checked against the actual C API rendered
+preface; only the count/verification result is exposed, never preface contents.
+Thinking is disabled; `temperature` 0..2 and output limits 1..256 are supported.
+Positive temperature uses top-p 0.95 after top-k 40, while zero uses greedy.
+The schema rejects media and tools instead
 of silently omitting them. Browser origins, ambiguous lengths and oversized
 requests are rejected. Only one inference is admitted; another returns 409.
 

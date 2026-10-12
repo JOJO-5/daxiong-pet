@@ -29,6 +29,7 @@ pub struct Api {
     sampler_new: unsafe extern "C" fn(c_int) -> Ptr,
     sampler_delete: Delete,
     sampler_top_p: unsafe extern "C" fn(Ptr, f32),
+    sampler_top_k: SetInt,
     sampler_temperature: unsafe extern "C" fn(Ptr, f32),
     session_sampler: SetPtr,
     config_new: New,
@@ -45,6 +46,7 @@ pub struct Api {
     conversation_stream:
         unsafe extern "C" fn(Ptr, *const c_char, *const c_char, Ptr, Callback, Ptr) -> c_int,
     conversation_cancel: Delete,
+    conversation_preface: unsafe extern "C" fn(Ptr) -> *const c_char,
     chunk_text: unsafe extern "C" fn(*const c_void) -> *const c_char,
     chunk_error: unsafe extern "C" fn(*const c_void) -> *const c_char,
     chunk_final: unsafe extern "C" fn(*const c_void) -> bool,
@@ -79,6 +81,7 @@ impl Api {
                 sampler_new: symbol!(lib, "litert_lm_sampler_params_create"),
                 sampler_delete: symbol!(lib, "litert_lm_sampler_params_delete"),
                 sampler_top_p: symbol!(lib, "litert_lm_sampler_params_set_top_p"),
+                sampler_top_k: symbol!(lib, "litert_lm_sampler_params_set_top_k"),
                 sampler_temperature: symbol!(lib, "litert_lm_sampler_params_set_temperature"),
                 session_sampler: symbol!(lib, "litert_lm_session_config_set_sampler_params"),
                 config_new: symbol!(lib, "litert_lm_conversation_config_create"),
@@ -94,6 +97,10 @@ impl Api {
                 conversation_delete: symbol!(lib, "litert_lm_conversation_delete"),
                 conversation_stream: symbol!(lib, "litert_lm_conversation_send_message_stream"),
                 conversation_cancel: symbol!(lib, "litert_lm_conversation_cancel_process"),
+                conversation_preface: symbol!(
+                    lib,
+                    "litert_lm_conversation_render_preface_to_string"
+                ),
                 chunk_text: symbol!(lib, "litert_lm_stream_chunk_get_text"),
                 chunk_error: symbol!(lib, "litert_lm_stream_chunk_get_error"),
                 chunk_final: symbol!(lib, "litert_lm_stream_chunk_is_final"),
@@ -194,6 +201,7 @@ impl Engine {
                 return Err("Sampler config failed".into());
             }
             (self.api.sampler_top_p)(sampler, 0.95);
+            (self.api.sampler_top_k)(sampler, if temperature == 0.0 { 1 } else { 40 });
             (self.api.sampler_temperature)(sampler, temperature);
             (self.api.session_sampler)(session, sampler);
             (self.api.sampler_delete)(sampler);
@@ -231,6 +239,15 @@ pub struct Conversation {
 unsafe impl Send for Conversation {}
 unsafe impl Sync for Conversation {}
 impl Conversation {
+    pub fn preface(&self) -> Result<String, String> {
+        unsafe {
+            let raw = (self.engine.api.conversation_preface)(self.ptr);
+            if raw.is_null() {
+                return Err("LiteRT failed to render conversation preface".into());
+            }
+            Ok(CStr::from_ptr(raw).to_string_lossy().into_owned())
+        }
+    }
     pub fn cancel(&self) {
         unsafe { (self.engine.api.conversation_cancel)(self.ptr) }
     }

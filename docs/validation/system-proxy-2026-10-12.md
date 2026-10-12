@@ -6,4 +6,4 @@
 
 支持系统的手动 HTTP/HTTPS 代理。此改动没有接入 PAC 脚本、WPAD 自动发现或 SOCKS 代理，也没有增加独立代理设置界面。macOS 的系统绕过列表不由此上游实现读取，可用 `NO_PROXY` 指定；Windows 上游实现读取 `ProxyOverride`，不代表支持所有系统例外语法。
 
-验证：依赖锁定并核对 Windows x64 和 macOS ARM 的依赖树启用 `hyper-util/client-proxy-system` 及对应系统配置读取依赖；Linux `cargo check --locked --offline` 通过，`git diff --check` 通过。编译只报告既有 schemars cfg 和 `SayKind::Drag` 未使用警告。本环境只有 Linux，Windows/macOS 系统设置下的实际联网仍需实机验证。此改动尚未进入已发布的 alpha.6 安装包。
+验证：依赖锁定并核对 Windows x64 和 macOS ARM 的依赖树启用 `hyper-util/client-proxy-system` 及对应系统配置读取依赖；Linux `cargo check --locked --offline` 通过，`git diff --check` 通过。编译只报告既有 schemars cfg 和 `SayKind::Drag` 未使用警告。本环境只有 Linux，Windows/macOS 系统设置下的实际联网仍需实机验证。此改动已随[v1.1.0-alpha.7](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.7)发布；四平台完整/轻量构建与同源桌面回归通过，实际下载并校验公开Windows light EXE与Linux light deb，普通UID1000的Linux公开安装器下载开始/取消复核通过。这些检查不替代Windows/macOS系统设置下的实际代理联网；完整记录见[alpha.7验收](alpha7-release-2026-10-12.md)。

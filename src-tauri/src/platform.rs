@@ -54,7 +54,7 @@ pub fn local_hour() -> u32 {
 }
 
 
-/// 前端和窗口坐标统一由 Tauri 转为物理像素。
+/// 全局光标使用物理像素，与窗口位置和命中区域一致。
 pub fn pointer_state(window: &tauri::WebviewWindow) -> ((i32, i32), bool) {
     #[cfg(target_os = "windows")]
     {
@@ -69,14 +69,22 @@ pub fn pointer_state(window: &tauri::WebviewWindow) -> ((i32, i32), bool) {
             static DEVICE: std::cell::RefCell<(Option<device_query::DeviceState>, std::time::Instant)> =
                 std::cell::RefCell::new((device_query::DeviceState::checked_new(), std::time::Instant::now()));
         }
-        let pressed = DEVICE.with(|cell| {
+        let mouse = DEVICE.with(|cell| {
             let mut state = cell.borrow_mut();
             if state.0.is_none() && state.1.elapsed().as_secs() >= 1 {
                 state.0 = device_query::DeviceState::checked_new();
                 state.1 = std::time::Instant::now();
             }
-            state.0.as_ref().map(|device| device.get_mouse().button_pressed.get(1).copied().unwrap_or(false)).unwrap_or(false)
+            state.0.as_ref().map(|device| device.get_mouse())
         });
+        let pressed = mouse.as_ref().is_some_and(|mouse| mouse.button_pressed.get(1).copied().unwrap_or(false));
+        #[cfg(target_os = "linux")]
+        if let Some(mouse) = mouse.as_ref() {
+            // XQueryPointer on the root window already returns physical pixels.
+            // GTK's root-window scale can differ from the pet's window scale;
+            // do not apply that conversion to click-through hit testing.
+            return (mouse.coords, pressed);
+        }
         let cursor = window.cursor_position().map(|p| (p.x.round() as i32, p.y.round() as i32))
             .unwrap_or((i32::MIN / 4, i32::MIN / 4));
         (cursor, pressed)

@@ -550,6 +550,7 @@ fn spawn_engine(
         let mut last = Instant::now();
         let mut prev_frame: Option<FramePayload> = None;
         let mut prev_clickable: Option<bool> = None;
+        let mut prev_input_clickable: Option<bool> = None;
         let mut prev_sleeping: Option<bool> = None;
         let mut prev_toy_hot:Option<bool>=None;
         let mut toy_logical_size=(44_i32,44_i32);
@@ -590,7 +591,7 @@ fn spawn_engine(
                 input.win_size = (size.width as i32, size.height as i32);
                 input.scale_factor = window.scale_factor().unwrap_or(1.0);
                 input.screen = screen;
-                if !was_visible { prev_frame = None; prev_sleeping = None; }
+                if !was_visible { prev_frame = None; prev_sleeping = None; prev_input_clickable = None; }
             } else {
                 input.button_down = false;
             }
@@ -614,6 +615,13 @@ fn spawn_engine(
             }
             engine.set_playful_fetch(app.state::<AppState>().memory.lock().unwrap().data.playful_fetch);
             let out = engine.tick(&input);
+            #[cfg(all(debug_assertions, target_os = "linux"))]
+            if std::env::var_os("DAXIONG_POINTER_TRACE").is_some() {
+                static TRACE_COUNT: AtomicU64 = AtomicU64::new(0);
+                if TRACE_COUNT.fetch_add(1, Ordering::Relaxed) % 60 == 0 {
+                    eprintln!("POINTER_TRACE cursor={:?} gtk={:?} window={:?} size={:?} scale={} visible={} down={} clickable={} row={} col={}", input.cursor, window.cursor_position().ok(), input.win_pos, input.win_size, input.scale_factor, input.interactive, input.button_down, out.clickable, out.row, out.col);
+                }
+            }
             app.state::<AppState>().focusing.store(engine.is_focusing(),Ordering::Relaxed);
 
             if let Some((x, y)) = out.move_to {
@@ -688,8 +696,14 @@ fn spawn_engine(
 
             // 穿透状态只在变化时下发，避免每帧都过一遍 IPC
             let clickable_changed=prev_clickable != Some(out.clickable);
+            // GTK realizes input shapes when the window is shown. Keep native
+            // input state separate from frontend delivery and refresh on show.
+            if visible && prev_input_clickable != Some(out.clickable) {
+                if window.set_ignore_cursor_events(!out.clickable).is_ok() {
+                    prev_input_clickable = Some(out.clickable);
+                }
+            }
             if clickable_changed {
-                let _ = window.set_ignore_cursor_events(!out.clickable);
                 prev_clickable = Some(out.clickable);
             }
 

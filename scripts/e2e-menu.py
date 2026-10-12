@@ -22,6 +22,9 @@ def input_rectangles(window):
     try:return [(r.x,r.y,r.width,r.height) for r in regions[:count.value]] if regions else []
     finally:
         if regions:xlib.XFree(regions)
+def native_popup():
+    windows=subprocess.run(['xdotool','search','--onlyvisible','--class','Daxiong-pet'],capture_output=True,text=True)
+    return next((w for w in windows.stdout.splitlines() if '_NET_WM_WINDOW_TYPE_POPUP_MENU' in subprocess.run(['xprop','-id',w,'_NET_WM_WINDOW_TYPE'],capture_output=True,text=True).stdout),None)
 def pet_menu():
     global menu_origin
     menu_origin=command('GET','/window')
@@ -41,7 +44,7 @@ def pet_menu():
         x,y=int(cursor['X'])-int(geometry['X']),int(cursor['Y'])-int(geometry['Y'])
         return any(rx<=x<rx+width and ry<=y<ry+height for rx,ry,width,height in regions)
     wait(hover_current_position)
-    time.sleep(.15);pointer('click',3);time.sleep(.4)
+    time.sleep(.15);pointer('click',3);wait(native_popup);time.sleep(.15)
     # Changing the WebDriver window focuses its webview and can dismiss GTK's popup.
     # Restore the previous inspection target only after the native key action.
 def finish_menu(*keys):
@@ -54,6 +57,7 @@ try:
     new_session();main=command('GET','/window')
     wait(lambda:js("return document.querySelector('.pet-sheet')?.naturalHeight===5616"))
     invoke('set_encounters',{'enabled':False});time.sleep(.7)
+    wait(lambda:invoke('plugin:window|is_visible',{'label':'main'}))
     native=pet_native()
     initial=set(command('GET','/window/handles'))
     pet_menu();shoot('native-menu');finish_menu('Escape');time.sleep(.2)
@@ -140,6 +144,15 @@ d=x.XOpenDisplay(None);key=x.XKeysymToKeycode(d,ord('p'));x.XGrabKey(d,key,12,x.
     check('native come item selects and starts real command',invoke('trick_status')['kind']=='come')
     pet_menu();finish_menu('End','Up','Return');wait(lambda:invoke('trick_status')['phase']=='off')
     check('native stop cancels command without a reward',not invoke('trick_status')['rewardable'])
+    for cycle in range(3):
+        invoke('set_visible',{'visible':False})
+        wait(lambda:not invoke('plugin:window|is_visible',{'label':'main'}))
+        pointer('mousemove',30,30);time.sleep(.3)
+        invoke('set_visible',{'visible':True})
+        wait(lambda:invoke('plugin:window|is_visible',{'label':'main'}))
+        wait(lambda:input_rectangles(native)==[(0,0,1,1)])
+        pet_menu();finish_menu('Escape')
+        check(f'hide/show {cycle+1} restores native click-through and hover')
     invoke('set_pomodoro',{'active':True});time.sleep(.3)
     try:invoke('play_action',{'action':'throw_frisbee'});raise AssertionError('focus accepted')
     except AssertionError as e:check('focus rejects toy with explicit explanation','专注' in str(e))

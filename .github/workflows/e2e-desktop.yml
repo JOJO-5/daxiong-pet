@@ -152,6 +152,7 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Record native menus and nearby panel
         env:
+          DAXIONG_POINTER_TRACE: '1'
           E2E_RECORD: "1"
           E2E_OUT: "test-results/menu-video"
           E2E_SCRIPT: scripts/e2e-menu.py

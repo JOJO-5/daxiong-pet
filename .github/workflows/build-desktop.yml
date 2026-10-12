@@ -112,7 +112,25 @@ jobs:
       - name: Stage light package without chat or vision weights
         run: python scripts/stage-light-ai.py --source ai-build/ai --out ai-build/ai-light --config ai-build/tauri-light.json
       - name: Build light packages
+        if: runner.os != 'macOS'
         run: npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }} --config ai-build/tauri-light.json
+        env:
+          NO_STRIP: true
+          MACOSX_DEPLOYMENT_TARGET: "14.0"
+      - name: Build macOS light packages with DMG diagnostics and retry
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            if npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }} --config ai-build/tauri-light.json --verbose; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Light DMG attempt $attempt failed; retrying with verbose diagnostics in 10 seconds."
+              sleep 10
+            fi
+          done
+          exit 1
         env:
           NO_STRIP: true
           MACOSX_DEPLOYMENT_TARGET: "14.0"

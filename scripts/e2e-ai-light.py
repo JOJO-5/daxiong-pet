@@ -11,7 +11,7 @@ try:
     invoke('open_chat');chat = wait(chat_window)
     check('light starts without a ready local model', not snap()['assets']['available'])
     click('性格与设置')
-    native_click("[...document.querySelectorAll('.chat-memory')].find(e=>e.textContent.includes('Qwen3.5-2B-Q4_K_M.gguf')).querySelector('button')")
+    native_click("[...document.querySelectorAll('.chat-model-card')].find(e=>e.textContent.includes('Qwen3.5-2B-Q4_K_M.gguf')).querySelector('button')")
     wait(lambda: snap()['download']['busy'])
     def receiving():
         download=snap()['download']

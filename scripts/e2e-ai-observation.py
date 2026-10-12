@@ -18,8 +18,11 @@ server=ThreadingHTTPServer(('127.0.0.1',0),Handler)
 threading.Thread(target=server.serve_forever,daemon=True).start()
 fixture_process=None
 
-def observe(vision=False):
-    invoke('ai_observe',{'vision':vision})
+def observe(vision=False, native=False):
+    if native:
+        native_click("[...document.querySelectorAll('button')].find(b=>b.textContent==='理解图片')")
+    else:
+        invoke('ai_observe',{'vision':vision})
     pointer('windowactivate','--sync',target)
     def completed():
         data=snap();return data if not data['observation']['busy'] else None
@@ -34,7 +37,7 @@ def fast_send(text):
     done(request_id,timeout=180)
     return snap()
 try:
-    new_session();invoke('open_chat');chat=wait(chat_window)
+    new_session();main=command('GET','/window');invoke('open_chat');chat=wait(chat_window)
     configure(enabled=True,backend='external',service_url=f'http://127.0.0.1:{server.server_port}/v1',service_model='text-fixture')
     data=fast_send('我喜欢你叫我小王。')
     first=next(p for p in data['preferences'] if p['key']=='owner_name')
@@ -73,9 +76,21 @@ int main(int argc,char **argv){gtk_init(&argc,&argv);GtkWidget *w=gtk_window_new
     parts=requests[-1]['messages'][-1]['content']
     check('image payload works independently of text token budget',len(requests)==before+1 and parts[1]['image_url']['url'].startswith('data:image/png;base64,'))
     if os.environ.get('E2E_AI_VISION')=='1':
+        setup="const done=arguments[arguments.length-1];window.__visionReplies=[];window.__visionStages=[];Promise.all(['ai:screen-reply','ai:observation'].map(event=>window.__TAURI_INTERNALS__.invoke('plugin:event|listen',{event,target:{kind:'Any'},handler:window.__TAURI_INTERNALS__.transformCallback(e=>{if(event==='ai:screen-reply')window.__visionReplies.push(e.payload);else window.__visionStages.push(e.payload.status);})}))).then(()=>done(true)).catch(e=>done(String(e)));"
+        assert command('POST','/execute/async',{'script':setup,'args':[]}) is True
         configure(screen_backend='bundled',remote_screen=False,idle_seconds=30)
-        before=len(requests);data=observe(True)
+        native_click("[...document.querySelectorAll('button')].find(b=>b.textContent==='性格与设置')")
+        before=len(requests);data=observe(True,native=True)
         check('real bundled 2B vision runs through app without remote upload',len(requests)==before and data['observation']['text'] and '过期' not in data['observation']['status'])
+        replies=js('return window.__visionReplies')
+        stages=js('return window.__visionStages')
+        check('real local vision emits a nonempty screen reply, not OCR alone',bool(replies) and bool(replies[-1]['text'].strip()))
+        check('vision exposes inference progress and completion',any('正在理解图片' in stage for stage in stages) and data['observation']['status'].startswith('图片理解已完成'))
+        command('POST','/window',{'handle':main})
+        check('manual visual reply is also displayed on the pet',wait(lambda:js("return document.querySelector('.bubble')?.getAttribute('aria-label')")==replies[-1]['text']))
+        screenshot('manual-vision-pet-reply.png')
+        command('POST','/window',{'handle':chat})
+        (OUT/'local-vision-result.json').write_text(json.dumps({'replies':replies,'stages':stages,'status':data['observation']['status']},ensure_ascii=False,indent=2))
         configure(screen_backend='external',remote_screen=True)
     configure(screen_scope='all')
     data=observe()

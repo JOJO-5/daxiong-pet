@@ -189,6 +189,7 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Verify native capture, OCR, separate service scopes and memory
         env:
+          E2E_AI_VISION: "1"
           DAXIONG_AI_RESOURCE_DIR: ${{ github.workspace }}/ai-build/ai
           E2E_RECORD: "1"
           E2E_OUT: "test-results/ai-observation"

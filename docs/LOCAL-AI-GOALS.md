@@ -464,6 +464,8 @@ alpha.4发布收尾：Windows light约39.44MB，两种Mac light约61.06/65.69MB�
 
 用户确认把 Google ML Drift GPU 加速作为可选项，在界面点击下载即可安装。默认继续使用现有 CPU 路径，完整包和轻量包都不预装该加速组件，不在后台自动下载。
 
+2026-10-12 后续网络补齐：Windows/macOS 的系统 HTTP/HTTPS 代理识别已加入源码，覆盖模型/加速组件下载和外接 HTTPS 服务，保留本机推理直连。环境变量代理仍支持；PAC/WPAD 不包含在此次接入中。版本发布与验证边界见[系统代理记录](validation/system-proxy-2026-10-12.md)。
+
 实施与验收顺序：
 
 1. 在 AI 设置增加「可选 GPU 加速」入口，下载前显示本平台组件、兼容模型的下载大小与额外磁盘需求。LiteRT-LM 是语言模型上层，实际 GPU 目标是 ML Drift；不得把 CPU 原型标为 GPU 已启用。

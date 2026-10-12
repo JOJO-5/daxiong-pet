@@ -981,16 +981,18 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   </label>
                 ))}
               </section>
-              <section aria-label="可选GPU加速" data-testid="acceleration-settings">
+              <section className="chat-download-section" aria-label="可选GPU加速" data-testid="acceleration-settings">
                 <h2>可选 GPU 加速 · 实验性</h2>
                 <p className="chat-footnote">默认使用 CPU。下载 ML Drift 加速组件后可试运行 GPU 模式；需要单独的 0.8B 文字模型，回答能力可能比默认 2B 弱。图片理解和 OCR 继续使用原有 CPU。</p>
-                <p>组件约 {(snapshot.acceleration.component_bytes / 1024 / 1024).toFixed(1)} MiB · 兼容模型约 {(snapshot.acceleration.model_bytes / 1024 / 1024).toFixed(0)} MiB</p>
+                <p className="chat-download-size">组件约 {(snapshot.acceleration.component_bytes / 1024 / 1024).toFixed(1)} MiB · 兼容模型约 {(snapshot.acceleration.model_bytes / 1024 / 1024).toFixed(0)} MiB</p>
                 <p className="chat-footnote">安装与下载临时文件建议预留 2.5 GiB；下载完成后不会自动启用。</p>
-                <p data-testid="acceleration-backend">当前：{snapshot.settings.backend === "external" ? "外接服务" : snapshot.acceleration_runtime.backend === "ml-drift-gpu" ? "ML Drift GPU模式（实验性）" : "CPU"}</p>
-                <p role="status">{snapshot.acceleration_runtime.note}</p>
+                <div className="chat-download-state">
+                  <p data-testid="acceleration-backend">当前：{snapshot.settings.backend === "external" ? "外接服务" : snapshot.acceleration_runtime.backend === "ml-drift-gpu" ? "ML Drift GPU模式（实验性）" : "CPU"}</p>
+                  <p className="chat-footnote" role="status">{snapshot.acceleration_runtime.note}</p>
+                </div>
                 {!snapshot.acceleration.available ? <p>此平台组件尚未发布，继续使用 CPU。</p> : null}
-                <div className="chat-actions">
-                  <button disabled={busy || saving || snapshot.acceleration.busy || !snapshot.acceleration.available} onClick={() => {
+                <div className="chat-download-actions">
+                  <button className="chat-primary chat-download-primary" disabled={busy || saving || snapshot.acceleration.busy || !snapshot.acceleration.available} onClick={() => {
                     void invoke("ai_acceleration_download").then(refresh).catch((e) => setError(String(e)));
                   }}>{snapshot.acceleration.installed && snapshot.acceleration.model_installed ? "校验/修复加速下载" : "下载加速组件与模型"}</button>
                   <button disabled={busy || saving || snapshot.acceleration.busy || !snapshot.acceleration.installed || !snapshot.acceleration.model_installed || snapshot.settings.backend !== "bundled"} onClick={async () => {
@@ -1001,6 +1003,8 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   <button disabled={busy || saving || !snapshot.settings.acceleration_enabled} onClick={() => {
                     void invoke("ai_acceleration_disable").then(refresh).catch((e) => setError(String(e)));
                   }}>关闭加速</button>
+                </div>
+                <div className="chat-download-actions chat-download-maintenance" aria-label="删除加速下载">
                   <button disabled={busy || saving || snapshot.acceleration.busy || !snapshot.acceleration.installed} onClick={() => {
                     void invoke("ai_acceleration_remove", {model: false}).then(refresh).catch((e) => setError(String(e)));
                   }}>删除加速组件</button>
@@ -1008,7 +1012,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                     void invoke("ai_acceleration_remove", {model: true}).then(refresh).catch((e) => setError(String(e)));
                   }}>删除加速模型</button>
                 </div>
-                <p role="status" data-testid="acceleration-download-status">{snapshot.acceleration.status}</p>
+                {snapshot.acceleration.status ? <p className="chat-download-status" role="status" data-testid="acceleration-download-status">{snapshot.acceleration.status}</p> : null}
                 {snapshot.acceleration_testing ? <button onClick={() => void invoke("ai_acceleration_cancel").then(refresh).catch((e) => setError(String(e)))}>停止试运行</button> : null}
                 {snapshot.acceleration.busy ? <>
                   <progress aria-label="加速下载进度" max={snapshot.acceleration.total || 1} value={snapshot.acceleration.received} />
@@ -1016,7 +1020,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   <button onClick={() => void invoke("ai_acceleration_cancel").then(refresh).catch((e) => setError(String(e)))}>取消加速下载</button>
                 </> : null}
               </section>
-              <section>
+              <section className="chat-download-section">
                 <h2>内置模型与可选下载</h2>
                 <p className="chat-footnote">
                   完整版预装2B聊天与视觉权重；轻量版保留CPU运行器和OCR，点击下方下载模型后使用。0.8B仅用于文字聊天，下载后需在上方选择。
@@ -1047,9 +1051,9 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   </select>
                 </label>
                 {snapshot.models.map((model) => (
-                  <div className="chat-memory" key={model.id}>
-                    <strong>{model.name}</strong>
-                    <span>
+                  <div className="chat-model-card" key={model.id}>
+                    <strong className="chat-model-name">{model.name}</strong>
+                    <span className="chat-model-meta">
                       {(model.bytes / 1024 / 1024).toFixed(0)} MiB ·{" "}
                       {model.installed ? "资源已找到，加载时校验" : "尚未安装"}
                     </span>
@@ -1080,7 +1084,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                     </div>
                   </div>
                 ))}
-                <p role="status">{snapshot.download.status}</p>
+                {snapshot.download.status ? <p className="chat-download-status" role="status">{snapshot.download.status}</p> : null}
                 {snapshot.download.busy ? (
                   <>
                     <progress

@@ -47,6 +47,25 @@
 .chat-settings label.chat-switch { display:flex; gap:8px; align-items:center; }
 .chat-loading { padding:24px; }
 .chat-sr-only { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+.chat-download-section { overflow-wrap:anywhere; }
+.chat-download-section h2 { margin-bottom:10px; }
+.chat-download-section > p { margin:8px 0; }
+.chat-download-section .chat-footnote { line-height:1.65; }
+.chat-download-size { font-weight:500; }
+.chat-download-state { margin:14px 0; padding:12px 14px; border-radius:10px; background:#eaf0e1; }
+.chat-download-state p + p { margin-top:5px; }
+.chat-download-actions { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; margin-top:12px; }
+.chat-download-actions button { min-width:0; min-height:40px; white-space:normal; }
+.chat-download-primary { grid-column:1 / -1; }
+.chat-download-maintenance { padding-top:12px; border-top:1px solid #dfe5d8; }
+.chat-model-card { margin-top:14px; padding:16px; border:1px solid #dfe5d8; border-radius:12px; background:#fffefa; }
+.chat-model-name { display:block; overflow-wrap:anywhere; line-height:1.5; }
+.chat-model-meta { display:block; margin-top:6px; color:#68765f; font-size:12px; }
+.chat-model-card .chat-footnote { margin-top:8px; }
+.chat-model-card .chat-setting-actions { margin-top:12px; }
+.chat-download-section .chat-download-status { margin-top:14px; padding:10px 12px; border-left:3px solid #8eaa77; background:#edf1e5; border-radius:0 8px 8px 0; }
+.chat-download-section progress { display:block; width:100%; margin:12px 0 8px; }
+@media(max-width:380px) { .chat-download-actions { grid-template-columns:minmax(0,1fr); } .chat-setting-grid { grid-template-columns:minmax(0,1fr); } }
 @media(max-height:540px) { .chat-heading { padding-top:10px; } .chat-empty { margin:22px auto; } .chat-compose { padding-bottom:10px; } }
 
 .quick-chat {height:100%;padding:10px 12px;background:#f7f8ef;border:1px solid #b9c8ae;border-radius:14px;color:#334831;font:13px/1.4 system-ui,sans-serif;box-shadow:inset 0 0 0 1px #fff8;}

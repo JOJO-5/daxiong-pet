@@ -145,7 +145,7 @@ def main():
         for p in processes:
             if p.poll() is None:p.kill();p.wait()
         (out/'native-smoke.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
-        print(json.dumps(result,ensure_ascii=False),flush=True)
+        print(json.dumps(result,ensure_ascii=True),flush=True)
     if result['status']!='passed':raise SystemExit(1)
 
 if __name__=='__main__':main()

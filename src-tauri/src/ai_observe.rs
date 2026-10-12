@@ -314,6 +314,16 @@ impl Service {
         }
         Ok(id)
     }
+    fn observation_status(&self, app: &AppHandle, status: &str) {
+        {
+            let mut screen = self.screen.lock().unwrap_or_else(|p| p.into_inner());
+            if !screen.task.as_ref().is_some_and(|(_, token, _)| !token.load(Ordering::SeqCst)) {
+                return;
+            }
+            screen.status = status.into();
+        }
+        let _ = app.emit_to("chat", "ai:observation", self.screen_view());
+    }
     fn observe_work(
         &self,
         app: &AppHandle,
@@ -360,6 +370,7 @@ impl Service {
                     >= Duration::from_secs(settings.speak_seconds as u64)
                 && screen.last_fingerprint_hash != Some(fingerprint_hash(&capture.fingerprint))
         };
+        self.observation_status(app, if vision { "正在读取屏幕文字，随后继续理解图片。" } else { "正在读取屏幕文字。" });
         let ocr = crate::ai_ocr::recognize(
             &self.assets.root,
             capture.png.clone(),
@@ -411,6 +422,11 @@ impl Service {
         {
             return Ok(());
         }
+        self.observation_status(app, if vision {
+            "文字识别完成，正在准备图片理解。CPU看图可能需要较长时间，请保持目标画面；当前窗口模式下切窗会丢弃结果。"
+        } else {
+            "文字识别完成，正在生成陪伴回应。"
+        });
         let mut profile = self.db(|db| db.profile())?;
         for preference in self.db(|db| db.preferences())? {
             match preference.key.as_str() {
@@ -451,6 +467,11 @@ impl Service {
                 .runtime
                 .ensure_mode(settings, token, vision)
                 .and_then(|endpoint| {
+                    self.observation_status(app, if vision {
+                        "视觉模型已准备，正在理解图片；CPU看图可能需要较长时间。"
+                    } else {
+                        "文字模型已准备，正在生成陪伴回应。"
+                    });
                     ai_runtime::generate(&endpoint, messages, 80, token, |_| Ok(()))
                 });
             // Idle starts after inference, not while an image is still being processed.
@@ -478,7 +499,15 @@ impl Service {
         } else {
             reply.chars().take(80).collect::<String>()
         };
+        self.observation_status(app, if vision {
+            "图片理解已完成；结果仅保留在内存中，最多2分钟。"
+        } else {
+            "文字观察与回应已完成；内容仅保留在内存中，最多2分钟。"
+        });
         if manual {
+            // Explicit observations reply on the pet as well as in settings.
+            // They remain transient and do not enter chat history.
+            let _ = app.emit_to("main", "pet:message", &reply);
             let _=app.emit_to("chat","ai:screen-reply",json!({"text":reply,"label":capture.label,"created_at":now(),"revision":self.screen_view().revision}));
         } else if self.may_speak(app) && !quiet_hour(settings, chrono::Local::now().hour() as u8) {
             let _ = app.emit_to(

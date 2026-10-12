@@ -483,3 +483,13 @@ alpha.4发布收尾：Windows light约39.44MB，两种Mac light约61.06/65.69MB�
 [v1.1.0-alpha.7](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.7)已公开，tag对应最终源码b4b5f1e。Windows/macOS系统HTTP/HTTPS代理读取、模型下载卡片/按钮分组和窗口显示时原生点击穿透刷新已接入；PAC/WPAD未接入，本机CPU/GPU推理直连。
 
 同源四平台完整/轻量构建38264008834与完整桌面回归38264014475通过，十个安装器及SHA256SUMS齐全。实际下载Windows light（39,511,909字节）与Linux light并独立校验SHA；公开Linux安装器UID1000布局、真实网络下载开始/取消等12项通过。原始角色图集未修改，GPU硬件性能、目标消费级机器、混合DPI与Windows/macOS实际系统代理联网仍待实机复核。最终资格、包大小和保留失败见[alpha.7验收](validation/alpha7-release-2026-10-12.md)。
+
+
+## 2026-10-12 手动图片理解反馈补齐（未发布）
+
+用户反馈alpha.7只看到OCR。已确认旧版没有视觉处理阶段提示，手动结果仅发到设置页；完整桌面CI的内置视觉分支未开启，不能用原有OCR检查冒充真实视觉回复验收。源码分支`fix/observation-vision-feedback`新增视觉阶段状态、手动结果宠物气泡同步，并开启CI内置视觉真实按钮/回复事件/气泡检查。
+
+本地原生内置2B基线29项、修复后兼容/正常渲染各31项通过，取消、切窗失效、屏幕不进入长期偏好/聊天继续成立。记录见[手动视觉反馈验证](validation/manual-vision-feedback-2026-10-12.md)。修复尚未进入alpha.7安装包；Windows用户按钮、2B与视觉组件状态及实际现象尚待核实，新候选跨平台CI与发布尚未执行，不更新已发布tag资格。
+
+
+2026-10-12 用户要求将手动视觉反馈修复加入安装包：准备alpha.8，继续提供完整/light两套四平台资产；使用开启真实视觉分支的同源完整桌面CI作为发布前置。候选尚未发布，不能将本地31项当作Windows实机故障已解决的证据。

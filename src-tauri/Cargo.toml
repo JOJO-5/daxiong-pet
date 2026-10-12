@@ -1,6 +1,6 @@
 [package]
 name = "daxiong-pet"
-version = "1.1.0-alpha.6"
+version = "1.1.0-alpha.7"
 description = "大熊桌面宠物"
 edition = "2021"
 rust-version = "1.88"
@@ -21,7 +21,9 @@ tempfile = "3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 rusqlite = { version = "0.32", features = ["bundled"] }
-reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls-native-roots", "stream"] }
+# Keep OS proxy detection enabled even though reqwest's other default features are disabled.
+# Local inference clients explicitly use no_proxy(); downloads and remote HTTPS use OS settings.
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls-native-roots", "stream", "system-proxy"] }
 sha2 = "0.10"
 uuid = { version = "1", features = ["v4"] }
 regex = "1"

@@ -64,3 +64,24 @@ jobs:
             litert-component/daxiong-litert-worker*
           # Google runtime archives are measured locally, not redistributed by
           # this research job. Final notices/signing are a later product gate.
+  publish-worker:
+    name: Publish verified optional worker only
+    needs: native
+    if: github.ref == 'refs/heads/research/litert-native-worker'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: litert-native-*
+          path: native-artifacts
+      - name: Package four successful native workers
+        run: python3 scripts/package-litert-worker.py --artifacts native-artifacts --out worker-assets --tag litert-worker-${{ github.sha }}
+      - name: Publish immutable experimental component
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create litert-worker-${{ github.sha }} worker-assets/* --target "${{ github.sha }}" --prerelease --title 'Optional LiteRT native worker prototype' --notes 'Optional native worker only; four-platform CPU lifecycle checked. No Google SDK, Python, model weights or desktop installer included. GPU hardware and performance are unqualified; default desktop CPU backend is unchanged. Downloaded Google SDK and compatible model remain separate upstream files.'

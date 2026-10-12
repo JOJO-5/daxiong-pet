@@ -1,0 +1,33 @@
+{
+  "error": null,
+  "checks": [
+    "public installer runs as ordinary UID1000",
+    "installed package version is alpha.6",
+    "light installer omits bundled models and acceleration binaries",
+    "installed light resources match release manifest hashes",
+    "acceleration is available but disabled by default",
+    "reuse exact research model bytes without copying weights",
+    "cancel does not install an incomplete component",
+    "cancel removes temporary network file",
+    "real SDK and released worker download and install",
+    "download remains opt-in without changing backend",
+    "installed libraries and worker match recorded SHA256",
+    "component contains licenses and no Python runtime",
+    "Stop GPU initialization clears parent-owned native process",
+    "corrupt component rejects enable and preserves CPU",
+    "GPU probe finishes with honest backend",
+    "CPU remains selected after disabled or unsupported acceleration",
+    "request ends as complete",
+    "original CPU model still replies after optional probe",
+    "removing component keeps independent model",
+    "removing optional model leaves CPU assets ready"
+  ],
+  "timings": {
+    "gpu_probe_seconds": 30.439
+  },
+  "gpu_probe": "加速未能运行，已回到CPU：此设备无法初始化ML Drift GPU模式。",
+  "worker_tag": "litert-worker-9ee5ca3b12338bbed9505001aacda1f5491a9e8b",
+  "uid": 1000,
+  "installed_package": "1.1.0-alpha.6-light",
+  "scope": "downloaded public alpha.6 light installer, UID1000; real GUI SDK/worker download; verified existing 2B/0.8B caches; no physical GPU/speed qualification"
+}

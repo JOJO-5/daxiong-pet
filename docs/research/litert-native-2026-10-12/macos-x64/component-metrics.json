@@ -1,0 +1,15 @@
+{
+  "target": "macos-x64",
+  "sdk_version": "0.18.0",
+  "native_probe": {
+    "abi": "LiteRT-LM 0.18.0",
+    "arch": "x86_64",
+    "event": "probe",
+    "native": true,
+    "os": "macos"
+  },
+  "worker_bytes": 581848,
+  "runtime_files_bytes": 72266768,
+  "component_zip_bytes": 24301689,
+  "zip_scope": "native worker + required runtime files + manifest; no model, Python, final notices or installer overhead; measured research payload not a qualified product download"
+}

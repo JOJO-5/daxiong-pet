@@ -1,0 +1,31 @@
+{
+  "component": "litert-native-research",
+  "version": "0.18.0",
+  "target": "macos-arm64",
+  "protocol": "OpenAI SSE + parent-owned stdin controls",
+  "optional_download": true,
+  "default_package": false,
+  "python_runtime_required": false,
+  "model_included": false,
+  "redistribution_status": "research only; final license inventory/signing pending",
+  "source": {
+    "kind": "xcframework",
+    "url": "https://github.com/google-ai-edge/LiteRT-LM/releases/download/v0.18.0/CLiteRTLM_mac.xcframework.zip",
+    "bytes": 45143303,
+    "sha256": "5f6ee68d95eeccb084c6e66d5ee47255e3020fa0fb29696dd0301ae26d6cfb4f",
+    "files": [
+      "libCLiteRTLM_mac.dylib"
+    ],
+    "thin": "arm64"
+  },
+  "files": {
+    "daxiong-litert-worker": {
+      "bytes": 577904,
+      "sha256": "6a8bb1cc52d4df17634e98ebeb649da0bfb68556063c3f11061078ad34240e85"
+    },
+    "libCLiteRTLM_mac.dylib": {
+      "bytes": 65516208,
+      "sha256": "997c97a540470b125ac5d53625a4e7b63330922cd008cadaacffd7b54e07f8ab"
+    }
+  }
+}

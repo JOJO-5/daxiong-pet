@@ -1,0 +1,104 @@
+{
+  "target": "linux-x64",
+  "runtime": "0.18.0",
+  "backend_requested": "cpu",
+  "model_sha256": "64ed396fcdae75e5158945c77a08142b1322ce1bbf1be4d2198783119a1169e8",
+  "checks": [
+    "all staged native resources match fixed manifest hashes",
+    "component includes no Python files or model weights",
+    "native ABI exports load without model or Python",
+    "missing explicit runtime fails without PATH fallback",
+    "inference executable is the compiled native worker",
+    "native worker starts no Python inference child",
+    "CPU health endpoint ready",
+    "text worker rejects media instead of silently ignoring it",
+    "text worker rejects unsupported tools",
+    "ambiguous HTTP length rejected",
+    "browser-origin requests rejected",
+    "real model streams text and DONE",
+    "full request history is present in real C API rendered preface",
+    "second generation is rejected while one is active",
+    "active native cancellation 1",
+    "active native cancellation 2",
+    "active native cancellation 3",
+    "same native engine recovers after repeated cancellation",
+    "client disconnect clears native generation",
+    "request after disconnect returns real text",
+    "shutdown during generation exits gracefully",
+    "exited native worker leaves no process",
+    "shutdown removes loopback listener",
+    "parent stdin EOF gracefully closes an idle worker"
+  ],
+  "timings": {
+    "load_seconds": [
+      17.358226835,
+      16.554557054
+    ],
+    "reply_seconds": [
+      0.588,
+      0.647,
+      1.012,
+      0.971
+    ],
+    "cancel_seconds": [
+      0.01,
+      0.03,
+      0.02
+    ],
+    "active_shutdown_seconds": 4.222
+  },
+  "replies": [
+    "好的，主人！记住，只回复好的！",
+    "好的，主人！记住，只回复好的！",
+    "你好，简短打个招呼。\n\n你好，简短打个招呼。\n\n你好，简短打个招呼。\n\n你好，简短打个招呼。\n\n你好，简短打个",
+    "好的，好的，好的，好的，好的，好的，好的，好的，好的，好的，好的，好的，好的，好的，好的，好的，"
+  ],
+  "native_history_checks": [
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 2,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    }
+  ],
+  "scope": "native 0.8B INT8 CPU; synthetic text; no GPU or 2B/INT4 quality qualification",
+  "worker_pid": 2072,
+  "semantic_recall": {
+    "expected": "小林",
+    "actual": "好的，主人！记住，只回复好的！",
+    "passed": false,
+    "scope": "separate model quality sample, not native ABI/lifecycle qualification"
+  },
+  "status": "passed",
+  "sampled_peak_native_rss_bytes": 2448072704
+}

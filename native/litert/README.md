@@ -77,10 +77,20 @@ downloaded separately with visible sizes, progress, cancellation, atomic
 staging and SHA-256 verification. GPU initialization/errors must fall back to
 the existing local CPU runner, never implicitly send data to a cloud service.
 
-The product GUI downloader, managed process integration/automatic CPU fallback,
-2B INT4 conversion and hardware GPU qualification are subsequent work. Research
-payload metrics are not final installer increments. Final runtime notices,
-dependency inventory, signing and distribution checks remain product gates.
-CI uploads the wrapper and evidence **without redistributing Google's SDK**;
-it measures the runtime-containing archive locally. No application release/tag
-is produced by this workflow.
+The product GUI downloader and managed GPU trial/CPU fallback are implemented in
+`src-tauri/src/ai_acceleration*.rs` and `src/ChatWindow.tsx`. The default installer
+contains none of these optional binaries/weights. It verifies fixed downloads,
+installs in an isolated directory, and requires a real probe before enabling.
+Google SDKs/weights are fetched directly from their pinned upstream sources;
+only our small wrapper plus dependency licenses are separately released, with
+fixed hashes in `worker-catalog.json`. The wrapper workflow requires four native
+CPU checks before a publication marked `[publish-worker]`.
+
+2B INT4 conversion and hardware GPU qualification remain subsequent work.
+Research payload metrics are not final installer increments; product Mac downloads
+the upstream universal SDK instead of requiring users to install `lipo`.
+Actual device/delegation reporting, hardware speed/driver/memory/animation testing
+and signing qualification remain separate. See
+`docs/validation/optional-acceleration-2026-10-12.md` for the qualified scope,
+quality failures and package evidence. The native workflow itself publishes no
+application installer; desktop releases keep their own packaging/E2E gate.

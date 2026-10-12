@@ -1,0 +1,15 @@
+{
+  "target": "windows-x64",
+  "sdk_version": "0.18.0",
+  "native_probe": {
+    "abi": "LiteRT-LM 0.18.0",
+    "arch": "x86_64",
+    "event": "probe",
+    "native": true,
+    "os": "windows"
+  },
+  "worker_bytes": 457728,
+  "runtime_files_bytes": 69506696,
+  "component_zip_bytes": 26468718,
+  "zip_scope": "native worker + required runtime files + manifest; no model, Python, final notices or installer overhead; measured research payload not a qualified product download"
+}

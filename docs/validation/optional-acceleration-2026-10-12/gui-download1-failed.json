@@ -1,0 +1,10 @@
+{
+  "error": "[Errno 18] Invalid cross-device link: '/workspace/daxiong-ai-prototype/litert-research/Qwen3.5-0.8B_int8.litertlm' -> '/tmp/tmp.Hd0dmsmwlq/data/com.jojo.daxiongpet/ai-acceleration/Qwen3.5-0.8B_int8.litertlm'",
+  "checks": [
+    "acceleration is available but disabled by default"
+  ],
+  "timings": {},
+  "gpu_probe": null,
+  "worker_tag": "litert-worker-9ee5ca3b12338bbed9505001aacda1f5491a9e8b",
+  "scope": "real GUI upstream SDK + worker download; verified existing 0.8B model reuse; CPU fallback; no physical GPU or speed qualification"
+}

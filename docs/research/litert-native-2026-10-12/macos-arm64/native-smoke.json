@@ -1,0 +1,104 @@
+{
+  "target": "macos-arm64",
+  "runtime": "0.18.0",
+  "backend_requested": "cpu",
+  "model_sha256": "64ed396fcdae75e5158945c77a08142b1322ce1bbf1be4d2198783119a1169e8",
+  "checks": [
+    "all staged native resources match fixed manifest hashes",
+    "component includes no Python files or model weights",
+    "native ABI exports load without model or Python",
+    "missing explicit runtime fails without PATH fallback",
+    "inference executable is the compiled native worker",
+    "native worker starts no Python inference child",
+    "CPU health endpoint ready",
+    "text worker rejects media instead of silently ignoring it",
+    "text worker rejects unsupported tools",
+    "ambiguous HTTP length rejected",
+    "browser-origin requests rejected",
+    "real model streams text and DONE",
+    "full request history is present in real C API rendered preface",
+    "second generation is rejected while one is active",
+    "active native cancellation 1",
+    "active native cancellation 2",
+    "active native cancellation 3",
+    "same native engine recovers after repeated cancellation",
+    "client disconnect clears native generation",
+    "request after disconnect returns real text",
+    "shutdown during generation exits gracefully",
+    "exited native worker leaves no process",
+    "shutdown removes loopback listener",
+    "parent stdin EOF gracefully closes an idle worker"
+  ],
+  "timings": {
+    "load_seconds": [
+      30.936655583,
+      26.719814083
+    ],
+    "reply_seconds": [
+      1.339,
+      1.069,
+      0.617,
+      0.656
+    ],
+    "cancel_seconds": [
+      0.089,
+      0.031,
+      0.09
+    ],
+    "active_shutdown_seconds": 0.532
+  },
+  "replies": [
+    "好的，主人！记住，我只喜欢快乐，主人！🐶🎉",
+    "林！",
+    "你好，简短打个招呼。",
+    "好的，简短打个招呼。"
+  ],
+  "native_history_checks": [
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 2,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    },
+    {
+      "history_messages": 0,
+      "history_rendered": true
+    }
+  ],
+  "scope": "native 0.8B INT8 CPU; synthetic text; no GPU or 2B/INT4 quality qualification",
+  "worker_pid": 15674,
+  "semantic_recall": {
+    "expected": "小林",
+    "actual": "林！",
+    "passed": false,
+    "scope": "separate model quality sample, not native ABI/lifecycle qualification"
+  },
+  "status": "passed",
+  "sampled_peak_native_rss_bytes": 2862792704
+}

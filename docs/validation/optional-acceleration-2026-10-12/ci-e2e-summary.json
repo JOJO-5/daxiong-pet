@@ -1,0 +1,197 @@
+{
+  "run": 38205595398,
+  "source": "58c65c2c0685e56736c1085b6b1e34d729579f77",
+  "artifact": 11728117875,
+  "results": {
+    "acceleration-download/acceleration-result.json": {
+      "checks": 16,
+      "passed": null,
+      "error": null,
+      "timings": {
+        "gpu_probe_seconds": 30.569
+      },
+      "scope": "real GUI upstream SDK + worker download; verified existing 0.8B model reuse; CPU fallback; no physical GPU or speed qualification"
+    },
+    "acceleration-fallback/fallback-result.json": {
+      "checks": 6,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": "restored previous-enabled fixture plus damaged library; real production fallback and CPU model; no hardware GPU claim"
+    },
+    "ai-chat/e2e.json": {
+      "checks": 24,
+      "passed": null,
+      "error": null,
+      "timings": {
+        "first_reply_seconds_in_shared_container": 9.28
+      },
+      "scope": "Native Linux text-only developer slice; not a Windows/macOS or consumer hardware benchmark"
+    },
+    "ai-external/e2e.json": {
+      "checks": 5,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": "Native Linux WebKit; bundled resources intentionally missing; localhost synthetic service"
+    },
+    "ai-light/light-result.json": {
+      "checks": 8,
+      "passed": null,
+      "error": null,
+      "timings": {
+        "downloaded_cpu_reply_seconds": 9.072
+      },
+      "scope": null
+    },
+    "ai-observation/e2e.json": {
+      "checks": 23,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": "Native Linux X11; synthetic windows and local protocol fixture; no physical mixed-DPI/macOS TCC verification"
+    },
+    "ai-quick/e2e.json": {
+      "checks": 29,
+      "passed": null,
+      "error": null,
+      "timings": {
+        "compact_cpu_reply_seconds": 9.142
+      },
+      "scope": "Native Linux X11/WebKit with real OS input and synthetic loopback protocol; GPU/mixed-DPI untested"
+    },
+    "bubbles/result.json": {
+      "checks": 25,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "carry/carry-e2e.json": {
+      "checks": 15,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "dizzy/result.json": {
+      "checks": 17,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "e2e.json": {
+      "checks": 46,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "frisbee/frisbee-e2e.json": {
+      "checks": 21,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "fun-fetch/fun-e2e.json": {
+      "checks": 25,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "fun-learning/fun-e2e.json": {
+      "checks": 23,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "fun-snack/fun-e2e.json": {
+      "checks": 18,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "fun-tricks/fun-e2e.json": {
+      "checks": 16,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "handoff/handoff-e2e.json": {
+      "checks": 36,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "menu/menu-e2e.json": {
+      "checks": 23,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "menu-video/menu-e2e.json": {
+      "checks": 19,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "petting/result.json": {
+      "checks": 21,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "production-timing.json": {
+      "checks": null,
+      "passed": true,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "treat/treat-e2e.json": {
+      "checks": 10,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "treat-compat/treat-e2e.json": {
+      "checks": 2,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "tug/tug-e2e.json": {
+      "checks": 18,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "ux/result.json": {
+      "checks": 20,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    },
+    "video/video-scenes.json": {
+      "checks": 6,
+      "passed": null,
+      "error": null,
+      "timings": null,
+      "scope": null
+    }
+  }
+}

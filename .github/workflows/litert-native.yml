@@ -2,7 +2,7 @@ name: Native LiteRT research component
 on:
   push:
     branches: [research/litert-native-worker]
-    paths: ["native/litert/**", "scripts/stage-litert-native.py", "scripts/smoke-litert-native.py", ".github/workflows/litert-native.yml"]
+    paths: ["native/litert/src/**", "native/litert/Cargo.*", "scripts/stage-litert-native.py", "scripts/smoke-litert-native.py", ".github/workflows/litert-native.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -67,7 +67,7 @@ jobs:
   publish-worker:
     name: Publish verified optional worker only
     needs: native
-    if: github.ref == 'refs/heads/research/litert-native-worker'
+    if: github.ref == 'refs/heads/research/litert-native-worker' && contains(github.event.head_commit.message, '[publish-worker]')
     runs-on: ubuntu-latest
     permissions:
       contents: write

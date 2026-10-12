@@ -44,6 +44,9 @@ pub struct Snapshot {
     pub assets: AssetStatus,
     pub models: Vec<crate::ai_models::Item>,
     pub download: crate::ai_models::Download,
+    pub acceleration: crate::ai_acceleration::View,
+    pub acceleration_runtime: crate::ai_acceleration_runtime::View,
+    pub acceleration_testing: bool,
     pub loaded: bool,
     pub observation: observation::View,
     pub active_request_id: Option<String>,
@@ -52,6 +55,10 @@ pub struct Snapshot {
 pub struct Service {
     db_path: PathBuf,
     models: Arc<crate::ai_models::ModelManager>,
+    acceleration: Arc<crate::ai_acceleration::Manager>,
+    accelerated: crate::ai_acceleration_runtime::Runtime,
+    acceleration_testing: AtomicBool,
+    acceleration_cancel: AtomicBool,
     store: Mutex<Option<Store>>,
     runtime: Runtime,
     assets: Assets,
@@ -79,6 +86,15 @@ impl Service {
                 cache_root.clone(),
                 assets.root.clone(),
             )),
+            acceleration: Arc::new(crate::ai_acceleration::Manager::new(
+                db_path
+                    .parent()
+                    .unwrap_or(std::path::Path::new("."))
+                    .join("ai-acceleration"),
+            )),
+            accelerated: crate::ai_acceleration_runtime::Runtime::new(),
+            acceleration_testing: AtomicBool::new(false),
+            acceleration_cancel: AtomicBool::new(false),
             db_path,
             store: Mutex::new(None),
             runtime: Runtime::new_with_cache(assets.clone(), cache_root),
@@ -102,6 +118,9 @@ impl Service {
                 // Observation shares this gate: unloading is allowed only between heavy tasks.
                 if let Ok(_heavy) = s.heavy.try_lock() {
                     s.runtime.unload_if_idle();
+                    if let Ok(settings) = s.db(|db| db.settings()) {
+                        s.accelerated.unload_if_idle(settings.idle_seconds);
+                    }
                 }
             }
             drop(gate);
@@ -133,6 +152,11 @@ impl Service {
         if settings.local_model == "small" {
             assets.model = "Qwen3.5 0.8B · CPU".into();
         }
+        let acceleration_runtime = self.accelerated.view();
+        if settings.backend == "bundled" && acceleration_runtime.backend == "ml-drift-gpu" {
+            assets.model = "Qwen3.5 0.8B · ML Drift GPU模式（实验性）".into();
+        }
+        let loaded = self.runtime.loaded() || acceleration_runtime.backend == "ml-drift-gpu";
         Ok(Snapshot {
             messages,
             preferences: self.db(|s| s.preferences())?,
@@ -142,7 +166,10 @@ impl Service {
             assets,
             models: self.models.catalog(&self.assets.root),
             download: self.models.view(),
-            loaded: self.runtime.loaded(),
+            acceleration: self.acceleration.view(),
+            acceleration_runtime,
+            acceleration_testing: self.acceleration_testing.load(Ordering::SeqCst),
+            loaded,
             observation: self.screen_view(),
             active_request_id: id,
             active_preview,
@@ -155,12 +182,18 @@ impl Service {
     }
     fn configure(&self, mut settings: Settings) -> Result<()> {
         settings.validate()?;
+        if self.acceleration_testing.load(Ordering::SeqCst) {
+            return Err("请先停止加速试运行。".into());
+        }
         let mut gate = self.active.lock().unwrap_or_else(|p| p.into_inner());
         if settings.enabled && gate.is_some() {
             return Err("请先停止回复，再调整CPU占用。".into());
         }
         self.db(|s| {
             let old = s.settings()?;
+            if settings.acceleration_enabled && !old.acceleration_enabled {
+                return Err("请使用启用加速按钮，先验证此设备能运行GPU模式。".into());
+            }
             settings.has_credential = old.has_credential && old.service_url == settings.service_url;
             settings.screen_has_credential =
                 old.screen_has_credential && old.screen_service_url == settings.screen_service_url;
@@ -172,6 +205,7 @@ impl Service {
             }
         }
         self.runtime.stop();
+        self.accelerated.stop();
         self.pause_observation();
         drop(gate);
         Ok(())
@@ -184,6 +218,7 @@ impl Service {
         // Hold the gate until the child is killed: another request cannot reuse this process.
         if gate.is_some() {
             self.runtime.stop();
+            self.accelerated.stop();
         }
     }
     pub fn generation(&self) -> u64 {
@@ -208,6 +243,7 @@ impl Service {
             if let Some(a) = gate.as_ref() {
                 a.cancelled.store(true, Ordering::SeqCst);
                 self.runtime.stop();
+                self.accelerated.stop();
             }
         }
     }
@@ -216,14 +252,18 @@ impl Service {
         if let Some(a) = gate.as_ref().filter(|a| a.id == id) {
             a.cancelled.store(true, Ordering::SeqCst);
             self.runtime.stop();
+            self.accelerated.stop();
         }
     }
     pub fn shutdown(&self) {
         self.shutdown.store(true, Ordering::SeqCst);
+        self.acceleration_cancel.store(true, Ordering::SeqCst);
         self.models.cancel();
+        self.acceleration.cancel();
         self.pause_observation();
         self.cancel();
         self.runtime.stop();
+        self.accelerated.stop();
         let mut guard = self.active.lock().unwrap_or_else(|p| p.into_inner());
         if let Some(a) = guard.take() {
             if let Some(id) = a.message_id {
@@ -252,6 +292,9 @@ impl Service {
             return Err("请输入1到2000字的消息。".into());
         }
         let mut gate = self.active.lock().unwrap_or_else(|p| p.into_inner());
+        if self.acceleration_testing.load(Ordering::SeqCst) {
+            return Err("加速正在试运行，请稍候或停止试运行。".into());
+        }
         if gate.is_some() {
             return Err("正在回复，请先等待或停止。".into());
         }
@@ -393,11 +436,62 @@ impl Service {
         let mut result = if settings.backend == "external" {
             crate::ai_external::generate(&settings, messages, output, &cancelled, &mut delta)
         } else {
-            self.runtime
-                .ensure(&settings, &cancelled)
-                .and_then(|endpoint| {
-                    ai_runtime::generate(&endpoint, messages, output, &cancelled, &mut delta)
-                })
+            let accelerated = settings.acceleration_enabled && self.accelerated.eligible();
+            let gpu = if accelerated {
+                self.runtime.stop();
+                Some(self.accelerated.generate(
+                    &self.acceleration,
+                    &self.assets.root.join("runtime"),
+                    &settings,
+                    messages.clone(),
+                    output,
+                    &cancelled,
+                    &mut delta,
+                ))
+            } else {
+                None
+            };
+            match gpu {
+                Some(Ok(text)) => Ok(text),
+                Some(Err(e)) if cancelled.load(Ordering::SeqCst) => Err(e),
+                failed => {
+                    if let Some(Err(e)) = failed {
+                        self.accelerated.fallback(&e);
+                        // Replace an interrupted GPU draft before retrying on CPU.
+                        if let Some(a) = self
+                            .active
+                            .lock()
+                            .unwrap_or_else(|p| p.into_inner())
+                            .as_mut()
+                            .filter(|a| a.id == id)
+                        {
+                            a.partial.clear();
+                        }
+                        let _ = app.emit(
+                            "ai:reply",
+                            Event {
+                                request_id: id.clone(),
+                                content: String::new(),
+                                status: "generating".into(),
+                                preview: self
+                                    .active
+                                    .lock()
+                                    .unwrap_or_else(|p| p.into_inner())
+                                    .as_ref()
+                                    .is_some_and(|a| a.preview),
+                                error: None,
+                            },
+                        );
+                    }
+                    self.runtime
+                        .ensure(&settings, &cancelled)
+                        .and_then(|endpoint| {
+                            ai_runtime::generate(
+                                &endpoint, messages, output, &cancelled, &mut delta,
+                            )
+                        })
+                }
+            }
         };
         if result.is_err() && settings.backend == "external" && !cancelled.load(Ordering::SeqCst) {
             let empty = self
@@ -415,6 +509,7 @@ impl Service {
         }
         if result.is_err() {
             self.runtime.stop();
+            self.accelerated.stop();
         }
         let mut guard = self.active.lock().unwrap_or_else(|p| p.into_inner());
         if guard.as_ref().is_none_or(|a| a.id != id) {
@@ -1019,6 +1114,125 @@ pub async fn ai_model_remove(
             if id == "small" {
                 settings.local_model = "2b".into();
             }
+            db.save_settings(&settings)
+        })
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn ai_acceleration_download(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || {
+        let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
+        if gate.is_some() {
+            return Err("请先停止回复。".into());
+        }
+        let _heavy = s.heavy.try_lock().map_err(|_| "请等待屏幕观察结束。")?;
+        s.accelerated.reset();
+        s.acceleration.download()
+    })
+    .await
+}
+#[tauri::command]
+pub fn ai_acceleration_cancel(window: WebviewWindow, state: State<'_, AiState>) -> Result<()> {
+    chat_only(&window)?;
+    state.0.acceleration.cancel();
+    state.0.acceleration_cancel.store(true, Ordering::SeqCst);
+    Ok(())
+}
+#[tauri::command]
+pub async fn ai_acceleration_enable(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || {
+        let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
+        if gate.is_some() {
+            return Err("请先停止回复。".into());
+        }
+        let _heavy = s.heavy.try_lock().map_err(|_| "请等待屏幕观察结束。")?;
+        let mut settings = s.db(|db| db.settings())?;
+        if settings.backend != "bundled" {
+            return Err("请先切换本地CPU聊天，再启用可选加速。".into());
+        }
+        if !s.runtime.assets(&settings).available {
+            return Err("请先准备原CPU模型，确保加速失败时可回退。".into());
+        }
+        if s.acceleration_testing.swap(true, Ordering::SeqCst) {
+            return Err("加速正在试运行。".into());
+        }
+        s.acceleration_cancel.store(false, Ordering::SeqCst);
+        drop(gate);
+        s.runtime.stop();
+        let result = s
+            .accelerated
+            .probe(
+                &s.acceleration,
+                &s.assets.root.join("runtime"),
+                &settings,
+                &s.acceleration_cancel,
+            )
+            .and_then(|_| {
+                if s.shutdown.load(Ordering::SeqCst) || s.acceleration_cancel.load(Ordering::SeqCst)
+                {
+                    return Err("加速试运行已停止。".into());
+                }
+                settings.acceleration_enabled = true;
+                s.db(|db| db.save_settings(&settings))
+            });
+        s.acceleration_testing.store(false, Ordering::SeqCst);
+        result
+    })
+    .await
+}
+#[tauri::command]
+pub async fn ai_acceleration_disable(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || {
+        let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
+        if gate.is_some() {
+            return Err("请先停止回复。".into());
+        }
+        let _heavy = s.heavy.try_lock().map_err(|_| "请等待屏幕观察结束。")?;
+        s.accelerated.reset();
+        s.db(|db| {
+            let mut settings = db.settings()?;
+            settings.acceleration_enabled = false;
+            db.save_settings(&settings)
+        })
+    })
+    .await
+}
+#[tauri::command]
+pub async fn ai_acceleration_remove(
+    window: WebviewWindow,
+    state: State<'_, AiState>,
+    model: bool,
+) -> Result<()> {
+    chat_only(&window)?;
+    let s = state.0.clone();
+    blocking(move || {
+        let gate = s.active.lock().unwrap_or_else(|p| p.into_inner());
+        if gate.is_some() {
+            return Err("请先停止回复。".into());
+        }
+        let _heavy = s.heavy.try_lock().map_err(|_| "请等待屏幕观察结束。")?;
+        s.accelerated.reset();
+        s.acceleration.remove(model)?;
+        s.db(|db| {
+            let mut settings = db.settings()?;
+            settings.acceleration_enabled = false;
             db.save_settings(&settings)
         })
     })

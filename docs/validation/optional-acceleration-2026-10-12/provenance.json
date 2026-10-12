@@ -1,0 +1,22 @@
+{
+  "source": "04cd9bea5e100af41956361a605a50cba48a4a3e",
+  "linux_debug_binary_sha256": "80666447d9b9e32c48e6b21405a4d6bf1e0102302e5c8a44016ff2a5852a58c4",
+  "debug_binary_scope": "custom-protocol,e2e,debug symbols removed after build; same inference code, not published installer",
+  "video_paths": {
+    "gui-download5": "/workspace/daxiong-ai-prototype/litert-research/round3/gui-download5/desktop-validation.mp4",
+    "gui-fallback1": "/workspace/daxiong-ai-prototype/litert-research/round3/gui-fallback1/desktop-validation.mp4",
+    "pet-native3": "/workspace/daxiong-ai-prototype/litert-research/round3/pet-native3/desktop-validation.mp4"
+  },
+  "native_ci": 38188141116,
+  "app_build_ci": 38205592253,
+  "app_e2e_ci": 38205595398,
+  "artwork_changed": false,
+  "source_scope": "source applies to final 16-check GUI download recording; earlier fallback and external-entry pet recordings are separate development evidence",
+  "final_candidate_source": "58c65c2c0685e56736c1085b6b1e34d729579f77",
+  "local_final_rust_tests": 124,
+  "release_tag": "v1.1.0-alpha.6",
+  "public_install_uid": 1000,
+  "public_install_scope": "downloaded public light Debian package; inherited container proxy/CA; private XDG runtime/data/config; sandbox disabled only for nested-container test",
+  "public_recording": "/workspace/daxiong-ai-prototype/public-alpha6-light-ui2/desktop-validation.mp4",
+  "public_downloaded_deb_sha256": "e3d2e7e5c0ec42cb56bb5d049d179a8de67c838a744b10f2cac29b8b538afead"
+}

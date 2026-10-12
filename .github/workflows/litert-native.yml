@@ -1,0 +1,87 @@
+name: Native LiteRT research component
+on:
+  push:
+    branches: [research/litert-native-worker]
+    paths: ["native/litert/src/**", "native/litert/Cargo.*", "scripts/stage-litert-native.py", "scripts/smoke-litert-native.py", ".github/workflows/litert-native.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            name: Linux x64
+            artifact: linux-x64
+          - os: windows-latest
+            name: Windows x64
+            artifact: windows-x64
+          - os: macos-14
+            name: Mac Apple Silicon
+            artifact: macos-arm64
+          - os: macos-15-intel
+            name: Mac Intel
+            artifact: macos-x64
+    name: ${{ matrix.name }} native CPU
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: native/litert
+      - name: Test native protocol boundaries
+        run: cargo test --locked --manifest-path native/litert/Cargo.toml
+      - name: Build standalone worker without Tauri or Python
+        run: cargo build --release --locked --manifest-path native/litert/Cargo.toml
+      - name: Install measurement-only test dependency
+        run: python -m pip install psutil==7.2.2
+      - name: Stage fixed runtime without models
+        shell: bash
+        run: |
+          WORKER=native/litert/target/release/daxiong-litert-worker
+          if [ "$RUNNER_OS" = Windows ]; then WORKER="$WORKER.exe"; fi
+          python scripts/stage-litert-native.py --work litert-build --out litert-component --worker "$WORKER"
+      - name: Download fixed research model and run real native lifecycle
+        run: python scripts/smoke-litert-native.py --component litert-component --model litert-build/Qwen3.5-0.8B_int8.litertlm --out test-results/litert
+      - name: Upload native evidence and wrapper only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: litert-native-${{ matrix.artifact }}
+          if-no-files-found: warn
+          path: |
+            test-results/litert/
+            litert-build/component-metrics.json
+            litert-build/native-probe.log
+            litert-component/component-manifest.json
+            litert-component/daxiong-litert-worker*
+          # Google runtime archives are measured locally, not redistributed by
+          # this research job. Final notices/signing are a later product gate.
+  publish-worker:
+    name: Publish verified optional worker only
+    needs: native
+    if: github.ref == 'refs/heads/research/litert-native-worker' && contains(github.event.head_commit.message, '[publish-worker]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: litert-native-*
+          path: native-artifacts
+      - name: Package four successful native workers
+        run: python3 scripts/package-litert-worker.py --artifacts native-artifacts --out worker-assets --tag litert-worker-${{ github.sha }}
+      - name: Publish immutable experimental component
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create litert-worker-${{ github.sha }} worker-assets/* --target "${{ github.sha }}" --prerelease --title 'Optional LiteRT native worker prototype' --notes 'Optional native worker only; four-platform CPU lifecycle checked. No Google SDK, Python, model weights or desktop installer included. GPU hardware and performance are unqualified; default desktop CPU backend is unchanged. Downloaded Google SDK and compatible model remain separate upstream files.'

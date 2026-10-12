@@ -12,6 +12,7 @@ type Personality = {
 };
 type Settings = {
   enabled: boolean;
+  acceleration_enabled: boolean;
   threads: number;
   backend: string;
   service_url: string;
@@ -85,6 +86,9 @@ type Snapshot = {
     status: string;
     busy: boolean;
   };
+  acceleration: { available: boolean; installed: boolean; model_installed: boolean; component_bytes: number; model_bytes: number; busy: boolean; received: number; total: number; status: string };
+  acceleration_runtime: { backend: string; note: string };
+  acceleration_testing: boolean;
   assets: { available: boolean; model: string; note: string };
   loaded: boolean;
   active_request_id: string | null;
@@ -107,6 +111,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
   const [preview, setPreview] = useState("");
   const [busy, setBusy] = useState(false);
   const [stopping, setStopping] = useState(false);
+  const [accelerationStarting, setAccelerationStarting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -432,13 +437,13 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
     }
   };
   useEffect(() => {
-    if (!snapshot?.download.busy) return;
+    if (!snapshot?.download.busy && !snapshot?.acceleration.busy && !snapshot?.acceleration_testing && !accelerationStarting) return;
     const timer = window.setInterval(
       () => void refresh().catch((e) => setError(String(e))),
-      2000,
+      accelerationStarting ? 250 : 2000,
     );
     return () => window.clearInterval(timer);
-  }, [snapshot?.download.busy, refresh]);
+  }, [snapshot?.download.busy, snapshot?.acceleration.busy, snapshot?.acceleration_testing, accelerationStarting, refresh]);
   const savePersonality = async () => {
     if (!draft || saving) return;
     setSaving(true);
@@ -975,6 +980,41 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                     />
                   </label>
                 ))}
+              </section>
+              <section aria-label="可选GPU加速" data-testid="acceleration-settings">
+                <h2>可选 GPU 加速 · 实验性</h2>
+                <p className="chat-footnote">默认使用 CPU。下载 ML Drift 加速组件后可试运行 GPU 模式；需要单独的 0.8B 文字模型，回答能力可能比默认 2B 弱。图片理解和 OCR 继续使用原有 CPU。</p>
+                <p>组件约 {(snapshot.acceleration.component_bytes / 1024 / 1024).toFixed(1)} MiB · 兼容模型约 {(snapshot.acceleration.model_bytes / 1024 / 1024).toFixed(0)} MiB</p>
+                <p className="chat-footnote">安装与下载临时文件建议预留 2.5 GiB；下载完成后不会自动启用。</p>
+                <p data-testid="acceleration-backend">当前：{snapshot.settings.backend === "external" ? "外接服务" : snapshot.acceleration_runtime.backend === "ml-drift-gpu" ? "ML Drift GPU模式（实验性）" : "CPU"}</p>
+                <p role="status">{snapshot.acceleration_runtime.note}</p>
+                {!snapshot.acceleration.available ? <p>此平台组件尚未发布，继续使用 CPU。</p> : null}
+                <div className="chat-actions">
+                  <button disabled={busy || saving || snapshot.acceleration.busy || !snapshot.acceleration.available} onClick={() => {
+                    void invoke("ai_acceleration_download").then(refresh).catch((e) => setError(String(e)));
+                  }}>{snapshot.acceleration.installed && snapshot.acceleration.model_installed ? "校验/修复加速下载" : "下载加速组件与模型"}</button>
+                  <button disabled={busy || saving || snapshot.acceleration.busy || !snapshot.acceleration.installed || !snapshot.acceleration.model_installed || snapshot.settings.backend !== "bundled"} onClick={async () => {
+                    setSaving(true); setAccelerationStarting(true); setError("");
+                    try { await invoke("ai_acceleration_enable"); } catch(e) { setError(String(e)); }
+                    finally { await refresh().catch((e) => setError(String(e))); setSaving(false); setAccelerationStarting(false); }
+                  }}>{snapshot.acceleration_testing ? "正在试运行…" : "试运行并启用加速"}</button>
+                  <button disabled={busy || saving || !snapshot.settings.acceleration_enabled} onClick={() => {
+                    void invoke("ai_acceleration_disable").then(refresh).catch((e) => setError(String(e)));
+                  }}>关闭加速</button>
+                  <button disabled={busy || saving || snapshot.acceleration.busy || !snapshot.acceleration.installed} onClick={() => {
+                    void invoke("ai_acceleration_remove", {model: false}).then(refresh).catch((e) => setError(String(e)));
+                  }}>删除加速组件</button>
+                  <button disabled={busy || saving || snapshot.acceleration.busy || !snapshot.acceleration.model_installed} onClick={() => {
+                    void invoke("ai_acceleration_remove", {model: true}).then(refresh).catch((e) => setError(String(e)));
+                  }}>删除加速模型</button>
+                </div>
+                <p role="status" data-testid="acceleration-download-status">{snapshot.acceleration.status}</p>
+                {snapshot.acceleration_testing ? <button onClick={() => void invoke("ai_acceleration_cancel").then(refresh).catch((e) => setError(String(e)))}>停止试运行</button> : null}
+                {snapshot.acceleration.busy ? <>
+                  <progress aria-label="加速下载进度" max={snapshot.acceleration.total || 1} value={snapshot.acceleration.received} />
+                  <p>{Math.floor(snapshot.acceleration.received / Math.max(1,snapshot.acceleration.total) * 100)}%</p>
+                  <button onClick={() => void invoke("ai_acceleration_cancel").then(refresh).catch((e) => setError(String(e)))}>取消加速下载</button>
+                </> : null}
               </section>
               <section>
                 <h2>内置模型与可选下载</h2>

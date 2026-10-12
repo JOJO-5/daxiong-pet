@@ -1,6 +1,6 @@
 [package]
 name = "daxiong-pet"
-version = "1.1.0-alpha.5"
+version = "1.1.0-alpha.6"
 description = "大熊桌面宠物"
 edition = "2021"
 rust-version = "1.88"
@@ -28,6 +28,7 @@ regex = "1"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 xcap = "=0.4.1"
 futures-util = "0.3"
+zip = { version = "0.6.6", default-features = false, features = ["deflate"] }
 tokio = { version = "1", features = ["time", "macros"] }
 keyring = { version = "3.6.3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust", "vendored"] }
 # 只用来读图集头部拿尺寸（校验契约），不需要完整解码

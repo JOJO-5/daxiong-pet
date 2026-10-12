@@ -446,6 +446,7 @@ impl Service {
             visual.has_credential = settings.screen_has_credential;
             crate::ai_external::generate(&visual, messages, 80, token, |_| Ok(()))
         } else {
+            self.accelerated.stop();
             let result = self
                 .runtime
                 .ensure_mode(settings, token, vision)

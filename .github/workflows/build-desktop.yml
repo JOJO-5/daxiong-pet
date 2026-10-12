@@ -1,14 +1,14 @@
 name: Build desktop packages
 on:
   push:
-    branches: [main, feat/local-ai-chat, feat/pet-quick-chat]
+    branches: [main, feat/local-ai-chat, feat/pet-quick-chat, feat/optional-ml-drift]
   pull_request:
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   build:
-    if: github.event_name != 'pull_request' || (github.head_ref != 'feat/local-ai-chat' && github.head_ref != 'feat/pet-quick-chat')
+    if: github.event_name != 'pull_request' || (github.head_ref != 'feat/local-ai-chat' && github.head_ref != 'feat/pet-quick-chat' && github.head_ref != 'feat/optional-ml-drift')
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -159,7 +159,7 @@ jobs:
 
   prerelease:
     needs: build
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/feat/local-ai-chat' || github.ref == 'refs/heads/feat/pet-quick-chat')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/feat/local-ai-chat' || github.ref == 'refs/heads/feat/pet-quick-chat' || github.ref == 'refs/heads/feat/optional-ml-drift')
     runs-on: ubuntu-latest
     permissions:
       contents: write

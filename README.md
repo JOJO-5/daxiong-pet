@@ -176,7 +176,7 @@ MIT
 
 ## 本地 AI 测试版
 
-1.1.0-alpha.5 接入离线 Qwen3.5 2B CPU 聊天、按需图片理解、PP-OCRv5 mobile 原生 OCR。右键、托盘和互动面板均可打开聊天；性格通过界面修改。聊天默认保留30天，明确表达的长期偏好会自动记住，并可编辑、删除和撤销。
+1.1.0-alpha.6 接入离线 Qwen3.5 2B CPU 聊天、按需图片理解、PP-OCRv5 mobile 原生 OCR。右键、托盘和互动面板均可打开聊天；性格通过界面修改。聊天默认保留30天，明确表达的长期偏好会自动记住，并可编辑、删除和撤销。
 
 本版核对全部27行动作、202个非空帧，校正摸肚皮/翻身横躺与双向叼飞盘体型，并同步鼠标命中、触摸、星星和道具嘴部坐标；原图与原始11行动作保持不变。证据见[动作体型验收](docs/validation/pose-scale-2026-10-11.md)。
 
@@ -184,11 +184,11 @@ MIT
 
 观察和主动说话分别开关、分别定时；默认只看当前前台窗口，也可选择显示器或全部桌面。观察文本和可用上下文最多在内存保留2分钟，切窗或暂停失效；不把屏幕写入聊天、长期偏好或系统命令。聊天和屏幕可分别接入OpenAI风格服务，密钥使用系统安全存储，远程屏幕发送默认关闭并须单独开启。
 
-完整安装包内置2B权重、配套视觉组件、OCR、平台CPU运行器和许可证，不需要Python。视觉按需加载，默认后台只使用OCR；可选下载0.8B文字模型。x64需要AVX2/FMA/F16C，Mac最低14，Linux观察支持X11；Mac需自行授予屏幕录制权限。GPU增强仍在调研，8GB/11代i5性能及多屏混合DPI尚未实机验收。
+完整安装包内置2B权重、配套视觉组件、OCR、平台CPU运行器和许可证，不需要Python。视觉按需加载，默认后台只使用OCR；可选下载0.8B文字模型。x64需要AVX2/FMA/F16C，Mac最低14，Linux观察支持X11；Mac需自行授予屏幕录制权限。可选ML Drift GPU模式为实验性：在「性格与设置 → 可选 GPU 加速」主动下载独立组件与约963MB兼容0.8B文字模型，再试运行启用；支持取消、关闭和分别删除，失败回退原CPU。图片理解/OCR继续CPU，加速文件不加入安装包。GPU硬件性能/驱动、2B INT4、8GB/11代i5及多屏混合DPI尚未实机验收。
 
-[下载 CPU AI 测试版 v1.1.0-alpha.5](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.5)：提供完整包和文件名带`light`的轻量包，Windows、两种Mac和Linux均可选择。完整包预装2B聊天与视觉权重；light包保留CPU运行器、OCR和许可证，省去约1.94GB权重。在“聊天记录 → 性格与设置 → 内置模型与可选下载”点击“下载模型”，也可另下视觉组件；下载有进度、停止和SHA-256校验，完成后不会自动切换模型。轻量包Windows约39MB、Mac约61–66MB、Linux deb约68MB；实际大小与SHA256SUMS见发布资产，现有正式版仍保留。
+[下载 CPU AI 测试版 v1.1.0-alpha.6](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.6)：提供完整包和文件名带`light`的轻量包，Windows、两种Mac和Linux均可选择。完整包预装2B聊天与视觉权重；light包保留CPU运行器、OCR和许可证，省去约1.94GB权重。在“聊天记录 → 性格与设置 → 内置模型与可选下载”点击“下载模型”，也可另下视觉组件；下载有进度、停止和SHA-256校验，完成后不会自动切换模型。轻量包Windows约39MB、Mac约61–66MB、Linux deb约68MB；实际大小与SHA256SUMS见发布资产，现有正式版仍保留。
 
-开发者使用`scripts/prepare-bundled-ai.py`在目标平台准备完整固定资源，或使用`scripts/stage-ai-resources.py`暂存已验证的运行器/权重/OCR。调试启动设置`DAXIONG_AI_RESOURCE_DIR`。进度见[目标文件](docs/LOCAL-AI-GOALS.md)，实际证据和未验证项见[完整AI功能验收](docs/validation/local-ai-observation-2026-10-11.md)，[ML Drift/LiteRT调查](docs/research/ml-drift-litert-2026-10-11.md)区分框架支持和本项目实测。
+开发者使用`scripts/prepare-bundled-ai.py`在目标平台准备完整固定资源，或使用`scripts/stage-ai-resources.py`暂存已验证的运行器/权重/OCR。调试启动设置`DAXIONG_AI_RESOURCE_DIR`。进度见[目标文件](docs/LOCAL-AI-GOALS.md)，实际证据和未验证项见[完整AI功能验收](docs/validation/local-ai-observation-2026-10-11.md)，[ML Drift/LiteRT调查](docs/research/ml-drift-litert-2026-10-11.md)与[可选下载验收](docs/validation/optional-acceleration-2026-10-12.md)区分框架支持、原生CPU基础、产品软件行为和硬件GPU资格。
 
 ## 1.0.1 更新
 

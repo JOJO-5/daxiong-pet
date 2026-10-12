@@ -1,0 +1,40 @@
+{
+  "component": "litert-native-research",
+  "version": "0.18.0",
+  "target": "windows-x64",
+  "protocol": "OpenAI SSE + parent-owned stdin controls",
+  "optional_download": true,
+  "default_package": false,
+  "python_runtime_required": false,
+  "model_included": false,
+  "redistribution_status": "research only; final license inventory/signing pending",
+  "source": {
+    "kind": "wheel",
+    "url": "https://files.pythonhosted.org/packages/2e/a4/842c858a90aac25a2ae6e4744197b22764a38fb35e45b15cf9c3b7570656/litert_lm_api-0.18.0-py3-none-win_amd64.whl",
+    "bytes": 26403380,
+    "sha256": "eb02dc5d0fc6a894a664cfcc63e3aaf3100973ba2c9a6a7eebf4df8749a01038",
+    "files": [
+      "litert-lm.dll",
+      "dxcompiler.dll",
+      "dxil.dll"
+    ]
+  },
+  "files": {
+    "daxiong-litert-worker.exe": {
+      "bytes": 457728,
+      "sha256": "f0c2d4c11e45f19be79c55d65480769aac29ecb107ebe1ed905a5fc2bc6bb159"
+    },
+    "dxcompiler.dll": {
+      "bytes": 17951808,
+      "sha256": "b86a738ece4c05dbe2d9bbb29668a2ccb28a0740773c9b027cdc61e8d07b4d75"
+    },
+    "dxil.dll": {
+      "bytes": 1503304,
+      "sha256": "058f2f52a680c38b223a5615b7df969def21f77e577562e5099d971dede992de"
+    },
+    "litert-lm.dll": {
+      "bytes": 50051584,
+      "sha256": "c6421334f409a5b4b50b32e7925d6eb9d7e62245d00a6b01a7541596c8a1a1e3"
+    }
+  }
+}

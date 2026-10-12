@@ -1,0 +1,29 @@
+{
+  "tag": "litert-worker-9ee5ca3b12338bbed9505001aacda1f5491a9e8b",
+  "workers": {
+    "linux-x64": {
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/litert-worker-9ee5ca3b12338bbed9505001aacda1f5491a9e8b/daxiong-litert-worker-linux-x64.zip",
+      "bytes": 344955,
+      "sha256": "597f1f56fa7357c65ca84631ef18b960f253fe2351b1f67a21a68e86774d8873",
+      "name": "daxiong-litert-worker"
+    },
+    "windows-x64": {
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/litert-worker-9ee5ca3b12338bbed9505001aacda1f5491a9e8b/daxiong-litert-worker-windows-x64.zip",
+      "bytes": 261582,
+      "sha256": "6de17770d78ef35120b23624ff34f343868b59c1fd9b7223b50c6601845b60dc",
+      "name": "daxiong-litert-worker.exe"
+    },
+    "macos-arm64": {
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/litert-worker-9ee5ca3b12338bbed9505001aacda1f5491a9e8b/daxiong-litert-worker-macos-arm64.zip",
+      "bytes": 324346,
+      "sha256": "283d92972e31cde7545a5860d330f5b0d9366ff8a7cf9eee1da5be28ed634658",
+      "name": "daxiong-litert-worker"
+    },
+    "macos-x64": {
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/litert-worker-9ee5ca3b12338bbed9505001aacda1f5491a9e8b/daxiong-litert-worker-macos-x64.zip",
+      "bytes": 340124,
+      "sha256": "f1c2dae86db05f2dab59fc9b534a55ebf8e363c29ad565a38215a4cff473ffac",
+      "name": "daxiong-litert-worker"
+    }
+  }
+}

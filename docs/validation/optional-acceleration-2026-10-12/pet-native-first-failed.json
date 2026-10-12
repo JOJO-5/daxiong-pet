@@ -1,0 +1,8 @@
+{
+  "error": "{'error': '上下文、输出、超时或空闲释放设置无效。', 'ok': False}",
+  "checks": [],
+  "timings": {
+    "native_load_seconds": 37.775500395
+  },
+  "scope": "real standalone C ABI CPU worker and Tauri external entry; 0.8B text/context2048; no GPU, bundled backend or GUI component download claim"
+}

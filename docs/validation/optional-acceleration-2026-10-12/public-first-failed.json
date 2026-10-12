@@ -1,0 +1,15 @@
+{
+  "error": "timed out",
+  "checks": [
+    "public installer runs as ordinary UID1000",
+    "installed package version is alpha.6",
+    "light installer omits bundled models and acceleration binaries",
+    "installed light resources match release manifest hashes"
+  ],
+  "timings": {},
+  "gpu_probe": null,
+  "worker_tag": "litert-worker-9ee5ca3b12338bbed9505001aacda1f5491a9e8b",
+  "uid": 1000,
+  "installed_package": "1.1.0-alpha.6-light",
+  "scope": "downloaded public alpha.6 light installer, UID1000; real GUI SDK/worker download; verified existing 2B/0.8B caches; no physical GPU/speed qualification"
+}

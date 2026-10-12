@@ -1,0 +1,22 @@
+{
+  "error": null,
+  "checks": [
+    "request ends as complete",
+    "full native chat renders standalone C API model reply",
+    "native LiteRT reply reaches pet bubble",
+    "native pet tap opens compact input with research backend",
+    "request ends as complete",
+    "compact input completes through standalone native process",
+    "full and compact chat share native model reply",
+    "request ends as cancelled",
+    "pet Stop disconnect clears native generation",
+    "request ends as complete",
+    "chat works again after native cancellation",
+    "standalone component shuts down cleanly after pet usage"
+  ],
+  "timings": {
+    "native_load_seconds": 34.660413556,
+    "full_native_reply_seconds": 4.324
+  },
+  "scope": "real standalone C ABI CPU worker and Tauri external entry; 0.8B text/context2048; no GPU, bundled backend or GUI component download claim"
+}

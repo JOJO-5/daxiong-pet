@@ -1,0 +1,15 @@
+{
+  "target": "linux-x64",
+  "sdk_version": "0.18.0",
+  "native_probe": {
+    "abi": "LiteRT-LM 0.18.0",
+    "arch": "x86_64",
+    "event": "probe",
+    "native": true,
+    "os": "linux"
+  },
+  "worker_bytes": 596944,
+  "runtime_files_bytes": 131785976,
+  "component_zip_bytes": 47294860,
+  "zip_scope": "native worker + required runtime files + manifest; no model, Python, final notices or installer overhead; measured research payload not a qualified product download"
+}

@@ -3,6 +3,8 @@
 
 mod ai;
 mod ai_runtime;
+mod ai_acceleration;
+mod ai_acceleration_runtime;
 mod ai_store;
 mod ai_memory;
 mod ai_models;
@@ -775,7 +777,7 @@ fn main() {
             None,
         ))
         .invoke_handler(tauri::generate_handler![
-            ai::open_quick_chat, ai::open_chat, ai::close_chat, ai::ai_ready, ai::ai_snapshot, ai::ai_send, ai::ai_cancel, ai::ai_save_personality, ai::ai_configure, ai::ai_clear_chat, ai::ai_change_preference, ai::ai_undo_preference, ai::ai_save_key, ai::ai_reset_personal_data, ai::ai_observe, ai::ai_pause_observation, ai::ai_displays, ai::ai_protect_bubble, ai::ai_claim_ambient, ai::ai_model_download, ai::ai_model_cancel, ai::ai_model_remove,
+            ai::open_quick_chat, ai::open_chat, ai::close_chat, ai::ai_ready, ai::ai_snapshot, ai::ai_send, ai::ai_cancel, ai::ai_save_personality, ai::ai_configure, ai::ai_clear_chat, ai::ai_change_preference, ai::ai_undo_preference, ai::ai_save_key, ai::ai_reset_personal_data, ai::ai_observe, ai::ai_pause_observation, ai::ai_displays, ai::ai_protect_bubble, ai::ai_claim_ambient, ai::ai_model_download, ai::ai_model_cancel, ai::ai_model_remove, ai::ai_acceleration_download, ai::ai_acceleration_cancel, ai::ai_acceleration_enable, ai::ai_acceleration_disable, ai::ai_acceleration_remove,
             pet_ready,
             current_pet,
             list_pets,

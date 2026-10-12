@@ -75,6 +75,7 @@ impl Personality {
 #[serde(default, deny_unknown_fields)]
 pub struct Settings {
     pub enabled: bool,
+    pub acceleration_enabled: bool,
     pub threads: u8,
     pub backend: String,
     pub service_url: String,
@@ -107,6 +108,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             enabled: false,
+            acceleration_enabled: false,
             threads: 2,
             backend: "bundled".into(),
             service_url: "http://127.0.0.1:1234/v1".into(),

@@ -1,0 +1,13 @@
+{
+  "error": "button missing or disabled",
+  "checks": [
+    "acceleration is available but disabled by default",
+    "reuse exact research model bytes without copying weights",
+    "cancel does not install an incomplete component",
+    "cancel removes temporary network file"
+  ],
+  "timings": {},
+  "gpu_probe": null,
+  "worker_tag": "litert-worker-9ee5ca3b12338bbed9505001aacda1f5491a9e8b",
+  "scope": "real GUI upstream SDK + worker download; verified existing 0.8B model reuse; CPU fallback; no physical GPU or speed qualification"
+}

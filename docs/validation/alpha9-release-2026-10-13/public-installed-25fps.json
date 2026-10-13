@@ -1,0 +1,47 @@
+{
+  "passed": [
+    "public installer runs as ordinary UID1000",
+    "installed package is alpha.9",
+    "public light package retains CPU and OCR without weights",
+    "public installer uses its own resources without a development override",
+    "public installer validates pinned cached 2b weight",
+    "public installer validates pinned cached vision weight",
+    "public installed application produces an actual visual reply",
+    "public installed application exposes vision progress and completion",
+    "public installed pet bubble displays the same visual reply",
+    "manual visual reply has native affectionate motion",
+    "public installed chat settings saves mouse follow off",
+    "public installed disabled mouse follow remains idle",
+    "request ends as complete",
+    "public installed CPU chat replies on the pet with matching text",
+    "public installed AI reply resists idle replacement and old timeout",
+    "screen capture writes no PNG to application data"
+  ],
+  "observation": {
+    "status": "图片理解已完成；结果仅保留在内存中，最多2分钟。",
+    "revision": 2,
+    "observations": 1,
+    "busy": false,
+    "label": "前台窗口：Synthetic Public Vision Fixture",
+    "speeches": 0,
+    "age_seconds": 110,
+    "text": "合成测试画面SCREEN_ONLY_MARKER\n任务状态：正在整理笔记"
+  },
+  "replies": [
+    {
+      "label": "前台窗口：Synthetic Public Vision Fixture",
+      "revision": 2,
+      "created_at": 1791879994,
+      "text": "狗狗大熊在屏幕前乖乖坐着，看到“正在整理笔记”就轻轻蹭蹭你，用温柔的声音说：“今天也要一起整理笔记哦～”"
+    }
+  ],
+  "stages": [
+    "正在读取屏幕文字，随后继续理解图片。",
+    "已观察；内容仅保留在内存中，最多2分钟。",
+    "文字识别完成，正在准备图片理解。CPU看图可能需要较长时间，请保持目标画面；当前窗口模式下切窗会丢弃结果。",
+    "视觉模型已准备，正在理解图片；CPU看图可能需要较长时间。",
+    "图片理解已完成；结果仅保留在内存中，最多2分钟。",
+    "图片理解已完成；结果仅保留在内存中，最多2分钟。"
+  ],
+  "scope": "Public light installer /usr/bin/daxiong-pet; independently qualified cached weights; native X11 synthetic fixture"
+}

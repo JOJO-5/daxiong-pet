@@ -1,0 +1,160 @@
+{
+  "source_sha": "1b9b05247be0647322e5fbbf2a956ae16f80830e",
+  "run_id": 38360747735,
+  "artifact_id": 11795519302,
+  "artifact_sha256": "6977e56064ef2ecc6bc5bdb61fd93b913a0b9e946b92e0213d6eb9ba9cc5b87f",
+  "checks": [
+    {
+      "file": "acceleration-download/acceleration-result.json",
+      "count": 16,
+      "error": null
+    },
+    {
+      "file": "acceleration-fallback/fallback-result.json",
+      "count": 6,
+      "error": null
+    },
+    {
+      "file": "ai-bubble/ai-bubble-e2e.json",
+      "count": 4,
+      "error": null
+    },
+    {
+      "file": "ai-chat/e2e.json",
+      "count": 24,
+      "error": null
+    },
+    {
+      "file": "ai-download-layout/e2e.json",
+      "count": 6,
+      "error": null
+    },
+    {
+      "file": "ai-external/e2e.json",
+      "count": 5,
+      "error": null
+    },
+    {
+      "file": "ai-light/light-result.json",
+      "count": 8,
+      "error": null
+    },
+    {
+      "file": "ai-observation/e2e.json",
+      "count": 27,
+      "error": null
+    },
+    {
+      "file": "ai-quick/e2e.json",
+      "count": 29,
+      "error": null
+    },
+    {
+      "file": "bubbles/result.json",
+      "count": 25,
+      "error": null
+    },
+    {
+      "file": "carry/carry-e2e.json",
+      "count": 15,
+      "error": null
+    },
+    {
+      "file": "chat-motion/chat-motion-e2e.json",
+      "count": 10,
+      "error": null
+    },
+    {
+      "file": "chat-motion-real/chat-motion-real-e2e.json",
+      "count": 7,
+      "error": null
+    },
+    {
+      "file": "dizzy/result.json",
+      "count": 17,
+      "error": null
+    },
+    {
+      "file": "e2e.json",
+      "count": 46,
+      "error": null
+    },
+    {
+      "file": "frisbee/frisbee-e2e.json",
+      "count": 21,
+      "error": null
+    },
+    {
+      "file": "fun-fetch/fun-e2e.json",
+      "count": 25,
+      "error": null
+    },
+    {
+      "file": "fun-learning/fun-e2e.json",
+      "count": 23,
+      "error": null
+    },
+    {
+      "file": "fun-snack/fun-e2e.json",
+      "count": 18,
+      "error": null
+    },
+    {
+      "file": "fun-tricks/fun-e2e.json",
+      "count": 16,
+      "error": null
+    },
+    {
+      "file": "handoff/handoff-e2e.json",
+      "count": 36,
+      "error": null
+    },
+    {
+      "file": "menu/menu-e2e.json",
+      "count": 26,
+      "error": null
+    },
+    {
+      "file": "menu-video/menu-e2e.json",
+      "count": 22,
+      "error": null
+    },
+    {
+      "file": "petting/result.json",
+      "count": 21,
+      "error": null
+    },
+    {
+      "file": "treat/treat-e2e.json",
+      "count": 10,
+      "error": null
+    },
+    {
+      "file": "treat-compat/treat-e2e.json",
+      "count": 2,
+      "error": null
+    },
+    {
+      "file": "tug/tug-e2e.json",
+      "count": 18,
+      "error": null
+    },
+    {
+      "file": "ux/result.json",
+      "count": 20,
+      "error": null
+    },
+    {
+      "file": "video/video-scenes.json",
+      "count": 6,
+      "error": null
+    }
+  ],
+  "production": {
+    "passed": true,
+    "elapsed_seconds": 131.58,
+    "kind": "butterfly",
+    "office_clicks": 60,
+    "timing": "production (no e2e feature)"
+  }
+}

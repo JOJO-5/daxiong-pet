@@ -1,0 +1,68 @@
+{
+  "tag": "v1.1.0-alpha.9",
+  "source_sha": "1b9b05247be0647322e5fbbf2a956ae16f80830e",
+  "latest_stable": "v1.0.27",
+  "assets": [
+    {
+      "name": "Daxiong-1.1.0-alpha.9-light-linux-x64.AppImage",
+      "size": 127932920,
+      "digest": "sha256:13a9636751da3bf98d5617623a088a872cabf2b832729155265619d6ec42874d"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.9-light-linux-x64.deb",
+      "size": 68434986,
+      "digest": "sha256:d1fe89050413b08da9a8bd2c0b445dd229f7ed9ec47cbd0ce0d8143869302b96"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.9-light-macos-arm64.dmg",
+      "size": 61136529,
+      "digest": "sha256:dfc8fa26b448345c719460e1b0bceefcf738052f7a2f238ee602df275f766379"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.9-light-macos-x64.dmg",
+      "size": 65774517,
+      "digest": "sha256:90c7b8d45b6118b4a77f141d041d7a21dd6475946077baa901a30d9efb648f07"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.9-light-windows-x64-setup.exe",
+      "size": 39511078,
+      "digest": "sha256:962667e793bbaf692d5ee2028d305adb8b65b0217274cd8ac1d3f7e0fb01f642"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.9-linux-x64.AppImage",
+      "size": 1896643064,
+      "digest": "sha256:3462a8adb5f7896f7350b9788816540ebd5edb58e849bc4fca3d193c8aaf135b"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.9-linux-x64.deb",
+      "size": 1836644630,
+      "digest": "sha256:3829899806b9854d8071ec1c27d27d3168846a18f9c351faa1fdad2e5d34fb05"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.9-macos-arm64.dmg",
+      "size": 1850765661,
+      "digest": "sha256:c64af0ec78da7fb925fe74d28d3051c7736bb6170fd9b228b7e1d96354285f46"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.9-macos-x64.dmg",
+      "size": 1855414822,
+      "digest": "sha256:3e31c42efd137f6e4538408077af2e2e393ad9a1384ed5af5835d5a60ce4474d"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.9-windows-x64-setup.exe",
+      "size": 1762101807,
+      "digest": "sha256:6db16b80296a20678b40ecaef5909a9f57f3dae780d4d98b7b4847bc9001359f"
+    },
+    {
+      "name": "SHA256SUMS",
+      "size": 1080,
+      "digest": "sha256:389197b71946ed41257a7aee657b94b468fc70b5da350fda16913887deb804a2"
+    }
+  ],
+  "all_asset_digests_match_SHA256SUMS": true,
+  "downloaded_and_hashed": [
+    "SHA256SUMS",
+    "Daxiong-1.1.0-alpha.9-light-linux-x64.deb",
+    "Daxiong-1.1.0-alpha.9-light-windows-x64-setup.exe"
+  ]
+}

@@ -24,6 +24,33 @@ pub struct Output {
     pub provider: String,
     pub lines: Vec<Line>,
 }
+/// Horizontal UI reading order. Anchor each row to its first box so a chain
+/// of nearby boxes cannot merge successive lines into a single left-to-right row.
+pub fn reading_text(lines: &[Line]) -> String {
+    let mut lines: Vec<_> = lines.iter().filter(|l| l.confidence >= 0.65 && l.text.chars().count() > 1).collect();
+    lines.sort_by(|a,b| a.r#box[0][1].total_cmp(&b.r#box[0][1]));
+    let mut start=0;
+    while start<lines.len() {
+        let y=lines[start].r#box[0][1];
+        let mut end=start+1;
+        while end<lines.len() && lines[end].r#box[0][1]-y<10.0 {end+=1;}
+        lines[start..end].sort_by(|a,b|a.r#box[0][0].total_cmp(&b.r#box[0][0]));
+        start=end;
+    }
+    lines.iter().map(|l|l.text.as_str()).collect::<Vec<_>>().join("\n").chars().take(1200).collect()
+}
+
+#[cfg(test)]
+mod reading_tests {
+    use super::*;
+    #[test]
+    fn close_rows_do_not_chain_and_reverse_vertical_reading_order() {
+        let line=|text:&str,x,y|Line{text:text.into(),confidence:0.99,r#box:vec![[x,y];4]};
+        // Detector output is deliberately unordered; y=8 must not chain y=16 into row 0.
+        let lines=[line("第二行",0.,16.),line("第一行右",100.,8.),line("第一行左",0.,0.)];
+        assert_eq!(reading_text(&lines),"第一行左\n第一行右\n第二行");
+    }
+}
 struct OwnedChild(Child);
 impl Drop for OwnedChild {
     fn drop(&mut self) {

@@ -179,6 +179,26 @@ jobs:
           E2E_OUT: "test-results/ai-chat"
           E2E_SCRIPT: scripts/e2e-ai-chat.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Verify AI bubble reading time and speech priority
+        env:
+          E2E_VISUAL: "1"
+          E2E_OUT: "test-results/ai-bubble"
+          E2E_SCRIPT: scripts/e2e-ai-bubble.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Record mouse follow switch and chat motions
+        env:
+          E2E_RECORD: "1"
+          E2E_FPS: "60"
+          E2E_OUT: "test-results/chat-motion"
+          E2E_SCRIPT: scripts/e2e-chat-motion.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Verify real CPU chat drives pet motion and bubble
+        env:
+          DAXIONG_AI_RESOURCE_DIR: ${{ github.workspace }}/ai-build/ai
+          E2E_RECORD: "1"
+          E2E_OUT: "test-results/chat-motion-real"
+          E2E_SCRIPT: scripts/e2e-chat-motion-real.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Verify compact pet input, shared chat and real CPU reply
         env:
           DAXIONG_AI_RESOURCE_DIR: ${{ github.workspace }}/ai-build/ai

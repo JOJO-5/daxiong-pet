@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""One real bundled CPU conversation drives native pet motions and reply bubble."""
+from pathlib import Path
+exec((Path(__file__).resolve().parent/'e2e-ai-chat.py').read_text().split('\ntry:\n    new_session()')[0])
+try:
+    new_session();main=command('GET','/window')
+    wait(lambda:js("return document.querySelector('.pet-sheet')?.complete"))
+    invoke('set_quiet_companion',{'enabled':True});invoke('set_mouse_follow',{'enabled':False})
+    js("window.__motion=[];return true")
+    invoke('plugin:event|listen',{'event':'pet:frame','target':{'kind':'Any'},'handler':js("return window.__TAURI_INTERNALS__.transformCallback(e=>window.__motion.push(e.payload))")})
+    pointer('windowmove',pet_native(),100,440)
+    invoke('open_chat');chat=wait(chat_window)
+    check('bundled model is available for real conversation',snap()['assets']['available'])
+    click('性格与设置');click('启用本地聊天');wait(lambda:snap()['settings']['enabled'])
+    check('mouse-follow switch is available in chat settings',js("return !!document.querySelector('[data-testid=mouse-follow]')"))
+    click('聊天');request_id=send('今天有点累，简单陪我说一句话吧。')
+    command('POST','/window',{'handle':main})
+    wait(lambda:js("return window.__motion.some(f=>f.row===8)"),20)
+    wait(lambda:js("return document.querySelector('.bubble')?.getAttribute('aria-label')==='让我想想…'"));time.sleep(.4)
+    screenshot('real-thinking.png')
+    check('real CPU request drives thinking motion',True)
+    command('POST','/window',{'handle':chat});message=done(request_id,timeout=180)
+    check('real CPU reply contains text',bool(message['content'].strip()))
+    command('POST','/window',{'handle':main})
+    wait(lambda:js("return window.__motion.some(f=>f.row===15)"),10)
+    check('real completed reply drives affectionate motion',True)
+    check('pet bubble matches actual model reply',js("return document.querySelector('.bubble')?.getAttribute('aria-label')")==message['content'].strip())
+    screenshot('real-reply.png')
+finally:
+    OUT.joinpath('chat-motion-real-e2e.json').write_text(json.dumps({'passed':checks,'error':str(sys.exc_info()[1]) if sys.exc_info()[1] else None},ensure_ascii=False,indent=2))
+    if session:command('DELETE','')

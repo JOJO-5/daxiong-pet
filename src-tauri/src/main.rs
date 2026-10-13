@@ -171,6 +171,17 @@ fn encounter_status(app:AppHandle)->serde_json::Value {
 }
 
 #[tauri::command]
+fn set_mouse_follow(enabled:bool,app:AppHandle)->Result<companion::MemoryView,String> {
+    update_memory(&app,|m|{m.mouse_follow=enabled;Ok(true)})
+}
+
+#[tauri::command]
+fn pet_chat_motion(thinking:bool,duration_ms:u64,window:tauri::WebviewWindow,app:AppHandle)->Result<(),String> {
+    if window.label()!="main" {return Err("仅桌宠窗口可以同步聊天动作。".into());}
+    app.state::<AppState>().engine_tx.lock().unwrap().send(engine::Command::ChatMotion(thinking,duration_ms.min(120_000))).map_err(|_|"动作引擎暂不可用。".into())
+}
+
+#[tauri::command]
 fn set_playful_fetch(enabled:bool,app:AppHandle)->Result<companion::MemoryView,String> {
     update_memory(&app,|m|{m.playful_fetch=enabled;Ok(true)})
 }
@@ -600,7 +611,7 @@ fn spawn_engine(
                 input.encounters_enabled=memory.data.encounters_enabled && !memory.data.quiet_companion;
                 engine.set_quiet_companion(memory.data.quiet_companion);
             }
-            input.look_enabled = look_enabled.load(Ordering::Relaxed);
+            input.look_enabled = look_enabled.load(Ordering::Relaxed) && app.state::<AppState>().memory.lock().unwrap().data.mouse_follow;
             input.gravity = gravity.load(Ordering::Relaxed);
             input.extra_animations = app.state::<AppState>().current.lock().unwrap().as_str() == "__builtin__";
             let (row, col) = unpack_sleep(sleep_frame.load(Ordering::Relaxed));
@@ -815,6 +826,8 @@ fn main() {
             restore_memory,
             memory_recovery_info,
             set_encounters,
+            set_mouse_follow,
+            pet_chat_motion,
             set_playful_fetch,
             set_quiet_companion,
             encounter_status

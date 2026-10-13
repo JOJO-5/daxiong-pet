@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import CompanionPreferences from "./CompanionPreferences";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import "./chat.css";
@@ -748,6 +749,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
             </>
           ) : draft ? (
             <div className="chat-settings">
+              <CompanionPreferences/>
               <section>
                 <h2>狗狗的性格</h2>
                 <p className="chat-footnote">

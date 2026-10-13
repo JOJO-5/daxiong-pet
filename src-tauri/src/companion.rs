@@ -11,6 +11,7 @@ pub struct Memory {
     pub encounters_enabled: bool,
     pub playful_fetch: bool,
     pub quiet_companion: bool,
+    pub mouse_follow: bool,
     pub training: [u8;4],
     pub treats: u32,
     pub fetches: u32,
@@ -23,7 +24,7 @@ pub struct Memory {
 impl Default for Memory {
     fn default() -> Self {
         Self { version:1, nickname:String::new(), affection:0, treats:0, fetches:0, pats:0,
-            last_treat:None,last_pat:None,last_fetch_reward:None,encounters_enabled:true,playful_fetch:true,quiet_companion:false,training:[0;4] }
+            last_treat:None,last_pat:None,last_fetch_reward:None,encounters_enabled:true,playful_fetch:true,quiet_companion:false,mouse_follow:true,training:[0;4] }
     }
 }
 
@@ -34,6 +35,7 @@ pub struct MemoryView {
     pub encounters_enabled: bool,
     pub playful_fetch: bool,
     pub quiet_companion: bool,
+    pub mouse_follow: bool,
     pub training: [u8;4],
     pub stage: &'static str,
     pub treats: u32,
@@ -82,7 +84,7 @@ impl Memory {
         Ok(value.into())
     }
     pub fn view(&self,clock:u64,error:Option<String>) -> MemoryView {
-        MemoryView { nickname:self.nickname.clone(), affection:self.affection, encounters_enabled:self.encounters_enabled,playful_fetch:self.playful_fetch,quiet_companion:self.quiet_companion,training:self.training,stage:match self.affection {
+        MemoryView { nickname:self.nickname.clone(), affection:self.affection, encounters_enabled:self.encounters_enabled,playful_fetch:self.playful_fetch,quiet_companion:self.quiet_companion,mouse_follow:self.mouse_follow,training:self.training,stage:match self.affection {
             0..=19=>"初次相识",20..=99=>"越来越熟",100..=299=>"默契伙伴",_=>"最好的朋友"
         },treats:self.treats,fetches:self.fetches,pats:self.pats,treat_wait:wait(self.last_treat,clock,20),error }
     }
@@ -116,6 +118,14 @@ impl Memory {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn mouse_follow_defaults_on_for_old_memory_and_persists_off() {
+        let dir=tempfile::tempdir().unwrap();let path=dir.path().join("memory.json");
+        std::fs::write(&path,b"{\"version\":1,\"nickname\":\"Jo\"}").unwrap();
+        let mut memory=Memory::load(&path).unwrap();assert!(memory.mouse_follow);
+        memory.mouse_follow=false;memory.save(&path).unwrap();
+        let restored=Memory::load(&path).unwrap();assert!(!restored.mouse_follow);assert_eq!(restored.nickname,"Jo");
+    }
     #[test]
     fn quiet_preference_round_trips_and_old_memories_keep_existing_encounter_preference() {
         let dir=tempfile::tempdir().unwrap();let path=dir.path().join("memory.json");

@@ -75,6 +75,12 @@ export default function App() {
       setBubble({ text, id: bubbleId.current, duration, protect });
     };
 
+    const displayAiMessage = (text: string) => {
+      const duration=Math.max(10000,Array.from(text).length*350);
+      displayMessage(text,duration,true);
+      void invoke("pet_chat_motion",{thinking:false,durationMs:duration}).catch(console.error);
+    };
+
     const applyPet = async (pet: PetSwitch) => {
       const request = ++revision;
       loading = true;
@@ -112,7 +118,7 @@ export default function App() {
     });
 
     const offSay = listen<string>("pet:say", (event) => {
-      if (!alive || Date.now() < errorUntil.current) return;
+      if (!alive || Date.now() < errorUntil.current || Date.now() < bubbleUntil.current) return;
       const text = pickSpeech(speech.current, event.payload, lastText.current, speechHistory.current);
       if (!text) return;
       lastText.current = text;
@@ -136,14 +142,18 @@ export default function App() {
     const offReply = listen<{content:string;status:string;preview:boolean;error:string|null}>("ai:reply", event => {
       if(!alive || event.payload.preview || event.payload.status==="generating") return;
       const text=event.payload.content.trim() || event.payload.error || (event.payload.status==="cancelled" ? "好，先不说啦。" : "这次没答出来，可以再试一次。");
-      if(text) displayMessage(text,8000,true);
+      if(text) displayAiMessage(text);
+      if(event.payload.status==="cancelled" || event.payload.error) void invoke("pet_chat_motion",{thinking:false,durationMs:0}).catch(console.error);
     });
-    const offStarted = listen<{preview:boolean}>("ai:started", event=>{if(alive&&!event.payload.preview) displayMessage("让我想想…",8000,true);});
-    const offCleared = listen("ai:cleared",()=>{if(alive){setBubble(null);bubbleUntil.current=0;errorUntil.current=0;}});
+    const offScreen = listen<{text:string}>("ai:screen-bubble", event => {
+      if(alive && event.payload.text.trim()) displayAiMessage(event.payload.text);
+    });
+    const offStarted = listen<{preview:boolean}>("ai:started", event=>{if(alive&&!event.payload.preview) {displayMessage("让我想想…",8000,true);void invoke("pet_chat_motion",{thinking:true,durationMs:120000}).catch(console.error);}});
+    const offCleared = listen("ai:cleared",()=>{if(alive){setBubble(null);bubbleUntil.current=0;errorUntil.current=0;void invoke("pet_chat_motion",{thinking:false,durationMs:0}).catch(console.error);}});
     const offAi = listen<{ text: string; revision: number }>("ai:ambient", event => {
       if (!alive || Date.now() < errorUntil.current || Date.now() < bubbleUntil.current || !event.payload.text.trim()) return;
       void invoke<boolean>("ai_claim_ambient", { revision: event.payload.revision }).then(valid => {
-        if (valid && alive && Date.now() >= errorUntil.current && Date.now() >= bubbleUntil.current) displayMessage(event.payload.text.slice(0, 160));
+        if (valid && alive && Date.now() >= errorUntil.current && Date.now() >= bubbleUntil.current) displayAiMessage(event.payload.text.slice(0, 160));
       }).catch(() => {});
     });
     const offTreat = listen("pet:treat",()=>{
@@ -158,7 +168,7 @@ export default function App() {
     });
 
     // 监听注册完成再取快照，避免启动时漏掉帧 / 切换事件。
-    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter, offIntro, offAi, offReply, offStarted, offCleared]).then(async () => {
+    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter, offIntro, offAi, offReply, offScreen, offStarted, offCleared]).then(async () => {
       const observed = revision;
       const pet = await invoke<PetSwitch>("current_pet");
       if (alive && revision === observed) await applyPet(pet);
@@ -182,6 +192,7 @@ export default function App() {
       offIntro.then(off=>off()).catch(console.error);
       offAi.then(off=>off()).catch(console.error);
       offReply.then(off=>off()).catch(console.error);
+      offScreen.then(off=>off()).catch(console.error);
       offStarted.then(off=>off()).catch(console.error);
       offCleared.then(off=>off()).catch(console.error);
     };
@@ -214,6 +225,9 @@ export default function App() {
           draggable={false}
           src={src}
           style={{
+            // Clip the atlas layer itself as well as its viewport: accelerated
+            // compositors must never sample a neighbouring frame while moving.
+            clipPath: `inset(${frame.row * CELL_H * SCALE}px ${(SHEET_W - (frame.col + 1) * CELL_W) * SCALE}px ${(sheetH - (frame.row + 1) * CELL_H) * SCALE}px ${frame.col * CELL_W * SCALE}px)`,
             width: SHEET_W * SCALE,
             height: sheetH * SCALE,
             transform: `translate(${-frame.col * CELL_W * SCALE}px, ${

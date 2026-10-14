@@ -175,7 +175,11 @@ do {
         _=try waitWindow("和大熊一起玩",visible:false)
         try require(app.isRunning,"closing panel keeps pet alive")
         try petMenu();key(115)
-        for _ in 0..<5 { key(125) }
+        // Select the current native tug item; separators are skipped by Down.
+        // Order: play, quick chat, history, replay, feed, ball, frisbee, tug.
+        let tugMenuIndex=7
+        report["menu_target"]="一起拔河";report["menu_down_steps"]=tugMenuIndex
+        for _ in 0..<tugMenuIndex { key(125) }
         key(36)
         _=try waitWindow("大熊的球")
         Thread.sleep(forTimeInterval:0.35)

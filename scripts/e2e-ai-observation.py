@@ -20,7 +20,7 @@ fixture_process=None
 
 def observe(vision=False, native=False):
     if native:
-        native_click("[...document.querySelectorAll('button')].find(b=>b.textContent==='理解图片')")
+        native_click("[...document.querySelectorAll('button')].find(b=>b.textContent==='看窗口画面')")
     else:
         invoke('ai_observe',{'vision':vision})
     pointer('windowactivate','--sync',target)
@@ -79,7 +79,7 @@ int main(int argc,char **argv){gtk_init(&argc,&argv);GtkWidget *w=gtk_window_new
         setup="const done=arguments[arguments.length-1];window.__visionReplies=[];window.__visionStages=[];Promise.all(['ai:screen-reply','ai:observation'].map(event=>window.__TAURI_INTERNALS__.invoke('plugin:event|listen',{event,target:{kind:'Any'},handler:window.__TAURI_INTERNALS__.transformCallback(e=>{if(event==='ai:screen-reply')window.__visionReplies.push(e.payload);else window.__visionStages.push(e.payload.status);})}))).then(()=>done(true)).catch(e=>done(String(e)));"
         assert command('POST','/execute/async',{'script':setup,'args':[]}) is True
         configure(screen_backend='bundled',remote_screen=False,idle_seconds=30)
-        native_click("[...document.querySelectorAll('button')].find(b=>b.textContent==='性格与设置')")
+        native_click("[...document.querySelectorAll('button')].find(b=>b.textContent==='性格与设置')");click('屏幕观察')
         before=len(requests);data=observe(True,native=True)
         check('real bundled 2B vision runs through app without remote upload',len(requests)==before and data['observation']['text'] and '过期' not in data['observation']['status'])
         replies=js('return window.__visionReplies')
@@ -99,6 +99,10 @@ int main(int argc,char **argv){gtk_init(&argc,&argv);GtkWidget *w=gtk_window_new
     check('pause clears short-term context and disables independent toggles',not snap()['observation']['text'] and not snap()['settings']['observe_enabled'] and not snap()['settings']['speak_enabled'])
     before=len(requests);invoke('ai_observe',{'vision':False});invoke('ai_pause_observation');time.sleep(4)
     check('cancelled pending observation produces no late upload or cache',len(requests)==before and not snap()['observation']['text'])
+    # Isolate autonomous observation from the preceding manual reply's reading protection.
+    command('POST','/window',{'handle':main})
+    wait(lambda:not js("return !!document.querySelector('.bubble')"),90)
+    command('POST','/window',{'handle':chat})
     configure(screen_scope='window',observe_enabled=True,speak_enabled=False,observe_seconds=15,quiet_hours=False)
     pointer('windowactivate','--sync',target)
     pointer('mousemove',100,100)

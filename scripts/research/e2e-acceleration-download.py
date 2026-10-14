@@ -26,7 +26,9 @@ try:
     settings=snap()['settings'];settings.update(enabled=True,backend='bundled',output_tokens=32);invoke('ai_configure',{'settings':settings})
     root.mkdir(parents=True,exist_ok=True);(root/'Qwen3.5-0.8B_int8.litertlm').symlink_to(model)
     check('reuse exact research model bytes without copying weights',(root/'Qwen3.5-0.8B_int8.litertlm').stat().st_size==963184864)
-    click('性格与设置');wait(lambda:js("return !!document.querySelector('[data-testid=acceleration-settings]')"))
+    click('性格与设置');click('模型与性能')
+    native_click("document.querySelector('[data-testid=acceleration-settings] summary')")
+    wait(lambda:js("return document.querySelector('[data-testid=acceleration-settings] details').open"))
     wait(lambda:js("return [...document.querySelectorAll('[data-testid=acceleration-settings] button')].some(b=>b.textContent==='下载加速组件与模型'&&!b.disabled)"))
     native_click("[...document.querySelectorAll('[data-testid=acceleration-settings] button')].find(b=>b.textContent==='下载加速组件与模型')")
     # Cancel through the actual UI handler immediately, while connection starts.

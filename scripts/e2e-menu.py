@@ -51,7 +51,7 @@ def finish_menu(*keys):
     pointer('key',*keys);time.sleep(.3)
     if menu_origin!=main:command('POST','/window',{'handle':menu_origin})
 def choose(index):
-    finish_menu('Home',*(['Down']*index),'Return')
+    finish_menu('Home',*(['Down']*(index+2 if index>=2 else index)),'Return')
 def visible(): return invoke('plugin:window|is_visible',{'label':'playground'})
 try:
     new_session();main=command('GET','/window')
@@ -76,7 +76,7 @@ try:
             if geometry.returncode==0 and 'WIDTH=360' in geometry.stdout:return candidate
         return None
     panel_native=wait(find_native_panel)
-    check('common games and feed visible while settings collapsed',js("const f=[...document.querySelectorAll('button')].find(b=>b.textContent==='喂一块饼干').getBoundingClientRect();return !document.querySelector('details').open&&f.bottom<innerHeight&&document.querySelectorAll('.game-picker button').length===5"))
+    check('common games and feed visible while settings collapsed',js("const f=[...document.querySelectorAll('button')].find(b=>b.textContent==='喂一块饼干').getBoundingClientRect();return !document.querySelector('.more-settings').open&&f.bottom<innerHeight&&document.querySelectorAll('.game-picker button').length===5"))
     time.sleep(.8);shoot('compact-panel')
     pos=invoke('plugin:window|outer_position',{'label':'playground'});size=invoke('plugin:window|outer_size',{'label':'playground'})
     check('nearby panel remains inside screen',pos['x']>=0 and pos['y']>=0 and pos['x']+size['width']<=1280 and pos['y']+size['height']<=800)

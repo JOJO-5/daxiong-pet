@@ -103,8 +103,8 @@ body {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   z-index: 4;
-  /* 气泡本身不参与鼠标命中，保证它下方的桌面照常可点 */
-  pointer-events: none;
+  /* 原生层仅在气泡实测区域内接收鼠标，其他透明区域保持穿透。 */
+  pointer-events: auto;
   animation: bubble-in 180ms ease-out;
 }
 

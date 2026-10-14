@@ -192,6 +192,13 @@ jobs:
           E2E_OUT: "test-results/chat-motion"
           E2E_SCRIPT: scripts/e2e-chat-motion.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
+      - name: Verify grouped settings, temporary quiet and reply rereading
+        env:
+          E2E_RECORD: "1"
+          E2E_REPLY_EXPIRY: "1"
+          E2E_OUT: "test-results/companion-ux"
+          E2E_SCRIPT: scripts/e2e-companion-ux.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Verify real CPU chat drives pet motion and bubble
         env:
           DAXIONG_AI_RESOURCE_DIR: ${{ github.workspace }}/ai-build/ai

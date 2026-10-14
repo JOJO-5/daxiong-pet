@@ -122,7 +122,7 @@ impl Service {
             .lock()
             .unwrap_or_else(|p| p.into_inner())
             .data
-            .quiet_companion
+            .is_quiet(crate::companion::now())
         {
             return false;
         }
@@ -279,6 +279,8 @@ impl Service {
             }
             .into();
         }
+        let completion_app=app.clone();
+        if manual {let _=app.emit_to("main","ai:screen-progress",json!({"busy":true,"status":"3秒后观察，请切换到目标窗口。"}));}
         let s = self.clone();
         let worker_id = id.clone();
         if std::thread::Builder::new()
@@ -304,17 +306,19 @@ impl Service {
                 }
                 drop(screen);
                 let _ = app.emit_to("chat", "ai:observation", s.screen_view());
+                if manual {let _=app.emit_to("main","ai:screen-progress",json!({"busy":false,"status":s.screen_view().status}));}
             })
             .is_err()
         {
             let mut screen = self.screen.lock().unwrap_or_else(|p| p.into_inner());
             screen.task = None;
             screen.status = "无法启动观察任务。".into();
+            if manual {let _=completion_app.emit_to("main","ai:screen-progress",json!({"busy":false,"status":"无法启动观察任务，请重试。"}));}
             return Err("无法启动观察任务。".into());
         }
         Ok(id)
     }
-    fn observation_status(&self, app: &AppHandle, status: &str) {
+    fn observation_status(&self, app: &AppHandle, status: &str, manual: bool) {
         {
             let mut screen = self.screen.lock().unwrap_or_else(|p| p.into_inner());
             if !screen.task.as_ref().is_some_and(|(_, token, _)| !token.load(Ordering::SeqCst)) {
@@ -323,6 +327,7 @@ impl Service {
             screen.status = status.into();
         }
         let _ = app.emit_to("chat", "ai:observation", self.screen_view());
+        if manual {let _=app.emit_to("main","ai:screen-progress",json!({"busy":true,"status":status}));}
     }
     fn observe_work(
         &self,
@@ -370,7 +375,7 @@ impl Service {
                     >= Duration::from_secs(settings.speak_seconds as u64)
                 && screen.last_fingerprint_hash != Some(fingerprint_hash(&capture.fingerprint))
         };
-        self.observation_status(app, if vision { "正在读取屏幕文字，随后继续理解图片。" } else { "正在读取屏幕文字。" });
+        self.observation_status(app, if vision { "正在读取屏幕文字，随后继续理解图片。" } else { "正在读取屏幕文字。" }, manual);
         let ocr = crate::ai_ocr::recognize(
             &self.assets.root,
             capture.png.clone(),
@@ -417,7 +422,7 @@ impl Service {
             "文字识别完成，正在准备图片理解。CPU看图可能需要较长时间，请保持目标画面；当前窗口模式下切窗会丢弃结果。"
         } else {
             "文字识别完成，正在生成陪伴回应。"
-        });
+        }, manual);
         let mut profile = self.db(|db| db.profile())?;
         for preference in self.db(|db| db.preferences())? {
             match preference.key.as_str() {
@@ -462,7 +467,7 @@ impl Service {
                         "视觉模型已准备，正在理解图片；CPU看图可能需要较长时间。"
                     } else {
                         "文字模型已准备，正在生成陪伴回应。"
-                    });
+                    }, manual);
                     ai_runtime::generate(&endpoint, messages, 80, token, |_| Ok(()))
                 });
             // Idle starts after inference, not while an image is still being processed.
@@ -494,7 +499,7 @@ impl Service {
             "图片理解已完成；结果仅保留在内存中，最多2分钟。"
         } else {
             "文字观察与回应已完成；内容仅保留在内存中，最多2分钟。"
-        });
+        }, manual);
         if manual {
             // Explicit observations reply on the pet as well as in settings.
             // They remain transient and do not enter chat history.

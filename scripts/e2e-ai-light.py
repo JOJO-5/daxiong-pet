@@ -10,7 +10,7 @@ try:
     new_session()
     invoke('open_chat');chat = wait(chat_window)
     check('light starts without a ready local model', not snap()['assets']['available'])
-    click('性格与设置')
+    click('性格与设置');click('模型与性能')
     native_click("[...document.querySelectorAll('.chat-model-card')].find(e=>e.textContent.includes('Qwen3.5-2B-Q4_K_M.gguf')).querySelector('button')")
     wait(lambda: snap()['download']['busy'])
     def receiving():
@@ -23,6 +23,7 @@ try:
     state=snap()
     check('download verifies pinned size and SHA256', '校验通过' in state['download']['status'])
     check('download enables CPU model without bundled weights', state['assets']['available'] and not list(root.rglob('*.gguf')))
+    click('聊天')
     wait(lambda: js("return [...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='启用本地聊天'&&!b.disabled)"))
     click('启用本地聊天');wait(lambda: snap()['settings']['enabled']);click('聊天')
     started=time.monotonic();reply=done(send('你好，简短打个招呼吧。'))

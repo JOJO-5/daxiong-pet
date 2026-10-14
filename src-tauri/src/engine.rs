@@ -91,7 +91,7 @@ pub enum Command {
     Trick(crate::activities::Cue,bool),
     PlaceSnack(bool),
     FindSnack,
-    ChatMotion(bool,u64),
+    ChatMotion(bool,u64,u8),
 }
 
 /// 触发说话的场合。具体说什么由前端从对应话术表里随机挑。
@@ -217,7 +217,7 @@ pub struct Engine {
 
     // ---- 注视 ----
     look: Option<u8>,
-    chat_motion: Option<(bool,u64,u64)>,
+    chat_motion: Option<(bool,u64,u64,u8)>,
 
     // ---- 单次反应 ----
     react: Option<(Row, u64)>,
@@ -378,8 +378,8 @@ impl Engine {
         for cmd in pending {
             if !matches!(&cmd,Command::ChatMotion(..)) {self.chat_motion=None;}
             match cmd {
-                Command::ChatMotion(thinking,duration) => {
-                    self.chat_motion=if duration==0 || !input.interactive || self.sleeping || self.pomodoro_ms.is_some() || self.play.active() || self.activities.active() {None} else {Some((thinking,self.clock_ms,self.clock_ms+duration))};
+                Command::ChatMotion(thinking,duration,style) => {
+                    self.chat_motion=if duration==0 || !input.interactive || self.sleeping || self.pomodoro_ms.is_some() || self.play.active() || self.activities.active() {None} else {Some((thinking,self.clock_ms,self.clock_ms+duration,style))};
                 }
                 Command::StartPomodoro => self.begin_pomodoro(say),
                 Command::TogglePomodoro => {
@@ -810,7 +810,7 @@ impl Engine {
             self.wander = None;
         }
 
-        let interrupt = self.chat_motion.is_some_and(|(_,_,until)|self.clock_ms<until) || self.quiet_companion || self.play.active() || self.encounters.active() || self.dizziness.active() || !input.interactive
+        let interrupt = self.chat_motion.is_some_and(|(_,_,until,_)|self.clock_ms<until) || self.quiet_companion || self.play.active() || self.encounters.active() || self.dizziness.active() || !input.interactive
             || within_aware
             || self.dragging
             || self.press.is_some()
@@ -894,7 +894,7 @@ impl Engine {
         }
 
         // 安静的小动作只在可见、静止且没有互动/提醒时出现，不发气泡。
-        if !self.chat_motion.is_some_and(|(_,_,until)|self.clock_ms<until) && !self.quiet_companion && input.interactive && self.clock_ms >= self.next_ambient_ms
+        if !self.chat_motion.is_some_and(|(_,_,until,_)|self.clock_ms<until) && !self.quiet_companion && input.interactive && self.clock_ms >= self.next_ambient_ms
             && !self.play.active() && !self.activities.active() && !self.encounters.active() && !self.dizziness.active() && self.react.is_none() && !self.sleeping && !self.dragging
             && self.press.is_none() && !hot && !moving && self.wander.is_none()
             && self.clock_ms >= self.annoyed_until_ms && say.is_none()
@@ -927,7 +927,7 @@ impl Engine {
         }
 
         let play_phase=self.play.view().phase;
-        let hard_blocked=self.chat_motion.is_some_and(|(_,_,until)|self.clock_ms<until) || self.quiet_companion || self.dizziness.active() || self.activities.active() || !input.interactive || self.sleeping || self.pomodoro_ms.is_some()
+        let hard_blocked=self.chat_motion.is_some_and(|(_,_,until,_)|self.clock_ms<until) || self.quiet_companion || self.dizziness.active() || self.activities.active() || !input.interactive || self.sleeping || self.pomodoro_ms.is_some()
             || self.dragging || self.press.is_some() || hot
             || self.clock_ms<self.annoyed_until_ms || (self.react.is_some() && !self.ambient_reaction)
             || (self.play.active() && !(self.encounters.offering_ball() && play_phase=="ready"));
@@ -959,13 +959,19 @@ impl Engine {
         if activity.completed {self.start_reaction(if input.extra_animations {if self.activities.view().game=="snack" {Row::EatTreat} else {Row::HappyPat}} else {Row::Waving});}
         if let Some(position)=activity.movement {move_to=Some(position);}
 
-        let chat_row=self.chat_motion.filter(|(_,_,until)|self.clock_ms<*until).map(|(thinking,start,_)| {
+        let chat_row=self.chat_motion.filter(|(_,_,until,_)|self.clock_ms<*until).map(|(thinking,start,_,style)| {
             let elapsed=self.clock_ms-start;
             if thinking {
                 if elapsed%6000<1800 {Row::Review} else {Row::Idle}
             } else if input.extra_animations {
-                if elapsed<2100 {Row::Affection} else if elapsed%6000<1500 {Row::HappyPat} else {Row::Idle}
-            } else if elapsed<840 {Row::Waving} else {Row::Idle}
+                match style {
+                    1=>Row::Idle,
+                    2 if elapsed<1800=>Row::Review,
+                    3 if elapsed<1500=>Row::HappyPat,
+                    0 if elapsed<2100=>Row::Affection,
+                    _=>Row::Idle,
+                }
+            } else if style==1 {Row::Idle} else if style==2 && elapsed<1800 {Row::Review} else if elapsed<840 {Row::Waving} else {Row::Idle}
         });
         // ---- 14. 决定播放哪一行（按优先级）----
         let target = if self.dragging {
@@ -1079,28 +1085,39 @@ mod tests {
     }
 
     #[test]
+    fn chat_reply_style_stays_calm_on_serious_topics_and_happiness_is_brief() {
+        for (style,expected) in [(1,Row::Idle),(2,Row::Review),(3,Row::HappyPat)] {
+            let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.attach_commands(rx);
+            let mut i=input(1.0);i.extra_animations=true;i.look_enabled=false;
+            tx.send(Command::ChatMotion(false,10000,style)).unwrap();assert_eq!(e.tick(&i).row,expected as u8);
+            for _ in 0..400 {e.tick(&i);}
+            assert_eq!(e.tick(&i).row,Row::Idle as u8);
+        }
+    }
+
+    #[test]
     fn chat_motion_replies_animate_then_expire_and_legacy_stays_in_bounds() {
         for builtin in [false,true] {
             let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.attach_commands(rx);
             let mut i=input(1.0);i.extra_animations=builtin;i.look_enabled=false;
-            tx.send(Command::ChatMotion(true,120000)).unwrap();assert_eq!(e.tick(&i).row,Row::Review as u8);
-            tx.send(Command::ChatMotion(false,10000)).unwrap();
+            tx.send(Command::ChatMotion(true,120000,0)).unwrap();assert_eq!(e.tick(&i).row,Row::Review as u8);
+            tx.send(Command::ChatMotion(false,10000,0)).unwrap();
             assert_eq!(e.tick(&i).row,if builtin {Row::Affection as u8}else{Row::Waving as u8});
             let mut rows=std::collections::BTreeSet::new();
             for _ in 0..600 {rows.insert(e.tick(&i).row);}
-            assert!(rows.contains(&(Row::Idle as u8)));if builtin {assert!(rows.contains(&(Row::HappyPat as u8)));} else {assert!(rows.iter().all(|r|*r<9));}
-            tx.send(Command::ChatMotion(false,0)).unwrap();e.tick(&i);assert!(e.chat_motion.is_none());
+            assert!(rows.contains(&(Row::Idle as u8)));if builtin {assert!(rows.contains(&(Row::Affection as u8)));} else {assert!(rows.iter().all(|r|*r<9));}
+            tx.send(Command::ChatMotion(false,0,0)).unwrap();e.tick(&i);assert!(e.chat_motion.is_none());
         }
     }
     #[test]
     fn chat_motion_never_cancels_games_sleep_or_focus() {
         let (tx,rx)=std::sync::mpsc::channel();let mut e=Engine::new();e.attach_commands(rx);let i=input(1.0);
-        tx.send(Command::ShowBall).unwrap();e.tick(&i);tx.send(Command::ChatMotion(true,10000)).unwrap();e.tick(&i);
+        tx.send(Command::ShowBall).unwrap();e.tick(&i);tx.send(Command::ChatMotion(true,10000,0)).unwrap();e.tick(&i);
         assert!(e.play.active());assert!(e.chat_motion.is_none());
         tx.send(Command::CancelPlay).unwrap();e.tick(&i);e.sleeping=true;
-        tx.send(Command::ChatMotion(false,10000)).unwrap();e.tick(&i);assert!(e.sleeping);assert!(e.chat_motion.is_none());
+        tx.send(Command::ChatMotion(false,10000,0)).unwrap();e.tick(&i);assert!(e.sleeping);assert!(e.chat_motion.is_none());
         e.sleeping=false;tx.send(Command::StartPomodoro).unwrap();e.tick(&i);
-        tx.send(Command::ChatMotion(false,10000)).unwrap();e.tick(&i);assert!(e.pomodoro_ms.is_some());assert!(e.chat_motion.is_none());
+        tx.send(Command::ChatMotion(false,10000,0)).unwrap();e.tick(&i);assert!(e.pomodoro_ms.is_some());assert!(e.chat_motion.is_none());
     }
 
     fn input(scale: f64) -> Input {

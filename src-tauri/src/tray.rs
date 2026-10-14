@@ -97,6 +97,8 @@ fn build_menu(app: &AppHandle, pets: &[PetPack], current: &str) -> tauri::Result
         .separator()
         .item(&play)
         .text("ai_chat","和大熊聊聊…")
+        .text("ai_history","聊天记录与设置…")
+        .text("pet_replay","重看上一句")
         .item(&help)
         .item(&pomodoro)
         .item(&gravity_item)
@@ -204,10 +206,12 @@ pub(crate) fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
             refresh(app, &pets, &current, gravity);
         }
 
-        "ai_chat" => {
+        "pet_replay" => {use tauri::Emitter;let _=app.emit_to("main","pet:replay",());},
+        "ai_chat" | "ai_history" => {
+            let history=id=="ai_history";
             let app=app.clone();
             tauri::async_runtime::spawn(async move {
-                if let Err(e)=crate::ai::open_chat(app.clone()).await {crate::report_error(&app,"打开聊天失败",e);}
+                if let Err(e)=if history {crate::ai::open_chat(app.clone()).await} else {crate::ai::open_quick_chat(app.clone()).await} {crate::report_error(&app,"打开聊天失败",e);}
             });
         }
         "quit" => app.exit(0),

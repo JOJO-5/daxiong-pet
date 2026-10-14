@@ -58,11 +58,14 @@ def native_click(expression):
     time.sleep(.08);pointer('click',1);time.sleep(.08)
 
 def open_more():
-    if not js("return document.querySelector('details').open"):
-        native_click("document.querySelector('details summary')")
-        wait(lambda: js("return document.querySelector('details').open"))
+    if not js("return document.querySelector('.more-settings').open"):
+        native_click("document.querySelector('.more-settings summary')")
+        wait(lambda: js("return document.querySelector('.more-settings').open"))
 
 def click(text):
+    if text in ("拿出球","拿出飞盘") and js("return !!document.querySelector('.toy-gesture')&&!document.querySelector('.toy-gesture').open"):
+        native_click("document.querySelector('.toy-gesture summary')")
+        wait(lambda:js("return document.querySelector('.toy-gesture').open"))
     if text in ('抛一球','扔飞盘'):
         native_click("document.querySelector('[data-testid=play-throw]')")
         return

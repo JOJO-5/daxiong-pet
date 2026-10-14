@@ -11,6 +11,7 @@ pub struct Memory {
     pub encounters_enabled: bool,
     pub playful_fetch: bool,
     pub quiet_companion: bool,
+    pub quiet_until: u64,
     pub mouse_follow: bool,
     pub training: [u8;4],
     pub treats: u32,
@@ -24,7 +25,7 @@ pub struct Memory {
 impl Default for Memory {
     fn default() -> Self {
         Self { version:1, nickname:String::new(), affection:0, treats:0, fetches:0, pats:0,
-            last_treat:None,last_pat:None,last_fetch_reward:None,encounters_enabled:true,playful_fetch:true,quiet_companion:false,mouse_follow:true,training:[0;4] }
+            last_treat:None,last_pat:None,last_fetch_reward:None,encounters_enabled:true,playful_fetch:true,quiet_companion:false,quiet_until:0,mouse_follow:true,training:[0;4] }
     }
 }
 
@@ -35,6 +36,7 @@ pub struct MemoryView {
     pub encounters_enabled: bool,
     pub playful_fetch: bool,
     pub quiet_companion: bool,
+    pub quiet_until: u64,
     pub mouse_follow: bool,
     pub training: [u8;4],
     pub stage: &'static str,
@@ -83,8 +85,9 @@ impl Memory {
         if value.chars().count()>16 { return Err("昵称最多 16 个字".into()); }
         Ok(value.into())
     }
+    pub fn is_quiet(&self, clock:u64) -> bool { self.quiet_companion || self.quiet_until > clock }
     pub fn view(&self,clock:u64,error:Option<String>) -> MemoryView {
-        MemoryView { nickname:self.nickname.clone(), affection:self.affection, encounters_enabled:self.encounters_enabled,playful_fetch:self.playful_fetch,quiet_companion:self.quiet_companion,mouse_follow:self.mouse_follow,training:self.training,stage:match self.affection {
+        MemoryView { nickname:self.nickname.clone(), affection:self.affection, encounters_enabled:self.encounters_enabled,playful_fetch:self.playful_fetch,quiet_companion:self.quiet_companion,quiet_until:self.quiet_until,mouse_follow:self.mouse_follow,training:self.training,stage:match self.affection {
             0..=19=>"初次相识",20..=99=>"越来越熟",100..=299=>"默契伙伴",_=>"最好的朋友"
         },treats:self.treats,fetches:self.fetches,pats:self.pats,treat_wait:wait(self.last_treat,clock,20),error }
     }
@@ -118,6 +121,16 @@ impl Memory {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn temporary_quiet_expires_without_changing_persistent_preferences() {
+        let dir=tempfile::tempdir().unwrap();let path=dir.path().join("memory.json");
+        let mut memory=Memory::default();memory.quiet_until=1030;memory.save(&path).unwrap();
+        let mut restored=Memory::load(&path).unwrap();
+        assert!(restored.is_quiet(1029));assert!(!restored.is_quiet(1030));
+        assert!(restored.encounters_enabled);assert!(!restored.quiet_companion);
+        restored.quiet_companion=true;assert!(restored.is_quiet(2000));
+        let old:Memory=serde_json::from_str("{}").unwrap();assert_eq!(old.quiet_until,0);
+    }
     #[test]
     fn mouse_follow_defaults_on_for_old_memory_and_persists_off() {
         let dir=tempfile::tempdir().unwrap();let path=dir.path().join("memory.json");

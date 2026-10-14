@@ -1,0 +1,15 @@
+{
+  "passed": [
+    "mouse follow is enabled by default",
+    "native toggle persists mouse follow off",
+    "disabled mouse follow leaves idle pose",
+    "enabled mouse follow turns toward pointer",
+    "chat start renders thinking pose",
+    "thinking returns to idle between small motions",
+    "AI reply renders original-identity affectionate motion",
+    "reply returns naturally to idle",
+    "ordinary long reply stays calm without periodic celebrations",
+    "clearing chat stops reply motion"
+  ],
+  "error": null
+}

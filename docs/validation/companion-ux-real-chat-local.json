@@ -1,0 +1,32 @@
+{
+  "passed": [
+    "AI database is lazy; ordinary pet startup does not create it",
+    "real chat defaults to disabled with verified resources available",
+    "GUI personality saved to SQLite",
+    "focused chat lowers pet overlay so form controls cannot be intercepted",
+    "real model request and native fetch run together",
+    "request ends as complete",
+    "real CPU model produced Chinese text persisted and rendered",
+    "request ends as cancelled",
+    "cancel preserves partial reply without later deltas",
+    "stale Stop cannot cancel the new request",
+    "closing chat keeps the pet alive",
+    "closing chat restores the pet always-on-top layer",
+    "request ends as cancelled",
+    "real draft preview produces text without saving profile or chat",
+    "request ends as failed",
+    "model crash reports visible failure",
+    "pet show and cancel commands still work after model crash",
+    "request ends as complete",
+    "model restarts successfully after crash",
+    "exiting native application leaves no model child",
+    "restart preserves chat/personality/settings and prunes expired messages",
+    "small chat window has no horizontal overflow and usable composer",
+    "clear chat retains saved personality",
+    "clicking chat over an occluded pet does not pet the dog through the window"
+  ],
+  "timings": {
+    "first_reply_seconds_in_shared_container": 30.28
+  },
+  "scope": "Native Linux text-only developer slice; not a Windows/macOS or consumer hardware benchmark"
+}

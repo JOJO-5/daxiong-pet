@@ -23,6 +23,7 @@ try:
     state=snap()
     check('download verifies pinned size and SHA256', '校验通过' in state['download']['status'])
     check('download enables CPU model without bundled weights', state['assets']['available'] and not list(root.rglob('*.gguf')))
+    click('聊天')
     wait(lambda: js("return [...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='启用本地聊天'&&!b.disabled)"))
     click('启用本地聊天');wait(lambda: snap()['settings']['enabled']);click('聊天')
     started=time.monotonic();reply=done(send('你好，简短打个招呼吧。'))

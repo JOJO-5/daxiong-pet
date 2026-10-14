@@ -101,7 +101,7 @@ try:
     wait(lambda: snap()['personality']['owner_name'] == '小木')
     check('GUI personality saved to SQLite', sqlite3.connect(db).execute('SELECT count(*) FROM personality_profiles').fetchone()[0] == 1)
     check('focused chat lowers pet overlay so form controls cannot be intercepted', not pet_is_above())
-    click('模型与性能')
+    click('聊天')
     click('启用本地聊天')
     wait(lambda: snap()['settings']['enabled'])
     click('聊天')

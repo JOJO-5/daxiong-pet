@@ -11,7 +11,7 @@ try:
     pointer('windowmove',pet_native(),100,440)
     invoke('open_chat');chat=wait(chat_window)
     check('bundled model is available for real conversation',snap()['assets']['available'])
-    click('性格与设置');click('模型与性能');click('启用本地聊天');wait(lambda:snap()['settings']['enabled'])
+    click('聊天');click('启用本地聊天');wait(lambda:snap()['settings']['enabled'])
     check('mouse-follow switch is available in chat settings',js("return !!document.querySelector('[data-testid=mouse-follow]')"))
     click('聊天');request_id=send('今天有点累，简单陪我说一句话吧。')
     command('POST','/window',{'handle':main})

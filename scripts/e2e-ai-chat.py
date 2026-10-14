@@ -101,6 +101,7 @@ try:
     wait(lambda: snap()['personality']['owner_name'] == '小木')
     check('GUI personality saved to SQLite', sqlite3.connect(db).execute('SELECT count(*) FROM personality_profiles').fetchone()[0] == 1)
     check('focused chat lowers pet overlay so form controls cannot be intercepted', not pet_is_above())
+    click('模型与性能')
     click('启用本地聊天')
     wait(lambda: snap()['settings']['enabled'])
     click('聊天')
@@ -141,6 +142,7 @@ try:
     done(third, 'cancelled')
 
     click('性格与设置')
+    click('陪伴与性格')
     count = len(snap()['messages'])
     fill('#ai-owner-name', '预览主人')
     click('试聊')
@@ -185,6 +187,7 @@ try:
     check('small chat window has no horizontal overflow and usable composer', js("const e=document.querySelector('.chat-compose');const r=e.getBoundingClientRect();return document.documentElement.scrollWidth<=innerWidth && r.bottom<=innerHeight && r.width>200"))
     screenshot('chat-small-desktop.png')
     click('性格与设置')
+    click('记忆与隐私')
     click('清空聊天')
     # Place the real always-on-top pet over the confirmation area. The focused
     # chat must still receive the click, without hiding or disabling the dog.

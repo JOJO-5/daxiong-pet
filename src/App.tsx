@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { replyMotion } from "./reply-motion";
 import ToyDisc from "./ToyDisc";
 import SpeechBubble from "./SpeechBubble";
 import PettingFeedback, { type TouchFeedback } from "./PettingFeedback";
@@ -33,7 +34,7 @@ type Frame = { row: number; col: number; pose_scale?: number; petting?: TouchFee
 export default function App() {
   const press = useRef<{x:number;y:number;at:number;moved:boolean} | null>(null);
   const [frame, setFrame] = useState<Frame>({ row: 0, col: 0 });
-  const [bubble, setBubble] = useState<{ text: string; id: number; duration: number; protect: boolean } | null>(null);
+  const [bubble, setBubble] = useState<{ text: string; id: number; duration: number; protect: boolean; pending?: boolean } | null>(null);
   const [src, setSrc] = useState<string>(BUILTIN_SRC);
   const [rows, setRows] = useState<number>(DEFAULT_ROWS);
   const [clickable,setClickable]=useState(false);
@@ -51,6 +52,10 @@ export default function App() {
   const readySent = useRef(false);
   const errorUntil = useRef(0);
   const bubbleUntil = useRef(0);
+  const lastReply = useRef<{text:string;expires:number}|null>(null);
+  const pendingReply = useRef(false);
+  const screenPending = useRef(false);
+  const replyExpiryTimer=useRef<number|null>(null);
 
   const dismissBubble = useCallback(() => setBubble(null), []);
   const protectBubble = useCallback((duration: number) => {
@@ -66,19 +71,22 @@ export default function App() {
     let latestFrame: Frame = { row: 0, col: 0 };
     let activeRows = DEFAULT_ROWS;
     let treatTimer: number | null = null;
-    const displayMessage = (text: string, duration = BUBBLE_MS, protect = duration > BUBBLE_MS) => {
+    const displayMessage = (text: string, duration = BUBBLE_MS, protect = duration > BUBBLE_MS, pending = false) => {
       if (!alive) return;
       if (protect) errorUntil.current = Date.now() + duration;
       bubbleUntil.current = Date.now() + duration;
       void invoke("ai_protect_bubble", {durationMs: duration}).catch(console.error);
       bubbleId.current += 1;
-      setBubble({ text, id: bubbleId.current, duration, protect });
+      setBubble({ text, id: bubbleId.current, duration, protect, pending });
     };
 
-    const displayAiMessage = (text: string) => {
+    const displayAiMessage = (text: string, expires = 0) => {
+      pendingReply.current=false;screenPending.current=false;lastReply.current={text,expires};
+      if(replyExpiryTimer.current!==null)window.clearTimeout(replyExpiryTimer.current);
+      replyExpiryTimer.current=expires?window.setTimeout(()=>{if(lastReply.current?.expires&&lastReply.current.expires<=Date.now())lastReply.current=null;},Math.max(0,expires-Date.now())):null;
       const duration=Math.max(10000,Array.from(text).length*350);
       displayMessage(text,duration,true);
-      void invoke("pet_chat_motion",{thinking:false,durationMs:duration}).catch(console.error);
+      void invoke("pet_chat_motion",{thinking:false,durationMs:duration,style:replyMotion(text)}).catch(console.error);
     };
 
     const applyPet = async (pet: PetSwitch) => {
@@ -118,7 +126,7 @@ export default function App() {
     });
 
     const offSay = listen<string>("pet:say", (event) => {
-      if (!alive || Date.now() < errorUntil.current || Date.now() < bubbleUntil.current) return;
+      if (!alive || pendingReply.current || screenPending.current || Date.now() < errorUntil.current || Date.now() < bubbleUntil.current) return;
       const text = pickSpeech(speech.current, event.payload, lastText.current, speechHistory.current);
       if (!text) return;
       lastText.current = text;
@@ -137,7 +145,7 @@ export default function App() {
     const offEncounter=listen<EncounterView>("pet:encounter",e=>{if(alive) setEncounter(e.payload);});
     const offIntro=listen("pet:onboarding-complete",()=>{try{localStorage.setItem("pet-menu-intro-v2","seen");}catch{/* Opening menus still works without storage. */}});
     const offMessage = listen<string>("pet:message",event => {
-      if(alive && Date.now()>=errorUntil.current) displayMessage(event.payload);
+      if(alive && !pendingReply.current && !screenPending.current && Date.now()>=errorUntil.current) displayMessage(event.payload);
     });
     const offReply = listen<{content:string;status:string;preview:boolean;error:string|null}>("ai:reply", event => {
       if(!alive || event.payload.preview || event.payload.status==="generating") return;
@@ -146,14 +154,20 @@ export default function App() {
       if(event.payload.status==="cancelled" || event.payload.error) void invoke("pet_chat_motion",{thinking:false,durationMs:0}).catch(console.error);
     });
     const offScreen = listen<{text:string}>("ai:screen-bubble", event => {
-      if(alive && event.payload.text.trim()) displayAiMessage(event.payload.text);
+      if(alive && event.payload.text.trim()) displayAiMessage(event.payload.text,Date.now()+120000);
     });
-    const offStarted = listen<{preview:boolean}>("ai:started", event=>{if(alive&&!event.payload.preview) {displayMessage("让我想想…",8000,true);void invoke("pet_chat_motion",{thinking:true,durationMs:120000}).catch(console.error);}});
-    const offCleared = listen("ai:cleared",()=>{if(alive){setBubble(null);bubbleUntil.current=0;errorUntil.current=0;void invoke("pet_chat_motion",{thinking:false,durationMs:0}).catch(console.error);}});
+    const offScreenProgress=listen<{busy:boolean;status:string}>("ai:screen-progress",event=>{
+      if(!alive || pendingReply.current) return;
+      if(event.payload.busy) {screenPending.current=true;displayMessage(event.payload.status,8000,true,true);void invoke("pet_chat_motion",{thinking:true,durationMs:120000}).catch(console.error);}
+      else if(screenPending.current) {screenPending.current=false;displayMessage(event.payload.status,7000,true);void invoke("pet_chat_motion",{thinking:false,durationMs:0}).catch(console.error);}
+    });
+    const offStarted = listen<{preview:boolean}>("ai:started", event=>{if(alive&&!event.payload.preview) {screenPending.current=false;pendingReply.current=true;displayMessage("让我想想…",8000,true,true);void invoke("pet_chat_motion",{thinking:true,durationMs:120000}).catch(console.error);}});
+    const offReplay=listen("pet:replay",()=>{if(alive&&!pendingReply.current&&!screenPending.current){const reply=lastReply.current;if(reply&&(!reply.expires||Date.now()<reply.expires))displayAiMessage(reply.text,reply.expires);else {lastReply.current=null;displayMessage(reply?"上一条屏幕观察已过期，可以重新观察。":"还没有上一句回复，点我就能聊聊。",5000);}}});
+    const offCleared = listen("ai:cleared",()=>{if(alive){pendingReply.current=false;screenPending.current=false;lastReply.current=null;setBubble(null);bubbleUntil.current=0;errorUntil.current=0;void invoke("pet_chat_motion",{thinking:false,durationMs:0}).catch(console.error);}});
     const offAi = listen<{ text: string; revision: number }>("ai:ambient", event => {
-      if (!alive || Date.now() < errorUntil.current || Date.now() < bubbleUntil.current || !event.payload.text.trim()) return;
+      if (!alive || pendingReply.current || screenPending.current || Date.now() < errorUntil.current || Date.now() < bubbleUntil.current || !event.payload.text.trim()) return;
       void invoke<boolean>("ai_claim_ambient", { revision: event.payload.revision }).then(valid => {
-        if (valid && alive && Date.now() >= errorUntil.current && Date.now() >= bubbleUntil.current) displayAiMessage(event.payload.text.slice(0, 160));
+        if (valid && alive && Date.now() >= errorUntil.current && Date.now() >= bubbleUntil.current) displayAiMessage(event.payload.text.slice(0, 160),Date.now()+120000);
       }).catch(() => {});
     });
     const offTreat = listen("pet:treat",()=>{
@@ -168,7 +182,7 @@ export default function App() {
     });
 
     // 监听注册完成再取快照，避免启动时漏掉帧 / 切换事件。
-    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter, offIntro, offAi, offReply, offScreen, offStarted, offCleared]).then(async () => {
+    Promise.all([offFrame, offSay, offSwitch, offState, offError, offMessage, offTreat, offEncounter, offIntro, offAi, offReply, offScreen, offStarted, offCleared, offReplay, offScreenProgress]).then(async () => {
       const observed = revision;
       const pet = await invoke<PetSwitch>("current_pet");
       if (alive && revision === observed) await applyPet(pet);
@@ -181,6 +195,7 @@ export default function App() {
     return () => {
       alive = false;
       if(treatTimer!==null) window.clearTimeout(treatTimer);
+      if(replyExpiryTimer.current!==null)window.clearTimeout(replyExpiryTimer.current);
       offFrame.then((off) => off()).catch(console.error);
       offSay.then((off) => off()).catch(console.error);
       offSwitch.then((off) => off()).catch(console.error);
@@ -192,8 +207,10 @@ export default function App() {
       offIntro.then(off=>off()).catch(console.error);
       offAi.then(off=>off()).catch(console.error);
       offReply.then(off=>off()).catch(console.error);
+      offScreenProgress.then(off=>off()).catch(console.error);
       offScreen.then(off=>off()).catch(console.error);
       offStarted.then(off=>off()).catch(console.error);
+      offReplay.then(off=>off()).catch(console.error);
       offCleared.then(off=>off()).catch(console.error);
     };
   }, []);
@@ -201,7 +218,7 @@ export default function App() {
   return (
     <div className="stage" onContextMenu={e => { e.preventDefault(); void invoke("open_pet_menu").catch(error=>{setBubble({id:++bubbleId.current,text:`菜单没打开：${String(error)}`,duration:5000,protect:true});}); }}>
       {bubble && (
-        <SpeechBubble key={bubble.id} text={bubble.text} duration={bubble.duration} onDismiss={dismissBubble} onDuration={protectBubble}/>
+        <SpeechBubble key={bubble.id} text={bubble.text} duration={bubble.duration} onDismiss={dismissBubble} onDuration={protectBubble} pending={bubble.pending}/>
       )}
       <PettingFeedback touch={frame.petting}/>
       <DizzyStars dizzy={frame.dizzy}/>

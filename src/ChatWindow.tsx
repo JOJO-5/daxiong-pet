@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import CompanionPanel from "./CompanionPanel";
 import CompanionPreferences from "./CompanionPreferences";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -107,6 +108,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState<Personality | null>(null);
+  const [settingsGroup,setSettingsGroup]=useState("companion");
   const [mode, setMode] = useState<"chat" | "personality">("chat");
   const [text, setText] = useState("");
   const [preview, setPreview] = useState("");
@@ -128,6 +130,8 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
     { id: number; name: string; primary: boolean }[]
   >([]);
   const [screenReply, setScreenReply] = useState("");
+  const [screenReplyExpires,setScreenReplyExpires]=useState(0);
+  useEffect(()=>{if(!screenReplyExpires)return;const timer=window.setTimeout(()=>{setScreenReply("");setScreenReplyExpires(0);},Math.max(0,screenReplyExpires-Date.now()));return()=>window.clearTimeout(timer);},[screenReplyExpires]);
   const [memorySearch, setMemorySearch] = useState("");
   const memoryRevision = useRef<string | null>(null);
   const draftDirty = useRef(false);
@@ -282,8 +286,9 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
     const offScreenReply = listen<{ text: string; revision: number }>(
       "ai:screen-reply",
       (e) => {
-        if (alive && e.payload.revision >= screenRevision.current)
-          setScreenReply(e.payload.text);
+        if (alive && e.payload.revision >= screenRevision.current) {
+          setScreenReply(e.payload.text);setScreenReplyExpires(Date.now()+120000);
+        }
       },
     );
     void invoke<typeof displays>("ai_displays")
@@ -293,7 +298,6 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
       .catch(() => {});
     const screenTimer = window.setInterval(() => {
       if (alive) {
-        setScreenReply("");
         setSnapshot((old) =>
           old
             ? {
@@ -589,14 +593,15 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
         </div>
       ) : (
         <>
-          {!snapshot.assets.available &&
+          {mode === "chat" && !snapshot.assets.available &&
           snapshot.settings.backend === "bundled" ? (
             <aside className="chat-setup" role="status">
               <strong>本地模型还没准备好</strong>
               <p>{snapshot.assets.note}</p>
-              <p>可以先编辑性格；准备好资源后重新打开聊天。</p>
+              <p>可以先编辑性格，也可以下载推荐模型。</p>
+              <button onClick={()=>{setMode("personality");setSettingsGroup("models");}}>去下载模型</button>
             </aside>
-          ) : !snapshot.settings.enabled ? (
+          ) : mode === "chat" && !snapshot.settings.enabled ? (
             <aside className="chat-setup">
               <p>
                 让{pet}陪你聊聊。首次回复需要加载本地模型，屏幕观察尚未开启。
@@ -749,8 +754,11 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
             </>
           ) : draft ? (
             <div className="chat-settings">
-              <CompanionPreferences/>
-              <section>
+              <nav className="chat-settings-nav" aria-label="设置分类">
+                {[["companion","陪伴与性格"],["screen","屏幕观察"],["models","模型与性能"],["memory","记忆与隐私"]].map(([id,label])=><button key={id} aria-pressed={settingsGroup===id} onClick={()=>setSettingsGroup(id)}>{label}</button>)}
+              </nav>
+              <div hidden={settingsGroup!=="companion"}><CompanionPreferences/></div>
+              <section hidden={settingsGroup!=="companion"}>
                 <h2>狗狗的性格</h2>
                 <p className="chat-footnote">
                   调整说话方式，保存后影响下一次聊天。
@@ -872,8 +880,9 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   )}
                 </div>
               </section>
-              <section>
-                <h2>本地聊天</h2>
+              <section hidden={settingsGroup!=="models"}>
+                <h2>聊天与模型状态</h2>
+                <p role="status">当前运行方式：{snapshot.settings.backend === "external" ? "外部服务" : snapshot.acceleration_runtime.backend === "ml-drift-gpu" ? "GPU加速（实验性）" : "CPU"}</p>
                 <p className="chat-footnote">
                   {snapshot.assets.model} ·{" "}
                   {snapshot.loaded ? "已加载" : "尚未加载"}
@@ -918,8 +927,8 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   </select>
                 </label>
               </section>
-              <section>
-                <h2>性能设置</h2>
+              <section hidden={settingsGroup!=="models"}>
+                <details><summary>高级：性能设置</summary>
                 <p className="chat-footnote">
                   增加上下文或输出会占用更多内存和时间。图片理解按需加载2B视觉组件。
                 </p>
@@ -982,9 +991,10 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                     />
                   </label>
                 ))}
+              </details>
               </section>
-              <section className="chat-download-section" aria-label="可选GPU加速" data-testid="acceleration-settings">
-                <h2>可选 GPU 加速 · 实验性</h2>
+              <section hidden={settingsGroup!=="models"} className="chat-download-section" aria-label="可选GPU加速" data-testid="acceleration-settings">
+                <details><summary>可选 GPU 加速 · 实验性</summary>
                 <p className="chat-footnote">默认使用 CPU。下载 ML Drift 加速组件后可试运行 GPU 模式；需要单独的 0.8B 文字模型，回答能力可能比默认 2B 弱。图片理解和 OCR 继续使用原有 CPU。</p>
                 <p className="chat-download-size">组件约 {(snapshot.acceleration.component_bytes / 1024 / 1024).toFixed(1)} MiB · 兼容模型约 {(snapshot.acceleration.model_bytes / 1024 / 1024).toFixed(0)} MiB</p>
                 <p className="chat-footnote">安装与下载临时文件建议预留 2.5 GiB；下载完成后不会自动启用。</p>
@@ -1021,8 +1031,9 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   <p>{Math.floor(snapshot.acceleration.received / Math.max(1,snapshot.acceleration.total) * 100)}%</p>
                   <button onClick={() => void invoke("ai_acceleration_cancel").then(refresh).catch((e) => setError(String(e)))}>取消加速下载</button>
                 </> : null}
+              </details>
               </section>
-              <section className="chat-download-section">
+              <section hidden={settingsGroup!=="models"} className="chat-download-section">
                 <h2>内置模型与可选下载</h2>
                 <p className="chat-footnote">
                   完整版预装2B聊天与视觉权重；轻量版保留CPU运行器和OCR，点击下方下载模型后使用。0.8B仅用于文字聊天，下载后需在上方选择。
@@ -1054,7 +1065,8 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                 </label>
                 {snapshot.models.map((model) => (
                   <div className="chat-model-card" key={model.id}>
-                    <strong className="chat-model-name">{model.name}</strong>
+                    <strong className="chat-model-name">{model.id === "vision" ? "图片理解组件" : model.id === "small" ? "轻量聊天模型（仅文字）" : "推荐聊天模型（2B）"}</strong>
+                    <details><summary>技术信息</summary><code>{model.name}</code></details>
                     <span className="chat-model-meta">
                       {(model.bytes / 1024 / 1024).toFixed(0)} MiB ·{" "}
                       {model.installed ? "资源已找到，加载时校验" : "尚未安装"}
@@ -1117,8 +1129,8 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   固定来源和版本，校验完成才启用；已下载的同一权重复用。删除副本保留安装包内置资源。
                 </p>
               </section>
-              <section>
-                <h2>模型服务</h2>
+              <section hidden={settingsGroup!=="models"}>
+                <details><summary>高级：外部模型与屏幕服务</summary>
                 <p className="chat-footnote">
                   当前使用
                   {snapshot.settings.backend === "external"
@@ -1273,7 +1285,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                         setScreenKey("");
                         await refresh();
                         setNotice(
-                          "屏幕服务已保存；允许发送后可用理解图片测试。",
+                          "屏幕服务已保存；允许发送后可用看窗口画面测试。",
                         );
                       } catch (e) {
                         setError(String(e));
@@ -1323,13 +1335,14 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   允许向屏幕理解服务发送屏幕文字和图片
                 </label>
                 <p className="chat-footnote">
-                  未开启时，观察内容只交给内置模型。图片兼容性通过“理解图片”单独验证。
+                  未开启时，观察内容只交给内置模型。图片兼容性通过“看窗口画面”单独验证。
                 </p>
+              </details>
               </section>
-              <section>
+              <section hidden={settingsGroup!=="screen"}>
                 <h2>屏幕观察与主动陪伴</h2>
                 <p className="chat-footnote">
-                  截图不落盘，观察文字最多在内存保留2分钟。单次观察会等3秒，请切换到目标窗口。
+                  自动观察读取文字；“看窗口画面”会另外调用视觉模型。截图不落盘，观察文字最多在内存保留2分钟。单次观察会等3秒，请切换到目标窗口。
                 </p>
                 <label className="chat-switch">
                   <input
@@ -1500,7 +1513,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                         .catch((e) => setError(String(e)))
                     }
                   >
-                    看看这里（读文字）
+                    读窗口文字
                   </button>
                   <button
                     disabled={busy || snapshot.observation.busy}
@@ -1515,7 +1528,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                         .catch((e) => setError(String(e)))
                     }
                   >
-                    理解图片
+                    看窗口画面
                   </button>
                   <button
                     onClick={() =>
@@ -1527,7 +1540,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                         .catch((e) => setError(String(e)))
                     }
                   >
-                    暂停并清除观察
+                    停止本次观察并清除
                   </button>
                 </div>
                 <p role="status">{snapshot.observation.status}</p>
@@ -1536,7 +1549,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   {snapshot.observation.speeches}次。
                 </p>
                 {snapshot.observation.label ? (
-                  <p>{snapshot.observation.label}</p>
+                  <p>本次观察对象：{snapshot.observation.label}</p>
                 ) : null}
                 {snapshot.observation.text ? (
                   <p className="chat-preview-reply">
@@ -1547,8 +1560,10 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                   <p className="chat-preview-reply">{screenReply}</p>
                 ) : null}
               </section>
-              <section>
-                <h2>记住的偏好</h2>
+              <section hidden={settingsGroup!=="memory"}>
+                <h2>它记得什么</h2>
+                <CompanionPanel hideFeed/>
+                <h3>记住的偏好</h3>
                 <p className="chat-footnote">
                   明确告诉大熊的称呼与说话偏好会自动记住。屏幕内容不会成为长期记忆。
                 </p>
@@ -1656,7 +1671,7 @@ export default function ChatWindow({ compact = false }: { compact?: boolean }) {
                     ))
                 )}
               </section>
-              <section>
+              <section hidden={settingsGroup!=="memory"}>
                 <h2>个人数据</h2>
                 <p className="chat-footnote">
                   清空全部个人数据会删除聊天、长期偏好、性格、AI设置和已保存的服务凭据。宠物游戏记录保留。

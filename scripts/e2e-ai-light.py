@@ -10,7 +10,7 @@ try:
     new_session()
     invoke('open_chat');chat = wait(chat_window)
     check('light starts without a ready local model', not snap()['assets']['available'])
-    click('性格与设置')
+    click('性格与设置');click('模型与性能')
     native_click("[...document.querySelectorAll('.chat-model-card')].find(e=>e.textContent.includes('Qwen3.5-2B-Q4_K_M.gguf')).querySelector('button')")
     wait(lambda: snap()['download']['busy'])
     def receiving():

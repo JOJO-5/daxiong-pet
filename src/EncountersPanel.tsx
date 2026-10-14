@@ -4,15 +4,17 @@ import { listen } from "@tauri-apps/api/event";
 import ActionError from "./ActionError";
 
 export type EncounterView = {kind:"ball"|"butterfly"|null;phase:string;right:boolean};
-type Status = EncounterView & {enabled:boolean;quiet_companion:boolean};
+type Status = EncounterView & {enabled:boolean;quiet_companion:boolean;quiet_until:number};
 export default function EncountersPanel() {
-  const [status,setStatus]=useState<Status>({enabled:true,quiet_companion:false,kind:null,phase:"quiet",right:true});
+  const [status,setStatus]=useState<Status>({enabled:true,quiet_companion:false,quiet_until:0,kind:null,phase:"quiet",right:true});
+  const [now,setNow]=useState(()=>Date.now()/1000);
+  useEffect(()=>{const timer=window.setInterval(()=>setNow(Date.now()/1000),1000);return()=>window.clearInterval(timer);},[]);
   const [error,setError]=useState("");
   const [busy,setBusy]=useState(false);
   useEffect(()=>{
     let active=true;
     const off=listen<EncounterView>("pet:encounter",e=>{if(active) setStatus(v=>({...v,...e.payload}));});
-    const offMemory=listen<{encounters_enabled:boolean;quiet_companion:boolean}>("pet:memory",e=>{if(active) setStatus(v=>({...v,enabled:e.payload.encounters_enabled,quiet_companion:e.payload.quiet_companion}));});
+    const offMemory=listen<{encounters_enabled:boolean;quiet_companion:boolean;quiet_until:number}>("pet:memory",e=>{if(active) setStatus(v=>({...v,enabled:e.payload.encounters_enabled,quiet_companion:e.payload.quiet_companion,quiet_until:e.payload.quiet_until}));});
     Promise.all([off,offMemory]).then(()=>invoke<Status>("encounter_status")).then(v=>{if(active) setStatus(v);}).catch(e=>{if(active) setError(String(e));});
     return ()=>{active=false;void off.then(fn=>fn()).catch(console.error);void offMemory.then(fn=>fn()).catch(console.error);};
   },[]);
@@ -23,7 +25,7 @@ export default function EncountersPanel() {
   };
   return <section className="play-card encounter-card">
     <div className="encounter-heading"><h2>偶遇小惊喜</h2><label><input aria-label="开启偶遇小事件" type="checkbox" checked={status.enabled} disabled={busy} onChange={e=>void toggle(e.target.checked)}/>开启</label></div>
-    <p className="small" data-testid="encounter-phase" data-kind={status.kind||"none"} data-phase={status.phase}>{status.quiet_companion?"安静陪伴中，偶遇暂时暂停；原来的偶遇开关会保留。":!status.enabled?"偶遇已关闭，随时可以重新开启":status.kind==="butterfly"?"小蝴蝶来串门啦":status.kind==="ball"?"大熊把球推过来了，想和你玩": "偶尔会来只蝴蝶，或收到大熊的接球邀请"}</p>
+    <p className="small" data-testid="encounter-phase" data-kind={status.kind||"none"} data-phase={status.phase}>{status.quiet_companion||status.quiet_until>now?"安静陪伴中，偶遇暂时暂停；原来的偶遇开关会保留。":!status.enabled?"偶遇已关闭，随时可以重新开启":status.kind==="butterfly"?"小蝴蝶来串门啦":status.kind==="ball"?"大熊把球推过来了，想和你玩": "偶尔会来只蝴蝶，或收到大熊的接球邀请"}</p>
     <p className="small">普通办公时也会偶尔出现；专注、睡觉或与大熊互动时暂停。</p>
     {error?<ActionError error={error} message="偶遇设置保存失败，原设置仍保留。请稍后再试。"/>:null}
   </section>;

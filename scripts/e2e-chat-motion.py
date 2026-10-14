@@ -9,8 +9,8 @@ try:
     invoke('open_playground');time.sleep(1)
     panel=next(h for h in command('GET','/window/handles') if h!=main)
     command('POST','/window',{'handle':panel})
-    if not js("return document.querySelector('details').open"):
-        native_click("document.querySelector('details summary')")
+    if not js("return document.querySelector('.more-settings').open"):
+        native_click("document.querySelector('.more-settings summary')")
     wait(lambda:js("return document.querySelector('[data-testid=mouse-follow]')&&!document.querySelector('[data-testid=mouse-follow]').disabled"))
     check('mouse follow is enabled by default',js("return document.querySelector('[data-testid=mouse-follow]').checked"))
     native_click("document.querySelector('[data-testid=mouse-follow]')")
@@ -38,8 +38,8 @@ try:
     check('AI reply renders original-identity affectionate motion',True)
     time.sleep(2)
     check('reply returns naturally to idle',js("return Number(document.querySelector('[data-testid=pet]').dataset.row)")==0)
-    wait(lambda:js("return Number(document.querySelector('[data-testid=pet]').dataset.row)")==11,8)
-    check('long reply includes another gentle happy motion',True)
+    time.sleep(4)
+    check('ordinary long reply stays calm without periodic celebrations',js("return Number(document.querySelector('[data-testid=pet]').dataset.row)")==0)
     invoke('plugin:event|emit',{'event':'ai:cleared','payload':None})
     wait(lambda:js("return Number(document.querySelector('[data-testid=pet]').dataset.row)")==0)
     check('clearing chat stops reply motion',True)

@@ -101,6 +101,7 @@ struct AppState {
     focusing: AtomicBool,
     ai_available: AtomicBool,
     ai_bubble_until: AtomicU64,
+    bubble_rect: Mutex<Option<[f64;4]>>,
     play: Mutex<play::PlayView>,
     memory: Mutex<MemoryState>,
     activity: Mutex<activities::ActivityView>,
@@ -167,7 +168,7 @@ fn set_encounters(enabled:bool,app:AppHandle)->Result<companion::MemoryView,Stri
 #[tauri::command]
 fn encounter_status(app:AppHandle)->serde_json::Value {
     let state=app.state::<AppState>();let memory=state.memory.lock().unwrap();let event=state.encounter.lock().unwrap();
-    serde_json::json!({"enabled":memory.data.encounters_enabled,"quiet_companion":memory.data.quiet_companion,"kind":event.kind,"phase":event.phase,"right":event.right})
+    serde_json::json!({"enabled":memory.data.encounters_enabled,"quiet_companion":memory.data.quiet_companion,"quiet_until":memory.data.quiet_until,"kind":event.kind,"phase":event.phase,"right":event.right})
 }
 
 #[tauri::command]
@@ -176,9 +177,9 @@ fn set_mouse_follow(enabled:bool,app:AppHandle)->Result<companion::MemoryView,St
 }
 
 #[tauri::command]
-fn pet_chat_motion(thinking:bool,duration_ms:u64,window:tauri::WebviewWindow,app:AppHandle)->Result<(),String> {
+fn pet_chat_motion(thinking:bool,duration_ms:u64,style:Option<String>,window:tauri::WebviewWindow,app:AppHandle)->Result<(),String> {
     if window.label()!="main" {return Err("仅桌宠窗口可以同步聊天动作。".into());}
-    app.state::<AppState>().engine_tx.lock().unwrap().send(engine::Command::ChatMotion(thinking,duration_ms.min(120_000))).map_err(|_|"动作引擎暂不可用。".into())
+    app.state::<AppState>().engine_tx.lock().unwrap().send(engine::Command::ChatMotion(thinking,duration_ms.min(120_000),match style.as_deref() {Some("calm")=>1,Some("curious")=>2,Some("happy")=>3,_=>0})).map_err(|_|"动作引擎暂不可用。".into())
 }
 
 #[tauri::command]
@@ -188,7 +189,24 @@ fn set_playful_fetch(enabled:bool,app:AppHandle)->Result<companion::MemoryView,S
 
 #[tauri::command]
 fn set_quiet_companion(enabled:bool,app:AppHandle)->Result<companion::MemoryView,String> {
-    update_memory(&app,|m|{m.quiet_companion=enabled;Ok(true)})
+    update_memory(&app,|m|{m.quiet_companion=enabled;m.quiet_until=0;Ok(true)})
+}
+
+#[tauri::command]
+fn pet_bubble_rect(rect:Option<[f64;4]>,window:tauri::WebviewWindow,app:AppHandle)->Result<(),String> {
+    if window.label()!="main" {return Err("仅桌宠窗口可以更新气泡区域。".into());}
+    if rect.is_some_and(|r|r.iter().any(|v|!v.is_finite()) || r[0]<0.0 || r[1]<0.0 || r[2]>300.0 || r[3]>84.0 || r[2]<r[0] || r[3]<r[1]) {return Err("气泡区域超出窗口。".into());}
+    *app.state::<AppState>().bubble_rect.lock().unwrap()=rect;Ok(())
+}
+
+#[tauri::command]
+fn companion_snooze(minutes:u64,app:AppHandle)->Result<companion::MemoryView,String> {
+    if !matches!(minutes,0|30|1440) { return Err("暂时安静支持30分钟、到明天或立即恢复。".into()); }
+    update_memory(&app,|m|{m.quiet_until=if minutes==0 {0} else if minutes==1440 {
+        use chrono::TimeZone;
+        let tomorrow=chrono::Local::now().date_naive().succ_opt().and_then(|date|date.and_hms_opt(0,0,0)).and_then(|date|chrono::Local.from_local_datetime(&date).earliest());
+        tomorrow.map(|time|time.timestamp().max(0) as u64).unwrap_or(companion::now()+86400)
+    } else {companion::now()+minutes*60};Ok(true)})
 }
 
 #[tauri::command]
@@ -374,7 +392,7 @@ fn open_pet_menu(app:AppHandle)->Result<(),String> {
     let label=if view.treat_wait>0 {format!("喂饼干（{} 秒后）",view.treat_wait)} else if interacting {"结束互动，喂块饼干".into()} else {"喂一块饼干".into()};
     let feed=MenuItem::with_id(&app,"pet_feed",label,view.treat_wait==0 && view.error.is_none(),None::<&str>).map_err(|e|e.to_string())?;
     let more=SubmenuBuilder::new(&app,"更多").text("pet_preferences","记忆与偏好…").text("pomodoro","专注 / 结束专注").text("toggle","隐藏大熊").build().map_err(|e|e.to_string())?;
-    let menu=MenuBuilder::new(&app).text("play","打开互动面板…").text("ai_chat","和大熊聊聊…").separator().item(&feed)
+    let menu=MenuBuilder::new(&app).text("play","打开互动面板…").text("ai_chat","和大熊聊聊…").text("ai_history","聊天记录与设置…").text("pet_replay","重看上一句").separator().item(&feed)
         .text("pet_ball","抛一球").text("pet_frisbee","扔飞盘").text("pet_tug","一起拔河").text("pet_come","过来")
         .text("pet_stop","收起玩具 / 结束练习").separator().item(&more).build().map_err(|e|e.to_string())?;
     *app.state::<AppState>().pet_menu.lock().unwrap()=Some(menu.clone());
@@ -606,10 +624,15 @@ fn spawn_engine(
             } else {
                 input.button_down = false;
             }
+            let bubble_hot=app.state::<AppState>().bubble_rect.lock().unwrap().is_some_and(|r| {
+                let x=(input.cursor.0-input.win_pos.0) as f64/input.scale_factor;
+                let y=(input.cursor.1-input.win_pos.1) as f64/input.scale_factor;
+                x>=r[0] && x<=r[2] && y>=r[1] && y<=r[3]
+            });
             {
                 let state=app.state::<AppState>();let memory=state.memory.lock().unwrap();
-                input.encounters_enabled=memory.data.encounters_enabled && !memory.data.quiet_companion;
-                engine.set_quiet_companion(memory.data.quiet_companion);
+                input.encounters_enabled=memory.data.encounters_enabled && !memory.data.is_quiet(companion::now()) && !bubble_hot;
+                engine.set_quiet_companion(memory.data.is_quiet(companion::now()) || bubble_hot);
             }
             input.look_enabled = look_enabled.load(Ordering::Relaxed) && app.state::<AppState>().memory.lock().unwrap().data.mouse_follow;
             input.gravity = gravity.load(Ordering::Relaxed);
@@ -706,12 +729,13 @@ fn spawn_engine(
             drop(previous);
 
             // 穿透状态只在变化时下发，避免每帧都过一遍 IPC
+            let window_clickable=out.clickable || bubble_hot;
             let clickable_changed=prev_clickable != Some(out.clickable);
             // GTK realizes input shapes when the window is shown. Keep native
             // input state separate from frontend delivery and refresh on show.
-            if visible && prev_input_clickable != Some(out.clickable) {
-                if window.set_ignore_cursor_events(!out.clickable).is_ok() {
-                    prev_input_clickable = Some(out.clickable);
+            if visible && prev_input_clickable != Some(window_clickable) {
+                if window.set_ignore_cursor_events(!window_clickable).is_ok() {
+                    prev_input_clickable = Some(window_clickable);
                 }
             }
             if clickable_changed {
@@ -829,7 +853,7 @@ fn main() {
             set_mouse_follow,
             pet_chat_motion,
             set_playful_fetch,
-            set_quiet_companion,
+            set_quiet_companion, companion_snooze, pet_bubble_rect,
             encounter_status
         ])
         .setup(|app| {
@@ -897,7 +921,7 @@ fn main() {
                 sleep_frame: sleep_frame.clone(),
                 engine_tx: Mutex::new(tx),
                 pet_revision: pet_revision.clone(),
-                requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false), ai_available:AtomicBool::new(false), ai_bubble_until:AtomicU64::new(0),
+                requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false), ai_available:AtomicBool::new(false), ai_bubble_until:AtomicU64::new(0), bubble_rect:Mutex::new(None),
                 play: Mutex::new(play::Play::default().view()),
                 memory: Mutex::new(memory),
                 activity: Mutex::new(activities::Activities::default().view()),rewarded_trick:AtomicU64::new(0),
@@ -952,7 +976,7 @@ mod tests {
             sleep_frame: Arc::new(AtomicU16::new(pack_sleep(5, 2))), engine_tx: Mutex::new(tx),
             shortcut:Mutex::new(ShortcutPrefs::default()),
             pet_menu:Mutex::new(None),
-            pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false), ai_available:AtomicBool::new(false), ai_bubble_until:AtomicU64::new(0),
+            pet_revision: Arc::new(AtomicU64::new(0)), requested_visible: AtomicBool::new(true), focusing:AtomicBool::new(false), ai_available:AtomicBool::new(false), ai_bubble_until:AtomicU64::new(0), bubble_rect:Mutex::new(None),
                 play: Mutex::new(play::Play::default().view()),
                 activity: Mutex::new(activities::Activities::default().view()),rewarded_trick:AtomicU64::new(0),
                 memory: Mutex::new(MemoryState{data:companion::Memory::default(),error:None}),

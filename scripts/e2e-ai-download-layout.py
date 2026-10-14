@@ -7,8 +7,9 @@ try:
     new_session()
     invoke('open_chat')
     wait(chat_window)
-    click('性格与设置')
+    click('性格与设置');click('模型与性能')
     wait(lambda: js("return document.querySelectorAll('.chat-model-card').length===3"))
+    native_click("document.querySelector('[data-testid=acceleration-settings] summary')")
     for width, height in [(500, 700), (380, 480)]:
         command('POST', '/window/rect', {'width': width, 'height': height})
         time.sleep(.4)

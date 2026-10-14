@@ -31,7 +31,7 @@ try:
     check('chat start renders thinking pose',True)
     time.sleep(2)
     check('thinking returns to idle between small motions',js("return Number(document.querySelector('[data-testid=pet]').dataset.row)")==0)
-    invoke('plugin:event|emit',{'event':'ai:reply','payload':{'content':'我在这里陪你，把这份笔记慢慢写完就好，累了也可以歇一会儿。','status':'completed','preview':False,'error':None}})
+    invoke('plugin:event|emit',{'event':'ai:reply','payload':{'content':'我在这里陪你，把这份笔记慢慢写完就好，我们一起整理今天的见闻。','status':'completed','preview':False,'error':None}})
     wait(lambda:js("return Number(document.querySelector('[data-testid=pet]').dataset.row)")==15)
     time.sleep(.65)
     subprocess.run(['import','-window','root',str(OUT/'reply.png')],check=True)

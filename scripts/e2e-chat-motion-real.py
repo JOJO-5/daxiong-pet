@@ -12,6 +12,7 @@ try:
     invoke('open_chat');chat=wait(chat_window)
     check('bundled model is available for real conversation',snap()['assets']['available'])
     click('聊天');click('启用本地聊天');wait(lambda:snap()['settings']['enabled'])
+    click('性格与设置');click('陪伴与性格')
     check('mouse-follow switch is available in chat settings',js("return !!document.querySelector('[data-testid=mouse-follow]')"))
     click('聊天');request_id=send('今天有点累，简单陪我说一句话吧。')
     command('POST','/window',{'handle':main})

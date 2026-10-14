@@ -1,0 +1,32 @@
+{
+  "passed": [
+    "request ends as complete",
+    "explicit chat name is remembered automatically with source",
+    "request ends as complete",
+    "new explicit name replaces old name",
+    "undo restores prior name immediately",
+    "request ends as complete",
+    "request ends as complete",
+    "third-party and temporary statements do not create preferences",
+    "clear chat retains long-term preference",
+    "native foreground capture and CPU OCR identify fixture",
+    "screen uses separately selected external model",
+    "observation prompt uses current explicitly remembered owner name",
+    "screen preferences never enter long-term memory",
+    "screen text is absent from persisted chat",
+    "image payload works independently of text token budget",
+    "real bundled 2B vision runs through app without remote upload",
+    "real local vision emits a nonempty screen reply, not OCR alone",
+    "vision exposes inference progress and completion",
+    "manual visual reply is also displayed on the pet",
+    "whole desktop scope is explicitly reported",
+    "pause clears short-term context and disables independent toggles",
+    "cancelled pending observation produces no late upload or cache",
+    "background observes with speech independently disabled",
+    "foreground change invalidates prior screen context",
+    "all AI personal data reset restores defaults and keeps pet alive",
+    "normal capture writes no screenshot files to app data",
+    "matching built-in weight is reused without another installed copy"
+  ],
+  "scope": "Native Linux X11; synthetic windows and local protocol fixture; no physical mixed-DPI/macOS TCC verification"
+}

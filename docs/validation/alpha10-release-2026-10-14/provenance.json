@@ -1,0 +1,31 @@
+{
+  "source_sha": "d08757e323a2644b78765b5c416b32e6c06241d2",
+  "build_and_publish_run": 38600064869,
+  "desktop_e2e_run": 38600075461,
+  "artifacts": [
+    {
+      "id": 11915004217,
+      "name": "desktop-e2e-results",
+      "sha256": "0aaca1540268680d638a6d32f0d600af946404cad8949b8f75e0c0ffa26af257"
+    },
+    {
+      "id": 11915606311,
+      "name": "native-daxiong-windows-x64",
+      "sha256": "04f9b96b3819ebc11fd179fb8e7190a1ed27699318093220ae76ccf938ace8de"
+    },
+    {
+      "id": 11914859001,
+      "name": "native-daxiong-macos-x64",
+      "sha256": "61834a199e64036085dbad909575782845dc2b0aed4a2f01083bd5c6bcb98d54"
+    },
+    {
+      "id": 11913662687,
+      "name": "native-daxiong-macos-arm64",
+      "sha256": "d07923692e027402f539357939b86102c44840716c7d2a91dc7db2edbd88a1f6"
+    }
+  ],
+  "scope": "Actual same-source four-platform full/light builds, native smoke and Linux E2E; public Windows/Linux light downloads verified; ordinary UID1000 installed Linux CPU chat and vision without a development resource override; preserve failed 25fps run and hardware/semantic limits.",
+  "source_tree_sha": "b108649f42d1e78b2310f9786f579661b18dabe1",
+  "merged_pr": 12,
+  "merge_sha": "8b4aa4f05e63d15aedcceb37305cd639b0390e47"
+}

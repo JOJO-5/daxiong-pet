@@ -1,0 +1,11 @@
+{
+  "passed": [
+    "public installer runs as ordinary UID1000",
+    "installed package is alpha.10",
+    "public light package retains CPU and OCR without weights",
+    "public installer uses its own resources without a development override",
+    "public installer validates pinned cached 2b weight",
+    "public installer validates pinned cached vision weight"
+  ],
+  "error": "public installed application produces an actual visual reply"
+}

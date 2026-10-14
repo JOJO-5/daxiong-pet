@@ -1,0 +1,12 @@
+{
+  "passed": [
+    "bundled model is available for real conversation",
+    "mouse-follow switch is available in chat settings",
+    "real CPU request drives thinking motion",
+    "request ends as complete",
+    "real CPU reply contains text",
+    "real completed reply exits thinking and displays response",
+    "pet bubble matches actual model reply"
+  ],
+  "error": null
+}

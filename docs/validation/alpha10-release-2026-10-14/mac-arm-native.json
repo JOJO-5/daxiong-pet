@@ -1,0 +1,58 @@
+{
+  "accessibility_ready" : true,
+  "dizzy_visuals" : "real rapid native gaze and screenshot; star and pose inspection is separate from the stationary check",
+  "error" : null,
+  "interaction" : "passed native menu and tug smoke",
+  "menu_down_steps" : 7,
+  "menu_target" : "一起拔河",
+  "multi_display" : "not run",
+  "passed" : [
+    "pet sprites and event listeners finish loading before input",
+    "built application starts and creates a visible native pet window",
+    "first pet tap starts from another active application",
+    "short pet tap opens correctly sized compact window",
+    "Escape hides compact input and keeps pet alive",
+    "compact records button creates full native chat",
+    "Escape hides full chat and keeps compact input alive",
+    "rapid gaze keeps the native window stationary",
+    "head contact keeps the native window stationary",
+    "belly contact keeps the native window stationary",
+    "real right-click menu opens interaction panel",
+    "closing panel keeps pet alive",
+    "real held rope makes pet resist",
+    "release hides rope for celebration",
+    "rope returns for another round"
+  ],
+  "pet_motion" : {
+    "afterX" : 820,
+    "beforeX" : 830
+  },
+  "petting_visuals" : "real pointer head\/belly screenshots; pose inspection is separate from stationary checks",
+  "platform" : "macOS",
+  "rope_input" : {
+    "grabX" : 811,
+    "grabY" : 555,
+    "pullX" : 741,
+    "pullY" : 555
+  },
+  "scope" : "native startup, rapid gaze, head\/belly contact, menu, panel and mouse-held tug; single display",
+  "screen_recording_ready" : true,
+  "window" : {
+    "kCGWindowAlpha" : 1,
+    "kCGWindowBounds" : {
+      "Height" : 240,
+      "Width" : 300,
+      "X" : 810,
+      "Y" : 390
+    },
+    "kCGWindowIsOnscreen" : true,
+    "kCGWindowLayer" : 5,
+    "kCGWindowMemoryUsage" : 2176,
+    "kCGWindowName" : "大熊",
+    "kCGWindowNumber" : 24,
+    "kCGWindowOwnerName" : "daxiong-pet",
+    "kCGWindowOwnerPID" : 27315,
+    "kCGWindowSharingState" : 1,
+    "kCGWindowStoreType" : 1
+  }
+}

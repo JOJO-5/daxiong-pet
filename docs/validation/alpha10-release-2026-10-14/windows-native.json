@@ -1,0 +1,87 @@
+{
+  "platform": "Windows",
+  "passed": [
+    "pet sprites and event listeners finish loading before input",
+    "built-in pet creates a visible native window",
+    "pet has no non-client border",
+    "pet is always on top",
+    "transparent desktop area is click-through",
+    "first pet tap starts from another active window",
+    "short pet tap opens correctly sized compact window",
+    "compact window receives native keyboard focus",
+    "Escape hides compact input and keeps pet alive",
+    "compact records button creates and focuses full native chat",
+    "Escape hides full chat and keeps compact input alive",
+    "rapid gaze keeps the native window stationary",
+    "head contact keeps the native window stationary",
+    "belly contact keeps the native window stationary",
+    "hovered pet accepts native input",
+    "real right-click menu opens interaction panel",
+    "closing panel keeps pet alive",
+    "hovered pet accepts native input",
+    "real held rope makes pet resist",
+    "release hides rope for celebration",
+    "rope returns for another round"
+  ],
+  "error": null,
+  "scope": "native launch, click-through, rapid gaze, head/belly contact, menu, panel and mouse-held tug; single display",
+  "native_style": {
+    "style": "0x14c80000",
+    "extended": "0xc0138",
+    "outer": [
+      362,
+      240,
+      662,
+      480
+    ],
+    "client": [
+      0,
+      0,
+      300,
+      240
+    ]
+  },
+  "quick_geometry": {
+    "outer": [
+      344,
+      488,
+      680,
+      643
+    ],
+    "client": [
+      0,
+      0,
+      320,
+      146
+    ],
+    "scale": 1.0
+  },
+  "dizzy_visuals": "real rapid native gaze and prewarmed screenshot; star and pose inspection is separate from the stationary check",
+  "petting_visuals": "real pointer head/belly screenshots; pose inspection is separate from stationary checks",
+  "menu_pointer": {
+    "requested": [
+      512,
+      400
+    ],
+    "actual": [
+      512,
+      400
+    ],
+    "extended_at_pet": "0x40118"
+  },
+  "native_menu_items": [
+    "打开互动面板…",
+    "和大熊聊聊…",
+    "聊天记录与设置…",
+    "重看上一句",
+    "",
+    "喂一块饼干",
+    "抛一球",
+    "扔飞盘",
+    "一起拔河",
+    "过来",
+    "收起玩具 / 结束练习",
+    "",
+    "更多"
+  ]
+}

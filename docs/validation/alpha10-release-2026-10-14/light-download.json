@@ -1,0 +1,16 @@
+{
+  "error": null,
+  "checks": [
+    "light resources omit chat and visual weights",
+    "light retains CPU runner and OCR",
+    "light starts without a ready local model",
+    "GUI download receives real network bytes",
+    "download verifies pinned size and SHA256",
+    "download enables CPU model without bundled weights",
+    "request ends as complete",
+    "downloaded model generates through native CPU"
+  ],
+  "timings": {
+    "downloaded_cpu_reply_seconds": 9.181
+  }
+}

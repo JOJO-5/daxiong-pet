@@ -99,6 +99,10 @@ int main(int argc,char **argv){gtk_init(&argc,&argv);GtkWidget *w=gtk_window_new
     check('pause clears short-term context and disables independent toggles',not snap()['observation']['text'] and not snap()['settings']['observe_enabled'] and not snap()['settings']['speak_enabled'])
     before=len(requests);invoke('ai_observe',{'vision':False});invoke('ai_pause_observation');time.sleep(4)
     check('cancelled pending observation produces no late upload or cache',len(requests)==before and not snap()['observation']['text'])
+    # Isolate autonomous observation from the preceding manual reply's reading protection.
+    command('POST','/window',{'handle':main})
+    wait(lambda:not js("return !!document.querySelector('.bubble')"),90)
+    command('POST','/window',{'handle':chat})
     configure(screen_scope='window',observe_enabled=True,speak_enabled=False,observe_seconds=15,quiet_hours=False)
     pointer('windowactivate','--sync',target)
     pointer('mousemove',100,100)

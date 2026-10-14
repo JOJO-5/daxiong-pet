@@ -23,8 +23,8 @@ def chat_window():
 
 def native_click(expression):
     wait(lambda: invoke('plugin:window|is_visible', {'label': 'chat'}))
-    rect = js("const e=" + expression + ";if(!e||e.disabled)return null;e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,width:innerWidth};")
-    assert rect, 'button missing or disabled'
+    rect = js("const e=" + expression + ";if(!e||e.disabled)return null;e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();if(r.width<=0||r.height<=0)return null;return {x:r.x+r.width/2,y:r.y+r.height/2,width:innerWidth};")
+    assert rect, 'button missing, disabled or hidden'
     def find_target():
         candidates = subprocess.run(['xdotool', 'search', '--onlyvisible', '--class', 'Daxiong-pet'], capture_output=True, text=True).stdout.splitlines()
         for candidate in candidates:

@@ -1,0 +1,393 @@
+{
+  "version": "1.1.0-alpha.10",
+  "passed": [
+    "Escape dismisses native menu without starting a game",
+    "right-click first item opens real panel",
+    "common games and feed visible while settings collapsed",
+    "nearby panel remains inside screen",
+    "native frisbee item routes existing panel to frisbee",
+    "closing panel retains ongoing frisbee and reusable return",
+    "reopening retains selected game and completed phase",
+    "native feeding commits exactly once and shows cooldown",
+    "shortcut defaults off",
+    "real checkbox registers OS shortcut",
+    "actual OS hotkey restores hidden pet and panel",
+    "shortcut preference written to disk",
+    "left edge opening clamps panel inside work area",
+    "right edge opening clamps panel inside work area",
+    "natural ball invitation routes an existing frisbee panel to fetch",
+    "native stop removes invitation and independent toy",
+    "native come item selects and starts real command",
+    "native stop cancels command without a reward",
+    "hide/show 1 restores native click-through and hover",
+    "hide/show 2 restores native click-through and hover",
+    "hide/show 3 restores native click-through and hover",
+    "focus rejects toy with explicit explanation"
+  ],
+  "hover_trace": [
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "490",
+        "Y": "280",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "640",
+        "Y": "440",
+        "SCREEN": "0",
+        "WINDOW": "4194405"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "490",
+        "Y": "280",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "640",
+        "Y": "440",
+        "SCREEN": "0",
+        "WINDOW": "1293"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "490",
+        "Y": "280",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "640",
+        "Y": "440",
+        "SCREEN": "0",
+        "WINDOW": "4194405"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "true",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "490",
+        "Y": "280",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "640",
+        "Y": "440",
+        "SCREEN": "0",
+        "WINDOW": "4194405"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "0",
+        "Y": "0",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "150",
+        "Y": "160",
+        "SCREEN": "0",
+        "WINDOW": "4194904"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "980",
+        "Y": "500",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "1130",
+        "Y": "660",
+        "SCREEN": "0",
+        "WINDOW": "4194904"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "929",
+        "Y": "500",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "1079",
+        "Y": "660",
+        "SCREEN": "0",
+        "WINDOW": "4194904"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "929",
+        "Y": "498",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "1079",
+        "Y": "658",
+        "SCREEN": "0",
+        "WINDOW": "4194904"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "251",
+        "Y": "280",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "401",
+        "Y": "440",
+        "SCREEN": "0",
+        "WINDOW": "4195387"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "251",
+        "Y": "280",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "401",
+        "Y": "440",
+        "SCREEN": "0",
+        "WINDOW": "4195489"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    },
+    {
+      "native": "10485775",
+      "geometry": {
+        "WINDOW": "10485775",
+        "X": "251",
+        "Y": "280",
+        "WIDTH": "300",
+        "HEIGHT": "240",
+        "SCREEN": "0"
+      },
+      "cursor": {
+        "X": "401",
+        "Y": "440",
+        "SCREEN": "0",
+        "WINDOW": "4195591"
+      },
+      "webview": {
+        "visible": "visible",
+        "clickable": "false",
+        "viewport": [
+          300,
+          240
+        ]
+      },
+      "input_regions": [
+        [
+          0,
+          0,
+          300,
+          240
+        ]
+      ]
+    }
+  ],
+  "error": null
+}

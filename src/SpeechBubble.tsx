@@ -55,12 +55,13 @@ export default function SpeechBubble({ text, duration, onDismiss, onDuration, pe
   }, [text, duration, onDuration]);
 
   useEffect(() => {
-    if (paused || pending) return;
+    if (paused || (pending && pages.length===1)) return;
     const key=`${text}:${page}:${pages.length}:${duration}`;
     if (pageKey.current!==key) {pageKey.current=key;remaining.current=Math.max(PAGE_MS,duration/pages.length);}
     const started=performance.now();
     const timer = window.setTimeout(() => {
       if (page + 1 < pages.length) setPage(page + 1);
+      else if(pending) setPage(0);
       else onDismiss();
     }, remaining.current);
     return () => {window.clearTimeout(timer);remaining.current=Math.max(0,remaining.current-(performance.now()-started));};

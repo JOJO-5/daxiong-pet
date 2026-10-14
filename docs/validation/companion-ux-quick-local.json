@@ -1,0 +1,31 @@
+{
+  "timings": {},
+  "passed": [
+    "short native pet tap opens compact input",
+    "pet tap immediately focuses message input",
+    "compact window respects requested height",
+    "compact input fits centered below pet when space is available",
+    "compact user message immediately reaches full chat",
+    "full chat synchronizes generating state",
+    "request ends as complete",
+    "same completed reply reaches full chat",
+    "pet speaks same complete reply through paginated bubble",
+    "full chat synchronizes busy state to compact input",
+    "request ends as complete",
+    "full chat response also reaches pet bubble",
+    "request ends as cancelled",
+    "stop from full chat releases compact input too",
+    "request ends as complete",
+    "closing full chat preserves visible compact conversation",
+    "request ends as complete",
+    "closing compact input preserves its reply and shared record",
+    "clear full chat clears shared messages and pet reply",
+    "native pet drag does not reopen compact input",
+    "bottom right edge keeps whole compact window inside screen",
+    "visible compact input follows pet to opposite edge",
+    "hiding pet also hides compact input",
+    "one durable pair per shared request and no duplicated service calls"
+  ],
+  "error": null,
+  "scope": "Native Linux X11/WebKit with real OS input and synthetic loopback protocol; GPU/mixed-DPI untested"
+}

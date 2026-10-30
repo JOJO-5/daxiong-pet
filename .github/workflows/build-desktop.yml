@@ -20,7 +20,7 @@ jobs:
             bundles: nsis
             artifact: daxiong-windows-x64
           - name: macOS Apple Silicon
-            os: macos-14
+            os: macos-15
             target: aarch64-apple-darwin
             bundles: dmg
             artifact: daxiong-macos-arm64

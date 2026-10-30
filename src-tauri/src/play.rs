@@ -243,7 +243,9 @@ impl Play {
                 self.catch_ms=0;self.catch_home=input.win_pos;
             } else {
                 out.movement = Some(step_toward(input.win_pos,target,self.chase_speed()*s*dt));
-                out.direction = Some(dx >= 0);
+                // A vertical-only pursuit keeps its previous heading. Choosing right at dx=0
+                // can alternate sprite rows and restart the animation without a real turn.
+                out.direction = Some(self.carry_right);
             }
         }
         if self.phase=="catching" {
@@ -343,6 +345,32 @@ mod tests {
             screen:(-1920,0,1920,1080), button_down:false, look_enabled:true,
             extra_animations:true, encounters_enabled:false, gravity:false,local_hour:12,sleep_frame:(crate::atlas::Row::Failed,2) }
     }
+    #[test]
+    fn vertical_pursuit_keeps_heading_for_ball_and_disc() {
+        for scale in [1.0, 1.25, 2.0] {
+            for disc in [false, true] {
+                for right in [false, true] {
+                    let i = input(scale);
+                    let mut p = Play::default();
+                    if disc { p.start_frisbee(&i, false); } else { p.start(&i, false); }
+                    p.phase = "chasing";
+                    p.carry_right = right;
+                    let s = scale as f32;
+                    p.ball = Some((i.win_pos.0 as f32 + (PET_X + PET_W / 2) as f32 * s,
+                        i.win_pos.1 as f32 + 24.0 * s));
+                    p.velocity = (0.0, 0.0);
+                    for _ in 0..12 {
+                        let step = p.tick(&i);
+                        assert_eq!(p.view().phase, "chasing");
+                        assert_eq!(step.movement.unwrap().0, i.win_pos.0);
+                        assert_eq!(step.direction, Some(right),
+                            "vertical pursuit must not create a turn: scale={scale}, disc={disc}");
+                    }
+                }
+            }
+        }
+    }
+
     #[test]
     fn real_release_distance_changes_pace_and_rolling_remains_grabbable() {
         for scale in [1.0,1.25,2.0] {

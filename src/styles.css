@@ -54,21 +54,19 @@ body {
 }
 @media (prefers-reduced-motion: reduce) { .dizzy-star { animation:none; } }
 
-/* 整张图集，靠 transform 平移到目标格子；用 img 而非背景图，
-   是因为宠物包是以 data URL 下发的，走 src 属性更稳。 */
-.pet-sheet {
+/* The canvas holds one original-size cell; CSS keeps native hit/mouth coordinates. */
+.pet-frame {
   position: absolute;
   left: 0;
   top: 0;
-  image-rendering: auto;
-  will-change: transform;
+  width: 144px;
+  height: 156px;
   pointer-events: none;
-  -webkit-user-drag: none;
 }
 
 /* 睡着时压暗、降饱和，并让亮度极缓慢地起伏，像在呼吸。
-   注意只能用 filter 做动画 —— transform 已经被用来切帧了。 */
-.pet-clip.sleeping .pet-sheet {
+   仅使用 filter，不改变触摸、落脚或嘴部坐标。 */
+.pet-clip.sleeping .pet-frame {
   animation: sleep-breathe 3.6s ease-in-out infinite;
 }
 
@@ -183,7 +181,7 @@ body {
 @keyframes butterfly-leave { to { transform:translateY(-70px);opacity:0; } }
 @keyframes ball-roll { to { transform:rotate(180deg); } }
 @media (prefers-reduced-motion:reduce) {
-  .butterfly,.butterfly .wing,.toy-ball.rolling,.toy-frisbee.flying,.pet-clip.sleeping .pet-sheet,.bubble,.treat-cookie { animation:none; }
+  .butterfly,.butterfly .wing,.toy-ball.rolling,.toy-frisbee.flying,.pet-clip.sleeping .pet-frame,.bubble,.treat-cookie { animation:none; }
 }
 
 .playful-switch { display:flex; align-items:center; gap:7px; margin:10px 0; }

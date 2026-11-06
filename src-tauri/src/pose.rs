@@ -55,7 +55,7 @@ mod tests {
         }
     }
     #[test]
-    fn original_frames_legacy_pets_and_upright_transition_frames_keep_their_size() {
+    fn original_frames_legacy_pets_and_standing_endpoints_keep_their_size() {
         for row in 0..27 {
             let row=Row::from_index(row).unwrap();
             for col in 0..8 {
@@ -65,6 +65,7 @@ mod tests {
                 }
             }
         }
-        for col in [0,1,6,7] {assert_eq!(scale(Row::BellyRoll,col,true),1.0);}
+        for col in [0,7] {assert_eq!(scale(Row::BellyRoll,col,true),1.0);}
+        for col in 1..=6 {assert_eq!(scale(Row::BellyRoll,col,true),1.5);}
     }
 }

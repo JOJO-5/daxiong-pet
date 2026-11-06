@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "atlas source never becomes a visible compositor layer",
+    "visible backing texture is exactly one original cell",
+    "all 216 atlas cells match original RGBA, including empty cells and frame transitions",
+    "sparse next frame erases previous tail and ball",
+    "invalid column cannot sample adjacent cells",
+    "nine-row legacy pet decodes and renders without stretching",
+    "switch back restores exact builtin pixels",
+    "lying scale preserves native viewport and ground transform"
+  ],
+  "dpr_screenshots": [
+    1,
+    1.25,
+    2
+  ],
+  "scope": "Chromium real React renderer; synthetic Tauri IPC, not native OS input or Windows GPU certification"
+}

@@ -22,3 +22,8 @@ magick "$frames/standing.png" "$frames/crouch.png" "$frames/pose-0.png" "$frames
 magick "$root/public/spritesheet-extended.webp" -crop 1536x5200+0+0 +repage "$frames/existing-25.png"
 magick "$frames/existing-25.png" "$root/assets/animation-source/belly-rub-packed.webp" "$root/assets/animation-source/belly-roll-packed.webp" -append -define webp:lossless=true "$root/public/spritesheet-extended.webp"
 magick "$frames/standing.png" "$frames/crouch.png" "$frames/pose-0.png" "$frames/pose-1.png" "$frames/pose-2.png" "$frames/pose-3.png" "$frames/pose-4.png" "$frames/pose-5.png" +append -background '#888' -alpha remove "$root/assets/animation-source/petting-identity-review.png"
+
+# Reviewed shoulder/hip in-betweens preserve the canonical endpoints.
+if [[ -f "$root/assets/animation-source/belly-roll-bridges-source.png" ]]; then
+  python3 "$root/scripts/pack-belly-bridges.py"
+fi

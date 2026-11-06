@@ -188,6 +188,23 @@ mod tests {
         }}
     }
     #[test]
+    fn atlas_track_matches_real_pull_cycle() {
+        for right in [false, true] {
+            let mut i = input(1.0);
+            if !right { i.win_pos.0 = -700; }
+            let mut tug = Tug::new(&i).unwrap();
+            tug.phase = "tugging";
+            let row = if right { crate::atlas::Row::TugRight } else { crate::atlas::Row::TugLeft };
+            let track = crate::atlas::track(row);
+            let mut observed = vec![0u16; track.cols];
+            for elapsed in 0..1100 {
+                tug.elapsed = elapsed;
+                observed[tug.frame()] += 1;
+            }
+            assert_eq!(observed, track.durations);
+        }
+    }
+    #[test]
     fn clicks_no_pull_and_suspension_do_not_complete_a_round() {
         for mode in [0,1,2,3] {
             let mut i=input(1.0);let mut t=Tug::new(&i).unwrap();

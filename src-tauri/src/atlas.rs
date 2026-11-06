@@ -110,13 +110,16 @@ impl Row {
 const D_SHAKE: &[u16] = &[180, 110, 110, 110, 110, 110, 140, 260];
 const D_AFFECTION: &[u16] = &[180, 200, 220, 220, 300, 220, 180, 260];
 const D_HAPPY: &[u16] = &[180, 180, 180, 180, 180, 180, 180, 240];
+// These tracks describe the actual Petting state-machine cadence.
+const D_BELLY_RUB: &[u16] = &[220; 8];
+const D_BELLY_ROLL: &[u16] = &[180; 8];
 const D_SLEEP: &[u16] = &[450, 450, 450, 450, 450, 450, 450, 450];
 const D_WAKE: &[u16] = &[200, 180, 200, 240, 240, 180, 180, 260];
 
 const D_IDLE: &[u16] = &[280, 110, 110, 140, 140, 320];
 const D_EAT: &[u16] = &[450, 350, 350, 300, 300, 300, 350, 400];
 const D_DROP: &[u16] = &[100, 100, 100, 100];
-const D_RUN8: &[u16] = &[120, 120, 120, 120, 120, 120, 120, 220];
+const D_TUG: &[u16] = &[275; 4];
 const D_LOCOMOTION: &[u16] = &[120; 8];
 const D_WAVE: &[u16] = &[140, 140, 140, 280];
 const D_JUMP: &[u16] = &[140, 140, 140, 140, 280];
@@ -129,8 +132,9 @@ const D_LOOK: &[u16] = &[0, 0, 0, 0, 0, 0, 0, 0];
 
 pub fn track(row: Row) -> Track {
     match row {
-        Row::BellyRub | Row::BellyRoll => Track { cols: 8, durations: D_HAPPY, looping: false },
-        Row::TugRight | Row::TugLeft => Track { cols: 8, durations: D_RUN8, looping: true },
+        Row::BellyRub => Track { cols: 8, durations: D_BELLY_RUB, looping: false },
+        Row::BellyRoll => Track { cols: 8, durations: D_BELLY_ROLL, looping: false },
+        Row::TugRight | Row::TugLeft => Track { cols: 4, durations: D_TUG, looping: true },
         Row::DropRight | Row::DropLeft => Track { cols: 4, durations: D_DROP, looping: false },
         Row::ShakeFur => Track { cols: 8, durations: D_SHAKE, looping: false },
         Row::Affection => Track { cols: 8, durations: D_AFFECTION, looping: false },

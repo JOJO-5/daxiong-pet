@@ -68,7 +68,14 @@ jobs:
       - name: Run native bundled model
         run: python scripts/smoke-bundled-ai.py --ai ai-build/ai
       - name: Build packages
+        if: runner.os != 'macOS'
         run: npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }} --config ai-build/tauri-ai.json
+        env:
+          NO_STRIP: true
+          MACOSX_DEPLOYMENT_TARGET: "14.0"
+      - name: Build macOS packages with DMG diagnostics and retry
+        if: runner.os == 'macOS'
+        run: bash scripts/build-macos-dmg.sh ${{ matrix.target }} ai-build/tauri-ai.json full
         env:
           NO_STRIP: true
           MACOSX_DEPLOYMENT_TARGET: "14.0"
@@ -119,18 +126,7 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: "14.0"
       - name: Build macOS light packages with DMG diagnostics and retry
         if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          for attempt in 1 2 3; do
-            if npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }} --config ai-build/tauri-light.json --verbose; then
-              exit 0
-            fi
-            if [ "$attempt" -lt 3 ]; then
-              echo "Light DMG attempt $attempt failed; retrying with verbose diagnostics in 10 seconds."
-              sleep 10
-            fi
-          done
-          exit 1
+        run: bash scripts/build-macos-dmg.sh ${{ matrix.target }} ai-build/tauri-light.json light
         env:
           NO_STRIP: true
           MACOSX_DEPLOYMENT_TARGET: "14.0"

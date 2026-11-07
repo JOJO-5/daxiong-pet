@@ -37,6 +37,16 @@ pub fn lying(row: Row, col: usize, builtin: bool) -> bool {
     builtin && (row == Row::BellyRub || (row == Row::BellyRoll && (2..=5).contains(&col)))
 }
 
+/// Source-cell silhouette envelope for low poses; the empty sky stays click-through.
+pub fn hit_bounds(row: Row, col: usize, builtin: bool) -> Option<((f32,f32),(f32,f32))> {
+    if builtin && row == Row::BellyRoll && matches!(col,1|6) {
+        // Reviewed crouch alpha bounds are (28,110)..(188,203), with a small margin.
+        Some(((26.0,108.0),(190.0,205.0)))
+    } else if lying(row,col,builtin) {
+        Some(((3.0,124.0),(189.0,204.0)))
+    } else { None }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

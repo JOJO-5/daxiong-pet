@@ -61,11 +61,11 @@ impl Dizziness {
         let (row,col,phase,x,y)=if t<150 {(Row::BellyRoll,0,"wobble",144,93)}
         else if t<450 {(Row::Affection,1,"wobble",147,105)}
         else if t<750 {(Row::Affection,3,"wobble",150,109)}
-        else if t<930 {(Row::BellyRoll,1,"fall",143,141)}
+        else if t<930 {(Row::BellyRoll,1,"fall",123,155)}
         else if t<1100 {(Row::BellyRoll,2,"fall",105,174)}
         else if t<2500 {(Row::BellyRoll,3,"down",105,181)}
         else if t<2750 {(Row::BellyRoll,5,"recover",105,174)}
-        else if t<3150 {(Row::BellyRoll,6,"recover",143,141)}
+        else if t<3150 {(Row::BellyRoll,6,"recover",123,155)}
         else {(Row::BellyRoll,7,"recover",144,93)};
         Step {started,frame:Some((row,col)),feedback:Some(Feedback {phase,x,y})}
     }

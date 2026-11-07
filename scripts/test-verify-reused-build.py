@@ -19,7 +19,7 @@ class ReuseGate(unittest.TestCase):
         reuse.validate(overrides.get('run',self.run), overrides.get('jobs',self.jobs),
                        overrides.get('artifacts',self.artifacts), changed, 'JOJO-5/daxiong-pet')
     def test_only_infrastructure_or_documentation_can_change(self):
-        self.check(['scripts/e2e-chat-motion.py','.github/workflows/build-desktop.yml','docs/validation/result.json'])
+        self.check(['scripts/e2e-chat-motion.py','.github/workflows/build-desktop.yml','.github/workflows/e2e-desktop.yml','docs/validation/result.json'])
     def test_production_and_resource_inputs_cannot_change(self):
         for name in ['src/App.tsx','src-tauri/src/engine.rs','public/spritesheet-extended.webp',
                      'package.json','src-tauri/Cargo.lock','scripts/ai-prototype/default-model.json',

@@ -217,7 +217,7 @@ jobs:
           python3 - <<'PYGATE'
           import json, os, subprocess, time
           allowed={'scripts/stage-ai-resources.py','scripts/smoke-bundled-ai.py','.github/workflows/build-desktop.yml','.github/workflows/diagnose-ai-build.yml'}
-          for attempt in range(120):
+          for attempt in range(180):
               runs=json.loads(subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/workflows/e2e-desktop.yml/runs?per_page=50']))['workflow_runs']
               qualified=None
               for r in runs:

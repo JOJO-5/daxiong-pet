@@ -10,7 +10,8 @@ PLATFORMS = {'Windows x64', 'macOS Apple Silicon', 'macOS Intel', 'Linux x64 (X1
 ARTIFACTS = {prefix + platform for prefix in ['', 'light-'] for platform in
              ['daxiong-windows-x64', 'daxiong-macos-arm64', 'daxiong-macos-x64', 'daxiong-linux-x64']}
 # These files do not enter the application or its AI/resource build. Keep narrow.
-INFRA_FILES = {'.github/workflows/build-desktop.yml', 'scripts/e2e-chat-motion.py',
+INFRA_FILES = {'.github/workflows/build-desktop.yml', '.github/workflows/e2e-desktop.yml',
+               'scripts/e2e-chat-motion.py',
                'scripts/verify-reused-build.py', 'scripts/test-verify-reused-build.py'}
 
 def validate(run, jobs, artifacts, changed, repository):

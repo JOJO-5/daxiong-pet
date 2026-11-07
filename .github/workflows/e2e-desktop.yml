@@ -33,6 +33,14 @@ jobs:
       - run: cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol,e2e
       - name: Install Tauri WebDriver
         run: cargo install tauri-driver --version 2.1.0 --locked
+      - name: Record mouse follow switch and chat motions
+        env:
+          DAXIONG_POINTER_TRACE: "1"
+          E2E_RECORD: "1"
+          E2E_FPS: "60"
+          E2E_OUT: "test-results/chat-motion"
+          E2E_SCRIPT: scripts/e2e-chat-motion.py
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Verify and record native head and belly petting
         env:
           E2E_RECORD: "1"
@@ -184,13 +192,6 @@ jobs:
           E2E_VISUAL: "1"
           E2E_OUT: "test-results/ai-bubble"
           E2E_SCRIPT: scripts/e2e-ai-bubble.py
-        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
-      - name: Record mouse follow switch and chat motions
-        env:
-          E2E_RECORD: "1"
-          E2E_FPS: "60"
-          E2E_OUT: "test-results/chat-motion"
-          E2E_SCRIPT: scripts/e2e-chat-motion.py
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session -- bash scripts/e2e-linux.sh
       - name: Verify grouped settings, temporary quiet and reply rereading
         env:

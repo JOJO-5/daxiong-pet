@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "checks": [
+    "showing intro alone does not mark it learned",
+    "opening panel completes first-use discovery",
+    "chasing disables restart and removes respawn action",
+    "feeding states interruption and is visually secondary",
+    "first interaction feedback replaces introductory hint",
+    "returned toy exposes clear repeat action",
+    "repeat continues from returned location",
+    "switch provides feedback after cancelling prior game",
+    "active rope no longer offers restarting button",
+    "explicit feed ends interaction and commits once",
+    "help can be reopened and explains Mac and close semantics",
+    "nickname save gives local success feedback",
+    "relationship comes first and numerical records are optional",
+    "quiet preference preserves the encounter preference",
+    "quiet mode visibly explains paused encounters",
+    "quiet native runtime has no idle speech or encounters",
+    "requested frisbee works while quiet",
+    "quiet mode retains direct interaction feedback",
+    "real restart retains quiet setting and relationship records",
+    "leaving quiet restores original encounter preference"
+  ]
+}

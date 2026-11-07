@@ -1,0 +1,22 @@
+{
+  "run": 42345937123,
+  "sha": "c3c70d6d96e18caa78ab3eca4eb3d83060e3e988",
+  "scope": "CI-only follow-up after application qualification: strict comparison includes global workflow header, compiled build job and exact build workflow path. 10 local guard tests pass; actual main source/build-input job succeeds. No production application files changed.",
+  "jobs": [
+    {
+      "id": 128323563098,
+      "name": "reuse",
+      "conclusion": "success"
+    },
+    {
+      "id": 128323564649,
+      "name": "matrix.name",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 128323607168,
+      "name": "prerelease",
+      "conclusion": "skipped"
+    }
+  ]
+}

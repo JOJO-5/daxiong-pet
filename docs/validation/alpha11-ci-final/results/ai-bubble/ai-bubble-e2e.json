@@ -1,0 +1,9 @@
+{
+  "passed": [
+    "ai:screen-bubble: survives ordinary speech and old timeout",
+    "ai:screen-bubble: expires after reading interval",
+    "ai:reply: survives ordinary speech and old timeout",
+    "ai:reply: expires after reading interval"
+  ],
+  "error": null
+}

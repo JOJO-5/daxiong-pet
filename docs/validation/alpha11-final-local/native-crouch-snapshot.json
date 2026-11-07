@@ -1,0 +1,18 @@
+{
+  "row": "26",
+  "halo": [
+    {
+      "row": 26,
+      "dizzy": {
+        "phase": "recover",
+        "x": 110,
+        "y": 114
+      },
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1.5
+    }
+  ],
+  "col": "6"
+}

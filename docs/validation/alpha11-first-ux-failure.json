@@ -1,0 +1,4 @@
+{
+  "passed": [],
+  "error": "Command '['xdotool', 'search', '--onlyvisible', '--class', 'Daxiong-pet']' returned non-zero exit status 1."
+}

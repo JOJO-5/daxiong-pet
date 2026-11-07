@@ -1,0 +1,74 @@
+{
+  "tag": "v1.1.0-alpha.11",
+  "url": "https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.11",
+  "target": "677c5f71bbc2b0a8418eeca63e1c74662370e159",
+  "scope": "All server digests checked; Windows/Linux light downloaded independently, not all ten installers",
+  "assets": [
+    {
+      "name": "Daxiong-1.1.0-alpha.11-light-linux-x64.AppImage",
+      "bytes": 127924728,
+      "digest": "sha256:486887f1fe109b27a8d7fd8e3ea421e8fa2c7705f09075c68b306bbdadcbee28",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-light-linux-x64.AppImage"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.11-light-linux-x64.deb",
+      "bytes": 68421602,
+      "digest": "sha256:1acc8aef4dc9a87aab4627ccd8af2b79783d487b9fc30f95789bd2031e6a6018",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-light-linux-x64.deb"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.11-light-macos-arm64.dmg",
+      "bytes": 60999195,
+      "digest": "sha256:fc021a864c7cfa7e05f2981749264a846e59fb49e5aef8074502fe228342ea80",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-light-macos-arm64.dmg"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.11-light-macos-x64.dmg",
+      "bytes": 65753854,
+      "digest": "sha256:a6b74862ab092e5b9fd1903ada9e155ecdbd20c6cd71eb2465a43bf2a6879653",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-light-macos-x64.dmg"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.11-light-windows-x64-setup.exe",
+      "bytes": 39498934,
+      "digest": "sha256:f04145d126aced5da88c7a2f99d706be79916519a8cf5c916febdeecc316e187",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-light-windows-x64-setup.exe"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.11-linux-x64.AppImage",
+      "bytes": 1896630776,
+      "digest": "sha256:8caed86ca12b1d0066b7c7466a3fdda916e8412c3f2ac9804bc9355e006db2ce",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-linux-x64.AppImage"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.11-linux-x64.deb",
+      "bytes": 1836631110,
+      "digest": "sha256:d6498f63640e651fc79d01e4615bba8cf2045bc91051f3f18cd3193b776a6e64",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-linux-x64.deb"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.11-macos-arm64.dmg",
+      "bytes": 1850670269,
+      "digest": "sha256:ac49f6122e475e1eec1fe9398c89dc4c9ec750d08b0790343e2c27e94916271e",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-macos-arm64.dmg"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.11-macos-x64.dmg",
+      "bytes": 1855391220,
+      "digest": "sha256:2a4862c4ed110b2d8df215bb882c2b70335b8a4c217976add6066ef1664895f4",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-macos-x64.dmg"
+    },
+    {
+      "name": "Daxiong-1.1.0-alpha.11-windows-x64-setup.exe",
+      "bytes": 1762087455,
+      "digest": "sha256:21441a31c2c6c284fddc85c6153c714addf121f633b81b337f176961c23d6073",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-windows-x64-setup.exe"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 1090,
+      "digest": "sha256:c826ac1e4fe20be0a1298fdb70d5e873d41fa12b82abcf1e75109dd895470fcc",
+      "url": "https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/SHA256SUMS"
+    }
+  ]
+}

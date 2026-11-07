@@ -1,0 +1,598 @@
+{
+  "tag": "v1.1.0-alpha.11",
+  "tag_sha": "677c5f71bbc2b0a8418eeca63e1c74662370e159",
+  "application_build_sha": "27ee153e603274f4cbadd5b41344ee9fe7f071da",
+  "artifact_build_run": 42317215441,
+  "pr": 14,
+  "public_deb_sha256": "1acc8aef4dc9a87aab4627ccd8af2b79783d487b9fc30f95789bd2031e6a6018",
+  "public_install_checks": 14,
+  "ci": {
+    "build": {
+      "id": 42343143088,
+      "source_sha": "677c5f71bbc2b0a8418eeca63e1c74662370e159",
+      "conclusion": "success",
+      "url": "https://github.com/JOJO-5/daxiong-pet/actions/runs/42343143088",
+      "jobs": [
+        {
+          "id": 128315031700,
+          "name": "reuse",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-11-07T05:32:17Z",
+              "completed_at": "2026-11-07T05:32:18Z"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-11-07T05:32:18Z",
+              "completed_at": "2026-11-07T05:32:21Z"
+            },
+            {
+              "name": "Verify unchanged application inputs and complete platform artifacts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-11-07T05:32:21Z",
+              "completed_at": "2026-11-07T05:32:23Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6,
+              "started_at": "2026-11-07T05:32:23Z",
+              "completed_at": "2026-11-07T05:32:23Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7,
+              "started_at": "2026-11-07T05:32:23Z",
+              "completed_at": "2026-11-07T05:32:23Z"
+            }
+          ]
+        },
+        {
+          "id": 128315032681,
+          "name": "matrix.name",
+          "conclusion": "skipped",
+          "steps": []
+        },
+        {
+          "id": 128315075246,
+          "name": "prerelease",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-11-07T05:32:29Z",
+              "completed_at": "2026-11-07T05:32:30Z"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-11-07T05:32:30Z",
+              "completed_at": "2026-11-07T05:32:33Z"
+            },
+            {
+              "name": "Run actions/download-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-11-07T05:32:33Z",
+              "completed_at": "2026-11-07T05:34:24Z"
+            },
+            {
+              "name": "Require regression of unchanged application source",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4,
+              "started_at": "2026-11-07T05:34:24Z",
+              "completed_at": "2026-11-07T06:11:30Z"
+            },
+            {
+              "name": "Prepare full and light downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5,
+              "started_at": "2026-11-07T06:11:30Z",
+              "completed_at": "2026-11-07T06:11:38Z"
+            },
+            {
+              "name": "Publish complete AI preview",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6,
+              "started_at": "2026-11-07T06:11:38Z",
+              "completed_at": "2026-11-07T06:13:39Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12,
+              "started_at": "2026-11-07T06:13:39Z",
+              "completed_at": "2026-11-07T06:13:39Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13,
+              "started_at": "2026-11-07T06:13:39Z",
+              "completed_at": "2026-11-07T06:13:39Z"
+            }
+          ]
+        }
+      ]
+    },
+    "e2e": {
+      "id": 42343147465,
+      "source_sha": "677c5f71bbc2b0a8418eeca63e1c74662370e159",
+      "conclusion": "success",
+      "url": "https://github.com/JOJO-5/daxiong-pet/actions/runs/42343147465",
+      "jobs": [
+        {
+          "id": 128315046271,
+          "name": "Real Tauri WebKit E2E (Linux X11)",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-11-07T05:32:22Z",
+              "completed_at": "2026-11-07T05:32:24Z"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-11-07T05:32:24Z",
+              "completed_at": "2026-11-07T05:32:27Z"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-11-07T05:32:27Z",
+              "completed_at": "2026-11-07T05:32:27Z"
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4,
+              "started_at": "2026-11-07T05:32:27Z",
+              "completed_at": "2026-11-07T05:32:28Z"
+            },
+            {
+              "name": "Run dtolnay/rust-toolchain@stable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5,
+              "started_at": "2026-11-07T05:32:28Z",
+              "completed_at": "2026-11-07T05:32:28Z"
+            },
+            {
+              "name": "Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6,
+              "started_at": "2026-11-07T05:32:28Z",
+              "completed_at": "2026-11-07T05:32:47Z"
+            },
+            {
+              "name": "Install native desktop dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7,
+              "started_at": "2026-11-07T05:32:47Z",
+              "completed_at": "2026-11-07T05:33:34Z"
+            },
+            {
+              "name": "Run npm ci",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8,
+              "started_at": "2026-11-07T05:33:34Z",
+              "completed_at": "2026-11-07T05:33:37Z"
+            },
+            {
+              "name": "Run npm test",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9,
+              "started_at": "2026-11-07T05:33:37Z",
+              "completed_at": "2026-11-07T05:33:37Z"
+            },
+            {
+              "name": "Run npm run build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10,
+              "started_at": "2026-11-07T05:33:37Z",
+              "completed_at": "2026-11-07T05:33:41Z"
+            },
+            {
+              "name": "Run cargo test --locked --manifest-path src-tauri/Cargo.toml",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11,
+              "started_at": "2026-11-07T05:33:41Z",
+              "completed_at": "2026-11-07T05:34:12Z"
+            },
+            {
+              "name": "Run cargo build --locked --manifest-path src-tauri/Cargo.toml --features tauri/custom-protocol,e2e",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12,
+              "started_at": "2026-11-07T05:34:12Z",
+              "completed_at": "2026-11-07T05:34:28Z"
+            },
+            {
+              "name": "Install Tauri WebDriver",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13,
+              "started_at": "2026-11-07T05:34:28Z",
+              "completed_at": "2026-11-07T05:34:29Z"
+            },
+            {
+              "name": "Record mouse follow switch and chat motions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14,
+              "started_at": "2026-11-07T05:34:29Z",
+              "completed_at": "2026-11-07T05:34:44Z"
+            },
+            {
+              "name": "Verify and record native head and belly petting",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15,
+              "started_at": "2026-11-07T05:34:44Z",
+              "completed_at": "2026-11-07T05:35:18Z"
+            },
+            {
+              "name": "Verify and record rapid gaze dizziness and recovery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16,
+              "started_at": "2026-11-07T05:35:18Z",
+              "completed_at": "2026-11-07T05:36:08Z"
+            },
+            {
+              "name": "Verify speech bubble bounds and complete long messages in native WebKit",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17,
+              "started_at": "2026-11-07T05:36:08Z",
+              "completed_at": "2026-11-07T05:36:35Z"
+            },
+            {
+              "name": "Verify predictable controls, help, memory feedback and quiet companionship",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18,
+              "started_at": "2026-11-07T05:36:35Z",
+              "completed_at": "2026-11-07T05:37:03Z"
+            },
+            {
+              "name": "Verify and record native tug interaction",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19,
+              "started_at": "2026-11-07T05:37:03Z",
+              "completed_at": "2026-11-07T05:37:20Z"
+            },
+            {
+              "name": "Record atomic ball and frisbee release in both directions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20,
+              "started_at": "2026-11-07T05:37:20Z",
+              "completed_at": "2026-11-07T05:37:50Z"
+            },
+            {
+              "name": "Record frisbee glide, biting and reusable return",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21,
+              "started_at": "2026-11-07T05:37:50Z",
+              "completed_at": "2026-11-07T05:38:10Z"
+            },
+            {
+              "name": "Upload tug and frisbee recordings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22,
+              "started_at": "2026-11-07T05:38:10Z",
+              "completed_at": "2026-11-07T05:38:12Z"
+            },
+            {
+              "name": "Run native E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23,
+              "started_at": "2026-11-07T05:38:12Z",
+              "completed_at": "2026-11-07T05:43:44Z"
+            },
+            {
+              "name": "Record native visual validation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24,
+              "started_at": "2026-11-07T05:43:44Z",
+              "completed_at": "2026-11-07T05:47:08Z"
+            },
+            {
+              "name": "Record bidirectional carrying validation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25,
+              "started_at": "2026-11-07T05:47:08Z",
+              "completed_at": "2026-11-07T05:47:56Z"
+            },
+            {
+              "name": "Verify fetch variety",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26,
+              "started_at": "2026-11-07T05:47:56Z",
+              "completed_at": "2026-11-07T05:48:33Z"
+            },
+            {
+              "name": "Verify command learning and restart",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27,
+              "started_at": "2026-11-07T05:48:33Z",
+              "completed_at": "2026-11-07T05:49:36Z"
+            },
+            {
+              "name": "Record four tricks",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28,
+              "started_at": "2026-11-07T05:49:36Z",
+              "completed_at": "2026-11-07T05:49:53Z"
+            },
+            {
+              "name": "Verify hidden treat search and game switching",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29,
+              "started_at": "2026-11-07T05:49:53Z",
+              "completed_at": "2026-11-07T05:50:11Z"
+            },
+            {
+              "name": "Record biscuit taking and chewing",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 30,
+              "started_at": "2026-11-07T05:50:11Z",
+              "completed_at": "2026-11-07T05:50:41Z"
+            },
+            {
+              "name": "Verify feeding cancellation and legacy pets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 31,
+              "started_at": "2026-11-07T05:50:41Z",
+              "completed_at": "2026-11-07T05:50:46Z"
+            },
+            {
+              "name": "Verify native menus, shortcut persistence and rollback",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 32,
+              "started_at": "2026-11-07T05:50:46Z",
+              "completed_at": "2026-11-07T05:51:33Z"
+            },
+            {
+              "name": "Record native menus and nearby panel",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 33,
+              "started_at": "2026-11-07T05:51:33Z",
+              "completed_at": "2026-11-07T05:52:13Z"
+            },
+            {
+              "name": "Verify native download settings spacing at normal and narrow sizes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 34,
+              "started_at": "2026-11-07T05:52:13Z",
+              "completed_at": "2026-11-07T05:52:19Z"
+            },
+            {
+              "name": "Verify external chat without bundled model files",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 35,
+              "started_at": "2026-11-07T05:52:19Z",
+              "completed_at": "2026-11-07T05:52:21Z"
+            },
+            {
+              "name": "Stage built-in CPU model, vision and native OCR",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36,
+              "started_at": "2026-11-07T05:52:21Z",
+              "completed_at": "2026-11-07T06:00:43Z"
+            },
+            {
+              "name": "Verify real native offline chat, cancellation and persistence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 37,
+              "started_at": "2026-11-07T06:00:43Z",
+              "completed_at": "2026-11-07T06:01:31Z"
+            },
+            {
+              "name": "Verify AI bubble reading time and speech priority",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38,
+              "started_at": "2026-11-07T06:01:31Z",
+              "completed_at": "2026-11-07T06:01:55Z"
+            },
+            {
+              "name": "Verify grouped settings, temporary quiet and reply rereading",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39,
+              "started_at": "2026-11-07T06:01:55Z",
+              "completed_at": "2026-11-07T06:04:45Z"
+            },
+            {
+              "name": "Verify real CPU chat drives pet motion and bubble",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 40,
+              "started_at": "2026-11-07T06:04:45Z",
+              "completed_at": "2026-11-07T06:04:57Z"
+            },
+            {
+              "name": "Verify compact pet input, shared chat and real CPU reply",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 41,
+              "started_at": "2026-11-07T06:04:57Z",
+              "completed_at": "2026-11-07T06:05:41Z"
+            },
+            {
+              "name": "Verify native capture, OCR, separate service scopes and memory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 42,
+              "started_at": "2026-11-07T06:05:41Z",
+              "completed_at": "2026-11-07T06:07:01Z"
+            },
+            {
+              "name": "Download fixed optional acceleration test model",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 43,
+              "started_at": "2026-11-07T06:07:01Z",
+              "completed_at": "2026-11-07T06:07:13Z"
+            },
+            {
+              "name": "Verify optional download, cancellation and unsupported GPU fallback",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 44,
+              "started_at": "2026-11-07T06:07:13Z",
+              "completed_at": "2026-11-07T06:08:01Z"
+            },
+            {
+              "name": "Verify corrupted optional component automatically recovers on CPU",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 45,
+              "started_at": "2026-11-07T06:08:01Z",
+              "completed_at": "2026-11-07T06:08:14Z"
+            },
+            {
+              "name": "Stage light runtime and OCR without chat weights",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 46,
+              "started_at": "2026-11-07T06:08:14Z",
+              "completed_at": "2026-11-07T06:08:14Z"
+            },
+            {
+              "name": "Verify GUI downloads and uses real CPU model in light edition",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 47,
+              "started_at": "2026-11-07T06:08:14Z",
+              "completed_at": "2026-11-07T06:08:46Z"
+            },
+            {
+              "name": "Build with production timing",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 48,
+              "started_at": "2026-11-07T06:08:46Z",
+              "completed_at": "2026-11-07T06:09:00Z"
+            },
+            {
+              "name": "Verify production encounter cadence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 49,
+              "started_at": "2026-11-07T06:09:00Z",
+              "completed_at": "2026-11-07T06:11:02Z"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 50,
+              "started_at": "2026-11-07T06:11:02Z",
+              "completed_at": "2026-11-07T06:11:05Z"
+            },
+            {
+              "name": "Post Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 97,
+              "started_at": "2026-11-07T06:11:05Z",
+              "completed_at": "2026-11-07T06:11:05Z"
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 98,
+              "started_at": "2026-11-07T06:11:05Z",
+              "completed_at": "2026-11-07T06:11:05Z"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 99,
+              "started_at": "2026-11-07T06:11:05Z",
+              "completed_at": "2026-11-07T06:11:07Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 100,
+              "started_at": "2026-11-07T06:11:07Z",
+              "completed_at": "2026-11-07T06:11:07Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 101,
+              "started_at": "2026-11-07T06:11:07Z",
+              "completed_at": "2026-11-07T06:11:07Z"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

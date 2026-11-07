@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "checks": [
+    "head contact shows a dwell cue before committing",
+    "head contact uses original dedicated animation",
+    "one genuine touch contributes companionship once",
+    "gentle head strokes retain the pose and animate multiple frames",
+    "head overlay is decorative and never captures drag input",
+    "holding contact does not farm repeated rewards",
+    "belly contact begins the roll instead of head animation",
+    "contact follows exposed belly after rolling",
+    "lying canvas uses calibrated width without stretching the source cell",
+    "horizontal body stays inside native stage and shares the original ground line",
+    "belly kick and tail loop visits its animation frames",
+    "head can be stroked while lying without snapping upright",
+    "enlarged cheek outside the old box accepts real native contact",
+    "moving away plays the roll-up sequence",
+    "pressing cancels belly feedback before a drag",
+    "press and movement still drag the pet",
+    "stationary release completes gently before pointer leaves",
+    "focus interrupts an active belly rub",
+    "showing a toy suppresses accidental body petting",
+    "legacy pet gives feedback within its original rows",
+    "switching pets clears the active touch state"
+  ]
+}

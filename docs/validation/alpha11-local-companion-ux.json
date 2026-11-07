@@ -1,0 +1,30 @@
+{
+  "passed": [
+    "settings begin with companionship and preserve four named groups",
+    "model choices are initially out of the normal companionship view",
+    "snooze persists an expiry without changing permanent quiet or encounters",
+    "resume preserves AI observation and speaking permissions",
+    "quiet until tomorrow has a bounded future deadline",
+    "model names explain capabilities and filenames are in details",
+    "GPU and external service settings start collapsed",
+    "500px grouped settings fit horizontally",
+    "380px grouped settings fit horizontally",
+    "OCR and visual actions have distinct visible names",
+    "companion memories, AI preferences and retention share one group",
+    "thinking remains visible beyond the old eight-second timeout",
+    "idle speech cannot replace pending thinking",
+    "actual OS hover pauses bubble expiry",
+    "hover protects reply from idle speech",
+    "leaving bubble resumes its remaining reading time",
+    "native context-menu replay restores the last reply",
+    "serious reply uses calm idle pose",
+    "explicit screen work also shows processing feedback on the pet",
+    "long processing feedback continues paging without dismissing",
+    "stopped screen work leaves a readable outcome instead of hanging",
+    "throw is primary and direct manipulation is progressively disclosed",
+    "panel chat action opens the compact pet input",
+    "screen reply cannot be replayed after its real two-minute expiry",
+    "settings clear the screen reply after its real two-minute expiry"
+  ],
+  "error": null
+}

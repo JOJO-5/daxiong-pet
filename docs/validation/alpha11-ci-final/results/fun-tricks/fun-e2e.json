@@ -1,0 +1,161 @@
+{
+  "version": "1.1.0-alpha.11",
+  "passed": [
+    "come: looks at you before action",
+    "come physically approaches cursor",
+    "come: completed action can be rewarded",
+    "spin: looks at you before action",
+    "spin physically circles and returns",
+    "spin: completed action can be rewarded",
+    "down: looks at you before action",
+    "down: existing pose rendered without moving",
+    "down: completed action can be rewarded",
+    "stay: looks at you before action",
+    "stay: existing pose rendered without moving",
+    "stay: completed action can be rewarded",
+    "practice 1: treat saves skill progress",
+    "practice 1: repeated reward rejected",
+    "focus rejects practice without reward",
+    "manual stop cancels command"
+  ],
+  "frames": [
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 10,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 6,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 0,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 0,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    }
+  ],
+  "fetch_phase_history": [],
+  "error": null
+}

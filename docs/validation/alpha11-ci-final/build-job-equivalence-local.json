@@ -1,0 +1,12 @@
+{
+  "source_sha": "677c5f71bbc2b0a8418eeca63e1c74662370e159",
+  "artifact_run": 42317215441,
+  "validation": "Verified four full/light platform artifacts from 42317215441; application inputs unchanged.",
+  "outputs": [
+    "run_id=42317215441",
+    "source_sha=27ee153e603274f4cbadd5b41344ee9fe7f071da"
+  ],
+  "unit_checks": 10,
+  "scope": "Local pre-publication probe against actual GitHub platform artifacts and source build inputs; guard subsequently committed as c3c70d6 and validated on main run42345937123. No production application files changed.",
+  "hardening_commit": "c3c70d6d96e18caa78ab3eca4eb3d83060e3e988"
+}

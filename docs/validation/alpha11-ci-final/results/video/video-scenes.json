@@ -1,0 +1,37 @@
+{
+  "scenes": [
+    {
+      "scene": "throw-chase-return",
+      "seconds": 3.8
+    },
+    {
+      "scene": "nickname-and-treat",
+      "seconds": 10.5
+    },
+    {
+      "scene": "butterfly",
+      "seconds": 18.3
+    },
+    {
+      "scene": "ball",
+      "seconds": 28.0
+    },
+    {
+      "scene": "idle-to-natural-sleep",
+      "seconds": 35.8
+    },
+    {
+      "scene": "wake",
+      "seconds": 201.1
+    }
+  ],
+  "checks": [
+    "recorded real fetch return",
+    "recorded treat reward",
+    "visible ball center matches native pointer hit center",
+    "recorded both natural encounter animations",
+    "recorded natural sleep animation",
+    "recorded wake animation"
+  ],
+  "error": null
+}

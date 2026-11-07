@@ -1,0 +1,10 @@
+{
+  "passed": [
+    "fixture has no bundled AI resources",
+    "external chat composer works without bundled weights",
+    "request ends as complete",
+    "separate external-only chat sends real request",
+    "external-only chat does not start a local model"
+  ],
+  "scope": "Native Linux WebKit; bundled resources intentionally missing; localhost synthetic service"
+}

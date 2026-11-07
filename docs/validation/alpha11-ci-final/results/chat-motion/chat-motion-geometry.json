@@ -1,0 +1,68 @@
+[
+  {
+    "stage": "before-placement",
+    "tauri_position": {
+      "x": 490,
+      "y": 280
+    },
+    "tauri_size": {
+      "height": 240,
+      "width": 300
+    },
+    "x11": "WINDOW=8388623\nX=490\nY=280\nWIDTH=300\nHEIGHT=240\nSCREEN=0\n",
+    "pointer": "X=850\nY=495\nSCREEN=0\nWINDOW=4194482\n",
+    "frame": {
+      "row": "0",
+      "poseScale": "1",
+      "clickable": "false",
+      "col": "1",
+      "testid": "pet",
+      "sleeping": "false"
+    },
+    "mouse_follow": false
+  },
+  {
+    "stage": "placed",
+    "tauri_position": {
+      "x": 380,
+      "y": 300
+    },
+    "tauri_size": {
+      "height": 240,
+      "width": 300
+    },
+    "x11": "WINDOW=8388623\nX=380\nY=300\nWIDTH=300\nHEIGHT=240\nSCREEN=0\n",
+    "pointer": "X=850\nY=495\nSCREEN=0\nWINDOW=4194482\n",
+    "frame": {
+      "row": "0",
+      "poseScale": "1",
+      "clickable": "false",
+      "col": "3",
+      "testid": "pet",
+      "sleeping": "false"
+    },
+    "mouse_follow": false
+  },
+  {
+    "stage": "final",
+    "tauri_position": {
+      "x": 380,
+      "y": 300
+    },
+    "tauri_size": {
+      "height": 240,
+      "width": 300
+    },
+    "x11": "WINDOW=8388623\nX=380\nY=300\nWIDTH=300\nHEIGHT=240\nSCREEN=0\n",
+    "pointer": "X=30\nY=30\nSCREEN=0\nWINDOW=1293\n",
+    "frame": {
+      "row": "0",
+      "poseScale": "1",
+      "clickable": "false",
+      "col": "0",
+      "testid": "pet",
+      "sleeping": "false"
+    },
+    "mouse_follow": false
+  }
+]

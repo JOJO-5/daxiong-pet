@@ -1,0 +1,23 @@
+{
+  "scope": "native engine hot-area behavior, source-cell envelope matched to reviewed alpha bounds",
+  "before": "fails: crouch 1 must leave empty sky click-through",
+  "after": "89 engine checks pass, 133 full Rust checks pass",
+  "scales": [
+    1,
+    1.25,
+    2
+  ],
+  "frames": [
+    1,
+    6
+  ],
+  "properties": [
+    "empty sky passes through",
+    "displayed head stays clickable"
+  ],
+  "logs": [
+    "/workspace/scratch/animation-release/crouch-hit-before.log",
+    "/workspace/scratch/animation-release/crouch-hit-after.log",
+    "/workspace/scratch/animation-release/native-hit-final-build.log"
+  ]
+}

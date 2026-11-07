@@ -1,0 +1,10 @@
+{
+  "passed": [
+    "500px settings have no horizontal overflow",
+    "500px model names and metadata never overlap",
+    "500px accelerator controls have visible gaps",
+    "380px settings have no horizontal overflow",
+    "380px model names and metadata never overlap",
+    "380px accelerator controls have visible gaps"
+  ]
+}

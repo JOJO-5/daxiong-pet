@@ -1,0 +1,123 @@
+{
+  "build_run": "https://github.com/JOJO-5/daxiong-pet/actions/runs/42317215441",
+  "source_sha": "27ee153e603274f4cbadd5b41344ee9fe7f071da",
+  "note": "All four matrix jobs succeeded. Superseded publisher cancelled after test-only successor; reuse gate verifies identical application inputs. Overall cancellation is not reported as complete workflow success.",
+  "jobs": [
+    {
+      "id": 128232665963,
+      "name": "Linux x64 (X11)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/JOJO-5/daxiong-pet/actions/runs/42317215441/job/128232665963"
+    },
+    {
+      "id": 128232666078,
+      "name": "macOS Intel",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/JOJO-5/daxiong-pet/actions/runs/42317215441/job/128232666078"
+    },
+    {
+      "id": 128232666106,
+      "name": "Windows x64",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/JOJO-5/daxiong-pet/actions/runs/42317215441/job/128232666106"
+    },
+    {
+      "id": 128232666197,
+      "name": "macOS Apple Silicon",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/JOJO-5/daxiong-pet/actions/runs/42317215441/job/128232666197"
+    },
+    {
+      "id": 128249888636,
+      "name": "prerelease",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "html_url": "https://github.com/JOJO-5/daxiong-pet/actions/runs/42317215441/job/128249888636"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 13553940074,
+      "name": "native-daxiong-windows-x64",
+      "size_in_bytes": 4685830,
+      "digest": "sha256:210f8053ee7d5069a660dedd76577d0ac632c4934c8d92cfbfcf50cfebe03e0a",
+      "expired": false
+    },
+    {
+      "id": 13553757184,
+      "name": "light-daxiong-windows-x64",
+      "size_in_bytes": 39491847,
+      "digest": "sha256:e59a638eb96c204ac888922f7ff79084a227cc04ba0ce050a9984d2675057208",
+      "expired": false
+    },
+    {
+      "id": 13552982227,
+      "name": "daxiong-windows-x64",
+      "size_in_bytes": 1762606083,
+      "digest": "sha256:8a9903ef9fd43df72da7634b116196d56cd8ae85049eb271bb46fdc09e97f297",
+      "expired": false
+    },
+    {
+      "id": 13552695945,
+      "name": "native-daxiong-macos-arm64",
+      "size_in_bytes": 837851,
+      "digest": "sha256:cb2252127caa1fab5fb0ab28d836d4d5d2a042441c12043c042bb67c678b5f0b",
+      "expired": false
+    },
+    {
+      "id": 13552422320,
+      "name": "daxiong-macos-x64",
+      "size_in_bytes": 1841705441,
+      "digest": "sha256:b51803232153148a27e4d24e3c0298b17e3743c784b4f9f7aad2641efd37274a",
+      "expired": false
+    },
+    {
+      "id": 13552023106,
+      "name": "light-daxiong-linux-x64",
+      "size_in_bytes": 195556689,
+      "digest": "sha256:27d050e70a4676cfdefdfec6f0120438f0a7c78aa18efee2ad45c7748d8b239c",
+      "expired": false
+    },
+    {
+      "id": 13551938729,
+      "name": "daxiong-macos-arm64",
+      "size_in_bytes": 1836954157,
+      "digest": "sha256:502c3c9dc214870499c1e76535d6fa13030eb2c0953a6c8a75eee8518f1ae18f",
+      "expired": false
+    },
+    {
+      "id": 13551889189,
+      "name": "native-daxiong-macos-x64",
+      "size_in_bytes": 1386084,
+      "digest": "sha256:5c9ed82e2d58a11276482bf6aee8c79abf85c0e900baa3488e57e99c49b3656c",
+      "expired": false
+    },
+    {
+      "id": 13551829551,
+      "name": "light-daxiong-macos-arm64",
+      "size_in_bytes": 60837540,
+      "digest": "sha256:5c554e0abfc8d8ea5dcee1b6e8a7d255c6790742da7141a2c88e8dafe497d366",
+      "expired": false
+    },
+    {
+      "id": 13551574836,
+      "name": "daxiong-linux-x64",
+      "size_in_bytes": 3731574951,
+      "digest": "sha256:27a3c7fb365dde669556f0b227d52464bc2720580ed48fe88ddc1046f199e382",
+      "expired": false
+    },
+    {
+      "id": 13551529553,
+      "name": "light-daxiong-macos-x64",
+      "size_in_bytes": 65594652,
+      "digest": "sha256:a089380c1fddb46a9a3c2edb44f1d93674bf742c27d4cbbdb92e515ce5854590",
+      "expired": false
+    }
+  ],
+  "workflow_status": "completed",
+  "workflow_conclusion": "cancelled"
+}

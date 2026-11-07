@@ -1,0 +1,4947 @@
+{
+  "version": "1.1.0-alpha.11",
+  "passed": [
+    "catch 1: ball released exactly once",
+    "catch 2: ball released exactly once",
+    "catch 3: real third fetch invites chase",
+    "catch 3: only sprite carries ball",
+    "catch 3: ball released exactly once",
+    "catch 4: ball released exactly once",
+    "catch 5: ball released exactly once",
+    "catch 6: real third fetch invites chase",
+    "catch 6: only sprite carries ball",
+    "catch 6: ball released exactly once",
+    "invitation preference saves to local memory",
+    "disabled playful fetch still returns usable ball",
+    "hiding cleans toy and play",
+    "near: real returned ball grabbed",
+    "near: actual release selects distance feedback",
+    "fetch streak 1: celebration row 4 rendered",
+    "far: real returned ball grabbed",
+    "far: actual release selects distance feedback",
+    "fetch streak 2: celebration row 11 rendered",
+    "far: real returned ball grabbed",
+    "far: actual release selects distance feedback",
+    "fetch streak 3: celebration row 15 rendered",
+    "push back moves ball horizontally",
+    "ball is still rolling before native grab",
+    "rolling ball accepts real pointer grab"
+  ],
+  "frames": [
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 0,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 220,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 227,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 233,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 240,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 82,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 75,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 68,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 61,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 220,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 227,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 233,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 240,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 82,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 75,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 68,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 61,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 220,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 227,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 233,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 240,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 82,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 75,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 68,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 61,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 220,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 227,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 233,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 240,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 0,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 82,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 75,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 68,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 61,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 82,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 75,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 68,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 61,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 17,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 82,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 75,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 68,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 61,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 55,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 55,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 19,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 55,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 16,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 220,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 227,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 233,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 240,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 163,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 164,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 165,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 167,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 168,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": {
+        "x": 247,
+        "y": 170,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 173,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 176,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 179,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 182,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 186,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": {
+        "x": 247,
+        "y": 189,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 194,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 198,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 203,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 208,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 214,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 18,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": {
+        "x": 247,
+        "y": 220,
+        "toy": "ball"
+      },
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 4,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    }
+  ],
+  "fetch_phase_history": [
+    {
+      "turn": 1,
+      "phase": "chasing",
+      "catches": 0
+    },
+    {
+      "turn": 1,
+      "phase": "returning",
+      "catches": 0
+    },
+    {
+      "turn": 2,
+      "phase": "chasing",
+      "catches": 1
+    },
+    {
+      "turn": 2,
+      "phase": "returning",
+      "catches": 1
+    },
+    {
+      "turn": 3,
+      "phase": "chasing",
+      "catches": 2
+    },
+    {
+      "turn": 3,
+      "phase": "returning",
+      "catches": 2
+    },
+    {
+      "turn": 4,
+      "phase": "chasing",
+      "catches": 3
+    },
+    {
+      "turn": 4,
+      "phase": "returning",
+      "catches": 3
+    },
+    {
+      "turn": 5,
+      "phase": "chasing",
+      "catches": 4
+    },
+    {
+      "turn": 5,
+      "phase": "returning",
+      "catches": 4
+    },
+    {
+      "turn": 6,
+      "phase": "chasing",
+      "catches": 5
+    },
+    {
+      "turn": 6,
+      "phase": "returning",
+      "catches": 5
+    }
+  ],
+  "error": null
+}

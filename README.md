@@ -8,7 +8,7 @@
 
 ## 下载
 
-带AI的版本：[v1.1.0-alpha.10](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.10)，提供完整包与可在界面下载模型的轻量包。
+带AI的版本：[v1.1.0-alpha.11](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.11)，提供完整包与可在界面下载模型的轻量包。
 
 打开 [最新 Release](https://github.com/JOJO-5/daxiong-pet/releases/latest)，在 Assets 中选择：
 
@@ -178,7 +178,7 @@ MIT
 
 ## 本地 AI 测试版
 
-1.1.0-alpha.10 提供离线 Qwen3.5 2B CPU 聊天、按需图片理解、PP-OCRv5 mobile 原生 OCR。右键、托盘和互动面板均可打开聊天；性格通过界面修改。聊天默认保留30天，明确表达的长期偏好会自动记住，并可编辑、删除和撤销。
+1.1.0-alpha.11 提供离线 Qwen3.5 2B CPU 聊天、按需图片理解、PP-OCRv5 mobile 原生 OCR。右键、托盘和互动面板均可打开聊天；性格通过界面修改。聊天默认保留30天，明确表达的长期偏好会自动记住，并可编辑、删除和撤销。
 
 alpha.10将设置整理为“陪伴与性格、屏幕观察、模型与性能、记忆与隐私”四组，模型用途优先、技术信息与高级选项折叠。新增安静30分钟/到本地午夜、气泡悬停暂停和右键/托盘“重看上一句”；思考持续到回复，手动观察进度同步气泡。聊天小动作依保守文字线索选择，严肃内容保持安静，不周期性庆祝，复用原始形象并保留玩耍/触摸/睡眠/专注优先。在“陪伴与性格”可关闭看向鼠标，重启保留；“读窗口文字”与“看窗口画面”区分OCR和视觉，观察回复两分钟失效，回看不延长保留时间。Windows偶发尾巴外露/顿感尚未确认彻底解决。
 
@@ -196,9 +196,11 @@ alpha.7补齐Windows/macOS系统HTTP/HTTPS代理读取，覆盖模型/加速下�
 
 完整安装包内置2B权重、配套视觉组件、OCR、平台CPU运行器和许可证，不需要Python。视觉按需加载，默认后台只使用OCR；可选下载0.8B文字模型。x64需要AVX2/FMA/F16C，Mac最低14，Linux观察支持X11；Mac需自行授予屏幕录制权限。可选ML Drift GPU模式为实验性：在「性格与设置 → 模型与性能 → 可选 GPU 加速」主动下载独立组件与约963MB兼容0.8B文字模型，再试运行启用；支持取消、关闭和分别删除，失败回退原CPU。图片理解/OCR继续CPU，加速文件不加入安装包。GPU硬件性能/驱动、2B INT4、8GB/11代i5及多屏混合DPI尚未实机验收。
 
-[下载 CPU AI 测试版 v1.1.0-alpha.10](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.10)：提供完整包和文件名带`light`的轻量包，Windows、两种Mac和Linux均可选择。完整包预装2B聊天与视觉权重；light包保留CPU运行器、OCR和许可证，省去约1.94GB权重。在“聊天记录与设置 → 性格与设置 → 模型与性能”点击“下载模型”，也可另下视觉组件；下载有进度、停止和SHA-256校验，完成后不会自动切换模型。轻量包Windows约39MB、Mac约61–66MB、Linux deb约68MB；实际大小与SHA256SUMS见发布资产，现有正式版仍保留。
+[下载 CPU AI 测试版 v1.1.0-alpha.11](https://github.com/JOJO-5/daxiong-pet/releases/tag/v1.1.0-alpha.11)：提供完整包和文件名带`light`的轻量包，Windows、两种Mac和Linux均可选择。完整包预装2B聊天与视觉权重；light包保留CPU运行器、OCR和许可证，省去约1.94GB权重。在“聊天记录与设置 → 性格与设置 → 模型与性能”点击“下载模型”，也可另下视觉组件；下载有进度、停止和SHA-256校验，完成后不会自动切换模型。轻量包Windows约39MB、Mac约61–66MB、Linux deb约68MB；实际大小与SHA256SUMS见发布资产，现有正式版仍保留。
 
-[Windows完整版（约1.76GB，预装2B与视觉组件）](https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.10/Daxiong-1.1.0-alpha.10-windows-x64-setup.exe) · [Windows轻量版（约39.5MB）](https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.10/Daxiong-1.1.0-alpha.10-light-windows-x64-setup.exe)：安装后启用系统HTTP/HTTPS代理，重启大熊，在「性格与设置 → 模型与性能」点击「下载模型」测试。
+[Windows完整版（约1.76GB，预装2B与视觉组件）](https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-windows-x64-setup.exe) · [Windows轻量版（约39.5MB）](https://github.com/JOJO-5/daxiong-pet/releases/download/v1.1.0-alpha.11/Daxiong-1.1.0-alpha.11-light-windows-x64-setup.exe)：安装后启用系统HTTP/HTTPS代理，重启大熊，在「性格与设置 → 模型与性能」点击「下载模型」测试。
+
+alpha.11补齐翻身/起身过渡，隔离绘制当前动画帧，并同步晕倒星星与触摸范围；原始大熊11行素材保留。[动作与发布验证](docs/validation/alpha11-release-2026-11-06.md)记录逐帧对照、原生录屏和保留限制。
 
 开发者使用`scripts/prepare-bundled-ai.py`在目标平台准备完整固定资源，或使用`scripts/stage-ai-resources.py`暂存已验证的运行器/权重/OCR。调试启动设置`DAXIONG_AI_RESOURCE_DIR`。进度见[目标文件](docs/LOCAL-AI-GOALS.md)，实际证据和未验证项见[完整AI功能验收](docs/validation/local-ai-observation-2026-10-11.md)，[ML Drift/LiteRT调查](docs/research/ml-drift-litert-2026-10-11.md)与[可选下载验收](docs/validation/optional-acceleration-2026-10-12.md)区分框架支持、原生CPU基础、产品软件行为和硬件GPU资格。
 

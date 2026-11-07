@@ -1,0 +1,14 @@
+{
+  "run": 42343147465,
+  "source_sha": "677c5f71bbc2b0a8418eeca63e1c74662370e159",
+  "job": 128315046271,
+  "step": {
+    "name": "Record mouse follow switch and chat motions",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 14,
+    "started_at": "2026-11-07T05:34:29Z",
+    "completed_at": "2026-11-07T05:34:44Z"
+  },
+  "scope": "Native geometry + original mouse-follow/chat-motion assertions; full workflow remains in progress."
+}

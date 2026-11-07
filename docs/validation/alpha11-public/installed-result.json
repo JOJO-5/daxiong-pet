@@ -1,0 +1,26 @@
+{
+  "checks": [
+    "installed app runs as ordinary UID 1000 without development resource override",
+    "actual light package omits chat and vision weights",
+    "installed CPU runner OCR and license resources match distributed hashes",
+    "installed package uses isolated 192x208 canvas",
+    "installed head contact uses dedicated original action",
+    "new native roll visits both generated bridge poses",
+    "installed belly is calibrated without atlas bleed",
+    "enlarged cheek retains real native touch",
+    "installed roll up includes both bridge poses and standing endpoint",
+    "retained verified model stays usable after installed app restart",
+    "request ends as complete",
+    "downloaded model produces native CPU chat from installed package",
+    "installed dog bubble receives the same CPU reply",
+    "real short pet tap opens installed compact input with shared history"
+  ],
+  "error": null,
+  "timings": {
+    "public_cpu_reply_seconds": 15.441
+  },
+  "source_label": "published alpha.11 actual installer",
+  "geometry_fixture": "explicit native placement and Tauri geometry agreement before input; default startup placement is not certified",
+  "model_source": "retained SHA-verified GUI download cache",
+  "scope": "ordinary UID1000 actual installed light package; native input and real CPU; no model quality or target hardware certification"
+}

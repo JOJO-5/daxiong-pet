@@ -1,0 +1,23 @@
+{
+  "passed": [
+    "rope button opens independent native toy",
+    "round 1: intended rope direction",
+    "round 1: OS mouse grabs rope",
+    "round 1: tension and pet resistance are real",
+    "round 1: planted bite poses rendered",
+    "round 1: release completes exactly once",
+    "round 1: rope hides for happy response",
+    "round 1: ready for reuse",
+    "round 2: intended rope direction",
+    "round 2: OS mouse grabs rope",
+    "round 2: tension and pet resistance are real",
+    "round 2: planted bite poses rendered",
+    "round 2: release completes exactly once",
+    "round 2: rope hides for happy response",
+    "round 2: ready for reuse",
+    "switching games removes rope",
+    "focus removes native rope",
+    "hide clears rope"
+  ],
+  "error": null
+}

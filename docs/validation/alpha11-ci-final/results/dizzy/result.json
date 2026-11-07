@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "checks": [
+    "ordinary slow gaze does not show dizzy stars",
+    "rapid native left-right gaze triggers dizziness",
+    "stars begin with the head wobble",
+    "dizzy collapse reuses the reviewed side-lying pose",
+    "three stars orbit around the head",
+    "star decoration never captures mouse input",
+    "complete collapse and rise visits the existing transition frames",
+    "all halo positions remain inside the native stage",
+    "dizziness does not award petting affection",
+    "immediate repeated gestures respect the cooldown",
+    "rapid native circular gaze also triggers after cooldown",
+    "pressing the pet immediately clears dizzy stars",
+    "dizzy interruption preserves real pet dragging",
+    "focus suppresses fast gaze gestures",
+    "a visible toy suppresses dizzy gestures",
+    "legacy pet retains ordinary gaze within original atlas rows",
+    "switching pets clears an active dizzy overlay"
+  ]
+}

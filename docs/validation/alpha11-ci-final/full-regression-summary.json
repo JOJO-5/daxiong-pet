@@ -1,0 +1,175 @@
+{
+  "run": 42343147465,
+  "sha": "677c5f71bbc2b0a8418eeca63e1c74662370e159",
+  "conclusion": "success",
+  "artifact": 13563880992,
+  "artifact_zip_sha256": "61d3cd7ac0dc7cacaee9fc5962fda329cbc1df5c25c41f377854ce83a3109c81",
+  "scope": "Per-scenario functional checks; overlapping tests are not a quality score. Model semantic correctness and consumer hardware remain unqualified.",
+  "results": [
+    {
+      "file": "e2e.json",
+      "checks": 46,
+      "error": null
+    },
+    {
+      "file": "production-timing.json",
+      "checks": true,
+      "error": null
+    },
+    {
+      "file": "tug/tug-e2e.json",
+      "checks": 18,
+      "error": null
+    },
+    {
+      "file": "chat-motion/chat-motion-e2e.json",
+      "checks": 11,
+      "error": null
+    },
+    {
+      "file": "treat-compat/treat-e2e.json",
+      "checks": 2,
+      "error": null
+    },
+    {
+      "file": "companion-ux/companion-ux.json",
+      "checks": 25,
+      "error": null
+    },
+    {
+      "file": "fun-snack/fun-e2e.json",
+      "checks": 18,
+      "error": null
+    },
+    {
+      "file": "bubbles/result.json",
+      "checks": 25,
+      "error": null
+    },
+    {
+      "file": "acceleration-download/acceleration-result.json",
+      "checks": 16,
+      "error": null
+    },
+    {
+      "file": "dizzy/result.json",
+      "checks": 17,
+      "error": null
+    },
+    {
+      "file": "ai-light/light-result.json",
+      "checks": 8,
+      "error": null
+    },
+    {
+      "file": "menu/menu-e2e.json",
+      "checks": 26,
+      "error": null
+    },
+    {
+      "file": "carry/carry-e2e.json",
+      "checks": 15,
+      "error": null
+    },
+    {
+      "file": "video/video-scenes.json",
+      "checks": 6,
+      "error": null
+    },
+    {
+      "file": "ux/result.json",
+      "checks": 20,
+      "error": null
+    },
+    {
+      "file": "fun-tricks/fun-e2e.json",
+      "checks": 16,
+      "error": null
+    },
+    {
+      "file": "ai-bubble/ai-bubble-e2e.json",
+      "checks": 4,
+      "error": null
+    },
+    {
+      "file": "ai-download-layout/e2e.json",
+      "checks": 6,
+      "error": null
+    },
+    {
+      "file": "fun-learning/fun-e2e.json",
+      "checks": 23,
+      "error": null
+    },
+    {
+      "file": "ai-chat/e2e.json",
+      "checks": 24,
+      "error": null
+    },
+    {
+      "file": "handoff/handoff-e2e.json",
+      "checks": 36,
+      "error": null
+    },
+    {
+      "file": "ai-external/e2e.json",
+      "checks": 5,
+      "error": null
+    },
+    {
+      "file": "fun-fetch/fun-e2e.json",
+      "checks": 25,
+      "error": null
+    },
+    {
+      "file": "petting/result.json",
+      "checks": 21,
+      "error": null
+    },
+    {
+      "file": "chat-motion-real/chat-motion-real-e2e.json",
+      "checks": 7,
+      "error": null
+    },
+    {
+      "file": "frisbee/frisbee-e2e.json",
+      "checks": 21,
+      "error": null
+    },
+    {
+      "file": "acceleration-fallback/fallback-result.json",
+      "checks": 6,
+      "error": null
+    },
+    {
+      "file": "menu-video/menu-e2e.json",
+      "checks": 22,
+      "error": null
+    },
+    {
+      "file": "treat/treat-e2e.json",
+      "checks": 10,
+      "error": null
+    },
+    {
+      "file": "ai-quick/e2e.json",
+      "checks": 29,
+      "error": null
+    },
+    {
+      "file": "ai-observation/synthetic-observation.json",
+      "checks": null,
+      "error": null
+    },
+    {
+      "file": "ai-observation/local-vision-result.json",
+      "checks": null,
+      "error": null
+    },
+    {
+      "file": "ai-observation/e2e.json",
+      "checks": 27,
+      "error": null
+    }
+  ]
+}

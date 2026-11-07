@@ -1,0 +1,12 @@
+{
+  "error": null,
+  "checks": [
+    "fixture restores previous opt-in with corrupt component",
+    "request ends as complete",
+    "damaged optional component automatically retries on real CPU",
+    "fallback writes one completed reply, not two models concatenated",
+    "request ends as complete",
+    "following request continues on CPU without repeated GPU initialization"
+  ],
+  "scope": "restored previous-enabled fixture plus damaged library; real production fallback and CPU model; no hardware GPU claim"
+}

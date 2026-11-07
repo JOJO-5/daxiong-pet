@@ -1,0 +1,25 @@
+{
+  "checks": [
+    "installed app runs as ordinary UID 1000 without development resource override",
+    "actual light package omits chat and vision weights",
+    "installed CPU runner OCR and license resources match distributed hashes",
+    "public package uses isolated 192x208 canvas",
+    "installed head contact uses dedicated original action",
+    "new native roll visits both generated bridge poses",
+    "installed belly is calibrated without atlas bleed",
+    "enlarged cheek retains real native touch",
+    "public roll up includes both bridge poses and standing endpoint",
+    "light begins with no ready local weights",
+    "real GUI download receives pinned 2B bytes",
+    "download completes with SHA verification and enables local model",
+    "request ends as complete",
+    "downloaded model produces native CPU chat from installed package",
+    "installed dog bubble receives the same CPU reply"
+  ],
+  "error": "{'error': 'window not found', 'ok': False}",
+  "timings": {
+    "public_cpu_reply_seconds": 11.488
+  },
+  "source_label": "CI artifact 13552023106, candidate 27ee153",
+  "scope": "ordinary UID1000 installed light package; real download and CPU, no model quality or target hardware certification"
+}

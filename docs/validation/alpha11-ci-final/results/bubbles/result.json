@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "checks": [
+    "intro border and shadow fit inside native viewport",
+    "intro uses available width instead of half-window shrink-to-fit",
+    "short border and shadow remain inside viewport",
+    "short retains every character across pages",
+    "long border and shadow remain inside viewport",
+    "long retains every character across pages",
+    "english border and shadow remain inside viewport",
+    "english retains every character across pages",
+    "token border and shadow remain inside viewport",
+    "token page 2 fits",
+    "token page 3 fits",
+    "token retains every character across pages",
+    "multiline border and shadow remain inside viewport",
+    "multiline page 2 fits",
+    "multiline retains every character across pages",
+    "long error is readable without leaving the viewport",
+    "error page 2 fits",
+    "error page 3 fits",
+    "error page 4 fits",
+    "ambient speech cannot replace error after original seven seconds",
+    "error page 5 fits",
+    "error page 6 fits",
+    "long error retains every character",
+    "speech disappears after the final page",
+    "pet size and mouth coordinate origin stay unchanged"
+  ]
+}

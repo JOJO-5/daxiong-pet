@@ -1,0 +1,15 @@
+{
+  "run": "https://github.com/JOJO-5/daxiong-pet/actions/runs/42323145711",
+  "source_sha": "4232d92c357dd4a888f35fe1dae281efeb062fdd",
+  "artifact_source_sha": "27ee153e603274f4cbadd5b41344ee9fe7f071da",
+  "artifact_build_run": 42317215441,
+  "qualified_job": 128252175796,
+  "qualified_result": "success",
+  "changed_files": [
+    ".github/workflows/build-desktop.yml",
+    "scripts/e2e-chat-motion.py",
+    "scripts/test-verify-reused-build.py",
+    "scripts/verify-reused-build.py"
+  ],
+  "scope": "Four successful platform jobs and complete live full/light artifacts; source inputs identical except explicit CI/test files. Full E2E remains required before publish."
+}

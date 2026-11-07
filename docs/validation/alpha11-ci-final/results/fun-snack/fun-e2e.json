@@ -1,0 +1,507 @@
+{
+  "version": "1.1.0-alpha.11",
+  "passed": [
+    "easy: independent treat is visible",
+    "easy: native pointer grabs cookie",
+    "easy: cookie placed at real desktop position",
+    "easy: visible cookie centre matches hit point",
+    "easy: pet really moves and finds once",
+    "easy: cookie cleaned after finding",
+    "far: independent treat is visible",
+    "far: native pointer grabs cookie",
+    "far: cookie placed at real desktop position",
+    "far: visible cookie centre matches hit point",
+    "far: pet really moves and finds once",
+    "far: cookie cleaned after finding",
+    "far search pauses to observe along route",
+    "finding does not bypass feeding cooldown or counters",
+    "focus removes hidden treat",
+    "real pet dragging cancels snack game",
+    "starting another game clears snack",
+    "hiding final game leaves no toys"
+  ],
+  "frames": [
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 11,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 0,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 10,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 2,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 4,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 5,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 6,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 7,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 1,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 20,
+      "dizzy": null,
+      "col": 3,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 0,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 15,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 8,
+      "dizzy": null,
+      "col": 0,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 2,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    },
+    {
+      "row": 9,
+      "dizzy": null,
+      "col": 1,
+      "released_toy": null,
+      "petting": null,
+      "pose_scale": 1
+    }
+  ],
+  "fetch_phase_history": [],
+  "error": null
+}

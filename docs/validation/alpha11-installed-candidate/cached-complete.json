@@ -1,0 +1,24 @@
+{
+  "checks": [
+    "installed app runs as ordinary UID 1000 without development resource override",
+    "actual light package omits chat and vision weights",
+    "installed CPU runner OCR and license resources match distributed hashes",
+    "installed package uses isolated 192x208 canvas",
+    "installed head contact uses dedicated original action",
+    "new native roll visits both generated bridge poses",
+    "installed belly is calibrated without atlas bleed",
+    "enlarged cheek retains real native touch",
+    "installed roll up includes both bridge poses and standing endpoint",
+    "retained verified model stays usable after installed app restart",
+    "request ends as complete",
+    "downloaded model produces native CPU chat from installed package",
+    "installed dog bubble receives the same CPU reply",
+    "real short pet tap opens installed compact input with shared history"
+  ],
+  "error": null,
+  "timings": {
+    "public_cpu_reply_seconds": 13.481
+  },
+  "source_label": "CI artifact 13552023106; cached verified GUI-downloaded model; corrected window-aware test",
+  "scope": "ordinary UID1000 installed light package; real download and CPU, no model quality or target hardware certification"
+}

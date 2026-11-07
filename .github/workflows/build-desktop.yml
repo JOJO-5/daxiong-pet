@@ -8,7 +8,8 @@ permissions:
   contents: read
 jobs:
   build:
-    if: github.event_name != 'pull_request' || (github.head_ref != 'feat/local-ai-chat' && github.head_ref != 'feat/pet-quick-chat' && github.head_ref != 'feat/optional-ml-drift')
+    if: >-
+      (github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'ci: reuse build ')) && (github.event_name != 'pull_request' || (github.head_ref != 'feat/local-ai-chat' && github.head_ref != 'feat/pet-quick-chat' && github.head_ref != 'feat/optional-ml-drift'))
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -171,15 +172,36 @@ jobs:
             src-tauri/target/${{ matrix.target }}/release/bundle/appimage/*.AppImage
             src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
 
+  reuse:
+    if: >-
+      github.event_name == 'push' && startsWith(github.event.head_commit.message, 'ci: reuse build ')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      run_id: ${{ steps.verify.outputs.run_id }}
+      source_sha: ${{ steps.verify.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify unchanged application inputs and complete platform artifacts
+        id: verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/verify-reused-build.py
+
   prerelease:
-    needs: build
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/feat/local-ai-chat' || github.ref == 'refs/heads/feat/pet-quick-chat' || github.ref == 'refs/heads/feat/optional-ml-drift')
+    needs: [build, reuse]
+    if: always() && github.event_name == 'push' && (needs.build.result == 'success' || needs.reuse.result == 'success') && (github.ref == 'refs/heads/feat/local-ai-chat' || github.ref == 'refs/heads/feat/pet-quick-chat' || github.ref == 'refs/heads/feat/optional-ml-drift')
     runs-on: ubuntu-latest
     permissions:
       contents: write
       actions: read
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ARTIFACT_BUILD_RUN_ID: ${{ needs.reuse.outputs.run_id || github.run_id }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -188,6 +210,8 @@ jobs:
         with:
           pattern: "*daxiong-*"
           path: release-artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.ARTIFACT_BUILD_RUN_ID }}
       - name: Require regression of unchanged application source
         run: |
           python3 - <<'PYGATE'
@@ -216,7 +240,7 @@ jobs:
           BRANCH_HEAD="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/${GITHUB_REF#refs/heads/}" --jq '.object.sha')"
           if [ "$BRANCH_HEAD" != "$GITHUB_SHA" ]; then echo "Superseded build; publishing is reserved for the current branch head."; exit 0; fi
           TAG="v$(node -p "require('./package.json').version")"
-          printf "\n桌面回归：%s\n四平台内置构建：https://github.com/%s/actions/runs/%s\n" "$(cat validated-e2e-url.txt)" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> docs/release-notes-ai-preview.md
+          printf "\n桌面回归：%s\n四平台内置构建：https://github.com/%s/actions/runs/%s\n发布与源码一致性检查：https://github.com/%s/actions/runs/%s\n" "$(cat validated-e2e-url.txt)" "$GITHUB_REPOSITORY" "$ARTIFACT_BUILD_RUN_ID" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> docs/release-notes-ai-preview.md
           if gh release view "$TAG" >/dev/null 2>&1; then echo "Version already published; existing assets are preserved."; exit 0; fi
           export RELEASE_TAG="$TAG"
           gh release create "$TAG" release-assets/* --target "$GITHUB_SHA" --draft --prerelease --title "大熊 $TAG · CPU AI 完整版与轻量版" --notes-file docs/release-notes-ai-preview.md

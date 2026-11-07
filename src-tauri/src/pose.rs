@@ -37,6 +37,16 @@ pub fn lying(row: Row, col: usize, builtin: bool) -> bool {
     builtin && (row == Row::BellyRub || (row == Row::BellyRoll && (2..=5).contains(&col)))
 }
 
+/// Source-cell silhouette envelope for low poses; the empty sky stays click-through.
+pub fn hit_bounds(row: Row, col: usize, builtin: bool) -> Option<((f32,f32),(f32,f32))> {
+    if builtin && row == Row::BellyRoll && matches!(col,1|6) {
+        // Reviewed crouch alpha bounds are (28,110)..(188,203), with a small margin.
+        Some(((26.0,108.0),(190.0,205.0)))
+    } else if lying(row,col,builtin) {
+        Some(((3.0,124.0),(189.0,204.0)))
+    } else { None }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -55,7 +65,7 @@ mod tests {
         }
     }
     #[test]
-    fn original_frames_legacy_pets_and_upright_transition_frames_keep_their_size() {
+    fn original_frames_legacy_pets_and_standing_endpoints_keep_their_size() {
         for row in 0..27 {
             let row=Row::from_index(row).unwrap();
             for col in 0..8 {
@@ -65,6 +75,7 @@ mod tests {
                 }
             }
         }
-        for col in [0,1,6,7] {assert_eq!(scale(Row::BellyRoll,col,true),1.0);}
+        for col in [0,7] {assert_eq!(scale(Row::BellyRoll,col,true),1.0);}
+        for col in 1..=6 {assert_eq!(scale(Row::BellyRoll,col,true),1.5);}
     }
 }

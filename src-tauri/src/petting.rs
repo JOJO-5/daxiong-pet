@@ -195,6 +195,26 @@ mod tests {
         assert!(p.tick(180,95.0,60.0,true,true).feedback.is_none());
     }
     #[test]
+    fn atlas_timing_matches_rendered_touch_frames() {
+        for mode in [Mode::Down, Mode::Up, Mode::Belly] {
+            let mut p = Petting::default();
+            p.builtin = true;
+            p.mode = mode;
+            let row = if mode == Mode::Belly { Row::BellyRub } else { Row::BellyRoll };
+            let track = crate::atlas::track(row);
+            let mut observed = [0u16; 8];
+            for _ in 0..2000 {
+                let frame = p.tick(0, 100.0, 115.0, true, true).frame.unwrap();
+                assert_eq!(frame.0, row);
+                observed[frame.1] += 1;
+                p.tick(1, 100.0, 115.0, true, true);
+                if p.mode != mode || (mode == Mode::Belly && p.elapsed == 1760) { break; }
+            }
+            let range = match mode { Mode::Down => 0..4, Mode::Up => 4..8, _ => 0..8 };
+            assert_eq!(&observed[range.clone()], &track.durations[range]);
+        }
+    }
+    #[test]
     fn old_pets_never_get_new_rows_and_switch_cancels_the_roll() {
         let mut p=Petting::default();assert_eq!(dwell(&mut p,100.0,115.0,false).frame.unwrap().0,Row::Waving);
         p.cancel();p.cooldown=0;dwell(&mut p,100.0,115.0,true);

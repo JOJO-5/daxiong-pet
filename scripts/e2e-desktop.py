@@ -82,8 +82,18 @@ def window(title):
     return None
 
 def pet_native():
-    windows=subprocess.check_output(["xdotool","search","--onlyvisible","--class","Daxiong-pet"],text=True).strip().splitlines()
-    return next(w for w in windows if "WIDTH=300" in subprocess.check_output(["xdotool","getwindowgeometry","--shell",w],text=True))
+    # Frontend decoding can finish before the native window is mapped by X11.
+    # Poll actual visible geometry; a missing window must still time out.
+    def mapped():
+        search=subprocess.run(["xdotool","search","--onlyvisible","--class","Daxiong-pet"],capture_output=True,text=True)
+        if search.returncode not in (0,1):
+            raise AssertionError(search.stderr)
+        for window in search.stdout.splitlines():
+            geometry=subprocess.run(["xdotool","getwindowgeometry","--shell",window],capture_output=True,text=True)
+            if geometry.returncode==0 and "WIDTH=300\n" in geometry.stdout:
+                return window
+        return None
+    return wait(mapped)
 
 def pointer(*args):
     subprocess.run(["xdotool", *map(str, args)], check=True)

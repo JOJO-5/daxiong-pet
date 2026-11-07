@@ -9,6 +9,7 @@ def pet_text():return js("return document.querySelector('.bubble')?.getAttribute
 try:
     new_session();main=command('GET','/window')
     wait(lambda:js("return document.querySelector('.pet-sheet')?.complete"))
+    wait(lambda:invoke('plugin:window|is_visible',{'label':'main'}))
     invoke('set_mouse_follow',{'enabled':False});invoke('set_encounters',{'enabled':True})
     pointer('windowmove',pet_native(),80,430);pointer('mousemove',20,20)
     invoke('open_chat');chat=wait(chat_window)

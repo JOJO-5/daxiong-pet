@@ -8,7 +8,7 @@ const poseCalibration=readFileSync(fileURLToPath(new URL('../assets/animation-so
 const poseScale=(row,col)=>poseCalibration.find(p=>p.row===row&&col>=p.first&&col<=p.last)?.scale??1;
 // Read native timing so this review tool cannot invent a last-frame pause.
 const atlasSource=readFileSync(fileURLToPath(new URL('../src-tauri/src/atlas.rs',import.meta.url)),'utf8');
-const timingNames={0:'D_IDLE',3:'D_WAVE',4:'D_JUMP',5:'D_FAIL',6:'D_WAIT',7:'D_RUN6',8:'D_REVIEW',1:'D_LOCOMOTION',2:'D_LOCOMOTION',11:'D_HAPPY',12:'D_SLEEP',13:'D_WAKE',14:'D_SHAKE',15:'D_AFFECTION',16:'D_LOCOMOTION',17:'D_LOCOMOTION',18:'D_DROP',19:'D_DROP',20:'D_EAT',21:'D_LOCOMOTION',22:'D_LOCOMOTION',23:'D_RUN8',24:'D_RUN8',25:'D_HAPPY',26:'D_HAPPY'};
+const timingNames={0:'D_IDLE',3:'D_WAVE',4:'D_JUMP',5:'D_FAIL',6:'D_WAIT',7:'D_RUN6',8:'D_REVIEW',1:'D_LOCOMOTION',2:'D_LOCOMOTION',11:'D_HAPPY',12:'D_SLEEP',13:'D_WAKE',14:'D_SHAKE',15:'D_AFFECTION',16:'D_LOCOMOTION',17:'D_LOCOMOTION',18:'D_DROP',19:'D_DROP',20:'D_EAT',21:'D_LOCOMOTION',22:'D_LOCOMOTION',23:'D_TUG',24:'D_TUG',25:'D_BELLY_RUB',26:'D_BELLY_ROLL'};
 function nativeDurations(row) {
   const name=timingNames[row];
   const match=atlasSource.match(new RegExp('const '+name+': &\\[u16\\] = &\\[([^\\]]+)\\];'));
@@ -19,7 +19,7 @@ function nativeDurations(row) {
 const actions = [
   {name:"原版站立（体型基准）",hint:"看头部、胸背带与落脚线；躺姿不能按高度对齐",row:0,durations:nativeDurations(0)},
   {name:"摸肚皮侧躺",hint:"1.5×整体校正，保留关节和原始头身比例",row:25,durations:nativeDurations(25)},
-  {name:"躺下与起身",hint:"站立/伏低保持1×，横躺四帧使用1.5×，落地线固定",row:26,durations:nativeDurations(26)},
+  {name:"躺下与起身",hint:"站立端点保持1×，新中间姿态与侧躺使用1.5×，落地线固定",row:26,durations:nativeDurations(26)},
   { name:"原版向右（形象基准）",hint:"对照脸型、毛色、嘴鼻、腿长与红胸背",row:1,durations:nativeDurations(1) },
   { name:"咬绳向右",hint:"原版形象，闭嘴夹绳、撑地用力与松劲",row:23,durations:nativeDurations(23) },
   { name:"原版向左（形象基准）",hint:"原始图集保持原样，不能以新素材代替基准",row:2,durations:nativeDurations(2) },
@@ -31,7 +31,7 @@ const actions = [
   { name: "松口向左", hint: "归还的球不会自动收起", row: 19, durations:nativeDurations(19) },
   { name: '咬球向右', hint: '球画进动作帧，上下颚夹住球', row: 16, durations:nativeDurations(16) },
   { name: '咬球向左', hint: '保持黑白毛色与红色胸背，咬球跑步', row: 17, durations:nativeDurations(17) },
-  { name: '摸头开心', hint: '光标轻停约 1.2 秒；生气时也可安抚', row: 11, durations:nativeDurations(11) },
+  { name: '开心轨道', hint: '游戏庆祝使用此轨道；摸头手势按180ms逐帧播放', row: 11, durations:nativeDurations(11) },
   { name: '睡眠呼吸', hint: '三分钟没有互动，安静趴下休息', row: 12, durations:nativeDurations(12) },
   { name: '睡醒伸懒腰', hint: '光标碰到睡着的大熊时醒来', row: 13, durations:nativeDurations(13) },
   { name: '甩毛恢复', hint: '快速甩动后，等停稳再整理毛毛', row: 14, durations:nativeDurations(14) },

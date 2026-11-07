@@ -1,0 +1,34 @@
+[
+  {
+    "local_evidence": "test-results/animation-audit/frisbee",
+    "checks": [
+      "native button shows independent blue disc",
+      "throw 1: real button or drag starts glide",
+      "throw 1: air catch, biting carry and release",
+      "throw 1: returned once",
+      "throw 1: airborne feedback",
+      "throw 1: actual disc biting row 22 rendered",
+      "throw 1: disc visible at feet for reuse",
+      "throw 1: spoken feedback matches frisbee",
+      "returned frisbee accepts real pointer grab",
+      "throw 2: real button or drag starts glide"
+    ],
+    "error": "throw 2: air catch, biting carry and release"
+  },
+  {
+    "local_evidence": "test-results/animation-audit-final/frisbee",
+    "checks": [
+      "native button shows independent blue disc",
+      "throw 1: real button or drag starts glide",
+      "throw 1: air catch, biting carry and release",
+      "throw 1: returned once",
+      "throw 1: airborne feedback",
+      "throw 1: actual disc biting row 22 rendered",
+      "throw 1: disc visible at feet for reuse",
+      "throw 1: spoken feedback matches frisbee",
+      "returned frisbee accepts real pointer grab",
+      "throw 2: real button or drag starts glide"
+    ],
+    "error": "throw 2: air catch, biting carry and release"
+  }
+]

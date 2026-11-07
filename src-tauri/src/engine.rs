@@ -473,10 +473,10 @@ impl Engine {
         let inset_x = (PET_W as f32 * scale * HOT_INSET_X).round() as i32;
         let inset_y = (PET_H as f32 * scale * HOT_INSET_Y).round() as i32;
         let pose_scale = crate::pose::scale(self.row,self.col,input.extra_animations);
-        let (top_left,bottom_right) = if crate::pose::lying(self.row,self.col,input.extra_animations) {
-            // Alpha silhouette envelope: do not make the enlarged empty sky clickable.
-            ((PET_X as f32+3.0*0.75,PET_Y as f32+124.0*0.75),
-             (PET_X as f32+189.0*0.75,PET_Y as f32+204.0*0.75))
+        let (top_left,bottom_right) = if let Some((first,last))=crate::pose::hit_bounds(self.row,self.col,input.extra_animations) {
+            // Use the same ground-centered transform for low crouch and lying input.
+            ((PET_X as f32+first.0*0.75,PET_Y as f32+first.1*0.75),
+             (PET_X as f32+last.0*0.75,PET_Y as f32+last.1*0.75))
         } else {
             ((PET_X as f32+inset_x as f32/scale,PET_Y as f32+inset_y as f32/scale),
              ((PET_X+PET_W) as f32-inset_x as f32/scale,(PET_Y+PET_H) as f32-inset_y as f32/scale))
@@ -1423,6 +1423,17 @@ mod tests {
             let mut e=Engine::new();e.row=Row::BellyRub;
             i.button_down=false;i.cursor=(i.win_pos.0+(150.0*dpi) as i32,i.win_pos.1+(110.0*dpi) as i32);
             assert!(!e.tick(&i).clickable);
+            // The new low crouches also leave empty sky above the head.
+            for col in [1,6] {
+                let mut crouch=Engine::new();crouch.row=Row::BellyRoll;crouch.col=col;
+                assert!(!crouch.tick(&i).clickable, "crouch {col} must leave empty sky click-through");
+                let mut crouch=Engine::new();crouch.row=Row::BellyRoll;crouch.col=col;
+                let head=crate::pose::display((123.0,181.5),1.5);
+                i.cursor=(i.win_pos.0+(head.0 as f64*dpi).round() as i32,
+                    i.win_pos.1+(head.1 as f64*dpi).round() as i32);
+                assert!(crouch.tick(&i).clickable, "crouch {col} must retain head contact");
+                i.cursor=(i.win_pos.0+(150.0*dpi) as i32,i.win_pos.1+(110.0*dpi) as i32);
+            }
         }
     }
 

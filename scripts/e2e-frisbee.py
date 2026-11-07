@@ -26,7 +26,12 @@ try:
    pointer('windowmove',native,600,320);time.sleep(.25)
    ball=invoke('play_status')['ball'];pointer('mousemove',*ball);time.sleep(.1);pointer('mousedown',1);wait(lambda:phase()=='held')
    check('returned frisbee accepts real pointer grab')
-   pointer('mousemove',180,550);time.sleep(.2);pointer('mouseup',1);pointer('mousemove',30,30)
+   # Leave enough height for an airborne intercept, even while recording.
+   pointer('mousemove',180,350)
+   # Confirm the held toy reached the intended drop point before settling.
+   # A fixed sleep alone can release on its first motion sample under load.
+   wait(lambda:phase()=='held' and abs(invoke('play_status')['ball'][0]-180)<=4 and abs(invoke('play_status')['ball'][1]-350)<=4)
+   time.sleep(.25);pointer('mouseup',1);pointer('mousemove',30,30)
   wait(lambda:js("return window.__plays.some(v=>v.phase==='chasing')"));check(f'throw {turn}: real button or drag starts glide')
   def returned():
    current=phase();seen.add(current);seen.update(js('return window.__plays.map(v=>v.phase)'))

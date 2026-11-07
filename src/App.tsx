@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { replyMotion } from "./reply-motion";
 import ToyDisc from "./ToyDisc";
+import PetFrame from "./PetFrame";
 import SpeechBubble from "./SpeechBubble";
 import PettingFeedback, { type TouchFeedback } from "./PettingFeedback";
 import DizzyStars, { type DizzyFeedback } from "./DizzyStars";
@@ -9,18 +10,6 @@ import { listen } from "@tauri-apps/api/event";
 import { Butterfly, type EncounterView } from "./EncountersPanel";
 import { decodePetImage, BUILTIN_SRC, DEFAULT_ROWS, type PetSwitch } from "./pet-image";
 import { DEFAULT_SPEECH, DAXIONG_SPEECH, mergeSpeech, pickSpeech, type SpeechTable, type SpeechHistory } from "./speech";
-
-// 精灵图契约：固定 8 列，单元格 192x208
-const SHEET_W = 1536;
-const CELL_W = 192;
-const CELL_H = 208;
-
-// 行数由后端下发（11 = 完整含注视；9 = 无注视的降级图集）。
-// 不能写死高度：8x9 的图集只有 1872 高，按 2288 渲染会把图片纵向拉伸导致切帧错位。
-
-
-// 192*0.75=144、208*0.75=156，与 engine.rs 的 PET_W / PET_H 对应
-const SCALE = 0.75;
 
 /** 气泡停留时长（毫秒） */
 const BUBBLE_MS = 2600;
@@ -41,9 +30,6 @@ export default function App() {
   const [encounter,setEncounter]=useState<EncounterView>({kind:null,phase:"quiet",right:true});
   const [treating,setTreating] = useState(false);
   const [sleeping, setSleeping] = useState(false);
-
-  // 图集的实际显示高度，随宠物切换
-  const sheetH = rows * CELL_H;
 
   const speech = useRef<SpeechTable>(DEFAULT_SPEECH);
   const bubbleId = useRef(0);
@@ -228,7 +214,7 @@ export default function App() {
         style={{left:frame.released_toy.x,top:frame.released_toy.y}} aria-hidden="true">
         {frame.released_toy.toy==="frisbee" ? <ToyDisc/> : <div className="toy-ball"/>}
       </div> : null}
-      {/* 用一个裁剪窗口套住整张图集，靠 transform 平移来切帧 */}
+      {/* Each visible texture contains exactly one decoded atlas cell. */}
       <div className={`pet-clip${sleeping ? " sleeping" : ""}`} data-testid="pet" data-clickable={clickable} data-sleeping={sleeping} data-row={frame.row} data-col={frame.col} data-pose-scale={src===BUILTIN_SRC ? (frame.pose_scale ?? 1) : 1}
         style={{transform:`scale(${src===BUILTIN_SRC ? (frame.pose_scale ?? 1) : 1})`,transformOrigin:"72px 152.25px"}}
         onPointerDown={e=>{if(e.button===0) press.current={x:e.screenX,y:e.screenY,at:Date.now(),moved:false};}}
@@ -236,22 +222,7 @@ export default function App() {
         onPointerCancel={()=>{press.current=null;}}
         onPointerUp={e=>{const p=press.current;press.current=null;if(e.button===0&&p&&!p.moved&&Math.hypot(e.screenX-p.x,e.screenY-p.y)<=6&&Date.now()-p.at<250) void invoke("open_quick_chat").catch(error=>setBubble({id:++bubbleId.current,text:String(error),duration:5000,protect:true}));}}>
 
-        <img
-          className="pet-sheet"
-          alt=""
-          draggable={false}
-          src={src}
-          style={{
-            // Clip the atlas layer itself as well as its viewport: accelerated
-            // compositors must never sample a neighbouring frame while moving.
-            clipPath: `inset(${frame.row * CELL_H * SCALE}px ${(SHEET_W - (frame.col + 1) * CELL_W) * SCALE}px ${(sheetH - (frame.row + 1) * CELL_H) * SCALE}px ${frame.col * CELL_W * SCALE}px)`,
-            width: SHEET_W * SCALE,
-            height: sheetH * SCALE,
-            transform: `translate(${-frame.col * CELL_W * SCALE}px, ${
-              -frame.row * CELL_H * SCALE
-            }px)`,
-          }}
-        />
+        <PetFrame src={src} row={frame.row} col={frame.col} />
       </div>
     </div>
   );

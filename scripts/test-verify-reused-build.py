@@ -39,4 +39,25 @@ class ReuseGate(unittest.TestCase):
         run=copy.deepcopy(self.run);run['head_repository']['full_name']='other/repo'
         with self.assertRaises(AssertionError): self.check(run=run)
 
+    def test_reuse_condition_does_not_change_compiled_inputs(self):
+        old="jobs:\n  build:\n    if: old_condition\n    runs-on: ubuntu-22.04\n    steps:\n      - run: cargo build --locked\n  prerelease:\n    runs-on: ubuntu-latest\n"
+        current=old.replace('if: old_condition','if: >-\n      new_condition')
+        reuse.validate_build_inputs(old,current)
+
+    def test_changed_build_flags_targets_or_staging_require_rebuild(self):
+        old="jobs:\n  build:\n    if: old_condition\n    runs-on: ubuntu-22.04\n    steps:\n      - run: python scripts/prepare-bundled-ai.py\n      - run: cargo build --locked\n  prerelease:\n    runs-on: ubuntu-latest\n"
+        for current in [old.replace('--locked','--locked --features changed'),
+                        old.replace('ubuntu-22.04','windows-latest'),
+                        old.replace('prepare-bundled-ai.py','different-resources.py')]:
+            with self.assertRaises(AssertionError): reuse.validate_build_inputs(old,current)
+
+    def test_missing_build_job_cannot_reuse(self):
+        with self.assertRaises(AssertionError): reuse.validate_build_inputs('jobs:\n','jobs:\n')
+
+    def test_global_environment_or_defaults_require_rebuild(self):
+        old='jobs:\n  build:\n    runs-on: ubuntu-22.04\n    steps:\n      - run: cargo build --locked\n'
+        for header in ['env:\n  RUSTFLAGS: changed\n',
+                       'defaults:\n  run:\n    working-directory: another-project\n']:
+            with self.assertRaises(AssertionError): reuse.validate_build_inputs(old,header+old)
+
 if __name__ == '__main__': unittest.main()

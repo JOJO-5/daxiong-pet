@@ -9,10 +9,24 @@ import subprocess
 PLATFORMS = {'Windows x64', 'macOS Apple Silicon', 'macOS Intel', 'Linux x64 (X11)'}
 ARTIFACTS = {prefix + platform for prefix in ['', 'light-'] for platform in
              ['daxiong-windows-x64', 'daxiong-macos-arm64', 'daxiong-macos-x64', 'daxiong-linux-x64']}
-# These files do not enter the application or its AI/resource build. Keep narrow.
+# Keep the path allowlist narrow; build-desktop's actual build job is also
+# compared separately so edits to flags, targets or resource staging cannot pass.
 INFRA_FILES = {'.github/workflows/build-desktop.yml', '.github/workflows/e2e-desktop.yml',
                'scripts/e2e-chat-motion.py',
                'scripts/verify-reused-build.py', 'scripts/test-verify-reused-build.py'}
+
+def build_inputs(workflow):
+    job = re.search(r'^  build:\n(.*?)(?=^  [^ \n][^\n]*:\s*$|\Z)', workflow, re.M | re.S)
+    assert job, 'build job missing'
+    # Dispatch/reuse conditions change whether a build runs, not its inputs.
+    # Preserve every other build-job line, including nested step conditions.
+    # Global env/defaults can affect compilation too. Conservatively preserve
+    # the entire workflow header rather than guessing which values are safe.
+    header = workflow.split('jobs:\n', 1)[0]
+    return header + re.sub(r'^    if:[^\n]*(?:\n {6}[^\n]*)*\n?', '', job[1], count=1, flags=re.M).strip()
+
+def validate_build_inputs(previous, current):
+    assert build_inputs(previous) == build_inputs(current), 'compiled build job changed; rebuild required'
 
 def validate(run, jobs, artifacts, changed, repository):
     assert run['name'] == 'Build desktop packages'
@@ -38,6 +52,7 @@ def main():
     def api(path):
         return json.loads(subprocess.check_output(['gh', 'api', f'repos/{repository}/{path}'], text=True))
     run = api(f'actions/runs/{run_id}')
+    assert run['path'] == '.github/workflows/build-desktop.yml', 'unexpected build workflow'
     jobs = api(f'actions/runs/{run_id}/jobs?filter=latest&per_page=100')['jobs']
     artifacts = api(f'actions/runs/{run_id}/artifacts?per_page=100')['artifacts']
     current = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
@@ -47,6 +62,10 @@ def main():
     changed = subprocess.check_output(['git', 'diff', '--no-renames', '--name-only',
                                        run['head_sha'], current], text=True).splitlines()
     validate(run, jobs, artifacts, changed, repository)
+    workflow_path = '.github/workflows/build-desktop.yml'
+    previous = subprocess.check_output(['git', 'show', f"{run['head_sha']}:{workflow_path}"], text=True)
+    current_workflow = subprocess.check_output(['git', 'show', f'{current}:{workflow_path}'], text=True)
+    validate_build_inputs(previous, current_workflow)
     with Path(os.environ['GITHUB_OUTPUT']).open('a') as target:
         target.write(f"run_id={run_id}\nsource_sha={run['head_sha']}\n")
     print(f"Verified four full/light platform artifacts from {run_id}; application inputs unchanged.")
